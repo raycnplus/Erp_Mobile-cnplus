@@ -1,0 +1,93 @@
+import 'package:flutter/material.dart';
+
+class DashboardScreen extends StatelessWidget {
+  const DashboardScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final List<_DashboardItem> items = [
+      _DashboardItem(title: 'Sales', icon: Icons.show_chart),
+      _DashboardItem(title: 'Purchase', icon: Icons.attach_money),
+      _DashboardItem(title: 'Inventory', icon: Icons.inventory),
+    ];
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
+      drawer: Drawer(
+        child: ListView(
+          children: const [DrawerHeader(child: Text('Menu'))],
+        ),
+      ),
+      appBar: AppBar(
+        title: const Text('ERP SORLEM', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        foregroundColor: Colors.black,
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFE7F8F2), Color(0xFFE0F8E8)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            final item = items[index];
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: GestureDetector(
+                onTap: () {
+                  // TODO: Navigasi ke screen masing-masing
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 50, 125, 99),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      )
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        item.title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Icon(
+                        item.icon,
+                        color: Colors.white,
+                        size: 40,
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _DashboardItem {
+  final String title;
+  final IconData icon;
+
+  _DashboardItem({required this.title, required this.icon});
+}
