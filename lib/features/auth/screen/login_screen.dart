@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import '../widgets/login_form.dart';
 import '../models/login_request.dart';
+import '../../services/api_base.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,24 +14,26 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final emailController = TextEditingController();
+  final usernameController = TextEditingController();
   final passwordController = TextEditingController();
+  final databaseController = TextEditingController(text: 'mysql'); // default value
   bool isLoading = false;
 
   Future<void> handleLogin() async {
     setState(() => isLoading = true);
 
     final loginReq = LoginRequest(
-      email: emailController.text.trim(),
+      username: usernameController.text.trim(),
       password: passwordController.text.trim(),
+      database: databaseController.text.trim(),
     );
 
-    final url = Uri.parse('https://your-api-link.com/login');
+    final url = Uri.parse('${ApiBase.baseUrl}/auth/login');
 
     try {
       final response = await http.post(
         url,
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
         body: jsonEncode(loginReq.toJson()),
       );
 
@@ -38,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200) {
         final token = data['token'];
         print('Login berhasil! Token: $token');
-        
+        // TODO: Simpan token dan navigasi ke halaman berikutnya
       } else {
         print('Login gagal: ${data['message']}');
       }
@@ -56,10 +59,11 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: LoginForm(
-          emailController: emailController,
+          emailController: usernameController, // ganti jadi username
           passwordController: passwordController,
           onLogin: handleLogin,
           isLoading: isLoading,
+          // Jika ingin input database, tambahkan controller di LoginForm
         ),
       ),
     );
