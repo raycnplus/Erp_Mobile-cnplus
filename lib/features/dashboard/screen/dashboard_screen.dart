@@ -12,12 +12,6 @@ class DashboardScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      drawer: Drawer(
-        child: ListView(
-          children: const [DrawerHeader(child: Text('Menu'))],
-        ),
-      ),
       appBar: AppBar(
         title: const Text('ERP SORLEM', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.transparent,
@@ -28,7 +22,7 @@ class DashboardScreen extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFE7F8F2), Color(0xFFE0F8E8)],
+            colors: [Color(0xFFE7F8F2), Color.fromARGB(255, 27, 99, 51)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
