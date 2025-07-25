@@ -37,9 +37,10 @@ class DashboardScreen extends StatelessWidget {
               title: item.title,
               icon: item.icon,
               onTap: () {
-                // TODO: Navigasi ke screen masing-masing
-                
-                
+                if (item.title == 'Inventory') {
+                  Navigator.pushNamed(context, '/dashboard_inventory');
+                  
+                }
               },
             );
           },

@@ -30,7 +30,7 @@ class DashboardScreen extends StatelessWidget {
           ],
         ),
       ),
-      backgroundColor: const Color(0xFFE8F7F7), // background pastel
+      backgroundColor: const Color(0xFFE8F7F7), 
     );
   }
 }
