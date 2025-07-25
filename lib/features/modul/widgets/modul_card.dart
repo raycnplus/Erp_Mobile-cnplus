@@ -1,54 +1,62 @@
 import 'package:flutter/material.dart';
 
 class ModulCard extends StatelessWidget {
-  final String title;
-  final IconData icon;
+  final String label;
+  final String imagePath;
   final VoidCallback? onTap;
 
   const ModulCard({
     super.key,
-    required this.title,
-    required this.icon,
+    required this.label,
+    required this.imagePath,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 65, 156, 156),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              )
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 32),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: double.infinity,
+              height: 100,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: const Color(0xff409c9c),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.12),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              left: 24,
+              child: Text(
+                label,
                 style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
                   color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
-              Icon(
-                icon,
-                color: Colors.white,
-                size: 40,
-              )
-            ],
-          ),
+            ),
+            Positioned(
+              right: 24,
+              child: Image.asset(
+                imagePath,
+                width: 60,
+                height: 60,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ],
         ),
       ),
     );
