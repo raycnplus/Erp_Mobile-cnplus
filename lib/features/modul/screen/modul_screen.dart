@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/modul_card.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -38,45 +39,12 @@ class DashboardScreen extends StatelessWidget {
           itemCount: items.length,
           itemBuilder: (context, index) {
             final item = items[index];
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: GestureDetector(
-                onTap: () {
-                  // TODO: Navigasi ke screen masing-masing
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 50, 125, 99),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      )
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        item.title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Icon(
-                        item.icon,
-                        color: Colors.white,
-                        size: 40,
-                      )
-                    ],
-                  ),
-                ),
-              ),
+            return ModulCard(
+              title: item.title,
+              icon: item.icon,
+              onTap: () {
+                // TODO: Navigasi ke screen masing-masing
+              },
             );
           },
         ),
