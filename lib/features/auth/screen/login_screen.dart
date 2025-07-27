@@ -2,7 +2,7 @@ import 'package:erp_mobile_cnplus/features/modul/screen/modul_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart'; // Impor shared_preferences
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/login_form.dart';
 import '../models/login_request.dart';
@@ -19,7 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final databaseController = TextEditingController();
-  final List<String> databaseOptions = ['mysql', 'postgresql', 'oracle'];
+  final List<String> databaseOptions = ['mysql', 'testing'];
   bool isLoading = false;
 
   Future<void> handleLogin() async {
