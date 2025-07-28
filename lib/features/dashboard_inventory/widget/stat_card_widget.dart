@@ -1,45 +1,65 @@
+// file: lib/widget/stat_card_widget.dart
+
 import 'package:flutter/material.dart';
 
 class StatCard extends StatelessWidget {
   final String title;
   final String value;
   final Color valueColor;
+  final TextStyle? valueStyle;
+  final TextStyle? titleStyle;
+  final double? width; // Tambahan untuk kartu yang bisa digeser
 
   const StatCard({
     super.key,
     required this.title,
     required this.value,
     this.valueColor = Colors.black,
+    this.valueStyle,
+    this.titleStyle,
+    this.width,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
+    // Style default jika tidak ada style custom yang diberikan
+    final finalValueStyle = valueStyle ??
+        TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: valueColor,
+        );
+    final finalTitleStyle = titleStyle ??
+        const TextStyle(
+          fontSize: 12,
+          color: Colors.grey,
+        );
+
+    return Container(
+      width: width, // Atur lebar jika ada
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // --- POSISI DITUKAR ---
+              Text(
+                value,
+                style: finalValueStyle,
+                textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: valueColor,
+              const SizedBox(height: 4),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: finalTitleStyle,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
