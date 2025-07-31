@@ -24,32 +24,44 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> handleLogin() async {
     setState(() => isLoading = true);
-    final loginReq = LoginRequest(
-      username: usernameController.text.trim(),
-      password: passwordController.text.trim(),
-      database: databaseController.text.trim(),
-    );
-
-    final url = Uri.parse('${ApiBase.baseUrl}/auth/login');
 
     try {
+      final loginReq = LoginRequest(
+        username: usernameController.text.trim(),
+        password: passwordController.text.trim(),
+        database: databaseController.text.trim(),
+      );
+
+      final url = Uri.parse('${ApiBase.baseUrl}/auth/login');
       final response = await http.post(
         url,
-        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
         body: jsonEncode(loginReq.toJson()),
       );
 
       final data = jsonDecode(response.body);
+
       if (response.statusCode == 200) {
         final token = data['token'];
-        print('Login berhasil! Token: $token');
+        final user = data['user'];
 
-        // save token di shrpreferences
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('user_token', token);
-        print('Token berhasil disimpan di SharedPreferences.');
 
-        // Navigasi abis token di save
+        if (user != null) {
+          if (user['username'] != null)
+            await prefs.setString('username', user['username']);
+          if (user['email'] != null)
+            await prefs.setString('email', user['email']);
+          if (user['nama_lengkap'] != null)
+            await prefs.setString('nama_lengkap', user['nama_lengkap']);
+        }
+
+        print('Token dan detail pengguna berhasil disimpan.');
+
         if (mounted) {
           Navigator.pushReplacement(
             context,
@@ -57,34 +69,39 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }
       } else {
+        // Log kegagalan dan tampilkan pesan dari server
         print('Login gagal: ${data['message']}');
-        // error log
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Login gagal: ${data['message'] ?? 'Terjadi kesalahan'}')),
+            SnackBar(
+              content: Text(
+                'Login gagal: ${data['message'] ?? 'Terjadi kesalahan'}',
+              ),
+            ),
           );
         }
       }
     } catch (e) {
-      print('Error: $e');
-      // error log
+      // Menangani error jaringan atau parsing
+      print('Error saat login: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: Terjadi kesalahan jaringan atau server.')),
+          const SnackBar(
+            content: Text('Error: Tidak bisa terhubung ke server.'),
+          ),
         );
       }
-    }
-
-    // set loading state to false after login attempt
-    if (mounted) {
-      setState(() => isLoading = false);
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE0F8E8), // warna gradasi hijau muda
+      backgroundColor: const Color(0xFFE0F8E8),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),

@@ -1,13 +1,18 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import '../models/chart_data_model.dart'; 
+import '../models/chart_data_model.dart';
 
-
-const Color kPrimaryChartColor = Color(0xFF029379);
+const Color kDefaultBarColor = Color(0xFF029379);
 
 class ProductBarChart extends StatelessWidget {
   final List<ChartData> data;
-  const ProductBarChart({super.key, required this.data});
+  final Color barColor;
+
+  const ProductBarChart({
+    super.key,
+    required this.data,
+    this.barColor = kDefaultBarColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +25,6 @@ class ProductBarChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            
             const Text(
               'Product Category',
               style: TextStyle(
@@ -32,7 +36,7 @@ class ProductBarChart extends StatelessWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                Container(width: 12, height: 12, color: kPrimaryChartColor),
+                Container(width: 12, height: 12, color: barColor),
                 const SizedBox(width: 8),
                 const Text(
                   'Total Product',
@@ -41,16 +45,14 @@ class ProductBarChart extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 24),
-            // --- Akhir Perubahan Header ---
             SizedBox(
-              height: 200, 
+              height: 200,
               child: BarChart(
                 BarChartData(
                   alignment: BarChartAlignment.spaceAround,
                   maxY: _calculateMaxY(),
                   barTouchData: BarTouchData(
                     touchTooltipData: BarTouchTooltipData(
-                      // PERBAIKAN: Gunakan hanya parameter yang pasti ada di fl_chart 1.0.0
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         return BarTooltipItem(
                           '${data[groupIndex].label}\n',
@@ -84,7 +86,6 @@ class ProductBarChart extends StatelessWidget {
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        
                         getTitlesWidget: _getBottomTitles,
                         reservedSize: 38,
                       ),
@@ -92,14 +93,12 @@ class ProductBarChart extends StatelessWidget {
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        
                         getTitlesWidget: _getLeftTitles,
                         reservedSize: 30,
                         interval: _calculateInterval(),
                       ),
                     ),
                   ),
-                  
                   borderData: FlBorderData(
                     show: true,
                     border: Border(
@@ -109,7 +108,7 @@ class ProductBarChart extends StatelessWidget {
                   ),
                   gridData: FlGridData(
                     show: true,
-                    drawVerticalLine: true, // Menampilkan garis vertikal
+                    drawVerticalLine: true,
                     verticalInterval: 1,
                     horizontalInterval: _calculateInterval(),
                     getDrawingHorizontalLine: (value) {
@@ -125,22 +124,18 @@ class ProductBarChart extends StatelessWidget {
                       );
                     },
                   ),
-                  
                   barGroups: data.asMap().entries.map((entry) {
                     final index = entry.key;
                     final d = entry.value;
                     return BarChartGroupData(
                       x: index,
                       barRods: [
-                        
                         BarChartRodData(
                           toY: d.value,
-                          color: kPrimaryChartColor, // Menggunakan warna utama
+                          color: barColor,
                           width: 22,
-                          borderRadius: BorderRadius
-                              .zero, // Menghilangkan sudut melengkung
+                          borderRadius: BorderRadius.zero,
                         ),
-                        // --- Akhir Perubahan Style Bar ---
                       ],
                     );
                   }).toList(),
@@ -154,26 +149,37 @@ class ProductBarChart extends StatelessWidget {
   }
 
   Widget _getBottomTitles(double value, TitleMeta meta) {
-    
-    final style = TextStyle(color: Colors.grey.shade600, fontSize: 14);
+    final style = TextStyle(
+      color: Colors.grey.shade600,
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+    );
+
     String text = data.length > value.toInt() ? data[value.toInt()].label : '';
 
-    
-    return Text(text, style: style);
+    return SideTitleWidget(
+      meta: meta,
+      space: 8.0,
+      child: Text(
+        text,
+        style: style,
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+      ),
+    );
   }
 
   Widget _getLeftTitles(double value, TitleMeta meta) {
-    
     final style = TextStyle(color: Colors.grey.shade600, fontSize: 12);
+
     if (value % _calculateInterval() != 0 && value != _calculateMaxY()) {
-      return Container();
+      return const SizedBox();
     }
 
-    
-    return Text(
-      value.toInt().toString(),
-      style: style,
-      textAlign: TextAlign.center,
+    return SideTitleWidget(
+      meta: meta,
+      space: 4,
+      child: Text(value.toInt().toString(), style: style),
     );
   }
 
@@ -184,12 +190,10 @@ class ProductBarChart extends StatelessWidget {
         maxVal = d.value;
       }
     }
-    
     return (maxVal / 5).ceil() * 5.0 + 5;
   }
 
   double _calculateInterval() {
-    
     return 5;
   }
 }
