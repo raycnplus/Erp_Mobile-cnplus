@@ -1,14 +1,15 @@
 // lokasi nya file: lib/screens/dashboard_inventory_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
-// CEK IMPORT NYA WOI
+// CEK IMPORT NYA WOI !!
 import '../models/chart_data_model.dart';
 import '../models/product_stock_model.dart';
+// pemissah model dan widget
 import '../widget/bar_chart_widget.dart';
 import '../widget/pie_chart_widget.dart';
 import '../widget/stat_card_widget.dart';
+import '../widget/dashboard_drawer_widget.dart';
 
 class DashboardInventoryScreen extends StatefulWidget {
   const DashboardInventoryScreen({super.key});
@@ -66,6 +67,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
     ChartData(label: "Malang", value: 30, color: Colors.amber),
   ];
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,13 +75,17 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 1,
-        leading: IconButton(
-          icon: SvgPicture.asset('assets/icons/hamburger_menu.svg', height: 24),
-          onPressed: () {},
-        ),
+        // --- ini ga di pake biarin aja anggep aja gada ---
+        // leading: IconButton(
+        //   icon: SvgPicture.asset('assets/icons/hamburger_menu.svg', height: 24),
+        //   onPressed: () {},
+        // ),
         title: const Text('Dashboard Inventory',
             style: TextStyle(color: Colors.black, fontSize: 18)),
       ),
+      // 'drawer' ini tuh buat kek sidebar gtu kek di figma
+      drawer: const DashboardDrawer()  ,
+      // --- Akhir dari penambahan Drawer ---
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -183,7 +189,6 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
               const SizedBox(height: 16),
               ProductBarChart(data: productCategoryData),
               const SizedBox(height: 24),
-
               _buildSectionTitle("Stock Moves"),
               const SizedBox(height: 16),
               _buildStockMovesToggleButtons(),
@@ -202,7 +207,6 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                   barColor: Colors.orange.shade700,
                 ),
               ),
-              // --- Akhir Section Baru ---
             ],
           ),
         ),
