@@ -39,6 +39,9 @@ class ModulScreen extends StatelessWidget {
                 ModulCard(
                   label: "Purchase",
                   imagePath: "assets/purchase.png",
+                  onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.dashboardPurchase);
+                  },
                 ),
               ],
             ),
