@@ -204,7 +204,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                     : ProductBarChart(
                   key: const ValueKey('moves_location'),
                   data: stockMovesByLocationData,
-                  barColor: Colors.orange.shade700,
+                  barColor: const Color.fromARGB(255, 74, 227, 214),
                 ),
               ),
             ],
@@ -256,8 +256,8 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
           },
           borderRadius: BorderRadius.circular(8),
           selectedColor: Colors.white,
-          fillColor: Colors.deepPurple,
-          color: Colors.deepPurple,
+          fillColor: const Color.fromARGB(255, 101, 196, 126),
+          color: const Color.fromARGB(255, 32, 157, 49),
           constraints: BoxConstraints.expand(
               width: constraints.maxWidth / 2 - 2, height: 40),
           children: const [Text("By Product"), Text("By Location")],
