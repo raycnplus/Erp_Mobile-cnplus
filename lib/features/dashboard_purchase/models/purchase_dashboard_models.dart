@@ -18,21 +18,30 @@ class PurchaseSummary {
 
 // Monthly Invoice
 class MonthlyInvoice {
-  final String month;
+  final int month;
+  final int year;
   final double amount;
 
-  MonthlyInvoice({
-    required this.month,
-    required this.amount,
-  });
-
-  factory MonthlyInvoice.fromJson(Map<String, dynamic> json) {
-    return MonthlyInvoice(
-      month: json['month'] ?? '',
-      amount: (json['amount'] ?? 0).toDouble(),
-    );
-  }
+  MonthlyInvoice({required this.month, required this.year, required this.amount});
 }
+
+
+// class MonthlyInvoice {
+//   final String month;
+//   final double amount;
+//
+//   MonthlyInvoice({
+//     required this.month,
+//     required this.amount,
+//   });
+//
+//   factory MonthlyInvoice.fromJson(Map<String, dynamic> json) {
+//     return MonthlyInvoice(
+//       month: json['month'] ?? '',
+//       amount: (json['amount'] ?? 0).toDouble(),
+//     );
+//   }
+// }
 
 // Top Product
 class TopProduct {
