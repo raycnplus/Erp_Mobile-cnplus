@@ -13,15 +13,35 @@ class TopProductBarChart extends StatelessWidget {
       height: 200,
       child: BarChart(
         BarChartData(
-          titlesData: FlTitlesData(show: true),
+          alignment: BarChartAlignment.spaceAround,
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: true),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, meta) {
+                  final index = value.toInt();
+                  if (index < products.length) {
+                    return Text(products[index].name, style: const TextStyle(fontSize: 10));
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ),
+          ),
           barGroups: products.asMap().entries.map((entry) {
+            final index = entry.key;
+            final product = entry.value;
             return BarChartGroupData(
-              x: entry.key,
+              x: index,
               barRods: [
                 BarChartRodData(
-                  toY: entry.value.quantity.toDouble(),
-                  color: const Color.fromARGB(255, 33, 132, 5),
+                  toY: product.quantity.toDouble(),
+                  color: const Color.fromARGB(255, 11, 83, 2),
                   width: 16,
+                  borderRadius: BorderRadius.circular(4),
                 ),
               ],
             );
