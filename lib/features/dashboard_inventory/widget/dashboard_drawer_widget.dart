@@ -76,7 +76,7 @@ class DashboardDrawer extends StatelessWidget {
             title: const Text('Product'),
             trailing: const Icon(Icons.keyboard_arrow_down),
             children: <Widget>[
-              // Sub-menu 
+              // Sub-menu x
               Padding(
                 padding: const EdgeInsets.only(left: 40.0),
                 child: ListTile(
