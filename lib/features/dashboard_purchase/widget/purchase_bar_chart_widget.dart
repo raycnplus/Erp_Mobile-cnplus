@@ -1,17 +1,17 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import '../models/chart_data_model.dart';
+import '../models/purchase_chart_data_model.dart';
 
 const Color kDefaultBarColor = Color(0xFF029379);
 
-class ProductBarChart extends StatelessWidget {
-  final List<ChartData> data;
-  final Color barColor;
+class PurchaseBarChart extends StatelessWidget {
+  final List<PurchaseChartData> data;
+  final String title;
 
-  const ProductBarChart({
+  const PurchaseBarChart({
     super.key,
     required this.data,
-    this.barColor = kDefaultBarColor,
+    required this.title,
   });
 
   @override
@@ -25,9 +25,9 @@ class ProductBarChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Product Category',
-              style: TextStyle(
+            Text(
+              title,
+              style: const TextStyle(
                 color: Colors.black87,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -36,10 +36,10 @@ class ProductBarChart extends StatelessWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                Container(width: 12, height: 12, color: barColor),
+                Container(width: 12, height: 12, color: kDefaultBarColor),
                 const SizedBox(width: 8),
                 const Text(
-                  'Total Product',
+                  'Total Purchase',
                   style: TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
@@ -63,7 +63,7 @@ class ProductBarChart extends StatelessWidget {
                           ),
                           children: <TextSpan>[
                             TextSpan(
-                              text: rod.toY.round().toString(),
+                              text: 'Rp${rod.toY.round().toString()}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -94,7 +94,7 @@ class ProductBarChart extends StatelessWidget {
                       sideTitles: SideTitles(
                         showTitles: true,
                         getTitlesWidget: _getLeftTitles,
-                        reservedSize: 30,
+                        reservedSize: 50,
                         interval: _calculateInterval(),
                       ),
                     ),
@@ -132,7 +132,7 @@ class ProductBarChart extends StatelessWidget {
                       barRods: [
                         BarChartRodData(
                           toY: d.value,
-                          color: barColor,
+                          color: kDefaultBarColor,
                           width: 22,
                           borderRadius: BorderRadius.zero,
                         ),
@@ -179,21 +179,26 @@ class ProductBarChart extends StatelessWidget {
     return SideTitleWidget(
       meta: meta,
       space: 4,
-      child: Text(value.toInt().toString(), style: style),
+      child: Text(
+        value == 0 ? '' : 'Rp${value.toInt().toString()}',
+        style: style,
+      ),
     );
   }
 
   double _calculateMaxY() {
     double maxVal = 0;
     for (var d in data) {
-      if (d.value > maxVal) {
-        maxVal = d.value;
-      }
+      if (d.value > maxVal) maxVal = d.value;
     }
     return (maxVal / 5).ceil() * 5.0 + 5;
   }
 
   double _calculateInterval() {
-    return 5;
+    double maxVal = 0;
+    for (var d in data) {
+      if (d.value > maxVal) maxVal = d.value;
+    }
+    return (maxVal / 5).ceilToDouble();
   }
 }
