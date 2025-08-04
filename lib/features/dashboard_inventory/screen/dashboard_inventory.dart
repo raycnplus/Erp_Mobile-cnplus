@@ -1,5 +1,6 @@
 // lokasi nya file: lib/screens/dashboard_inventory_screen.dart
 
+// import 'package:erp_mobile_cnplus/features/dashboard_purchase/widget/stat_card.dart';
 import 'package:flutter/material.dart';
 
 // CEK IMPORT NYA WOI !!
@@ -22,6 +23,23 @@ class DashboardInventoryScreen extends StatefulWidget {
 class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
   int _selectedStockView = 0;
   int _selectedStockMovesView = 0;
+
+  // Method dipindahkan ke dalam State class
+  void _showDetailDialog(BuildContext context, String title) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text('Detail information for $title.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
 
   final List<ProductStock> top5Products = [
     ProductStock(name: "Product A", quantity: "1.6 Juta"),
@@ -67,25 +85,16 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
     ChartData(label: "Malang", value: 30, color: Colors.amber),
   ];
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
+        title: const Text('Inventory Dashboard'), // Ditambahkan title
         backgroundColor: Colors.white,
         elevation: 1,
-        // --- ini ga di pake biarin aja anggep aja gada ---
-        // leading: IconButton(
-        //   icon: SvgPicture.asset('assets/icons/hamburger_menu.svg', height: 24),
-        //   onPressed: () {},
-        // ),
-        title: const Text('Dashboard Inventory',
-            style: TextStyle(color: Colors.black, fontSize: 18)),
       ),
-      // 'drawer' ini tuh buat kek sidebar gtu kek di figma
-      drawer: const DashboardDrawer()  ,
-      // --- Akhir dari penambahan Drawer ---
+      drawer: const DashboardDrawer(), // Menggunakan drawer yang diimpor
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -99,11 +108,70 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
                 childAspectRatio: 0.8,
-                children: const [
-                  StatCard(title: "Receipt Note", value: "10K"),
-                  StatCard(title: "Delivery Note", value: "0"),
-                  StatCard(title: "Internal Transfer", value: "0"),
-                  StatCard(title: "Stock count", value: "0"),
+                children: [
+                  StatCardLoader(
+                    title: "Receipt Note",
+                    endpoint: "stats/receipt-notes",
+                    enableAutoRefresh: true,
+                    refreshInterval: const Duration(seconds: 30),
+                    valueColor: Colors.blue,
+                    valueStyle: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    titleStyle: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                    onTap: () => _showDetailDialog(context, 'Receipt Note'),
+                  ),
+
+                  StatCard(
+                    title: "Delivery Note",
+                    endpoint: "stats/delivery-notes",
+                    enableAutoRefresh: "false",
+                    value: "0",
+                    valueStyle: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                    titleStyle: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  StatCard(
+                    title: "Internal Transfer",
+                    endpoint: "stats/internal-transfer",
+                    enableAutoRefresh: "false",
+                    value: "0",
+                    valueStyle: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                    titleStyle: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                  ),
+
+                  StatCard(
+                    title: "Stock count",
+                    endpoint: "stats/stock-count",
+                    enableAutoRefresh: "false",
+                    value: "0",
+                    valueStyle: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                    titleStyle: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -111,53 +179,77 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                 height: 120,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  children: const [
+                  children: [
                     StatCard(
-                        title: "Product",
-                        value: "145",
-                        width: 150,
-                        valueStyle: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black),
-                        titleStyle:
-                        TextStyle(fontSize: 14, color: Colors.black54)),
-                    SizedBox(width: 10),
+                      title: "Product",
+                      value: "145",
+                      width: 150,
+                      endpoint: "", // Ditambahkan
+                      enableAutoRefresh: "false", // Ditambahkan
+                      valueStyle: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      titleStyle: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
                     StatCard(
-                        title: "On Hand Stock",
-                        value: "2.3M",
-                        valueColor: Colors.teal,
-                        width: 150,
-                        valueStyle: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.teal),
-                        titleStyle:
-                        TextStyle(fontSize: 14, color: Colors.black54)),
-                    SizedBox(width: 10),
+                      title: "On Hand Stock",
+                      value: "2.3M",
+                      valueColor: Colors.teal,
+                      width: 150,
+                      endpoint: "", // Ditambahkan
+                      enableAutoRefresh: "false", // Ditambahkan
+                      valueStyle: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.teal,
+                      ),
+                      titleStyle: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
                     StatCard(
-                        title: "Low Stock Alert",
-                        value: "144",
-                        valueColor: Colors.orange,
-                        width: 150,
-                        valueStyle: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange),
-                        titleStyle:
-                        TextStyle(fontSize: 14, color: Colors.black54)),
-                    SizedBox(width: 10),
+                      title: "Low Stock Alert",
+                      value: "144",
+                      valueColor: Colors.orange,
+                      width: 150,
+                      endpoint: "", // Ditambahkan
+                      enableAutoRefresh: "false", // Ditambahkan
+                      valueStyle: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                      ),
+                      titleStyle: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
                     StatCard(
-                        title: "Expiring Soon",
-                        value: "0",
-                        valueColor: Colors.red,
-                        width: 150,
-                        valueStyle: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red),
-                        titleStyle:
-                        TextStyle(fontSize: 14, color: Colors.black54)),
+                      title: "Expiring Soon",
+                      value: "0",
+                      valueColor: Colors.red,
+                      width: 150,
+                      endpoint: "", // Ditambahkan
+                      enableAutoRefresh: "false", // Ditambahkan
+                      valueStyle: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                      titleStyle: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -170,16 +262,20 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                 duration: const Duration(milliseconds: 300),
                 child: _selectedStockView == 0
                     ? StockPieChart(
-                    key: const ValueKey('warehouse'),
-                    data: stockByWarehouseData)
+                        key: const ValueKey('warehouse'),
+                        data: stockByWarehouseData,
+                      )
                     : StockPieChart(
-                    key: const ValueKey('location'),
-                    data: stockByLocationData),
+                        key: const ValueKey('location'),
+                        data: stockByLocationData,
+                      ),
               ),
               const SizedBox(height: 8),
-              _buildLegend(_selectedStockView == 0
-                  ? stockByWarehouseData
-                  : stockByLocationData),
+              _buildLegend(
+                _selectedStockView == 0
+                    ? stockByWarehouseData
+                    : stockByLocationData,
+              ),
               const SizedBox(height: 24),
               _buildSectionTitle("Top 5 Hand Stock"),
               const SizedBox(height: 8),
@@ -197,15 +293,15 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                 duration: const Duration(milliseconds: 300),
                 child: _selectedStockMovesView == 0
                     ? ProductBarChart(
-                  key: const ValueKey('moves_product'),
-                  data: stockMovesByProductData,
-                  barColor: Colors.green,
-                )
+                        key: const ValueKey('moves_product'),
+                        data: stockMovesByProductData,
+                        barColor: Colors.green,
+                      )
                     : ProductBarChart(
-                  key: const ValueKey('moves_location'),
-                  data: stockMovesByLocationData,
-                  barColor: const Color.fromARGB(255, 74, 227, 214),
-                ),
+                        key: const ValueKey('moves_location'),
+                        data: stockMovesByLocationData,
+                        barColor: const Color.fromARGB(255, 74, 227, 214),
+                      ),
               ),
             ],
           ),
@@ -215,8 +311,10 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(title,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold));
+    return Text(
+      title,
+      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    );
   }
 
   Widget _buildStockToggleButtons() {
@@ -234,7 +332,9 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
           fillColor: Colors.teal,
           color: Colors.teal,
           constraints: BoxConstraints.expand(
-              width: constraints.maxWidth / 2 - 2, height: 40),
+            width: constraints.maxWidth / 2 - 2,
+            height: 40,
+          ),
           children: const [Text("By Warehouse"), Text("Per Location")],
         );
       },
@@ -247,7 +347,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
         return ToggleButtons(
           isSelected: [
             _selectedStockMovesView == 0,
-            _selectedStockMovesView == 1
+            _selectedStockMovesView == 1,
           ],
           onPressed: (index) {
             setState(() {
@@ -259,7 +359,9 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
           fillColor: const Color.fromARGB(255, 101, 196, 126),
           color: const Color.fromARGB(255, 32, 157, 49),
           constraints: BoxConstraints.expand(
-              width: constraints.maxWidth / 2 - 2, height: 40),
+            width: constraints.maxWidth / 2 - 2,
+            height: 40,
+          ),
           children: const [Text("By Product"), Text("By Location")],
         );
       },
@@ -272,11 +374,16 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
       runSpacing: 8,
       alignment: WrapAlignment.center,
       children: data
-          .map((d) => Row(mainAxisSize: MainAxisSize.min, children: [
-        Container(width: 12, height: 12, color: d.color),
-        const SizedBox(width: 6),
-        Text(d.label, style: const TextStyle(fontSize: 12)),
-      ]))
+          .map(
+            (d) => Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(width: 12, height: 12, color: d.color),
+                const SizedBox(width: 6),
+                Text(d.label, style: const TextStyle(fontSize: 12)),
+              ],
+            ),
+          )
           .toList(),
     );
   }
@@ -290,15 +397,24 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
         child: Column(
           children: [
             const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("Product",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.grey)),
-                  Text("QTY",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.grey)),
-                ]),
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Product",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
+                ),
+                Text(
+                  "QTY",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
             const Divider(height: 24),
             ListView.separated(
               shrinkWrap: true,
@@ -308,16 +424,20 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                 final product = top5Products[index];
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child:
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    Text(product.name),
-                    Text(product.quantity,
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ]),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(product.name),
+                      Text(
+                        product.quantity,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 );
               },
               separatorBuilder: (context, index) => const SizedBox(height: 8),
-            )
+            ),
           ],
         ),
       ),
