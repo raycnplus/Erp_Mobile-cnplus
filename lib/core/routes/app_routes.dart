@@ -8,10 +8,10 @@ class AppRoutes {
   static const String dashboardInventory = '/dashboard_inventory';
   static const String dashboardSales = '/dashboard_sales';
   static const String dashboardPurchase = '/dashboard_purchase';
+  
 
   static Map<String, WidgetBuilder> routes = {
     initial: (context) => const LoginScreen(),
     dashboardInventory: (context) => const DashboardInventoryScreen(),
-    dashboardPurchase: (context) => const DashboardPurchaseScreen(),
   };
 }
