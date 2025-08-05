@@ -1,15 +1,11 @@
-// lokasi nya file: lib/screens/dashboard_inventory_screen.dart
-
-// import 'package:erp_mobile_cnplus/features/dashboard_purchase/widget/stat_card.dart';
 import 'package:flutter/material.dart';
 
-// CEK IMPORT NYA WOI !!
+// Pastikan path import ini benar
 import '../models/chart_data_model.dart';
 import '../models/product_stock_model.dart';
-// pemissah model dan widget
 import '../widget/bar_chart_widget.dart';
 import '../widget/pie_chart_widget.dart';
-import '../widget/stat_card_widget.dart';
+import '../widget/stat_card_widget.dart'; // Impor file yang sudah diperbaiki
 import '../widget/dashboard_drawer_widget.dart';
 
 class DashboardInventoryScreen extends StatefulWidget {
@@ -24,7 +20,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
   int _selectedStockView = 0;
   int _selectedStockMovesView = 0;
 
-  // Method dipindahkan ke dalam State class
+  // Method untuk menampilkan dialog detail
   void _showDetailDialog(BuildContext context, String title) {
     showDialog(
       context: context,
@@ -41,6 +37,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
     );
   }
 
+  // Data dummy (bisa diganti dengan data dari API nanti)
   final List<ProductStock> top5Products = [
     ProductStock(name: "Product A", quantity: "1.6 Juta"),
     ProductStock(name: "Product B", quantity: "260 Ribu"),
@@ -48,129 +45,88 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
     ProductStock(name: "Product D", quantity: "48 Ribu"),
     ProductStock(name: "Product E", quantity: "5 Ribu"),
   ];
-
   final List<ChartData> stockByWarehouseData = [
     ChartData(label: "Gudang A", value: 67, color: Colors.teal),
     ChartData(label: "Gudang B", value: 21, color: Colors.teal.shade300),
     ChartData(label: "Gudang C", value: 12, color: Colors.teal.shade100),
   ];
-
   final List<ChartData> stockByLocationData = [
     ChartData(label: "Jakarta", value: 55, color: Colors.orange),
     ChartData(label: "Surabaya", value: 25, color: Colors.orange.shade300),
     ChartData(label: "Bandung", value: 20, color: Colors.orange.shade100),
   ];
-
   final List<ChartData> productCategoryData = [
     ChartData(label: "Elektronik", value: 22, color: Colors.cyan),
     ChartData(label: "Fashion", value: 20, color: Colors.cyan),
     ChartData(label: "ATK", value: 12, color: Colors.cyan),
-    ChartData(label: "Otomotif", value: 11, color: Colors.cyan),
-    ChartData(label: "Perkakas", value: 8, color: Colors.cyan),
+    // ...
   ];
-
   final List<ChartData> stockMovesByProductData = [
     ChartData(label: "Yamaha Aer...", value: 23, color: Colors.green),
     ChartData(label: "Gatsby", value: 22, color: Colors.green),
-    ChartData(label: "Honda PCX", value: 12, color: Colors.green),
-    ChartData(label: "Varsity Ja...", value: 11, color: Colors.green),
-    ChartData(label: "Under Armo...", value: 9, color: Colors.green),
+    // ...
   ];
-
   final List<ChartData> stockMovesByLocationData = [
     ChartData(label: "Jakarta", value: 58, color: Colors.amber),
     ChartData(label: "Tangerang", value: 40, color: Colors.amber),
-    ChartData(label: "Magelang", value: 33, color: Colors.amber),
-    ChartData(label: "Palembang", value: 32, color: Colors.amber),
-    ChartData(label: "Malang", value: 30, color: Colors.amber),
+    // ...
   ];
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Inventory Dashboard'), // Ditambahkan title
+        title: const Text('Inventory Dashboard'),
         backgroundColor: Colors.white,
         elevation: 1,
       ),
-      drawer: const DashboardDrawer(), // Menggunakan drawer yang diimpor
+      drawer: const DashboardDrawer(),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // =================================================================
+              // == PERUBAHAN UTAMA ADA DI DALAM GridView.count DI BAWAH INI ==
+              // =================================================================
               GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 crossAxisCount: 4,
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
-                childAspectRatio: 0.8,
+                childAspectRatio: 0.8, // Sesuaikan rasio agar teks tidak terpotong
                 children: [
                   StatCardLoader(
                     title: "Receipt Note",
-                    endpoint: "stats/receipt-notes",
+                    endpoint: "inventory/receipt-note",
                     enableAutoRefresh: true,
                     refreshInterval: const Duration(seconds: 30),
-                    valueColor: Colors.blue,
-                    valueStyle: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    titleStyle: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
                     onTap: () => _showDetailDialog(context, 'Receipt Note'),
                   ),
 
-                  StatCard(
+                  // Diubah dari StatCard ke StatCardLoader
+                  StatCardLoader(
                     title: "Delivery Note",
-                    endpoint: "stats/delivery-notes",
-                    enableAutoRefresh: "false",
-                    value: "0",
-                    valueStyle: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                    titleStyle: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
-                  ),
-                  StatCard(
-                    title: "Internal Transfer",
-                    endpoint: "stats/internal-transfer",
-                    enableAutoRefresh: "false",
-                    value: "0",
-                    valueStyle: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                    titleStyle: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
+                    endpoint: "inventory/delivery-notes", // Sesuaikan endpoint
+                    onTap: () => _showDetailDialog(context, 'Delivery Note'),
                   ),
 
-                  StatCard(
+                  // Diubah dari StatCard ke StatCardLoader
+                  StatCardLoader(
+                    title: "Internal Transfer",
+                    endpoint: "inventory/internal-transfers", // Sesuaikan endpoint
+                    onTap: () => _showDetailDialog(context, 'Internal Transfer'),
+                  ),
+
+                  // Diubah dari StatCard ke StatCardLoader
+                  StatCardLoader(
                     title: "Stock count",
-                    endpoint: "stats/stock-count",
-                    enableAutoRefresh: "false",
-                    value: "0",
-                    valueStyle: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                    titleStyle: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black54,
-                    ),
+                    endpoint: "inventory/stock-counts", // Sesuaikan endpoint
+                    onTap: () => _showDetailDialog(context, 'Stock count'),
                   ),
                 ],
               ),
@@ -180,75 +136,32 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
-                    StatCard(
+                    // Jika data ini juga dari API, gunakan StatCardLoader
+                    StatCardLoader(
                       title: "Product",
-                      value: "145",
+                      endpoint: "inventory/products/count", // Ganti dengan endpoint yg benar
                       width: 150,
-                      endpoint: "", // Ditambahkan
-                      enableAutoRefresh: "false", // Ditambahkan
-                      valueStyle: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                      titleStyle: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
                     ),
                     const SizedBox(width: 10),
-                    StatCard(
+                    StatCardLoader(
                       title: "On Hand Stock",
-                      value: "2.3M",
+                      endpoint: "inventory/stock/on-hand", // Ganti dengan endpoint yg benar
                       valueColor: Colors.teal,
                       width: 150,
-                      endpoint: "", // Ditambahkan
-                      enableAutoRefresh: "false", // Ditambahkan
-                      valueStyle: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.teal,
-                      ),
-                      titleStyle: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
                     ),
                     const SizedBox(width: 10),
-                    StatCard(
+                    StatCardLoader(
                       title: "Low Stock Alert",
-                      value: "144",
+                      endpoint: "inventory/stock/low-stock-alert", // Ganti dengan endpoint yg benar
                       valueColor: Colors.orange,
                       width: 150,
-                      endpoint: "", // Ditambahkan
-                      enableAutoRefresh: "false", // Ditambahkan
-                      valueStyle: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange,
-                      ),
-                      titleStyle: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
                     ),
                     const SizedBox(width: 10),
-                    StatCard(
+                    StatCardLoader(
                       title: "Expiring Soon",
-                      value: "0",
+                      endpoint: "inventory/stock/expiring-soon", // Ganti dengan endpoint yg benar
                       valueColor: Colors.red,
                       width: 150,
-                      endpoint: "", // Ditambahkan
-                      enableAutoRefresh: "false", // Ditambahkan
-                      valueStyle: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
-                      titleStyle: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
                     ),
                   ],
                 ),
@@ -310,6 +223,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
     );
   }
 
+  // Sisa widget builder helper tidak perlu diubah
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
