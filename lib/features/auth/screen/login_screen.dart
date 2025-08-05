@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../widgets/login_form.dart';
 import '../models/login_request.dart';
@@ -21,6 +22,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final databaseController = TextEditingController();
   final List<String> databaseOptions = ['mysql', 'testing'];
   bool isLoading = false;
+
+  // Inisialisasi secure storage
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   Future<void> handleLogin() async {
     setState(() => isLoading = true);
@@ -49,8 +53,11 @@ class _LoginScreenState extends State<LoginScreen> {
         final user = data['user'];
 
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('user_token', token);
 
+        // Simpan JWT token ke secure storage
+        await secureStorage.write(key: 'user_token', value: token);
+
+        // Simpan user info ke shared preferences
         if (user != null) {
           if (user['username'] != null)
             await prefs.setString('username', user['username']);
@@ -60,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
             await prefs.setString('nama_lengkap', user['nama_lengkap']);
         }
 
-        print('Token dan detail pengguna berhasil disimpan.');
+        print('Token JWT disimpan di secure storage dan detail pengguna di shared preferences.');
 
         if (mounted) {
           Navigator.pushReplacement(

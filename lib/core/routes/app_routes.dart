@@ -13,5 +13,6 @@ class AppRoutes {
   static Map<String, WidgetBuilder> routes = {
     initial: (context) => const LoginScreen(),
     dashboardInventory: (context) => const DashboardInventoryScreen(),
+    dashboardPurchase: (context) => const DashboardPurchaseScreen(),
   };
 }
