@@ -1,7 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class DashboardDrawer extends StatelessWidget {
-  const DashboardDrawer({super.key});
+class PurchaseDashboardDrawer extends StatefulWidget {
+  const PurchaseDashboardDrawer({super.key});
+
+  @override
+  State<PurchaseDashboardDrawer> createState() => _PurchaseDashboardDrawerState();
+}
+
+class _PurchaseDashboardDrawerState extends State<PurchaseDashboardDrawer> {
+  String username = '';
+  String email = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserInfo();
+  }
+
+  Future<void> _loadUserInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('nama_lengkap') ?? '';
+      email = prefs.getString('email') ?? '';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -9,36 +32,34 @@ class DashboardDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          // --- HEader  ---
+          // Header
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // setting logo di sini
                 Image.asset('assets/logo.png', height: 24),
                 const SizedBox(height: 8),
                 const Text("Mobile Erp", style: TextStyle(color: Colors.grey)),
                 const SizedBox(height: 30),
                 const Center(
-                  // api avatar
                   child: CircleAvatar(
                     radius: 40,
                     backgroundImage: AssetImage('assets/avatar.png'),
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Center(
+                Center(
                   child: Text(
-                    "a maulana amir",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    username.isNotEmpty ? username : "User",
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Center(
+                Center(
                   child: Text(
-                    "a.maulana.cnplus@gmail.com",
-                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                    email.isNotEmpty ? email : "-",
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                 ),
               ],
@@ -46,12 +67,9 @@ class DashboardDrawer extends StatelessWidget {
           ),
           const Divider(thickness: 1),
 
-          // --- BAGIAN MENU ---
+          // Master Data Section
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Row(
               children: [
                 const Icon(Icons.storage, color: Colors.grey),
@@ -67,13 +85,21 @@ class DashboardDrawer extends StatelessWidget {
             ),
           ),
 
-          // Menu Expandable
+          // Purchase Team
+          ListTile(
+            leading: const Text('•', style: TextStyle(fontSize: 20)),
+            title: const Text('Purchase Team'),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+
+          // Product Expandable
           ExpansionTile(
             leading: const Text('•', style: TextStyle(fontSize: 20)),
             title: const Text('Product'),
             trailing: const Icon(Icons.keyboard_arrow_down),
-            children: <Widget>[
-              // Sub-menu x
+            children: [
               Padding(
                 padding: const EdgeInsets.only(left: 40.0),
                 child: ListTile(
@@ -95,33 +121,7 @@ class DashboardDrawer extends StatelessWidget {
             ],
           ),
 
-          ExpansionTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20)),
-            title: const Text('Warehouse'),
-            trailing: const Icon(Icons.keyboard_arrow_down),
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(left: 40.0),
-                child: ListTile(
-                  title: const Text('Product'),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 40.0),
-                child: ListTile(
-                  title: const Text('Serial Number'),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-            ],
-          ),
-
-          // Contoh Menu Biasa
+          // Products Type
           ListTile(
             leading: const Text('•', style: TextStyle(fontSize: 20)),
             title: const Text('Products Type'),
@@ -129,13 +129,8 @@ class DashboardDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
-          ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20)),
-            title: const Text('Products Category'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
+
+          // Brand
           ListTile(
             leading: const Text('•', style: TextStyle(fontSize: 20)),
             title: const Text('Brand'),
@@ -143,6 +138,8 @@ class DashboardDrawer extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
+
+          // Vendor
           ListTile(
             leading: const Text('•', style: TextStyle(fontSize: 20)),
             title: const Text('Vendor'),

@@ -67,7 +67,9 @@ class _LoginScreenState extends State<LoginScreen> {
             await prefs.setString('nama_lengkap', user['nama_lengkap']);
         }
 
-        print('Token JWT disimpan di secure storage dan detail pengguna di shared preferences.');
+        print(
+          'Token JWT disimpan di secure storage dan detail pengguna di shared preferences.',
+        );
 
         if (mounted) {
           Navigator.pushReplacement(
