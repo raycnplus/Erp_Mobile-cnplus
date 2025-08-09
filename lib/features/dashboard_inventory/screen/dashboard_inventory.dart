@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 // Pastikan path import ini benar
 import '../models/chart_data_model.dart';
-import '../models/product_stock_model.dart';
+import '../models/top_product_model.dart';
 import '../widget/bar_chart_widget.dart';
 import '../widget/pie_chart_widget.dart';
 import '../widget/stat_card_widget.dart'; // Impor file yang sudah diperbaiki
@@ -38,7 +38,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
   }
 
   // Data dummy (bisa diganti dengan data dari API nanti)
-  final List<ProductStock> top5Products = [];
+  final List<TopProduct> top5Products = [];
 
   final List<ChartData> stockByWarehouseData = [];
   final List<ChartData> stockByLocationData = [];
@@ -190,15 +190,19 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
               _buildSectionTitle("Top 5 Hand Stock"),
               const SizedBox(height: 8),
               _buildTopStockList(),
+
               const SizedBox(height: 24),
               _buildSectionTitle("Product Category"),
               const SizedBox(height: 16),
+
               ProductBarChart(data: productCategoryData),
               const SizedBox(height: 24),
               _buildSectionTitle("Stock Moves"),
               const SizedBox(height: 16),
               _buildStockMovesToggleButtons(),
               const SizedBox(height: 16),
+
+
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: _selectedStockMovesView == 0
