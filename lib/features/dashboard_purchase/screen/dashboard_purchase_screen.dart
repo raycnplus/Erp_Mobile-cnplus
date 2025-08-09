@@ -5,6 +5,7 @@ import '../widget/top_list_card.dart';
 import '../widget/stat_card_widget.dart';
 import '../models/purchase_chart_data_model.dart';
 import '../widget/purchase_bar_chart_widget.dart';
+import '../widget/purchase_dashboard_drawer_widget.dart'; // Tambahkan import drawer
 
 class DashboardPurchaseScreen extends StatefulWidget {
   const DashboardPurchaseScreen({super.key});
@@ -102,6 +103,7 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
         elevation: 1,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
+      drawer: const PurchaseDashboardDrawer(), // Tambahkan drawer di sini
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -139,72 +141,29 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Toggle Bar Chart - Updated to match inventory design
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.teal.shade200),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: _selectedChart == 0
-                            ? Colors.teal
-                            : Colors.white,
-                        foregroundColor: _selectedChart == 0
-                            ? Colors.white
-                            : Colors.teal,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(12),
-                            bottomLeft: Radius.circular(12),
-                          ),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      onPressed: () => setState(() => _selectedChart = 0),
-                      child: const Text(
-                        "Top 5 Product",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+            // Toggle Bar Chart
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return ToggleButtons(
+                  isSelected: [_selectedChart == 0, _selectedChart == 1],
+                  onPressed: (index) {
+                    setState(() {
+                      _selectedChart = index;
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  selectedColor: Colors.white,
+                  fillColor: Colors.teal,
+                  color: Colors.teal,
+                  constraints: BoxConstraints.expand(
+                    width: constraints.maxWidth / 2 - 2,
+                    height: 40,
                   ),
-                  Expanded(
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: _selectedChart == 1
-                            ? Colors.teal
-                            : Colors.white,
-                        foregroundColor: _selectedChart == 1
-                            ? Colors.white
-                            : Colors.teal,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(12),
-                            bottomRight: Radius.circular(12),
-                          ),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      onPressed: () => setState(() => _selectedChart = 1),
-                      child: const Text(
-                        "Top 5 Vendor",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                  children: const [Text("Top 5 Product"), Text("Top 5 Vendor")],
+                );
+              },
             ),
+
             const SizedBox(height: 16),
 
             // Bar Chart
