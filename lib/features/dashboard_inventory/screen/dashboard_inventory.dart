@@ -38,23 +38,11 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
   }
 
   // Data dummy (bisa diganti dengan data dari API nanti)
-  final List<ProductStock> top5Products = [
-    ProductStock(name: "Product A", quantity: "1.6 Juta"),
-    ProductStock(name: "Product B", quantity: "260 Ribu"),
-    ProductStock(name: "Product C", quantity: "165 Ribu"),
-    ProductStock(name: "Product D", quantity: "48 Ribu"),
-    ProductStock(name: "Product E", quantity: "5 Ribu"),
-  ];
-  final List<ChartData> stockByWarehouseData = [
-    ChartData(label: "Gudang A", value: 67, color: Colors.teal),
-    ChartData(label: "Gudang B", value: 21, color: Colors.teal.shade300),
-    ChartData(label: "Gudang C", value: 12, color: Colors.teal.shade100),
-  ];
-  final List<ChartData> stockByLocationData = [
-    ChartData(label: "Jakarta", value: 55, color: Colors.orange),
-    ChartData(label: "Surabaya", value: 25, color: Colors.orange.shade300),
-    ChartData(label: "Bandung", value: 20, color: Colors.orange.shade100),
-  ];
+  final List<ProductStock> top5Products = [];
+
+  final List<ChartData> stockByWarehouseData = [];
+  final List<ChartData> stockByLocationData = [];
+
   final List<ChartData> productCategoryData = [
     ChartData(label: "Elektronik", value: 22, color: Colors.cyan),
     ChartData(label: "Fashion", value: 20, color: Colors.cyan),
@@ -111,25 +99,27 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                   // Diubah dari StatCard ke StatCardLoader
                   StatCardLoader(
                     title: "Delivery Note",
-                    endpoint: "inventory/delivery-notes", // Sesuaikan endpoint
+                    endpoint: "inventory/delivery-note",
                     onTap: () => _showDetailDialog(context, 'Delivery Note'),
                   ),
 
                   // Diubah dari StatCard ke StatCardLoader
                   StatCardLoader(
                     title: "Internal Transfer",
-                    endpoint: "inventory/internal-transfers", // Sesuaikan endpoint
+                    endpoint: "inventory/internal-transfer", // Sesuaikan endpoint
                     onTap: () => _showDetailDialog(context, 'Internal Transfer'),
                   ),
 
                   // Diubah dari StatCard ke StatCardLoader
                   StatCardLoader(
                     title: "Stock count",
-                    endpoint: "inventory/stock-counts", // Sesuaikan endpoint
+                    endpoint: "inventory/stock-count", // Sesuaikan endpoint
                     onTap: () => _showDetailDialog(context, 'Stock count'),
                   ),
                 ],
               ),
+
+
               const SizedBox(height: 16),
               SizedBox(
                 height: 120,
@@ -139,7 +129,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                     // Jika data ini juga dari API, gunakan StatCardLoader
                     StatCardLoader(
                       title: "Product",
-                      endpoint: "inventory/products/count", // Ganti dengan endpoint yg benar
+                      endpoint: "inventory/products", // Ganti dengan endpoint yg benar
                       width: 150,
                     ),
                     const SizedBox(width: 10),
@@ -166,29 +156,36 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                   ],
                 ),
               ),
+
+
+            ///pie chart
               const SizedBox(height: 24),
               _buildSectionTitle("Stock"),
               const SizedBox(height: 16),
               _buildStockToggleButtons(),
               const SizedBox(height: 16),
               AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                child: _selectedStockView == 0
-                    ? StockPieChart(
-                        key: const ValueKey('warehouse'),
-                        data: stockByWarehouseData,
-                      )
-                    : StockPieChart(
-                        key: const ValueKey('location'),
-                        data: stockByLocationData,
-                      ),
-              ),
+               duration: const Duration(milliseconds: 300),
+               child: _selectedStockView == 0
+               ? StockPieChart(
+                key: const ValueKey('warehouse'),
+                endpoint: "stock-by-warehouse",
+                title: "Stok per Gudang",
+              )
+               : StockPieChart(
+                key: const ValueKey('location'),
+               endpoint: "stock-by-location",
+               title: "Stok per Lokasi",
+             ),
+             ),
               const SizedBox(height: 8),
               _buildLegend(
                 _selectedStockView == 0
                     ? stockByWarehouseData
                     : stockByLocationData,
               ),
+
+             ////
               const SizedBox(height: 24),
               _buildSectionTitle("Top 5 Hand Stock"),
               const SizedBox(height: 8),
@@ -302,6 +299,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
     );
   }
 
+///top 5
   Widget _buildTopStockList() {
     return Card(
       elevation: 2,
@@ -329,6 +327,8 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                 ),
               ],
             ),
+
+            
             const Divider(height: 24),
             ListView.separated(
               shrinkWrap: true,
