@@ -10,7 +10,8 @@ class DashboardPurchaseScreen extends StatefulWidget {
   const DashboardPurchaseScreen({super.key});
 
   @override
-  State<DashboardPurchaseScreen> createState() => _DashboardPurchaseScreenState();
+  State<DashboardPurchaseScreen> createState() =>
+      _DashboardPurchaseScreenState();
 }
 
 class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
@@ -41,17 +42,49 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
 
   // Dummy data for bar charts
   final List<PurchaseChartData> top5ProductData = [
-    PurchaseChartData(label: "Gentle Skin Cleanser Cetaphil", value: 120100970821, color: Colors.pinkAccent),
-    PurchaseChartData(label: "Infinix GT 30 PRO", value: 100000000, color: Colors.pinkAccent),
-    PurchaseChartData(label: "Dior Homme intense", value: 50000000, color: Colors.pinkAccent),
-    PurchaseChartData(label: "Mykonos California", value: 20000000, color: Colors.pinkAccent),
-    PurchaseChartData(label: "JPG Le Male Le Parfum", value: 10000000, color: Colors.pinkAccent),
+    PurchaseChartData(
+      label: "Gentle Skin Cleanser Cetaphil",
+      value: 120100970821,
+      color: Colors.pinkAccent,
+    ),
+    PurchaseChartData(
+      label: "Infinix GT 30 PRO",
+      value: 100000000,
+      color: Colors.pinkAccent,
+    ),
+    PurchaseChartData(
+      label: "Dior Homme intense",
+      value: 50000000,
+      color: Colors.pinkAccent,
+    ),
+    PurchaseChartData(
+      label: "Mykonos California",
+      value: 20000000,
+      color: Colors.pinkAccent,
+    ),
+    PurchaseChartData(
+      label: "JPG Le Male Le Parfum",
+      value: 10000000,
+      color: Colors.pinkAccent,
+    ),
   ];
 
   final List<PurchaseChartData> top5VendorData = [
-    PurchaseChartData(label: "PT Unilever Indonesia", value: 120100970821, color: Colors.cyan),
-    PurchaseChartData(label: "PT JPG Fragrance Indonesia", value: 100000000, color: Colors.cyan),
-    PurchaseChartData(label: "PT. RioSukaMaju", value: 5000000, color: Colors.cyan),
+    PurchaseChartData(
+      label: "PT Unilever Indonesia",
+      value: 120100970821,
+      color: Colors.cyan,
+    ),
+    PurchaseChartData(
+      label: "PT JPG Fragrance Indonesia",
+      value: 100000000,
+      color: Colors.cyan,
+    ),
+    PurchaseChartData(
+      label: "PT. RioSukaMaju",
+      value: 5000000,
+      color: Colors.cyan,
+    ),
     PurchaseChartData(label: "Dryy", value: 2000000, color: Colors.cyan),
     PurchaseChartData(label: "Bowo", value: 1000000, color: Colors.cyan),
   ];
@@ -61,7 +94,10 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Dashboard Purchase', style: TextStyle(color: Colors.black)),
+        title: const Text(
+          'Dashboard Purchase',
+          style: TextStyle(color: Colors.black),
+        ),
         backgroundColor: Colors.white,
         elevation: 1,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -79,47 +115,91 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
               mainAxisSpacing: 8,
               childAspectRatio: 0.7,
               children: const [
-                StatCard(title: "Purchase Request", value: "52", valueColor: Color(0xFF029379)),
-                StatCard(title: "Request For Quotation", value: "28", valueColor: Color(0xFF029379)),
-                StatCard(title: "Purchase Order", value: "27", valueColor: Color(0xFF029379)),
-                StatCard(title: "Direct Purchase", value: "19", valueColor: Color(0xFF029379)),
+                StatCard(
+                  title: "Purchase Request",
+                  value: "52",
+                  valueColor: Color(0xFF029379),
+                ),
+                StatCard(
+                  title: "Request For Quotation",
+                  value: "28",
+                  valueColor: Color(0xFF029379),
+                ),
+                StatCard(
+                  title: "Purchase Order",
+                  value: "27",
+                  valueColor: Color(0xFF029379),
+                ),
+                StatCard(
+                  title: "Direct Purchase",
+                  value: "19",
+                  valueColor: Color(0xFF029379),
+                ),
               ],
             ),
             const SizedBox(height: 24),
 
-            // Toggle Bar Chart
+            // Toggle Bar Chart - Updated to match inventory design
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.teal.shade100),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.teal.shade200),
               ),
               child: Row(
                 children: [
                   Expanded(
                     child: TextButton(
                       style: TextButton.styleFrom(
-                        backgroundColor: _selectedChart == 0 ? Colors.teal : Colors.white,
-                        foregroundColor: _selectedChart == 0 ? Colors.white : Colors.teal,
+                        backgroundColor: _selectedChart == 0
+                            ? Colors.teal
+                            : Colors.white,
+                        foregroundColor: _selectedChart == 0
+                            ? Colors.white
+                            : Colors.teal,
                         shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(topLeft: Radius.circular(8), bottomLeft: Radius.circular(8)),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(12),
+                            bottomLeft: Radius.circular(12),
+                          ),
                         ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       onPressed: () => setState(() => _selectedChart = 0),
-                      child: const Text("Top 5 Product"),
+                      child: const Text(
+                        "Top 5 Product",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
                   Expanded(
                     child: TextButton(
                       style: TextButton.styleFrom(
-                        backgroundColor: _selectedChart == 1 ? Colors.teal : Colors.white,
-                        foregroundColor: _selectedChart == 1 ? Colors.white : Colors.teal,
+                        backgroundColor: _selectedChart == 1
+                            ? Colors.teal
+                            : Colors.white,
+                        foregroundColor: _selectedChart == 1
+                            ? Colors.white
+                            : Colors.teal,
                         shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(topRight: Radius.circular(8), bottomRight: Radius.circular(8)),
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(12),
+                            bottomRight: Radius.circular(12),
+                          ),
                         ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       onPressed: () => setState(() => _selectedChart = 1),
-                      child: const Text("Top 5 Vendor"),
+                      child: const Text(
+                        "Top 5 Vendor",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -139,10 +219,16 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
                           padding: EdgeInsets.only(left: 8, bottom: 8),
                           child: Text(
                             "Top 5 Product",
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
-                        PurchaseBarChart(data: top5ProductData, title: "Top 5 Product"),
+                        PurchaseBarChart(
+                          data: top5ProductData,
+                          title: "Top 5 Product",
+                        ),
                       ],
                     )
                   : Column(
@@ -153,10 +239,16 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
                           padding: EdgeInsets.only(left: 8, bottom: 8),
                           child: Text(
                             "Top 5 Vendor",
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
-                        PurchaseBarChart(data: top5VendorData, title: "Top 5 Vendor"),
+                        PurchaseBarChart(
+                          data: top5VendorData,
+                          title: "Top 5 Vendor",
+                        ),
                       ],
                     ),
             ),
@@ -167,11 +259,17 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
             const SizedBox(height: 24),
 
             // Daftar Top 5
-            TopListCard(title: 'Top 5 Category Product', items: topCategoryData),
+            TopListCard(
+              title: 'Top 5 Category Product',
+              items: topCategoryData,
+            ),
             const SizedBox(height: 24),
 
             // Daftar Top 5
-            TopListCard(title: 'Top 5 Purchase Order', items: topPurchaseOrderData),
+            TopListCard(
+              title: 'Top 5 Purchase Order',
+              items: topPurchaseOrderData,
+            ),
           ],
         ),
       ),
