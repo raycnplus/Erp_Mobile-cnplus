@@ -32,7 +32,6 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          // --- Header ---
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
             child: Column(
