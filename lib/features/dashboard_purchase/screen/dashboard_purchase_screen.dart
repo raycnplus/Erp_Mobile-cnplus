@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../models/purchase_models.dart';
 import '../widget/purchase_analysis_chart.dart';
 import '../widget/top_list_card.dart';
 import '../widget/stat_card_widget.dart';
 import '../models/purchase_chart_data_model.dart';
 import '../widget/purchase_bar_chart_widget.dart';
-import '../widget/purchase_dashboard_drawer_widget.dart'; // Tambahkan import drawer
+import '../widget/purchase_dashboard_drawer_widget.dart';
+import '../services/purchase_service.dart';
+import '../models/purchase_dashboard_model.dart' as ApiModel;
+import '../utils/formatters.dart'; // Import formatter
 
 class DashboardPurchaseScreen extends StatefulWidget {
   const DashboardPurchaseScreen({super.key});
@@ -16,79 +20,79 @@ class DashboardPurchaseScreen extends StatefulWidget {
 }
 
 class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
+  // --- PERUBAHAN ---
+  // Variabel dibuat nullable (dapat bernilai null) dengan tanda '?'
+  // untuk menghindari error saat hot-reload.
+  Future<ApiModel.PurchaseDashboardResponse>? _dashboardDataFuture;
+  // -----------------
+
+  final PurchaseService _purchaseService = PurchaseService();
   int _selectedChart = 0;
 
-  final List<MonthlyPurchaseData> dummyPurchaseData = [
-    MonthlyPurchaseData(month: 1, amount: 20000000),
-    MonthlyPurchaseData(month: 2, amount: 85000000),
-    MonthlyPurchaseData(month: 3, amount: 15000000),
-    MonthlyPurchaseData(month: 4, amount: 95000000),
-    MonthlyPurchaseData(month: 5, amount: 120400000),
-    MonthlyPurchaseData(month: 6, amount: 90000000),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _dashboardDataFuture = _purchaseService.fetchDashboardData();
+  }
 
-  final List<TopListData> topCategoryData = [
-    TopListData(title: 'Category A', value: 'Rp 120M'),
-    TopListData(title: 'Category B', value: 'Rp 100M'),
-    TopListData(title: 'Category C', value: 'Rp 400JT'),
-    TopListData(title: 'Category D', value: 'Rp 400JT'),
-    TopListData(title: 'Category E', value: 'Rp 200JT'),
-  ];
+  // Helper method to transform API data to Chart data
+  List<PurchaseChartData> _transformToProductChartData(
+      List<ApiModel.TopProduct> products) {
+    return products
+        .map((p) => PurchaseChartData(
+              label: p.productName,
+              value: p.totalSpent,
+              color: Colors.pinkAccent, // You can customize colors
+            ))
+        .toList();
+  }
 
-  final List<TopListData> topPurchaseOrderData = [
-    TopListData(title: 'Product A', value: 'Rp 120M'),
-    TopListData(title: 'Product B', value: 'Rp 95M'),
-    TopListData(title: 'Product C', value: 'Rp 80M'),
-  ];
+  List<PurchaseChartData> _transformToVendorChartData(
+      List<ApiModel.TopVendor> vendors) {
+    return vendors
+        .map((v) => PurchaseChartData(
+              label: v.vendorName,
+              value: v.totalSpent,
+              color: Colors.cyan, // You can customize colors
+            ))
+        .toList();
+  }
 
-  // Dummy data for bar charts
-  final List<PurchaseChartData> top5ProductData = [
-    PurchaseChartData(
-      label: "Gentle Skin Cleanser Cetaphil",
-      value: 120100970821,
-      color: Colors.pinkAccent,
-    ),
-    PurchaseChartData(
-      label: "Infinix GT 30 PRO",
-      value: 100000000,
-      color: Colors.pinkAccent,
-    ),
-    PurchaseChartData(
-      label: "Dior Homme intense",
-      value: 50000000,
-      color: Colors.pinkAccent,
-    ),
-    PurchaseChartData(
-      label: "Mykonos California",
-      value: 20000000,
-      color: Colors.pinkAccent,
-    ),
-    PurchaseChartData(
-      label: "JPG Le Male Le Parfum",
-      value: 10000000,
-      color: Colors.pinkAccent,
-    ),
-  ];
+  // Helper method to transform API data to Analysis Chart data
+  List<MonthlyPurchaseData> _transformToAnalysisData(
+      ApiModel.SpendingByMonth spending) {
+    List<MonthlyPurchaseData> chartData = [];
+    for (int i = 0; i < spending.labels.length; i++) {
+      // Extract month number from "MM-YYYY" label
+      final month = int.tryParse(spending.labels[i].split('-')[0]) ?? (i + 1);
+      chartData.add(MonthlyPurchaseData(
+        month: month,
+        amount: spending.data[i],
+      ));
+    }
+    return chartData;
+  }
 
-  final List<PurchaseChartData> top5VendorData = [
-    PurchaseChartData(
-      label: "PT Unilever Indonesia",
-      value: 120100970821,
-      color: Colors.cyan,
-    ),
-    PurchaseChartData(
-      label: "PT JPG Fragrance Indonesia",
-      value: 100000000,
-      color: Colors.cyan,
-    ),
-    PurchaseChartData(
-      label: "PT. RioSukaMaju",
-      value: 5000000,
-      color: Colors.cyan,
-    ),
-    PurchaseChartData(label: "Dryy", value: 2000000, color: Colors.cyan),
-    PurchaseChartData(label: "Bowo", value: 1000000, color: Colors.cyan),
-  ];
+  // Helper methods to transform API data to TopListData
+  List<TopListData> _transformToCategoryList(
+      List<ApiModel.TopCategory> categories) {
+    return categories
+        .map((c) => TopListData(
+              title: c.productCategoryName,
+              value: formatCurrency(c.totalAmount),
+            ))
+        .toList();
+  }
+
+  List<TopListData> _transformToPurchaseOrderList(
+      List<ApiModel.TopPurchaseOrder> orders) {
+    return orders
+        .map((o) => TopListData(
+              title: o.reference,
+              value: formatCurrency(o.totalAmount),
+            ))
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,134 +107,139 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
         elevation: 1,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      drawer: const PurchaseDashboardDrawer(), // Tambahkan drawer di sini
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 4,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-              childAspectRatio: 0.7,
-              children: const [
-                StatCard(
-                  title: "Purchase Request",
-                  value: "52",
-                  valueColor: Color(0xFF029379),
-                ),
-                StatCard(
-                  title: "Request For Quotation",
-                  value: "28",
-                  valueColor: Color(0xFF029379),
-                ),
-                StatCard(
-                  title: "Purchase Order",
-                  value: "27",
-                  valueColor: Color(0xFF029379),
-                ),
-                StatCard(
-                  title: "Direct Purchase",
-                  value: "19",
-                  valueColor: Color(0xFF029379),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
+      drawer: const PurchaseDashboardDrawer(),
+      body: FutureBuilder<ApiModel.PurchaseDashboardResponse>(
+        future: _dashboardDataFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            // Toggle Bar Chart
-            LayoutBuilder(
-              builder: (context, constraints) {
-                return ToggleButtons(
-                  isSelected: [_selectedChart == 0, _selectedChart == 1],
-                  onPressed: (index) {
-                    setState(() {
-                      _selectedChart = index;
-                    });
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text('Error: ${snapshot.error}'),
+              ),
+            );
+          }
+
+          if (!snapshot.hasData) {
+            return const Center(child: Text('No data available.'));
+          }
+
+          final data = snapshot.data!;
+          final summary = data.summary;
+
+          final top5ProductData = _transformToProductChartData(data.topProducts);
+          final top5VendorData = _transformToVendorChartData(data.topVendors);
+          final purchaseAnalysisData =
+              _transformToAnalysisData(data.charts.spendingByMonth);
+          final topCategoryData = _transformToCategoryList(data.topCategories);
+          final topPurchaseOrderData =
+              _transformToPurchaseOrderList(data.topPurchaseOrders);
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 0.7,
+                  children: [
+                    StatCard(
+                      title: "Purchase Request",
+                      value: summary.purchaseRequest.toString(),
+                      valueColor: const Color(0xFF029379),
+                    ),
+                    StatCard(
+                      title: "Request For Quotation",
+                      value: summary.rfq.toString(),
+                      valueColor: const Color(0xFF029379),
+                    ),
+                    StatCard(
+                      title: "Purchase Order",
+                      value: summary.purchaseOrder.toString(),
+                      valueColor: const Color(0xFF029379),
+                    ),
+                    StatCard(
+                      title: "Direct Purchase",
+                      value: summary.directPurchase.toString(),
+                      valueColor: const Color(0xFF029379),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Toggle Bar Chart
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    return ToggleButtons(
+                      isSelected: [_selectedChart == 0, _selectedChart == 1],
+                      onPressed: (index) {
+                        setState(() {
+                          _selectedChart = index;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(8),
+                      selectedColor: Colors.white,
+                      fillColor: Colors.teal,
+                      color: Colors.teal,
+                      constraints: BoxConstraints.expand(
+                        width: constraints.maxWidth / 2 - 2,
+                        height: 40,
+                      ),
+                      children: const [
+                        Text("Top 5 Product"),
+                        Text("Top 5 Vendor")
+                      ],
+                    );
                   },
-                  borderRadius: BorderRadius.circular(8),
-                  selectedColor: Colors.white,
-                  fillColor: Colors.teal,
-                  color: Colors.teal,
-                  constraints: BoxConstraints.expand(
-                    width: constraints.maxWidth / 2 - 2,
-                    height: 40,
-                  ),
-                  children: const [Text("Top 5 Product"), Text("Top 5 Vendor")],
-                );
-              },
-            ),
+                ),
+                const SizedBox(height: 16),
 
-            const SizedBox(height: 16),
-
-            // Bar Chart
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: _selectedChart == 0
-                  ? Column(
-                      key: const ValueKey('top5product'),
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(left: 8, bottom: 8),
-                          child: Text(
-                            "Top 5 Product",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                        PurchaseBarChart(
+                // Bar Chart
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: _selectedChart == 0
+                      ? PurchaseBarChart(
+                          key: const ValueKey('top5product'),
                           data: top5ProductData,
                           title: "Top 5 Product",
-                        ),
-                      ],
-                    )
-                  : Column(
-                      key: const ValueKey('top5vendor'),
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(left: 8, bottom: 8),
-                          child: Text(
-                            "Top 5 Vendor",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                        PurchaseBarChart(
+                        )
+                      : PurchaseBarChart(
+                          key: const ValueKey('top5vendor'),
                           data: top5VendorData,
                           title: "Top 5 Vendor",
                         ),
-                      ],
-                    ),
-            ),
-            const SizedBox(height: 24),
+                ),
+                const SizedBox(height: 24),
 
-            // Grafik Analisis
-            PurchaseAnalysisChart(purchaseData: dummyPurchaseData),
-            const SizedBox(height: 24),
+                // Grafik Analisis
+                PurchaseAnalysisChart(purchaseData: purchaseAnalysisData),
+                const SizedBox(height: 24),
 
-            // Daftar Top 5
-            TopListCard(
-              title: 'Top 5 Category Product',
-              items: topCategoryData,
-            ),
-            const SizedBox(height: 24),
+                // Daftar Top 5 Category
+                TopListCard(
+                  title: 'Top 5 Category Product',
+                  items: topCategoryData,
+                ),
+                const SizedBox(height: 24),
 
-            // Daftar Top 5
-            TopListCard(
-              title: 'Top 5 Purchase Order',
-              items: topPurchaseOrderData,
+                // Daftar Top 5 Purchase Order
+                TopListCard(
+                  title: 'Top 5 Purchase Order',
+                  items: topPurchaseOrderData,
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
