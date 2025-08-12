@@ -20,9 +20,6 @@ class DashboardPurchaseScreen extends StatefulWidget {
 }
 
 class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
-  // --- PERUBAHAN ---
-  // Variabel dibuat nullable (dapat bernilai null) dengan tanda '?'
-  // untuk menghindari error saat hot-reload.
   Future<ApiModel.PurchaseDashboardResponse>? _dashboardDataFuture;
   // -----------------
 
@@ -42,7 +39,7 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
         .map((p) => PurchaseChartData(
               label: p.productName,
               value: p.totalSpent,
-              color: Colors.pinkAccent, // You can customize colors
+              color: Colors.pinkAccent,
             ))
         .toList();
   }
@@ -53,7 +50,7 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
         .map((v) => PurchaseChartData(
               label: v.vendorName,
               value: v.totalSpent,
-              color: Colors.cyan, // You can customize colors
+              color: Colors.cyan,
             ))
         .toList();
   }

@@ -167,6 +167,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
               const SizedBox(height: 24),
               _buildSectionTitle("Top 5 Hand Stock"),
               const SizedBox(height: 8),
+              // TOP PRODUCTS
               TopProductList(
                 endpoint: "https://erp.sorlem.com/api/inventory/top-products",
               ),

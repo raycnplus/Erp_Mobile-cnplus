@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/modul_background.dart';
 import '../widgets/modul_card.dart';
-import '../../../core/routes/app_routes.dart'; // Import AppRoutes
+import '../../../core/routes/app_routes.dart'; 
 
 class ModulScreen extends StatelessWidget {
   const ModulScreen({super.key});
@@ -35,6 +35,9 @@ class ModulScreen extends StatelessWidget {
                 ModulCard(
                   label: "Sales",
                   imagePath: "assets/sales.png",
+                  onTap: () {
+                    Navigator.pushNamed(context, AppRoutes.dashboardSales);
+                  },
                 ),
                 ModulCard(
                   label: "Purchase",
