@@ -109,15 +109,6 @@ class _PurchaseDashboardDrawerState extends State<PurchaseDashboardDrawer> {
                   },
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 40.0),
-                child: ListTile(
-                  title: const Text('Serial Number'),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
             ],
           ),
 
