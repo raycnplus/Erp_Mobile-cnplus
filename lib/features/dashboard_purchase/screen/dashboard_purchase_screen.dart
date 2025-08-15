@@ -9,7 +9,7 @@ import '../widget/purchase_bar_chart_widget.dart';
 import '../widget/purchase_dashboard_drawer_widget.dart';
 import '../services/purchase_service.dart';
 import '../models/purchase_dashboard_model.dart' as ApiModel;
-import '../utils/formatters.dart'; // Import formatter
+import '../utils/formatters.dart'; // Import formatter: fungsi nya buat angka supaya ga panjang dan di pisah biar ga ribet karna lumayan banyak
 
 class DashboardPurchaseScreen extends StatefulWidget {
   const DashboardPurchaseScreen({super.key});
