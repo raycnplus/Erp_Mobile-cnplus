@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../purchase_team/screen/purchase_team_screen.dart';
 
 class PurchaseDashboardDrawer extends StatefulWidget {
   const PurchaseDashboardDrawer({super.key});
@@ -87,12 +88,20 @@ class _PurchaseDashboardDrawerState extends State<PurchaseDashboardDrawer> {
 
           // Purchase Team
           ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20)),
-            title: const Text('Purchase Team'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
+  leading: const Text('•', style: TextStyle(fontSize: 20)),
+  title: const Text('Purchase Team'),
+  onTap: () {
+    Navigator.pop(context); // Tutup drawer dulu
+    Future.delayed(const Duration(milliseconds: 200), () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const PurchaseTeamScreen(),
+        ),
+      );
+    });
+  },
+),
 
           // Product Expandable
           ExpansionTile(
