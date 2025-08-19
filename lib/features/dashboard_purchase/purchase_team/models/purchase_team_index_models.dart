@@ -17,7 +17,6 @@ class PurchaseTeamIndexModel {
     );
   }
 
- 
   Map<String, dynamic> toJson() {
     return {
       'teamName': teamName,
