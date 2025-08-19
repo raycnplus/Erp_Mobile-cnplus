@@ -27,10 +27,20 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
 
   Future<SalesDashboardResponse> _fetchDashboardData() async {
     final response = await http.get(Uri.parse('https://erp.sorlem.com/api/sales'));
+
     if (response.statusCode == 200) {
-      return SalesDashboardResponse.fromJson(json.decode(response.body));
+      final contentType = response.headers['content-type'];
+      if (contentType != null && contentType.contains('application/json')) {
+        try {
+          return SalesDashboardResponse.fromJson(json.decode(response.body));
+        } catch (e) {
+          throw Exception('Failed to parse sales dashboard data: $e');
+        }
+      } else {
+        throw Exception('Invalid response format. Expected JSON, but got ${contentType ?? 'unknown'}. Body: ${response.body.substring(0, 100)}...');
+      }
     } else {
-      throw Exception('Failed to load sales dashboard');
+      throw Exception('Failed to load sales dashboard. Status code: ${response.statusCode}');
     }
   }
 
