@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/purchase_team_index_models.dart';
 import '../../../../services/api_base.dart';
 
@@ -8,9 +9,17 @@ class PurchaseTeamCardList extends StatelessWidget {
   const PurchaseTeamCardList({super.key});
 
   Future<List<PurchaseTeamIndexModel>> fetchTeams() async {
-   final response = await http.get(
- Uri.parse('${ApiBase.baseUrl}/purchase/purchase-team/')
-);
+    // Ambil token dari secure storage
+    final storage = const FlutterSecureStorage();
+    final token = await storage.read(key: 'user_token');
+
+    final response = await http.get(
+      Uri.parse('${ApiBase.baseUrl}/purchase/purchase-team/'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
