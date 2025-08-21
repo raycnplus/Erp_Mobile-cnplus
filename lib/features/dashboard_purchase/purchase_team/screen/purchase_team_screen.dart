@@ -58,6 +58,7 @@
                   });
                 },
               ),
+            
               const SizedBox(height: 16),
               Expanded(child: PurchaseTeamCardList(searchQuery: searchQuery)),
             ],

@@ -8,6 +8,7 @@ import '../models/purchase_chart_data_model.dart';
 import '../widget/purchase_bar_chart_widget.dart';
 import '../widget/purchase_dashboard_drawer_widget.dart';
 import '../services/purchase_service.dart';
+import '../../../core/routes/app_routes.dart';
 import '../models/purchase_dashboard_model.dart' as ApiModel;
 import '../utils/formatters.dart'; // Import formatter: fungsi nya buat angka supaya ga panjang dan di pisah biar ga ribet karna lumayan banyak
 
@@ -96,14 +97,19 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text(
-          'Dashboard Purchase',
-          style: TextStyle(color: Colors.black),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 1,
-        iconTheme: const IconThemeData(color: Colors.black),
-      ),
+      title: GestureDetector(
+      onTap: () {
+      Navigator.pushNamed(context, AppRoutes.modul);
+      },
+      child: const Text(
+        'Dashboard Purchase',
+      style: TextStyle(color: Colors.black),
+     ),
+   ),
+   backgroundColor: Colors.white,
+   elevation: 1,
+   iconTheme: const IconThemeData(color: Colors.black),
+),
       drawer: const PurchaseDashboardDrawer(),
       body: FutureBuilder<ApiModel.PurchaseDashboardResponse>(
         future: _dashboardDataFuture,
