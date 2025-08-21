@@ -7,6 +7,7 @@ import '../widget/pie_chart_widget.dart';
 import '../widget/stat_card_widget.dart';
 import '../widget/dashboard_drawer_widget.dart';
 import '../widget/top_product_widget.dart';
+import '../../../core/routes/app_routes.dart';
 
 class DashboardInventoryScreen extends StatefulWidget {
   const DashboardInventoryScreen({super.key});
@@ -60,10 +61,19 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Inventory Dashboard'),
-        backgroundColor: Colors.white,
-        elevation: 1,
-      ),
+      title: GestureDetector(
+      onTap: () {
+      Navigator.pushNamed(context, AppRoutes.modul);
+      },
+      child: const Text(
+        'Inventory Dashboard',
+      style: TextStyle(color: Colors.black),
+     ),
+   ),
+   backgroundColor: Colors.white,
+   elevation: 1,
+   iconTheme: const IconThemeData(color: Colors.black),
+),
       drawer: const DashboardDrawer(),
       body: SingleChildScrollView(
         child: Padding(

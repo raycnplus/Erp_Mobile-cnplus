@@ -6,6 +6,7 @@ import '../widget/top_list_card.dart';
 import '../widget/sales_dashboard_drawer_widget.dart';
 import '../services/sales_dashboard_service.dart';
 import '../helpers/currency_helper.dart';
+import '../../../core/routes/app_routes.dart';
 
 class DashboardSalesScreen extends StatefulWidget {
   const DashboardSalesScreen({super.key});
@@ -29,14 +30,19 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
       drawer: const SalesDashboardDrawer(),
       backgroundColor: const Color(0xFFEAFBF3),
       appBar: AppBar(
-        title: const Text(
-          'Dashboard Sales',
-          style: TextStyle(color: Colors.teal),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.teal),
-      ),
+      title: GestureDetector(
+      onTap: () {
+      Navigator.pushNamed(context, AppRoutes.modul);
+      },
+      child: const Text(
+        'Sales Dashboard',
+      style: TextStyle(color: Colors.black),
+     ),
+   ),
+   backgroundColor: Colors.white,
+   elevation: 1,
+   iconTheme: const IconThemeData(color: Colors.black),
+),
       body: FutureBuilder<SalesDashboardResponse>(
         future: _dashboardFuture,
         builder: (context, snapshot) {
