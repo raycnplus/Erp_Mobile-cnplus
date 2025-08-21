@@ -47,7 +47,9 @@ class _TopProductListState extends State<TopProductList> {
         final top5Products = snapshot.data!;
         return Card(
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -55,8 +57,20 @@ class _TopProductListState extends State<TopProductList> {
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Product", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
-                    Text("QTY", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                    Text(
+                      "Product",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    Text(
+                      "QTY",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                      ),
+                    ),
                   ],
                 ),
                 const Divider(height: 24),
@@ -80,7 +94,8 @@ class _TopProductListState extends State<TopProductList> {
                       ),
                     );
                   },
-                  separatorBuilder: (context, index) => const SizedBox(height: 8),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 8),
                 ),
               ],
             ),

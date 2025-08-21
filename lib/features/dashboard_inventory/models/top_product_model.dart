@@ -3,17 +3,13 @@ class TopProduct {
   final int count;
   final quantity;
 
-  TopProduct({
-    required this.name,
-    required this.count,
-    required this.quantity,
-  });
+  TopProduct({required this.name, required this.count, required this.quantity});
 
   factory TopProduct.fromJson(Map<String, dynamic> json) {
     return TopProduct(
       name: json['name'] ?? json['label'],
       count: json['count'] ?? json['value'],
-      quantity: json['quantity']
+      quantity: json['quantity'],
     );
   }
 

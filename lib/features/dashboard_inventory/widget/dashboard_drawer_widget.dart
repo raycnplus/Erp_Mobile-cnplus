@@ -51,7 +51,10 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                 Center(
                   child: Text(
                     username.isNotEmpty ? username : "User",
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 4),

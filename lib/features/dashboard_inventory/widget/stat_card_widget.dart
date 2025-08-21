@@ -5,9 +5,8 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../../services/api_base.dart';
-import '../models/chart_data_model.dart'; // Pastikan path model ini benar
+import '../models/chart_data_model.dart'; 
 
-// Tidak ada perubahan pada widget StatCard, ini adalah widget presentasi murni.
 class StatCard extends StatelessWidget {
   final String title;
   final String endpoint;
@@ -60,7 +59,8 @@ class StatCard extends StatelessWidget {
           children: [
             Text(
               value,
-              style: valueStyle ??
+              style:
+                  valueStyle ??
                   TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -71,7 +71,8 @@ class StatCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               title,
-              style: titleStyle ??
+              style:
+                  titleStyle ??
                   const TextStyle(fontSize: 14, color: Colors.black54),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -84,7 +85,6 @@ class StatCard extends StatelessWidget {
   }
 }
 
-// Widget StatCardLoader (dengan API integration)
 class StatCardLoader extends StatefulWidget {
   final String title;
   final String endpoint;
@@ -140,7 +140,7 @@ class _StatCardLoaderState extends State<StatCardLoader> {
   }
 
   // =======================================================================
-  // == PERUBAHAN UTAMA ADA DI DALAM FUNGSI fetchStat() DI BAWAH INI ==
+  // == FUNGSI fetch DI BAWAH INI ==
   // =======================================================================
   Future<StatValue> fetchStat() async {
     final secureStorage = FlutterSecureStorage();
@@ -175,13 +175,12 @@ class _StatCardLoaderState extends State<StatCardLoader> {
             label: widget.title,
           );
         }
-        // Prioritas 2: Respons adalah Map (e.g., {"data": [...]})
         else if (jsonData is Map<String, dynamic>) {
-          // Cek untuk key 'total' atau 'total_count' untuk data paginasi
           int? totalCount;
           if (jsonData.containsKey('total') && jsonData['total'] is num) {
             totalCount = jsonData['total'];
-          } else if (jsonData.containsKey('total_count') && jsonData['total_count'] is num) {
+          } else if (jsonData.containsKey('total_count') &&
+              jsonData['total_count'] is num) {
             totalCount = jsonData['total_count'];
           }
 
@@ -189,20 +188,32 @@ class _StatCardLoaderState extends State<StatCardLoader> {
           if (jsonData.containsKey('data') && jsonData['data'] is List) {
             final dataList = jsonData['data'] as List;
             // Jika ada totalCount, gunakan itu. Jika tidak, gunakan panjang list.
-            return StatValue(value: totalCount ?? dataList.length, total: totalCount ?? dataList.length, label: widget.title);
-          } else if (jsonData.containsKey('items') && jsonData['items'] is List) {
+            return StatValue(
+              value: totalCount ?? dataList.length,
+              total: totalCount ?? dataList.length,
+              label: widget.title,
+            );
+          } else if (jsonData.containsKey('items') &&
+              jsonData['items'] is List) {
             final itemsList = jsonData['items'] as List;
-            return StatValue(value: totalCount ?? itemsList.length, total: totalCount ?? itemsList.length, label: widget.title);
+            return StatValue(
+              value: totalCount ?? itemsList.length,
+              total: totalCount ?? itemsList.length,
+              label: widget.title,
+            );
           }
 
           // Fallback jika formatnya adalah { "value": 123 } atau hanya ada 'total'
-          if(totalCount != null) {
-            return StatValue(value: totalCount, total: totalCount, label: widget.title);
+          if (totalCount != null) {
+            return StatValue(
+              value: totalCount,
+              total: totalCount,
+              label: widget.title,
+            );
           }
           // Jaga fungsionalitas lama untuk format standar
           return StatValue.fromJson(jsonData);
-        }
-        else {
+        } else {
           throw Exception('Invalid response format: Expected a List or a Map.');
         }
       } else {
@@ -254,7 +265,9 @@ class _StatCardLoaderState extends State<StatCardLoader> {
           endpoint: widget.endpoint,
           enableAutoRefresh: widget.enableAutoRefresh.toString(),
           value: displayValue,
-          valueColor: widget.valueColor ?? displayColor, // Prioritaskan warna dari widget
+          valueColor:
+              widget.valueColor ??
+              displayColor, // Prioritaskan warna dari widget
           valueStyle: widget.valueStyle,
           titleStyle: widget.titleStyle,
           width: widget.width,
@@ -289,6 +302,8 @@ class _StatCardLoaderState extends State<StatCardLoader> {
     } else if (value >= 1000) {
       return "${(value / 1000).toStringAsFixed(1)}K";
     }
-    return value.toInt().toString(); // Tampilkan sebagai integer jika di bawah 1000
+    return value
+        .toInt()
+        .toString(); // Tampilkan sebagai integer jika di bawah 1000
   }
 }

@@ -1,13 +1,9 @@
 import 'package:erp_mobile_cnplus/features/modul/screen/modul_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
+import 'package:connectivity_plus/connectivity_plus.dart';
 import '../widgets/login_form.dart';
 import '../models/login_request.dart';
-import '../../../services/api_base.dart';
+import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -23,11 +19,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final List<String> databaseOptions = ['mysql', 'testing'];
   bool isLoading = false;
 
-  // Inisialisasi secure storage
-  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
-
   Future<void> handleLogin() async {
     setState(() => isLoading = true);
+
+    // Cek koneksi internet sebelum login
+    final connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      if (mounted) {
+        setState(() => isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Tidak ada koneksi internet. Silakan cek jaringan Anda.'),
+          ),
+        );
+      }
+      return;
+    }
 
     try {
       final loginReq = LoginRequest(
@@ -36,41 +43,9 @@ class _LoginScreenState extends State<LoginScreen> {
         database: databaseController.text.trim(),
       );
 
-      final url = Uri.parse('${ApiBase.baseUrl}/auth/login');
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode(loginReq.toJson()),
-      );
+      final result = await AuthService.login(loginReq);
 
-      final data = jsonDecode(response.body);
-
-      if (response.statusCode == 200) {
-        final token = data['token'];
-        final user = data['user'];
-
-        final prefs = await SharedPreferences.getInstance();
-
-        // Simpan JWT token ke secure storage
-        await secureStorage.write(key: 'user_token', value: token);
-
-        // Simpan user info ke shared preferences
-        if (user != null) {
-          if (user['username'] != null)
-            await prefs.setString('username', user['username']);
-          if (user['email'] != null)
-            await prefs.setString('email', user['email']);
-          if (user['nama_lengkap'] != null)
-            await prefs.setString('nama_lengkap', user['nama_lengkap']);
-        }
-
-        print(
-          'Token JWT disimpan di secure storage dan detail pengguna di shared preferences.',
-        );
-
+      if (result['success'] == true) {
         if (mounted) {
           Navigator.pushReplacement(
             context,
@@ -78,21 +53,15 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }
       } else {
-        // Log kegagalan dan tampilkan pesan dari server
-        print('Login gagal: ${data['message']}');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                'Login gagal: ${data['message'] ?? 'Terjadi kesalahan'}',
-              ),
+              content: Text('Login gagal: ${result['message']}'),
             ),
           );
         }
       }
     } catch (e) {
-      // Menangani error jaringan atau parsing
-      print('Error saat login: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -121,7 +90,6 @@ class _LoginScreenState extends State<LoginScreen> {
               Image.asset('assets/logo.png', height: 80),
               const SizedBox(height: 20),
               const SizedBox(height: 40),
-              // Form Login
               LoginForm(
                 emailController: usernameController,
                 passwordController: passwordController,

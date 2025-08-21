@@ -38,9 +38,11 @@ class SalesDashboardResponse {
       revenuePerDay: _parseChart(charts['revenue_per_day']),
       quantityPerDay: _parseChart(charts['quantity_per_day']),
       topCustomers: (json['top_customers'] as List<dynamic>? ?? [])
-          .map((e) => TopCustomer.fromJson(e)).toList(),
+          .map((e) => TopCustomer.fromJson(e))
+          .toList(),
       topInvoices: (json['top_invoices'] as List<dynamic>? ?? [])
-          .map((e) => TopInvoice.fromJson(e)).toList(),
+          .map((e) => TopInvoice.fromJson(e))
+          .toList(),
     );
   }
 
@@ -50,10 +52,12 @@ class SalesDashboardResponse {
     final data = chart['data'] as List<dynamic>? ?? [];
     List<SalesChartData> result = [];
     for (int i = 0; i < labels.length && i < data.length; i++) {
-      result.add(SalesChartData(
-        label: labels[i].toString(),
-        value: double.tryParse(data[i].toString()) ?? 0,
-      ));
+      result.add(
+        SalesChartData(
+          label: labels[i].toString(),
+          value: double.tryParse(data[i].toString()) ?? 0,
+        ),
+      );
     }
     return result;
   }
