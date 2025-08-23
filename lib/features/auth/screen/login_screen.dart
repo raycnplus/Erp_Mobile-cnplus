@@ -95,18 +95,18 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor dihapus dari sini dan dipindahkan ke dalam Container
       body: Container(
-        // Menambahkan dekorasi gradasi pada background
         decoration: const BoxDecoration(
           gradient: LinearGradient(
+            // --- PERUBAHAN DIMULAI DARI SINI ---
             colors: [
-              Color(0xFFE8F5E9), // Warna hijau yang sangat terang (subtle)
+              Color(0xFFE0F2F1), // Versi SANGAT TERANG dari #409c9c
               Color(0xFFFFFCFB), // Warna background asli
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            stops: [0.0, 0.7], // Mengatur gradasi agar hijau lebih dominan di atas
+            stops: [0.0, 0.8], // Diubah dari 0.7 ke 0.8 agar lebih luas
+            // --- PERUBAHAN BERAKHIR DI SINI ---
           ),
         ),
         child: Center(

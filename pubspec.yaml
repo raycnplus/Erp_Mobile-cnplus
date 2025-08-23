@@ -21,6 +21,7 @@ dependencies:
   flutter_secure_storage: ^9.2.4
   google_fonts: ^6.3.0
   connectivity_plus: ^6.1.5
+  logger: ^2.6.1
   
 
 dev_dependencies:

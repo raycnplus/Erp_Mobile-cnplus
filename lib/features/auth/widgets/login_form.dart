@@ -142,8 +142,8 @@ class _LoginFormState extends State<LoginForm> {
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [
-                        Color.fromARGB(255, 43, 225, 128), 
-                        Color.fromARGB(255, 28, 149, 79), 
+                        Color(0xff409c9c), // kiri: terang
+                        Color(0xff2b6e6e), // kanan: gelap
                       ],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
