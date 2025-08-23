@@ -8,7 +8,13 @@ import '../../../../services/api_base.dart';
 
 class PurchaseTeamCardList extends StatefulWidget {
   final String searchQuery;
-  const PurchaseTeamCardList({super.key, required this.searchQuery});
+  final void Function(int teamId)? onTap;
+
+  const PurchaseTeamCardList({
+    super.key,
+    required this.searchQuery,
+    this.onTap,
+  });
 
   @override
   State<PurchaseTeamCardList> createState() => _PurchaseTeamCardListState();
@@ -65,7 +71,6 @@ class _PurchaseTeamCardListState extends State<PurchaseTeamCardList> {
 
   @override
   Widget build(BuildContext context) {
-    // ... (Bagian FutureBuilder tetap sama)
     return FutureBuilder<List<PurchaseTeamIndexModel>>(
       future: _fetchTeamsFuture,
       builder: (context, snapshot) {
@@ -93,14 +98,14 @@ class _PurchaseTeamCardListState extends State<PurchaseTeamCardList> {
             .where(
               (team) =>
                   team.teamName.toLowerCase().contains(
-                    widget.searchQuery.toLowerCase(),
-                  ) ||
+                        widget.searchQuery.toLowerCase(),
+                      ) ||
                   team.teamLeader.toLowerCase().contains(
-                    widget.searchQuery.toLowerCase(),
-                  ) ||
+                        widget.searchQuery.toLowerCase(),
+                      ) ||
                   team.description.toLowerCase().contains(
-                    widget.searchQuery.toLowerCase(),
-                  ),
+                        widget.searchQuery.toLowerCase(),
+                      ),
             )
             .toList();
 
@@ -121,80 +126,86 @@ class _PurchaseTeamCardListState extends State<PurchaseTeamCardList> {
             const cardColor = Color.fromRGBO(151, 176, 103, 1);
             const textColor = Color.fromRGBO(254, 250, 224, 1);
 
-            // ...existing code...
-            return Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(9),
-                color: cardColor,
+            return InkWell(
+            onTap: () {
+               if (widget.onTap != null) {
+               widget.onTap!(team.idPurchaseTeam); // harus pakai widget.onTap
+             }
+             },
 
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(1), // shadow tipis
-                    blurRadius: 4.5,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Stack(
-                children: <Widget>[
-                  Positioned(
-                    top: 10,
-                    left: 14,
-                    right: 14,
-                    child: Text(
-                      team.teamName,
-                      textAlign: TextAlign.left,
-                      style: GoogleFonts.inter(
-                        color: textColor,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
+              borderRadius: BorderRadius.circular(9),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(9),
+                  color: cardColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 4.5,
+                      offset: const Offset(0, 2),
                     ),
-                  ),
-                  const Positioned(
-                    top: 38,
-                    left: 17,
-                    child: Icon(Icons.person, color: textColor, size: 16),
-                  ),
-                  Positioned(
-                    top: 36,
-                    left: 40,
-                    right: 14,
-                    child: Text(
-                      team.teamLeader,
-                      textAlign: TextAlign.left,
-                      style: GoogleFonts.notoSans(
-                        color: textColor,
-                        fontSize: 15,
-                        fontWeight: FontWeight.normal,
+                  ],
+                ),
+                child: Stack(
+                  children: <Widget>[
+                    Positioned(
+                      top: 10,
+                      left: 14,
+                      right: 14,
+                      child: Text(
+                        team.teamName,
+                        textAlign: TextAlign.left,
+                        style: GoogleFonts.inter(
+                          color: textColor,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
                     ),
-                  ),
-                  Positioned(
-                    top: 56,
-                    left: 17,
-                    right: 17,
-                    bottom: 10,
-                    child: Text(
-                      team.description,
-                      textAlign: TextAlign.left,
-                      style: GoogleFonts.notoSans(
-                        color: textColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.normal,
+                    const Positioned(
+                      top: 38,
+                      left: 17,
+                      child: Icon(Icons.person, color: textColor, size: 16),
+                    ),
+                    Positioned(
+                      top: 36,
+                      left: 40,
+                      right: 14,
+                      child: Text(
+                        team.teamLeader,
+                        textAlign: TextAlign.left,
+                        style: GoogleFonts.notoSans(
+                          color: textColor,
+                          fontSize: 15,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
+                    Positioned(
+                      top: 56,
+                      left: 17,
+                      right: 17,
+                      bottom: 10,
+                      child: Text(
+                        team.description,
+                        textAlign: TextAlign.left,
+                        style: GoogleFonts.notoSans(
+                          color: textColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.normal,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
-            // ...existing code...
           },
         );
       },

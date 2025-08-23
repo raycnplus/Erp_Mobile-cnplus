@@ -1,5 +1,6 @@
   import 'package:flutter/material.dart';
   import '../widget/purchase_team_list_card.dart';
+  import '../../purchase_team/screen/purchase_team_show_screen.dart';
 
   class PurchaseTeamScreen extends StatefulWidget {
     const PurchaseTeamScreen({super.key});
@@ -59,16 +60,30 @@
                 },
               ),
             
-              const SizedBox(height: 16),
-              Expanded(child: PurchaseTeamCardList(searchQuery: searchQuery)),
+            Expanded(
+  child: PurchaseTeamCardList(
+    searchQuery: searchQuery,
+    onTap: (teamId) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PurchaseTeamShowScreen(teamId: teamId), // ✅ screen detail
+        ),
+      );
+    },
+  ),
+),
+
+
+
             ],
           ),
         ),
       floatingActionButton: FloatingActionButton(
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
+       onPressed: () {
+        Navigator.push(
+        context,
+        MaterialPageRoute(
         builder: (_) => const PurchaseTeamScreen(),
       ),
     );
