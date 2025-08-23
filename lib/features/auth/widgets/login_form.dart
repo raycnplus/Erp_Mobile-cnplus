@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class LoginForm extends StatelessWidget {
+class LoginForm extends StatefulWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
   final TextEditingController databaseController;
@@ -19,55 +19,160 @@ class LoginForm extends StatelessWidget {
   });
 
   @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  bool _obscurePassword = true;
+
+  @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        DropdownButtonFormField<String>(
-          value: databaseController.text.isNotEmpty ? databaseController.text : null,
-          items: databaseOptions
-              .map((db) => DropdownMenuItem(value: db, child: Text(db)))
-              .toList(),
-          decoration: const InputDecoration(
-            labelText: 'Pilih Database',
-            prefixIcon: Icon(Icons.storage),
-            border: OutlineInputBorder(),
-          ),
-          onChanged: (value) {
-            if (value != null) {
-              databaseController.text = value;
-            }
-          },
+    // Mendefinisikan gaya border untuk input field agar konsisten
+    final inputBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
+    );
+
+    final focusedBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2.0),
+    );
+
+    return Card(
+      // Shadow dibuat lebih halus dengan mengurangi elevation dan memberi warna
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Dropdown Database
+            DropdownButtonFormField<String>(
+              value: widget.databaseController.text.isNotEmpty
+                  ? widget.databaseController.text
+                  : null,
+              items: widget.databaseOptions
+                  .map((db) => DropdownMenuItem(value: db, child: Text(db)))
+                  .toList(),
+              decoration: InputDecoration(
+                hintText: 'Pilih Database',
+                prefixIcon: const Icon(Icons.storage),
+                border: inputBorder,
+                enabledBorder: inputBorder,
+                focusedBorder: focusedBorder,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+              ),
+              borderRadius: BorderRadius.circular(12),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    widget.databaseController.text = value;
+                  });
+                }
+              },
+              dropdownColor: Colors.white,
+            ),
+            const SizedBox(height: 18),
+            // Username
+            TextField(
+              controller: widget.emailController,
+              decoration: InputDecoration(
+                hintText: 'Username',
+                prefixIcon: const Icon(Icons.person),
+                border: inputBorder,
+                enabledBorder: inputBorder,
+                focusedBorder: focusedBorder,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+            // Password
+            TextField(
+              controller: widget.passwordController,
+              obscureText: _obscurePassword,
+              decoration: InputDecoration(
+                hintText: 'Password',
+                prefixIcon: const Icon(Icons.lock),
+                border: inputBorder,
+                enabledBorder: inputBorder,
+                focusedBorder: focusedBorder,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 28),
+            // Login Button
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: widget.isLoading ? null : widget.onLogin,
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(26),
+                  ),
+                  padding: EdgeInsets.zero,
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                ),
+                child: Ink(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 43, 225, 128), 
+                        Color.fromARGB(255, 28, 149, 79), 
+                      ],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    borderRadius: BorderRadius.circular(26),
+                  ),
+                  child: Container(
+                    alignment: Alignment.center,
+                    height: 52,
+                    child: widget.isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            'Login',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Forgot Password
+          ],
         ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: emailController,
-          decoration: const InputDecoration(
-            labelText: 'Username',
-            prefixIcon: Icon(Icons.person),
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: passwordController,
-          obscureText: true,
-          decoration: const InputDecoration(
-            labelText: 'Password',
-            prefixIcon: Icon(Icons.lock),
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 24),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: isLoading ? null : onLogin,
-            child: isLoading
-                ? const CircularProgressIndicator(color: Colors.white)
-                : const Text('Login'),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
