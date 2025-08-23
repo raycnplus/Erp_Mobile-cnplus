@@ -64,13 +64,19 @@
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // TODO: Tambahkan aksi untuk tambah tim
-          },
-          backgroundColor: const Color(0xFF009688),
-          child: const Icon(Icons.add, color: Colors.white),
-        ),
+      floatingActionButton: FloatingActionButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const PurchaseTeamScreen(),
+      ),
+    );
+  },
+  backgroundColor: const Color(0xFF009688),
+  child: const Icon(Icons.add, color: Colors.white),
+),
+
       );
     }
   }
