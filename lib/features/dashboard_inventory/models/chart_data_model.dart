@@ -15,7 +15,6 @@ class StatValue {
     this.timestamp,
   });
 
-  ///stat card
   factory StatValue.fromJson(Map<String, dynamic> json) {
     return StatValue(
       value:
@@ -27,7 +26,6 @@ class StatValue {
     );
   }
 
-  ///pie
   static List<ChartData> parseChartDataFromApi(dynamic apiResponse) {
     final colors = [
       const Color(0xFF2196F3), // Blue
@@ -42,17 +40,15 @@ class StatValue {
 
     List<dynamic> dataList = [];
 
-    // Handle different API response structures
     if (apiResponse is List) {
       dataList = apiResponse;
     } else if (apiResponse is Map<String, dynamic>) {
-      // Check for common API wrapper patterns
       dataList =
           apiResponse['data'] ??
           apiResponse['items'] ??
           apiResponse['results'] ??
           apiResponse['chart_data'] ??
-          [apiResponse]; // Single item wrapped in map
+          [apiResponse];
     }
 
     return List<ChartData>.generate(dataList.length, (i) {
@@ -72,7 +68,6 @@ class StatValue {
     });
   }
 
-  ///pie - legacy method untuk backward compatibility
   List<ChartData> parseChartData(dynamic json) {
     return StatValue.parseChartDataFromApi(json);
   }
@@ -87,7 +82,6 @@ class StatValue {
   }
 }
 
-// ✅ Enhanced ChartData class
 class ChartData {
   final String label;
   final double value;
@@ -123,7 +117,33 @@ class ChartData {
     return Colors.grey;
   }
 
-  // Helper method untuk format value dengan unit
+  // Helper untuk parsing dari struktur {labels:[], data:[]}
+  static List<ChartData> fromChartMap(Map? chart, {Color? color}) {
+    if (chart == null ||
+        chart['labels'] == null ||
+        chart['data'] == null ||
+        (chart['labels'] as List).isEmpty) {
+      return [];
+    }
+    final labels = chart['labels'] as List;
+    final data = chart['data'] as List;
+    final baseColor = color ?? Colors.blue;
+    return List.generate(labels.length, (i) {
+      final val = data[i];
+      double value = 0;
+      if (val is num) {
+        value = val.toDouble();
+      } else if (val is String) {
+        value = double.tryParse(val) ?? 0;
+      }
+      return ChartData(
+        label: labels[i].toString(),
+        value: value,
+        color: baseColor.withOpacity(0.7 + 0.3 * (i % 2)),
+      );
+    });
+  }
+
   String get formattedValue {
     if (unit != null) {
       return '${value.toStringAsFixed(value % 1 == 0 ? 0 : 1)}$unit';

@@ -1,20 +1,15 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:fl_chart/fl_chart.dart';
 import '../models/chart_data_model.dart';
-import '../../../services/api_base.dart';
 
 class StockPieChart extends StatefulWidget {
-  final List<ChartData>? data;
-  final String? endpoint;
+  final List<ChartData> data;
   final String? title;
   final double aspectRatio;
 
   const StockPieChart({
     super.key,
-    this.data,
-    this.endpoint,
+    required this.data,
     this.title,
     this.aspectRatio = 1.5,
   });
@@ -25,48 +20,12 @@ class StockPieChart extends StatefulWidget {
 
 class _StockPieChartState extends State<StockPieChart> {
   int touchedIndex = -1;
-  List<ChartData> chartData = [];
-  bool isLoading = true;
-  String? error;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.data != null) {
-      chartData = widget.data!;
-      isLoading = false;
-    } else if (widget.endpoint != null) {
-      fetchChartData();
-    }
-  }
-
-  Future<void> fetchChartData() async {
-    try {
-      final url = Uri.parse('${ApiBase.baseUrl}/${widget.endpoint}');
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        final raw = json.decode(response.body);
-        final parsed = StatValue.parseChartDataFromApi(raw);
-        setState(() {
-          chartData = parsed;
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Status ${response.statusCode}');
-      }
-    } catch (e) {
-      setState(() {
-        error = e.toString();
-        isLoading = false;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) return const Center(child: CircularProgressIndicator());
-    if (error != null) return Text("Error: $error");
+    if (widget.data.isEmpty) {
+      return const Center(child: Text("No data"));
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,16 +68,16 @@ class _StockPieChartState extends State<StockPieChart> {
   }
 
   List<PieChartSectionData> showingSections() {
-    return List.generate(chartData.length, (i) {
+    return List.generate(widget.data.length, (i) {
       final isTouched = i == touchedIndex;
       final fontSize = isTouched ? 20.0 : 14.0;
       final radius = isTouched ? 70.0 : 60.0;
-      final data = chartData[i];
+      final data = widget.data[i];
 
       return PieChartSectionData(
         color: data.color,
         value: data.value,
-        title: '${data.value.toInt()}%',
+        title: '${data.value.toInt()}',
         radius: radius,
         titleStyle: TextStyle(
           fontSize: fontSize,
