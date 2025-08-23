@@ -31,7 +31,7 @@ class PurchaseTeamIndexModel {
 }
 
 class PurchaseTeamShowModel {
-  final int id;
+ final int idPurchaseTeam;
   final String teamName;
   final String teamLeaderName;
   final String description;
@@ -40,7 +40,7 @@ class PurchaseTeamShowModel {
   final List<String> memberNames;
 
   PurchaseTeamShowModel({
-    required this.id,
+     required this.idPurchaseTeam,
     required this.teamName,
     required this.teamLeaderName,
     required this.description,
@@ -51,22 +51,23 @@ class PurchaseTeamShowModel {
 
   factory PurchaseTeamShowModel.fromJson(Map<String, dynamic> json) {
     return PurchaseTeamShowModel(
-      id: json['id_purchase_team'] ?? 0,
+      idPurchaseTeam: json['id_purchase_team'] ?? 0,
       teamName: json['team_name'] ?? '',
       teamLeaderName: json['team_leader']?['nama_lengkap'] ?? '',
       description: json['description'] ?? '',
       createdDate: json['created_date'] ?? '',
       createdBy: json['created_by'] ?? 0,
-      memberNames: (json['member'] as List<dynamic>)
-          .map((m) => m['karyawan']?['nama_lengkap'] ?? '')
-          .whereType<String>()
-          .toList(),
+      memberNames: ((json['member'] as List<dynamic>?) ?? [])
+    .map<String>((m) => m['karyawan']?['nama_lengkap']?.toString() ?? '')
+    .where((name) => name.isNotEmpty)
+    .toList(),
+
     );
   }
 
-  Map<String, dynamic> toJson() {
+ Map<String, dynamic> toJson() {
     return {
-      'id_purchase_team': id,
+      'id_purchase_team': idPurchaseTeam,
       'team_name': teamName,
       'team_leader_name': teamLeaderName,
       'description': description,
