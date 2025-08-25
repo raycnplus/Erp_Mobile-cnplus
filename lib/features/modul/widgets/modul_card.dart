@@ -26,7 +26,18 @@ class ModulCard extends StatelessWidget {
               height: 100,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: const Color(0xff409c9c),
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(
+                      0xff409c9c,
+                    ), // kiri: terang (sama dengan button login)
+                    Color(
+                      0xff2b6e6e,
+                    ), // kanan: gelap (sama dengan button login)
+                  ],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.12),
