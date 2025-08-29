@@ -35,11 +35,10 @@ class _LoginFormState extends State<LoginForm> {
 
     final focusedBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2.0),
+      borderSide: const BorderSide(color: Color(0xff409c9c), width: 2.0), // <-- Ubah di sini
     );
 
     return Card(
-      // Shadow dibuat lebih halus dengan mengurangi elevation dan memberi warna
       elevation: 4,
       shadowColor: Colors.black.withOpacity(0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
@@ -62,7 +61,7 @@ class _LoginFormState extends State<LoginForm> {
                 prefixIcon: const Icon(Icons.storage),
                 border: inputBorder,
                 enabledBorder: inputBorder,
-                focusedBorder: focusedBorder,
+                focusedBorder: focusedBorder, // <-- Pastikan ini dipakai
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 16,
@@ -87,7 +86,7 @@ class _LoginFormState extends State<LoginForm> {
                 prefixIcon: const Icon(Icons.person),
                 border: inputBorder,
                 enabledBorder: inputBorder,
-                focusedBorder: focusedBorder,
+                focusedBorder: focusedBorder, // <-- Pastikan ini dipakai
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 16,
@@ -104,7 +103,7 @@ class _LoginFormState extends State<LoginForm> {
                 prefixIcon: const Icon(Icons.lock),
                 border: inputBorder,
                 enabledBorder: inputBorder,
-                focusedBorder: focusedBorder,
+                focusedBorder: focusedBorder, // <-- Pastikan ini dipakai
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 16,
@@ -156,20 +155,19 @@ class _LoginFormState extends State<LoginForm> {
                     child: widget.isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
-                            'Login',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
+                      'Login',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 24),
 
-            // Forgot Password
           ],
         ),
       ),

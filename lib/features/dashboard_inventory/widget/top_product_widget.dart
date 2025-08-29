@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/format_util.dart';
 
 class TopProductList extends StatelessWidget {
   final List<dynamic> topProducts;
@@ -15,9 +16,7 @@ class TopProductList extends StatelessWidget {
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -55,15 +54,14 @@ class TopProductList extends StatelessWidget {
                     children: [
                       Text(product['product_name'] ?? '-'),
                       Text(
-                        "${product['total'] ?? 0}",
+                        formatShortNumber(product['total'] ?? 0),
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
                 );
               },
-              separatorBuilder: (context, index) =>
-                  const SizedBox(height: 8),
+              separatorBuilder: (context, index) => const SizedBox(height: 8),
             ),
           ],
         ),

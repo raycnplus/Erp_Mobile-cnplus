@@ -79,7 +79,6 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Seluruh UI (widget build) tidak ada perubahan
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -135,41 +134,48 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
             color: Colors.blue,
           );
 
+          // --- PERBAIKAN OVERFLOW: GANTI GridView.count DENGAN Wrap ---
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 4,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
-                    childAspectRatio: 0.8,
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
                     children: [
-                      StatCard(
-                        title: "Receipt Note",
-                        value: summary['receipt_note']?.toString() ?? "0",
-                        onTap: () => _showDetailDialog(context, 'Receipt Note'),
+                      SizedBox(
+                        width: (MediaQuery.of(context).size.width - 16 * 2 - 8 * 3) / 4,
+                        child: StatCard(
+                          title: "Receipt Note",
+                          value: summary['receipt_note']?.toString() ?? "0",
+                          onTap: () => _showDetailDialog(context, 'Receipt Note'),
+                        ),
                       ),
-                      StatCard(
-                        title: "Delivery Note",
-                        value: summary['delivery_note']?.toString() ?? "0",
-                        onTap: () =>
-                            _showDetailDialog(context, 'Delivery Note'),
+                      SizedBox(
+                        width: (MediaQuery.of(context).size.width - 16 * 2 - 8 * 3) / 4,
+                        child: StatCard(
+                          title: "Delivery Note",
+                          value: summary['delivery_note']?.toString() ?? "0",
+                          onTap: () => _showDetailDialog(context, 'Delivery Note'),
+                        ),
                       ),
-                      StatCard(
-                        title: "Internal Transfer",
-                        value: summary['internal_transfer']?.toString() ?? "0",
-                        onTap: () =>
-                            _showDetailDialog(context, 'Internal Transfer'),
+                      SizedBox(
+                        width: (MediaQuery.of(context).size.width - 16 * 2 - 8 * 3) / 4,
+                        child: StatCard(
+                          title: "Internal Transfer",
+                          value: summary['internal_transfer']?.toString() ?? "0",
+                          onTap: () => _showDetailDialog(context, 'Internal Transfer'),
+                        ),
                       ),
-                      StatCard(
-                        title: "Stock count",
-                        value: summary['stock_count']?.toString() ?? "0",
-                        onTap: () => _showDetailDialog(context, 'Stock count'),
+                      SizedBox(
+                        width: (MediaQuery.of(context).size.width - 16 * 2 - 8 * 3) / 4,
+                        child: StatCard(
+                          title: "Stock count",
+                          value: summary['stock_count']?.toString() ?? "0",
+                          onTap: () => _showDetailDialog(context, 'Stock count'),
+                        ),
                       ),
                     ],
                   ),

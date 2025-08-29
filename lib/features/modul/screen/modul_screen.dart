@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import '../widgets/modul_background.dart'; // Dihapus karena sudah tidak digunakan
 import '../widgets/modul_card.dart';
 import '../../../core/routes/app_routes.dart';
 
@@ -9,9 +8,7 @@ class ModulScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Body diubah dari Stack menjadi Container
       body: Container(
-        // Menambahkan dekorasi gradasi yang sama seperti login screen
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -24,7 +21,6 @@ class ModulScreen extends StatelessWidget {
           ),
         ),
         // Menggunakan SafeArea dan SingleChildScrollView agar bisa di-scroll
-        // jika konten melebihi layar (berguna untuk layar kecil)
         child: SafeArea(
           child: SingleChildScrollView(
             child: Center(
@@ -33,11 +29,10 @@ class ModulScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Ganti Text dengan logo
                     const SizedBox(height: 32),
                     Image.asset(
-                      'assets/logo.png', // ganti sesuai path logo kamu
-                      height: 60, // atur tinggi sesuai kebutuhan
+                      'assets/logo.png',
+                      height: 55, //
                       fit: BoxFit.contain,
                     ),
                     const SizedBox(height: 32),

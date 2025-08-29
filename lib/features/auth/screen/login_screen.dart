@@ -98,7 +98,6 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            // --- PERUBAHAN DIMULAI DARI SINI ---
             colors: [
               Color(0xFFE0F2F1), // Versi SANGAT TERANG dari #409c9c
               Color(0xFFFFFCFB), // Warna background asli
@@ -106,7 +105,6 @@ class _LoginScreenState extends State<LoginScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             stops: [0.0, 0.8], // Diubah dari 0.7 ke 0.8 agar lebih luas
-            // --- PERUBAHAN BERAKHIR DI SINI ---
           ),
         ),
         child: Center(

@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../models/chart_data_model.dart';
+import '../utils/format_util.dart';
 
 const Color kDefaultBarColor = Color(0xFF029379);
 
@@ -63,7 +64,7 @@ class ProductBarChart extends StatelessWidget {
                           ),
                           children: <TextSpan>[
                             TextSpan(
-                              text: rod.toY.round().toString(),
+                              text: formatShortNumber(rod.toY),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,

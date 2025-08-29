@@ -69,7 +69,6 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
           ),
           const Divider(thickness: 1),
 
-          // --- BAGIAN MENU ---
           Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 16.0,
@@ -90,7 +89,6 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
             ),
           ),
 
-          // Menu Expandable
           ExpansionTile(
             leading: const Text('•', style: TextStyle(fontSize: 20)),
             title: const Text('Product'),

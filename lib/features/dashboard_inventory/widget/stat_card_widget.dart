@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/format_util.dart';
 
 class StatCard extends StatelessWidget {
   final String title;
@@ -28,6 +29,11 @@ class StatCard extends StatelessWidget {
     final finalTitleStyle =
         titleStyle ?? const TextStyle(fontSize: 14, color: Colors.black54);
 
+    String displayValue = value;
+    if (double.tryParse(value) != null) {
+      displayValue = formatShortNumber(value);
+    }
+
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
@@ -44,7 +50,7 @@ class StatCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  value,
+                  displayValue,
                   style: finalValueStyle,
                   textAlign: TextAlign.center,
                 ),
