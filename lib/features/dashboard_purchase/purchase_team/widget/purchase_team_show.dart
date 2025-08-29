@@ -6,13 +6,21 @@ import '../../../../services/api_base.dart';
 
 class PurchaseTeamShowWidget extends StatelessWidget {
   final int teamId;
+  final String token;
 
-  const PurchaseTeamShowWidget({super.key, required this.teamId});
+  const PurchaseTeamShowWidget({
+    super.key,
+    required this.teamId,
+    required this.token,
+  });
 
   Future<PurchaseTeamShowModel> fetchPurchaseTeam(int id) async {
     final response = await http.get(
-      Uri.parse("${ApiBase.baseUrl}/purchase/purchase-team/17"),
-      headers: {"Accept": "application/json"},
+      Uri.parse("${ApiBase.baseUrl}/purchase/purchase-team/$id"),
+      headers: {
+        "Accept": "application/json",
+        "Authorization": "Bearer $token",
+      },
     );
 
     if (response.statusCode == 200) {
@@ -48,14 +56,12 @@ class PurchaseTeamShowWidget extends StatelessWidget {
               _buildInfoTile("Description", team.description),
               _buildInfoTile("Created Date", team.createdDate),
               _buildInfoTile("Created By", team.createdBy.toString()),
-
               const SizedBox(height: 16),
               const Text(
                 "Members",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const Divider(),
-
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
