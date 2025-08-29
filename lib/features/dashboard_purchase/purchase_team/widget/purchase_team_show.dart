@@ -1,20 +1,22 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../purchase_team/models/purchase_team_models.dart';
 import '../../../../services/api_base.dart';
 
 class PurchaseTeamShowWidget extends StatelessWidget {
   final int teamId;
-  final String token;
 
   const PurchaseTeamShowWidget({
     super.key,
     required this.teamId,
-    required this.token,
   });
 
   Future<PurchaseTeamShowModel> fetchPurchaseTeam(int id) async {
+    final storage = const FlutterSecureStorage();
+    final token = await storage.read(key: 'token') ?? '';
+
     final response = await http.get(
       Uri.parse("${ApiBase.baseUrl}/purchase/purchase-team/$id"),
       headers: {
@@ -22,6 +24,7 @@ class PurchaseTeamShowWidget extends StatelessWidget {
         "Authorization": "Bearer $token",
       },
     );
+    
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);

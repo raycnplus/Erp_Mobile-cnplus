@@ -134,7 +134,6 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
             color: Colors.blue,
           );
 
-          // --- PERBAIKAN OVERFLOW: GANTI GridView.count DENGAN Wrap ---
           return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),

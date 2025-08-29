@@ -3,12 +3,10 @@ import '../../purchase_team/widget/purchase_team_show.dart';
 
 class PurchaseTeamShowScreen extends StatelessWidget {
   final int teamId;
-  final String token;
 
   const PurchaseTeamShowScreen({
     super.key,
     required this.teamId,
-    required this.token,
   });
 
   @override
@@ -17,7 +15,6 @@ class PurchaseTeamShowScreen extends StatelessWidget {
       appBar: AppBar(title: const Text("Show Purchase Team")),
       body: PurchaseTeamShowWidget(
         teamId: teamId,
-        token: token,
       ),
     );
   }
