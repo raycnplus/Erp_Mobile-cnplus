@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widget/purchase_team_list_card.dart';
 import '../../purchase_team/screen/purchase_team_show_screen.dart';
+import '../screen/purchase_team_screen_create.dart';
 
 class PurchaseTeamScreen extends StatefulWidget {
   const PurchaseTeamScreen({super.key});
@@ -12,14 +13,14 @@ class PurchaseTeamScreen extends StatefulWidget {
 class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
   String searchQuery = '';
 
-  // ...existing code...
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF1FFF2), // ganti ke warna F1FFF2
+      backgroundColor: const Color(0xFFF1FFF2),
       appBar: AppBar(
         title: const Text('Purchase Team'),
-        backgroundColor: const Color(0xFFF1FFF2), // samakan dengan background
+        backgroundColor: const Color(0xFFF1FFF2), // background
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         titleTextStyle: const TextStyle(
@@ -69,7 +70,7 @@ class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
                     MaterialPageRoute(
                       builder: (_) => PurchaseTeamShowScreen(
                         teamId: teamId,
-                      ), // ✅ screen detail
+                      ), 
                     ),
                   );
                 },
@@ -78,11 +79,11 @@ class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+        floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const PurchaseTeamScreen()),
+            MaterialPageRoute(builder: (_) => PurchaseTeamScreenCreate()),
           );
         },
         backgroundColor: const Color(0xFF009688),

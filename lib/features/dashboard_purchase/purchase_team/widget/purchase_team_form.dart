@@ -2,21 +2,20 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../../../services/api_base.dart';
-import '../../purchase_team/models/purchase_team_models.dart'; 
+import '../../purchase_team/models/purchase_team_models.dart';
 
-class PurchaseTeamScreenCreate extends StatefulWidget {
-  const PurchaseTeamScreenCreate({super.key});
+class PurchaseTeamForm extends StatefulWidget {
+  const PurchaseTeamForm({super.key});
 
   @override
-  State<PurchaseTeamScreenCreate> createState() => _PurchaseTeamScreenCreateState();
+  State<PurchaseTeamForm> createState() => _PurchaseTeamFormState();
 }
 
-class _PurchaseTeamScreenCreateState extends State<PurchaseTeamScreenCreate> {
+class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
   final _formKey = GlobalKey<FormState>();
   final _teamNameController = TextEditingController();
   final _descController = TextEditingController();
 
-  // endpoint index & create (POST)
   final String baseUrl = "${ApiBase.baseUrl}/purchase/purchase-team/";
 
   bool _isLoading = false;
@@ -26,7 +25,6 @@ class _PurchaseTeamScreenCreateState extends State<PurchaseTeamScreenCreate> {
   KaryawanDropdownModel? _selectedLeader;
   List<KaryawanDropdownModel> _selectedMembers = [];
 
-
   final String token = "YOUR_BEARER_TOKEN";
 
   @override
@@ -35,11 +33,10 @@ class _PurchaseTeamScreenCreateState extends State<PurchaseTeamScreenCreate> {
     _loadKaryawanFromTeams();
   }
 
-  /// Ambil list team, flatten jadi list karyawan unik (leader + member.karyawan)
   Future<void> _loadKaryawanFromTeams() async {
     setState(() => _loadingKaryawan = true);
     try {
-      final url = Uri.parse(baseUrl); 
+      final url = Uri.parse(baseUrl);
       final response = await http.get(
         url,
         headers: {
@@ -51,7 +48,7 @@ class _PurchaseTeamScreenCreateState extends State<PurchaseTeamScreenCreate> {
       if (response.statusCode == 200) {
         final dynamic raw = jsonDecode(response.body);
 
-        final List<dynamic> data = (raw is List) ? raw : <dynamic>[]; // sesuai contoh yang kamu kirim
+        final List<dynamic> data = (raw is List) ? raw : <dynamic>[];
 
         final seen = <int>{};
         final result = <KaryawanDropdownModel>[];
@@ -68,8 +65,8 @@ class _PurchaseTeamScreenCreateState extends State<PurchaseTeamScreenCreate> {
             }
           }
 
-          // members
-          final List<dynamic> members = (team['member'] as List<dynamic>?) ?? [];
+          final List<dynamic> members =
+              (team['member'] as List<dynamic>?) ?? [];
           for (final m in members) {
             final k = m['karyawan'];
             if (k != null) {
@@ -83,8 +80,10 @@ class _PurchaseTeamScreenCreateState extends State<PurchaseTeamScreenCreate> {
           }
         }
 
-        // optional: sort alfabetis biar rapi
-        result.sort((a, b) => a.fullName.toLowerCase().compareTo(b.fullName.toLowerCase()));
+        result.sort(
+          (a, b) =>
+              a.fullName.toLowerCase().compareTo(b.fullName.toLowerCase()),
+        );
 
         setState(() {
           _karyawanList = result;
@@ -94,9 +93,9 @@ class _PurchaseTeamScreenCreateState extends State<PurchaseTeamScreenCreate> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal memuat karyawan: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Gagal memuat karyawan: $e")));
     } finally {
       if (mounted) setState(() => _loadingKaryawan = false);
     }
@@ -104,22 +103,23 @@ class _PurchaseTeamScreenCreateState extends State<PurchaseTeamScreenCreate> {
 
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Lengkapi form dulu")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Lengkapi form dulu")));
       return;
     }
     if (_selectedLeader == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Pilih team leader")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Pilih team leader")));
       return;
     }
 
     setState(() => _isLoading = true);
 
-    // pastikan leader tidak ikut di member
-    final cleanedMembers = _selectedMembers.where((m) => m.id != _selectedLeader!.id).toList();
+    final cleanedMembers = _selectedMembers
+        .where((m) => m.id != _selectedLeader!.id)
+        .toList();
 
     final model = PurchaseTeamCreateModel(
       teamName: _teamNameController.text.trim(),
@@ -129,7 +129,7 @@ class _PurchaseTeamScreenCreateState extends State<PurchaseTeamScreenCreate> {
     );
 
     try {
-      final url = Uri.parse(baseUrl); // POST create
+      final url = Uri.parse(baseUrl);
       final response = await http.post(
         url,
         headers: {
@@ -144,15 +144,15 @@ class _PurchaseTeamScreenCreateState extends State<PurchaseTeamScreenCreate> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Purchase Team berhasil dibuat")),
         );
-        Navigator.pop(context, true); // biar list bisa refresh
+        Navigator.pop(context, true);
       } else {
         throw Exception("Failed (${response.statusCode}): ${response.body}");
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -167,97 +167,106 @@ class _PurchaseTeamScreenCreateState extends State<PurchaseTeamScreenCreate> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoadingUi = _loadingKaryawan; // loading saat fetch karyawan
+    final isLoadingUi = _loadingKaryawan;
 
     return Scaffold(
       appBar: AppBar(title: const Text("Create Purchase Team")),
       body: isLoadingUi
           ? const Center(child: CircularProgressIndicator())
           : (_karyawanList.isEmpty)
-              ? const Center(child: Text("Data karyawan kosong"))
-              : Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: ListView(
-                      children: [
-                        TextFormField(
-                          controller: _teamNameController,
-                          decoration: const InputDecoration(labelText: "Team Name"),
-                          validator: (v) => v == null || v.trim().isEmpty ? "Wajib diisi" : null,
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Leader Dropdown
-                        DropdownButtonFormField<KaryawanDropdownModel>(
-                          decoration: const InputDecoration(labelText: "Team Leader"),
-                          value: _selectedLeader,
-                          items: _karyawanList.map((k) {
-                            return DropdownMenuItem(
-                              value: k,
-                              child: Text(k.fullName),
-                            );
-                          }).toList(),
-                          onChanged: (val) {
-                            setState(() {
-                              _selectedLeader = val;
-                              // hindari leader ikut members
-                              if (val != null) {
-                                _selectedMembers.removeWhere((m) => m.id == val.id);
-                              }
-                            });
-                          },
-                          validator: (v) => v == null ? "Pilih team leader" : null,
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Members Multi-select
-                        ExpansionTile(
-                          title: const Text("Select Members"),
-                          children: _karyawanList.map((k) {
-                            final isSelected = _selectedMembers.any((m) => m.id == k.id);
-                            final isLeader = _selectedLeader?.id == k.id;
-                            return CheckboxListTile(
-                              title: Text(
-                                isLeader ? "${k.fullName} (Leader)" : k.fullName,
-                                style: isLeader
-                                    ? const TextStyle(fontStyle: FontStyle.italic)
-                                    : null,
-                              ),
-                              value: isSelected,
-                              onChanged: isLeader
-                                  ? null // tidak bisa pilih leader sebagai member
-                                  : (val) {
-                                      setState(() {
-                                        if (val == true) {
-                                          _selectedMembers.add(k);
-                                        } else {
-                                          _selectedMembers.removeWhere((m) => m.id == k.id);
-                                        }
-                                      });
-                                    },
-                            );
-                          }).toList(),
-                        ),
-                        const SizedBox(height: 12),
-
-                        TextFormField(
-                          controller: _descController,
-                          decoration: const InputDecoration(labelText: "Description"),
-                          maxLines: 3,
-                        ),
-                        const SizedBox(height: 20),
-
-                        _isLoading
-                            ? const Center(child: CircularProgressIndicator())
-                            : ElevatedButton(
-                                onPressed: _submitForm,
-                                child: const Text("Create Team"),
-                              ),
-                      ],
+          ? const Center(child: Text("Data karyawan kosong"))
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  children: [
+                    TextFormField(
+                      controller: _teamNameController,
+                      decoration: const InputDecoration(labelText: "Team Name"),
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? "Wajib diisi" : null,
                     ),
-                  ),
+                    const SizedBox(height: 12),
+
+                    // Leader Dropdown
+                    DropdownButtonFormField<KaryawanDropdownModel>(
+                      decoration: const InputDecoration(
+                        labelText: "Team Leader",
+                      ),
+                      value: _selectedLeader,
+                      items: _karyawanList.map((k) {
+                        return DropdownMenuItem(
+                          value: k,
+                          child: Text(k.fullName),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        setState(() {
+                          _selectedLeader = val;
+                          // hindari leader ikut members
+                          if (val != null) {
+                            _selectedMembers.removeWhere((m) => m.id == val.id);
+                          }
+                        });
+                      },
+                      validator: (v) => v == null ? "Pilih team leader" : null,
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Members Multi-select
+                    ExpansionTile(
+                      title: const Text("Select Members"),
+                      children: _karyawanList.map((k) {
+                        final isSelected = _selectedMembers.any(
+                          (m) => m.id == k.id,
+                        );
+                        final isLeader = _selectedLeader?.id == k.id;
+                        return CheckboxListTile(
+                          title: Text(
+                            isLeader ? "${k.fullName} (Leader)" : k.fullName,
+                            style: isLeader
+                                ? const TextStyle(fontStyle: FontStyle.italic)
+                                : null,
+                          ),
+                          value: isSelected,
+                          onChanged: isLeader
+                              ? null // tidak bisa pilih leader sebagai member
+                              : (val) {
+                                  setState(() {
+                                    if (val == true) {
+                                      _selectedMembers.add(k);
+                                    } else {
+                                      _selectedMembers.removeWhere(
+                                        (m) => m.id == k.id,
+                                      );
+                                    }
+                                  });
+                                },
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 12),
+
+                    TextFormField(
+                      controller: _descController,
+                      decoration: const InputDecoration(
+                        labelText: "Description",
+                      ),
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 20),
+
+                    _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : ElevatedButton(
+                            onPressed: _submitForm,
+                            child: const Text("Create Team"),
+                          ),
+                  ],
                 ),
+              ),
+            ),
     );
   }
 }

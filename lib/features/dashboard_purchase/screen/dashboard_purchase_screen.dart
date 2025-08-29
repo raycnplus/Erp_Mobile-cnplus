@@ -22,7 +22,6 @@ class DashboardPurchaseScreen extends StatefulWidget {
 
 class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
   Future<ApiModel.PurchaseDashboardResponse>? _dashboardDataFuture;
-  // -----------------
 
   final PurchaseService _purchaseService = PurchaseService();
   int _selectedChart = 0;
@@ -33,7 +32,6 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
     _dashboardDataFuture = _purchaseService.fetchDashboardData();
   }
 
-  // Helper method to transform API data to Chart data
   List<PurchaseChartData> _transformToProductChartData(
       List<ApiModel.TopProduct> products) {
     return products
@@ -71,7 +69,6 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
     return chartData;
   }
 
-  // Helper methods to transform API data to TopListData
   List<TopListData> _transformToCategoryList(
       List<ApiModel.TopCategory> categories) {
     return categories
