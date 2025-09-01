@@ -77,7 +77,7 @@ class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Ganti ke halaman creat e jika sudah ada
+          // TODO: Ganti ke halaman create jika sudah ada
         },
         backgroundColor: const Color(0xFF009688),
         child: const Icon(Icons.add, color: Colors.white),
