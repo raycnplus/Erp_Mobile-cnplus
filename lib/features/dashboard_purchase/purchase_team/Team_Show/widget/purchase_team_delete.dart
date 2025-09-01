@@ -20,8 +20,14 @@ class DeletePurchaseTeamButton extends StatelessWidget {
         title: const Text("Konfirmasi"),
         content: const Text("Yakin ingin menghapus team ini?"),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Batal")),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Hapus")),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Batal"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Hapus"),
+          ),
         ],
       ),
     );
@@ -30,7 +36,7 @@ class DeletePurchaseTeamButton extends StatelessWidget {
 
     try {
       final response = await http.delete(
-        Uri.parse("https://erp.sorlem.com/api/purchase/purchase-team/"),
+        Uri.parse("https://erp.sorlem.com/api/purchase/purchase-team/$teamId"),
         headers: {
           "Accept": "application/json",
           "Authorization": "Bearer $token",
