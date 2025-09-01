@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../purchase_team/widget/purchase_team_show.dart';
+import '../../widget/purchase_team_show.dart';
 
 class PurchaseTeamShowScreen extends StatelessWidget {
   final int teamId;
