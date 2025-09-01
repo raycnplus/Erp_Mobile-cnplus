@@ -87,7 +87,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
             Navigator.pushNamed(context, AppRoutes.modul);
           },
           child: const Text(
-            'Inventory',
+            'Inventory Dashboard',
             style: TextStyle(color: Colors.black),
           ),
         ),
