@@ -40,9 +40,15 @@ class ModulCard extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.12),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+                    color: Colors.black.withOpacity(
+                      0.15,
+                    ), // Sedikit lebih gelap
+                    blurRadius: 20, // Ditingkatkan agar sangat halus
+                    offset: const Offset(
+                      0,
+                      8,
+                    ), // Jarak ke bawah ditambah agar 'terangkat'
+                    spreadRadius: 1, // Sedikit menyebar agar lebih berisi
                   ),
                 ],
               ),

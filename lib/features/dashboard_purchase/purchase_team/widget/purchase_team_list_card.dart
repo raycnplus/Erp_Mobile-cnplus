@@ -123,86 +123,67 @@ class _PurchaseTeamCardListState extends State<PurchaseTeamCardList> {
           ),
           itemBuilder: (context, index) {
             final team = teams[index];
-            const cardColor = Color.fromRGBO(151, 176, 103, 1);
-            const textColor = Color.fromRGBO(254, 250, 224, 1);
 
             return InkWell(
-            onTap: () {
-               if (widget.onTap != null) {
-               widget.onTap!(team.idPurchaseTeam); // harus pakai widget.onTap
-             }
-             },
-
-              borderRadius: BorderRadius.circular(9),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(9),
-                  color: cardColor,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 4.5,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+              onTap: () {
+                if (widget.onTap != null) {
+                  widget.onTap!(team.idPurchaseTeam);
+                }
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Stack(
-                  children: <Widget>[
-                    Positioned(
-                      top: 10,
-                      left: 14,
-                      right: 14,
-                      child: Text(
+                color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
                         team.teamName,
-                        textAlign: TextAlign.left,
                         style: GoogleFonts.inter(
-                          color: textColor,
+                          color: Colors.black87,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
-                    ),
-                    const Positioned(
-                      top: 38,
-                      left: 17,
-                      child: Icon(Icons.person, color: textColor, size: 16),
-                    ),
-                    Positioned(
-                      top: 36,
-                      left: 40,
-                      right: 14,
-                      child: Text(
-                        team.teamLeader,
-                        textAlign: TextAlign.left,
-                        style: GoogleFonts.notoSans(
-                          color: textColor,
-                          fontSize: 15,
-                          fontWeight: FontWeight.normal,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.person, color: Colors.black54, size: 16),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              team.teamLeader,
+                              style: GoogleFonts.notoSans(
+                                color: Colors.black87,
+                                fontSize: 15,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    Positioned(
-                      top: 56,
-                      left: 17,
-                      right: 17,
-                      bottom: 10,
-                      child: Text(
-                        team.description,
-                        textAlign: TextAlign.left,
-                        style: GoogleFonts.notoSans(
-                          color: textColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.normal,
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: Text(
+                          team.description,
+                          style: GoogleFonts.notoSans(
+                            color: Colors.black54,
+                            fontSize: 12,
+                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );

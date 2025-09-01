@@ -8,11 +8,7 @@ class PurchaseBarChart extends StatelessWidget {
   final List<PurchaseChartData> data;
   final String title;
 
-  const PurchaseBarChart({
-    super.key,
-    required this.data,
-    required this.title,
-  });
+  const PurchaseBarChart({super.key, required this.data, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -199,6 +195,7 @@ class PurchaseBarChart extends StatelessWidget {
     for (var d in data) {
       if (d.value > maxVal) maxVal = d.value;
     }
-    return (maxVal / 5).ceilToDouble();
+    final interval = (maxVal / 5).ceilToDouble();
+    return interval > 0 ? interval : 1;
   }
 }
