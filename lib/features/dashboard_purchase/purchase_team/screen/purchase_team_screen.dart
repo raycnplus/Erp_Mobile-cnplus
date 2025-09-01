@@ -66,7 +66,9 @@ class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => PurchaseTeamShowScreen(teamId: teamId),
+                      builder: (_) => PurchaseTeamShowScreen(
+                        teamId: teamId,
+                      ), // ✅ nama class benar
                     ),
                   );
                 },
