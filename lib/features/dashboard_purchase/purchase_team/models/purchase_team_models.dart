@@ -131,5 +131,54 @@ class KaryawanDropdownModel {
 
   @override
   String toString() => fullName;
+} 
+
+class PurchaseTeamEditModel {
+  final int id;
+  String teamName;
+  int teamLeaderId;
+  String description;
+  List<int> memberIds;
+
+  PurchaseTeamEditModel({
+    required this.id,
+    required this.teamName,
+    required this.teamLeaderId,
+    required this.description,
+    required this.memberIds,
+  });
+
+  factory PurchaseTeamEditModel.fromShowModel(
+    PurchaseTeamShowModel showModel,
+    List<KaryawanDropdownModel> karyawanList,
+  ) {
+    final leader = karyawanList.firstWhere(
+      (k) => k.fullName == showModel.teamLeaderName,
+      orElse: () => KaryawanDropdownModel(id: 0, fullName: ''),
+    );
+
+    final members = karyawanList
+        .where((k) => showModel.memberNames.contains(k.fullName))
+        .map((k) => k.id)
+        .toList();
+
+    return PurchaseTeamEditModel(
+      id: showModel.idPurchaseTeam,
+      teamName: showModel.teamName,
+      teamLeaderId: leader.id,
+      description: showModel.description,
+      memberIds: members,
+    );
+  }
+
+  Map<String, dynamic> toUpdateJson() {
+    return {
+      'id_purchase_team': id,
+      'team_name': teamName,
+      'team_leader': teamLeaderId,
+      'description': description,
+      'member': memberIds.map((id) => {'id_karyawan': id}).toList(),
+    };
+  }
 }
 
