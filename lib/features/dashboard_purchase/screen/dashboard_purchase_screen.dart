@@ -99,7 +99,7 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
       Navigator.pushNamed(context, AppRoutes.modul);
       },
       child: const Text(
-        'Purchase Dashboard',
+        'Purchase',
       style: TextStyle(color: Colors.black),
      ),
    ),

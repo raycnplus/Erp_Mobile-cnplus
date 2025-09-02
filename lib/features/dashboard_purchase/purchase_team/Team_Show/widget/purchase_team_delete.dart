@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../../../../services/api_base.dart';
 
 class DeletePurchaseTeamButton extends StatelessWidget {
   final int teamId;
-  final String token;
   final VoidCallback? onDeleted;
 
   const DeletePurchaseTeamButton({
     super.key,
     required this.teamId,
-    required this.token,
     this.onDeleted,
   });
 
@@ -35,8 +35,22 @@ class DeletePurchaseTeamButton extends StatelessWidget {
     if (confirm != true) return;
 
     try {
+      // Ambil token dari secure storage
+      final storage = const FlutterSecureStorage();
+      final token = await storage.read(key: 'token');
+      if (token == null || token.isEmpty) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Token tidak ditemukan. Silakan login ulang."),
+            ),
+          );
+        }
+        return;
+      }
+
       final response = await http.delete(
-        Uri.parse("https://erp.sorlem.com/api/purchase/purchase-team/$teamId"),
+        Uri.parse("${ApiBase.baseUrl}/purchase/purchase-team/$teamId"),
         headers: {
           "Accept": "application/json",
           "Authorization": "Bearer $token",
@@ -45,19 +59,28 @@ class DeletePurchaseTeamButton extends StatelessWidget {
 
       if (response.statusCode == 200) {
         if (context.mounted) {
+          onDeleted?.call();
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Team berhasil dihapus")),
           );
-          onDeleted?.call();
         }
       } else {
-        throw Exception("Gagal menghapus team");
+        String errorMsg = "Gagal menghapus team";
+        try {
+          errorMsg = response.body;
+        } catch (_) {}
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(errorMsg)));
+        }
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: $e")));
       }
     }
   }
