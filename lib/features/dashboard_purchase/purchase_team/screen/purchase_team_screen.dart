@@ -1,3 +1,5 @@
+// purchase_team_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../widget/purchase_team_list_card.dart';
@@ -12,6 +14,13 @@ class PurchaseTeamScreen extends StatefulWidget {
 
 class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
   String searchQuery = '';
+  Key _purchaseTeamListKey = UniqueKey();
+
+  void _refreshPurchaseTeamList() {
+    setState(() {
+      _purchaseTeamListKey = UniqueKey();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,16 +70,19 @@ class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
             ),
             Expanded(
               child: PurchaseTeamCardList(
+                key: _purchaseTeamListKey,
                 searchQuery: searchQuery,
                 onTap: (teamId) async {
-                  Navigator.push(
+                  final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => PurchaseTeamShowScreen(
-                        teamId: teamId,
-                      ),
+                      builder: (_) => PurchaseTeamShowScreen(teamId: teamId),
                     ),
                   );
+
+                  if (result == true && mounted) {
+                    _refreshPurchaseTeamList();
+                  }
                 },
               ),
             ),
