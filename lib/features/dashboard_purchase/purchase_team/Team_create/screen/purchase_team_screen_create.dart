@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../purchase_team/widget/purchase_team_form.dart';
+import '../widget/purchase_team_form.dart';
 
 class PurchaseTeamScreenCreate extends StatelessWidget {
   const PurchaseTeamScreenCreate({super.key});

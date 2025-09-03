@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../../../../services/api_base.dart';
-import '../../purchase_team/models/purchase_team_models.dart';
+import '../../../../../services/api_base.dart';
+import '../models/purchase_team_create_model.dart';
 
 class PurchaseTeamForm extends StatefulWidget {
   const PurchaseTeamForm({super.key});

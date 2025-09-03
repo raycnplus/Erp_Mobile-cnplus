@@ -54,7 +54,6 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
         .toList();
   }
 
-  // Helper method to transform API data to Analysis Chart data
   List<MonthlyPurchaseData> _transformToAnalysisData(
       ApiModel.SpendingByMonth spending) {
     List<MonthlyPurchaseData> chartData = [];
@@ -103,6 +102,7 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
       style: TextStyle(color: Colors.black),
      ),
    ),
+   centerTitle: true,
    backgroundColor: Colors.white,
    elevation: 1,
    iconTheme: const IconThemeData(color: Colors.black),
@@ -155,22 +155,22 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
                     StatCard(
                       title: "Purchase Request",
                       value: summary.purchaseRequest.toString(),
-                      valueColor: const Color(0xFF029379),
+                      valueColor: const Color.fromARGB(255, 0, 0, 0),
                     ),
                     StatCard(
                       title: "Request For Quotation",
                       value: summary.rfq.toString(),
-                      valueColor: const Color(0xFF029379),
+                      valueColor: const Color.fromARGB(255, 0, 0, 0),
                     ),
                     StatCard(
                       title: "Purchase Order",
                       value: summary.purchaseOrder.toString(),
-                      valueColor: const Color(0xFF029379),
+                      valueColor: const Color.fromARGB(255, 0, 0, 0),
                     ),
                     StatCard(
                       title: "Direct Purchase",
                       value: summary.directPurchase.toString(),
-                      valueColor: const Color(0xFF029379),
+                      valueColor: const Color.fromARGB(255, 0, 0, 0),
                     ),
                   ],
                 ),

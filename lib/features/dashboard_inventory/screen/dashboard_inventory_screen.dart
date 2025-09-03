@@ -91,6 +91,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
             style: TextStyle(color: Colors.black),
           ),
         ),
+        centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 1,
         iconTheme: const IconThemeData(color: Colors.black),
