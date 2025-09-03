@@ -1,4 +1,3 @@
-// purchase_team_show_screen.dart
 
 import 'package:flutter/material.dart';
 import '../widget/purchase_team_show.dart';
@@ -9,12 +8,7 @@ class PurchaseTeamShowScreen extends StatelessWidget {
 
   const PurchaseTeamShowScreen({super.key, required this.teamId});
 
-  // HAPUS FUNGSI _refreshAfterDelete YANG SUDAH TIDAK DIPERLUKAN
-  // void _refreshAfterDelete(BuildContext context) {
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     const SnackBar(content: Text("Team berhasil dihapus, refresh list")),
-  //   );
-  // }
+
 
   @override
   Widget build(BuildContext context) {
@@ -26,12 +20,10 @@ class PurchaseTeamShowScreen extends StatelessWidget {
           // Widget untuk menampilkan detail tim
           Expanded(child: PurchaseTeamShowWidget(teamId: teamId)),
 
-          // Tombol hapus tim
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: DeletePurchaseTeamButton(
               teamId: teamId,
-              // DIUBAH: Panggil Navigator.pop dengan hasil 'true' jika berhasil
               onDeleted: () {
                 if (context.mounted) {
                   Navigator.pop(context, true);
