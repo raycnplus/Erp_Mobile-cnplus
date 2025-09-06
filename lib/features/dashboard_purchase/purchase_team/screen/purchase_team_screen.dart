@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../widget/purchase_team_list_card.dart';
+import '../Team_create/screen/purchase_team_screen_create.dart';
 import '../Team_Show/screen/purchase_team_show_screen.dart';
 
 class PurchaseTeamScreen extends StatefulWidget {
@@ -91,7 +92,12 @@ class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Ganti ke halaman create jika sudah ada
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const PurchaseTeamScreenCreate(),
+            ),
+          );
         },
         backgroundColor: const Color(0xFF009688),
         child: const Icon(Icons.add, color: Colors.white),
