@@ -25,11 +25,11 @@ class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF1FFF2),
+      backgroundColor: Colors.grey[100], 
       appBar: AppBar(
         title: const Text('Purchase Team'),
-        backgroundColor: const Color(0xFFF1FFF2),
-        elevation: 0,
+        backgroundColor: Colors.white,
+        elevation: 1,
         iconTheme: const IconThemeData(color: Colors.black),
         titleTextStyle: const TextStyle(
           color: Colors.black,
@@ -52,7 +52,7 @@ class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
                 hintText: 'Search...',
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
-                fillColor: const Color(0xFFD6F3DE),
+                fillColor: Colors.white,
                 contentPadding: const EdgeInsets.symmetric(
                   vertical: 0,
                   horizontal: 16,
