@@ -6,6 +6,7 @@ class PurchaseTeamScreenCreate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('[DEBUG] PurchaseTeamScreenCreate dibuka');
     return Scaffold(
       appBar: AppBar(title: const Text("Create Purchase Team")),
       body: const PurchaseTeamForm(),

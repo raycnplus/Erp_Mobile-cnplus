@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import '../../../../../services/api_base.dart';
 import '../models/purchase_team_create_model.dart';
+import '../models/karyawan_dropdown_model.dart';
 
 class PurchaseTeamForm extends StatefulWidget {
   const PurchaseTeamForm({super.key});
@@ -16,7 +18,7 @@ class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
   final _teamNameController = TextEditingController();
   final _descController = TextEditingController();
 
-  final String baseUrl = "${ApiBase.baseUrl}/purchase/purchase-team/";
+  final String _purchaseTeamUrl = "${ApiBase.baseUrl}/purchase/purchase-team";
 
   bool _isLoading = false;
   bool _loadingKaryawan = true;
@@ -25,36 +27,54 @@ class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
   KaryawanDropdownModel? _selectedLeader;
   List<KaryawanDropdownModel> _selectedMembers = [];
 
-  final String token = "YOUR_BEARER_TOKEN";
-
   @override
   void initState() {
     super.initState();
-    _loadKaryawanFromTeams();
+    print('[DEBUG] PurchaseTeamForm initState, mulai load karyawan');
+    _loadKaryawanList();
   }
 
-  Future<void> _loadKaryawanFromTeams() async {
+  Future<String?> _getToken() async {
+    const storage = FlutterSecureStorage();
+    return await storage.read(key: 'token');
+  }
+
+  Future<void> _loadKaryawanList() async {
     setState(() => _loadingKaryawan = true);
+
+    final token = await _getToken();
+    if (token == null || !mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Token tidak ditemukan, silakan login ulang."),
+        ),
+      );
+      setState(() => _loadingKaryawan = false);
+      return;
+    }
+
     try {
-      final url = Uri.parse(baseUrl);
+      final url = Uri.parse(_purchaseTeamUrl);
       final response = await http.get(
         url,
         headers: {
-          "Content-Type": "application/json",
+          "Accept": "application/json",
           "Authorization": "Bearer $token",
         },
       );
 
+      print('Response Body from _loadKaryawanList: ${response.body}');
+
+
       if (response.statusCode == 200) {
-        final dynamic raw = jsonDecode(response.body);
+        final List<dynamic> data = jsonDecode(response.body);
 
-        final List<dynamic> data = (raw is List) ? raw : <dynamic>[];
-
+        // Kumpulkan semua karyawan unik dari team_leader dan members
         final seen = <int>{};
         final result = <KaryawanDropdownModel>[];
 
         for (final team in data) {
-          // leader
+          // team_leader
           final leader = team['team_leader'];
           if (leader != null) {
             final int? id = leader['id_karyawan'] as int?;
@@ -64,9 +84,8 @@ class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
               result.add(KaryawanDropdownModel(id: id, fullName: name));
             }
           }
-
-          final List<dynamic> members =
-              (team['member'] as List<dynamic>?) ?? [];
+          // members
+          final List<dynamic> members = (team['members'] as List<dynamic>?) ?? [];
           for (final m in members) {
             final k = m['karyawan'];
             if (k != null) {
@@ -80,63 +99,72 @@ class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
           }
         }
 
-        result.sort(
-          (a, b) =>
-              a.fullName.toLowerCase().compareTo(b.fullName.toLowerCase()),
-        );
+        result.sort((a, b) => a.fullName.toLowerCase().compareTo(b.fullName.toLowerCase()));
 
         setState(() {
           _karyawanList = result;
         });
       } else {
-        throw Exception("Failed (${response.statusCode}): ${response.body}");
+        throw Exception("Gagal memuat daftar karyawan (${response.statusCode})");
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Gagal memuat karyawan: $e")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$e")));
     } finally {
       if (mounted) setState(() => _loadingKaryawan = false);
     }
   }
 
   Future<void> _submitForm() async {
-    if (!_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Lengkapi form dulu")));
-      return;
-    }
-    if (_selectedLeader == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Pilih team leader")));
+    if (!_formKey.currentState!.validate() || _selectedLeader == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Harap lengkapi semua data yang wajib diisi."),
+        ),
+      );
       return;
     }
 
     setState(() => _isLoading = true);
 
-    final cleanedMembers = _selectedMembers
-        .where((m) => m.id != _selectedLeader!.id)
-        .toList();
+    final token = await _getToken();
+    if (token == null || !mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Token tidak ditemukan, silakan login ulang."),
+        ),
+      );
+      setState(() => _isLoading = false);
+      return;
+    }
 
-    final model = PurchaseTeamCreateModel(
-      teamName: _teamNameController.text.trim(),
-      teamLeaderId: _selectedLeader!.id,
-      description: _descController.text.trim(),
-      memberIds: cleanedMembers.map((e) => e.id).toList(),
-    );
+    // Members: hanya id karyawan, tidak boleh duplikat, tidak boleh sama dengan leader
+    final cleanedMembers = _selectedMembers.where((m) => m.id != _selectedLeader!.id).toList();
+    final memberIds = <int>{};
+    final membersBody = <Map<String, dynamic>>[];
+    for (final m in cleanedMembers) {
+      if (!memberIds.contains(m.id)) {
+        memberIds.add(m.id);
+        membersBody.add({"id_karyawan": m.id});
+      }
+    }
+
+    final body = {
+      "purchase_team_name": _teamNameController.text.trim(),
+      "team_leader": _selectedLeader!.id,
+      "description": _descController.text.trim(),
+      "members": membersBody,
+    };
 
     try {
-      final url = Uri.parse(baseUrl);
+      final url = Uri.parse(_purchaseTeamUrl);
       final response = await http.post(
         url,
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
         },
-        body: jsonEncode(model.toJson()),
+        body: jsonEncode(body),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -146,7 +174,14 @@ class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
         );
         Navigator.pop(context, true);
       } else {
-        throw Exception("Failed (${response.statusCode}): ${response.body}");
+        String errorMsg = "Gagal membuat team (${response.statusCode})";
+        try {
+          final errorBody = jsonDecode(response.body);
+          errorMsg = errorBody['message'] ?? response.body;
+        } catch (_) {
+          errorMsg = response.body;
+        }
+        throw Exception(errorMsg);
       }
     } catch (e) {
       if (!mounted) return;
@@ -170,103 +205,116 @@ class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
     final isLoadingUi = _loadingKaryawan;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Create Purchase Team")),
       body: isLoadingUi
           ? const Center(child: CircularProgressIndicator())
           : (_karyawanList.isEmpty)
-          ? const Center(child: Text("Data karyawan kosong"))
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: ListView(
-                  children: [
-                    TextFormField(
-                      controller: _teamNameController,
-                      decoration: const InputDecoration(labelText: "Team Name"),
-                      validator: (v) =>
-                          v == null || v.trim().isEmpty ? "Wajib diisi" : null,
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Leader Dropdown
-                    DropdownButtonFormField<KaryawanDropdownModel>(
-                      decoration: const InputDecoration(
-                        labelText: "Team Leader",
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Gagal memuat data karyawan."),
+                      const SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: _loadKaryawanList,
+                        child: const Text("Coba Lagi"),
                       ),
-                      value: _selectedLeader,
-                      items: _karyawanList.map((k) {
-                        return DropdownMenuItem(
-                          value: k,
-                          child: Text(k.fullName),
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        setState(() {
-                          _selectedLeader = val;
-                          // hindari leader ikut members
-                          if (val != null) {
-                            _selectedMembers.removeWhere((m) => m.id == val.id);
-                          }
-                        });
-                      },
-                      validator: (v) => v == null ? "Pilih team leader" : null,
-                    ),
-                    const SizedBox(height: 12),
+                    ],
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: ListView(
+                      children: [
+                        TextFormField(
+                          controller: _teamNameController,
+                          decoration: const InputDecoration(labelText: "Team Name"),
+                          validator: (v) => v == null || v.trim().isEmpty ? "Wajib diisi" : null,
+                        ),
+                        const SizedBox(height: 12),
 
-                    // Members Multi-select
-                    ExpansionTile(
-                      title: const Text("Select Members"),
-                      children: _karyawanList.map((k) {
-                        final isSelected = _selectedMembers.any(
-                          (m) => m.id == k.id,
-                        );
-                        final isLeader = _selectedLeader?.id == k.id;
-                        return CheckboxListTile(
+                        // Leader Dropdown
+                        DropdownButtonFormField<KaryawanDropdownModel>(
+                          decoration: const InputDecoration(
+                            labelText: "Team Leader",
+                          ),
+                          value: _selectedLeader,
+                          items: _karyawanList.map((k) {
+                            return DropdownMenuItem(
+                              value: k,
+                              child: Text(k.fullName),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedLeader = val;
+                              if (val != null) {
+                                _selectedMembers.removeWhere((m) => m.id == val.id);
+                              }
+                            });
+                          },
+                          validator: (v) => v == null ? "Pilih team leader" : null,
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Members Multi-select
+                        ExpansionTile(
                           title: Text(
-                            isLeader ? "${k.fullName} (Leader)" : k.fullName,
-                            style: isLeader
-                                ? const TextStyle(fontStyle: FontStyle.italic)
-                                : null,
+                            _selectedMembers.isEmpty
+                                ? "Pilih Anggota Tim"
+                                : "${_selectedMembers.length} anggota terpilih",
                           ),
-                          value: isSelected,
-                          onChanged: isLeader
-                              ? null // tidak bisa pilih leader sebagai member
-                              : (val) {
-                                  setState(() {
-                                    if (val == true) {
-                                      _selectedMembers.add(k);
-                                    } else {
-                                      _selectedMembers.removeWhere(
-                                        (m) => m.id == k.id,
-                                      );
-                                    }
-                                  });
-                                },
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 12),
+                          children: _karyawanList.map((k) {
+                            final isSelected = _selectedMembers.any((m) => m.id == k.id);
+                            final isLeader = _selectedLeader?.id == k.id;
+                            return CheckboxListTile(
+                              title: Text(
+                                isLeader ? "${k.fullName} (Leader)" : k.fullName,
+                                style: isLeader
+                                    ? const TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        color: Colors.grey,
+                                      )
+                                    : null,
+                              ),
+                              value: isSelected,
+                              onChanged: isLeader
+                                  ? null
+                                  : (val) {
+                                      setState(() {
+                                        if (val == true) {
+                                          _selectedMembers.add(k);
+                                        } else {
+                                          _selectedMembers.removeWhere((m) => m.id == k.id);
+                                        }
+                                      });
+                                    },
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 12),
 
-                    TextFormField(
-                      controller: _descController,
-                      decoration: const InputDecoration(
-                        labelText: "Description",
-                      ),
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 20),
-
-                    _isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : ElevatedButton(
-                            onPressed: _submitForm,
-                            child: const Text("Create Team"),
+                        TextFormField(
+                          controller: _descController,
+                          decoration: const InputDecoration(
+                            labelText: "Description",
                           ),
-                  ],
+                          maxLines: 3,
+                          validator: (v) => v == null || v.trim().isEmpty ? "Wajib diisi" : null,
+                        ),
+                        const SizedBox(height: 20),
+
+                        _isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : ElevatedButton(
+                                onPressed: _submitForm,
+                                child: const Text("Create Team"),
+                              ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
     );
   }
 }

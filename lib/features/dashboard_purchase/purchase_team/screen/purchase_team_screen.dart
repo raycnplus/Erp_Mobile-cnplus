@@ -26,7 +26,7 @@ class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100], 
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text('Purchase Team'),
         backgroundColor: Colors.white,
@@ -90,18 +90,25 @@ class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
           ],
         ),
       ),
+      // ...existing code...
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const PurchaseTeamScreenCreate(),
-            ),
+        onPressed: () async {
+          print(
+            '[DEBUG] FAB PurchaseTeamScreen ditekan, membuka PurchaseTeamScreenCreate',
           );
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const PurchaseTeamScreenCreate()),
+          );
+          if (result == true && mounted) {
+            print('[DEBUG] Selesai create team, refresh list');
+            _refreshPurchaseTeamList();
+          }
         },
         backgroundColor: const Color(0xFF009688),
         child: const Icon(Icons.add, color: Colors.white),
       ),
+      // ...existing code...
     );
   }
 }

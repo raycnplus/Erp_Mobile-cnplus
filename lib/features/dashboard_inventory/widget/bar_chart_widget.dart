@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../models/chart_data_model.dart';
@@ -17,6 +18,20 @@ class ProductBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (data.isEmpty) {
+      return Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        color: Colors.white,
+        child: const SizedBox(
+          height: 200,
+          child: Center(
+            child: Text("Tidak ada data kategori produk."),
+          ),
+        ),
+      );
+    }
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -109,16 +124,9 @@ class ProductBarChart extends StatelessWidget {
                   ),
                   gridData: FlGridData(
                     show: true,
-                    drawVerticalLine: true,
-                    verticalInterval: 1,
+                    drawVerticalLine: false,
                     horizontalInterval: _calculateInterval(),
                     getDrawingHorizontalLine: (value) {
-                      return FlLine(
-                        color: Colors.grey.shade200,
-                        strokeWidth: 1,
-                      );
-                    },
-                    getDrawingVerticalLine: (value) {
                       return FlLine(
                         color: Colors.grey.shade200,
                         strokeWidth: 1,
@@ -159,7 +167,7 @@ class ProductBarChart extends StatelessWidget {
     String text = data.length > value.toInt() ? data[value.toInt()].label : '';
 
     return SideTitleWidget(
-      meta: meta,
+      meta: meta, // DIPERBAIKI
       space: 8.0,
       child: Text(
         text,
@@ -173,28 +181,43 @@ class ProductBarChart extends StatelessWidget {
   Widget _getLeftTitles(double value, TitleMeta meta) {
     final style = TextStyle(color: Colors.grey.shade600, fontSize: 12);
 
-    if (value % _calculateInterval() != 0 && value != _calculateMaxY()) {
-      return const SizedBox();
+    if (value % _calculateInterval() != 0) {
+      return Container();
+    }
+    if (value == 0) {
+      return Container();
+    }
+    if (value == meta.max) {
+      return Container();
     }
 
     return SideTitleWidget(
-      meta: meta,
+      meta: meta, // DIPERBAIKI
       space: 4,
       child: Text(value.toInt().toString(), style: style),
     );
   }
 
-  double _calculateMaxY() {
-    double maxVal = 0;
-    for (var d in data) {
-      if (d.value > maxVal) {
-        maxVal = d.value;
-      }
-    }
-    return (maxVal / 5).ceil() * 5.0 + 5;
+  double get _maxDataValue {
+    if (data.isEmpty) return 0;
+    return data.map((d) => d.value).reduce(max);
   }
 
   double _calculateInterval() {
-    return 5;
+    final maxVal = _maxDataValue;
+    if (maxVal <= 0) return 10;
+    final double roughInterval = maxVal / 5;
+    if (roughInterval <= 5) return 5;
+    if (roughInterval <= 10) return 10;
+    if (roughInterval <= 20) return 20;
+    if (roughInterval <= 50) return 50;
+    return (roughInterval / 50).ceil() * 50;
+  }
+
+  double _calculateMaxY() {
+    final maxVal = _maxDataValue;
+    final interval = _calculateInterval();
+    if (maxVal <= 0) return 50;
+    return (maxVal / interval).ceil() * interval;
   }
 }

@@ -13,30 +13,10 @@ class PurchaseTeamCreateModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'team_name': teamName,
+      'purchase_team_name': teamName,
       'team_leader': teamLeaderId,
       'description': description,
-      'member': memberIds.map((id) => {'id_karyawan': id}).toList(),
+      'members': memberIds.map((id) => {'id_karyawan': id}).toList(),
     };
   }
-}
-
-class KaryawanDropdownModel {
-  final int id;
-  final String fullName;
-
-  KaryawanDropdownModel({
-    required this.id,
-    required this.fullName,
-  });
-
-  factory KaryawanDropdownModel.fromJson(Map<String, dynamic> json) {
-    return KaryawanDropdownModel(
-      id: json['id_karyawan'] ?? 0,
-      fullName: json['nama_lengkap'] ?? '',
-    );
-  }
-
-  @override
-  String toString() => fullName;
 }
