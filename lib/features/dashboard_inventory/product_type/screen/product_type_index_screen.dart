@@ -1,4 +1,3 @@
-
 import '../../product_type/widget/product_type_index_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -9,19 +8,7 @@ class ProductTypeIndexScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Product Type")),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ProductTypeScreen(),
-              ),
-            );
-          },
-          child: const Text("Lihat Product Type"),
-        ),
-      ),
+      body: const ProductTypeScreen(),
     );
   }
 }

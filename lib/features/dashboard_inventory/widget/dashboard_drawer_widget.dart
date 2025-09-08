@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../product_type/screen/product_type_index_screen.dart'; // <-- Perubahan di sini
 
 class DashboardDrawer extends StatefulWidget {
   const DashboardDrawer({super.key});
@@ -145,7 +146,14 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
             leading: const Text('•', style: TextStyle(fontSize: 20)),
             title: const Text('Products Type'),
             onTap: () {
+              // <-- Perubahan di sini
               Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProductTypeIndexScreen(),
+                ),
+              );
             },
           ),
           ListTile(
