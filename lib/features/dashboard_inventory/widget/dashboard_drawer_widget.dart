@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../product_type/screen/product_type_index_screen.dart'; // <-- Perubahan di sini
+import '../product_type/screen/product_type_index_screen.dart'; 
+import '../product_category/screen/product_category_screen.dart';
 
 class DashboardDrawer extends StatefulWidget {
   const DashboardDrawer({super.key});
@@ -161,6 +162,9 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
             title: const Text('Products Category'),
             onTap: () {
               Navigator.pop(context);
+              Navigator.push(
+                context, MaterialPageRoute(builder: (context) => const ProductCategoryScreen())
+              );
             },
           ),
           ListTile(

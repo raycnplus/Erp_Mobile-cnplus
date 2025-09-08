@@ -11,16 +11,16 @@ class ProductType {
 
   factory ProductType.fromJson(Map<String, dynamic> json) {
     return ProductType(
-      id: json['id_product_category'] ?? 0,
-      name: json['product_category_name'] ?? '',
+      id: json['id_product_type'] ?? 0,
+      name: json['product_type_name'] ?? '',
       encryption: json['encryption'] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "id_product_category": id,
-      "product_category_name": name,
+      "id_product_type": id,
+      "product_type_name": name,
       "encryption": encryption,
     };
   }

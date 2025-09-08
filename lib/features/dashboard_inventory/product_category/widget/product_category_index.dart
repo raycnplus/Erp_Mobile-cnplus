@@ -1,37 +1,35 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart'; 
-import '../../../../../services/api_base.dart'; 
-import '../../product_type/models/product_type_index_model.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../../../../services/api_base.dart';
+import '../../product_category/models/product_category_index.dart';
 
-
-class ProductTypeScreen extends StatefulWidget {
-  const ProductTypeScreen({super.key});
+class ProductCategoryScreen extends StatefulWidget {
+  const ProductCategoryScreen({super.key});
 
   @override
-  State<ProductTypeScreen> createState() => _ProductTypeScreenState();
+  State<ProductCategoryScreen> createState() => _ProductCategoryScreenState();
 }
 
-class _ProductTypeScreenState extends State<ProductTypeScreen> {
-  late Future<List<ProductType>> futureTypes;
+class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
+  late Future<List<ProductCategory>> futureCategories;
 
   @override
   void initState() {
     super.initState();
-    futureTypes = fetchProductTypes();
+    futureCategories = fetchProductCategories();
   }
 
-
-  Future<List<ProductType>> fetchProductTypes() async {
+  Future<List<ProductCategory>> fetchProductCategories() async {
     const storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
 
     if (token == null || token.isEmpty) {
       throw Exception("Token tidak ditemukan. Silakan login ulang.");
     }
-    
-    final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-type/"); 
+
+    final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-category/");
 
     final response = await http.get(
       url,
@@ -43,7 +41,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
-      return data.map((e) => ProductType.fromJson(e)).toList();
+      return data.map((e) => ProductCategory.fromJson(e)).toList();
     } else {
       throw Exception("Gagal memuat data: Status code ${response.statusCode}");
     }
@@ -52,25 +50,27 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<ProductType>>(
-        future: futureTypes,
+      appBar: AppBar(title: const Text("Product Category")),
+      body: FutureBuilder<List<ProductCategory>>(
+        future: futureCategories,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("Tidak ada data product type"));
+            return const Center(child: Text("Tidak ada data product category"));
           }
 
-          final types = snapshot.data!;
+          final categories = snapshot.data!;
           return ListView.builder(
-            itemCount: types.length,
+            itemCount: categories.length,
             itemBuilder: (context, index) {
-              final type = types[index];
+              final category = categories[index];
               return ListTile(
-                leading: Text("${type.id}"),
-                title: Text(type.name),
+                leading: Text("${index + 1}"), // numbering
+                title: Text(category.name),
+                subtitle: Text("Source: ${category.source}"),
               );
             },
           );
