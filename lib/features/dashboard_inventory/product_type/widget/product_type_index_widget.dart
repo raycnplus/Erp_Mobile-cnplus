@@ -32,7 +32,6 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
     }
     
     final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-category/"); 
-
     final response = await http.get(
       url,
       headers: {
