@@ -28,17 +28,18 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: const SalesDashboardDrawer(),
-      backgroundColor: const Color(0xFFEAFBF3),
+      backgroundColor: Colors.grey[100], 
       appBar: AppBar(
       title: GestureDetector(
       onTap: () {
       Navigator.pushNamed(context, AppRoutes.modul);
       },
       child: const Text(
-        'Sales Dashboard',
+        'Sales',
       style: TextStyle(color: Colors.black),
      ),
    ),
+   centerTitle: true,
    backgroundColor: Colors.white,
    elevation: 1,
    iconTheme: const IconThemeData(color: Colors.black),
@@ -121,6 +122,7 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
                       child: StatCard(
                         title: "Revenue",
                         value: formatCurrency(data.grandTotal),
+                        valueColor: const Color(0xFF2D6A4F),
                       ),
                     ),
                   ],
