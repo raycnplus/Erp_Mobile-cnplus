@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart'; 
-import '../../../../../services/api_base.dart'; 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../../../../services/api_base.dart';
 import '../../product_type/models/product_type_index_model.dart';
 
 class ProductTypeScreen extends StatefulWidget {
@@ -21,6 +21,13 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
     futureTypes = fetchProductTypes();
   }
 
+  // Fungsi untuk memuat ulang data
+  void _reloadData() {
+    setState(() {
+      futureTypes = fetchProductTypes();
+    });
+  }
+
   Future<List<ProductType>> fetchProductTypes() async {
     const storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
@@ -28,8 +35,8 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
     if (token == null || token.isEmpty) {
       throw Exception("Token tidak ditemukan. Silakan login ulang.");
     }
-    
-    final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-type/"); 
+
+    final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-type/");
 
     final response = await http.get(
       url,
@@ -39,15 +46,20 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
       },
     );
 
-    if (response.statusCode == 200) {
-      final decoded = jsonDecode(response.body);
+    print('Response Body from fetchProductTypes: ${response.body}');
 
-      if (decoded is List) {
-        return decoded.map((e) => ProductType.fromJson(e)).toList();
-      } else if (decoded is Map) {
-        return [ProductType.fromJson(decoded as Map<String, dynamic>)];
+    if (response.statusCode == 200) {
+      // 1. Decode respons sebagai Map (objek)
+      final Map<String, dynamic> decoded = jsonDecode(response.body);
+
+      // 2. Cek status dan pastikan ada kunci 'data' yang berisi List
+      if (decoded['status'] == true && decoded['data'] is List) {
+        final List<dynamic> dataList = decoded['data'];
+        // 3. Ubah setiap item di dalam list menjadi objek ProductType
+        return dataList.map((item) => ProductType.fromJson(item)).toList();
       } else {
-        throw Exception("Format response tidak dikenali");
+        // Lemparkan error jika format tidak sesuai
+        throw Exception("Format respons API tidak valid atau status gagal.");
       }
     } else {
       throw Exception("Gagal memuat data: Status code ${response.statusCode}");
@@ -57,31 +69,55 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Product Types")),
       body: FutureBuilder<List<ProductType>>(
         future: futureTypes,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
+            // Tampilkan tombol coba lagi jika ada error
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Error: ${snapshot.error}"),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _reloadData,
+                    child: const Text("Coba Lagi"),
+                  )
+                ],
+              ),
+            );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text("Tidak ada data product type"));
           }
 
           final types = snapshot.data!;
 
-          return ListView.builder(
-            itemCount: types.length,
-            itemBuilder: (context, index) {
-              final type = types[index];
-              return ListTile(
-                leading: Text("${type.id}"),
-                title: Text(type.name),
-              );
+          // Tambahkan RefreshIndicator untuk pull-to-refresh
+          return RefreshIndicator(
+            onRefresh: () async {
+              _reloadData();
             },
+            child: ListView.builder(
+              itemCount: types.length,
+              itemBuilder: (context, index) {
+                final type = types[index];
+                return ListTile(
+                  leading: Text("${type.id}"),
+                  title: Text(type.name),
+                );
+              },
+            ),
           );
         },
+      ),
+      // Tombol FAB untuk refresh manual
+      floatingActionButton: FloatingActionButton(
+        onPressed: _reloadData,
+        tooltip: 'Refresh',
+        child: const Icon(Icons.refresh),
       ),
     );
   }

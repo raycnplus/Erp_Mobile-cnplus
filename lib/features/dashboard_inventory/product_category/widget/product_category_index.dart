@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -5,20 +6,31 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../../services/api_base.dart';
 import '../../product_category/models/product_category_index.dart';
 
-class ProductCategoryScreen extends StatefulWidget {
-  const ProductCategoryScreen({super.key});
-
-  @override
-  State<ProductCategoryScreen> createState() => _ProductCategoryScreenState();
+List<ProductCategory> _parseProductCategories(String responseBody) {
+  final List<dynamic> data = jsonDecode(responseBody);
+  return data.map((e) => ProductCategory.fromJson(e)).toList();
 }
 
-class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
+class ProductCategoryListWidget extends StatefulWidget {
+  const ProductCategoryListWidget({super.key});
+
+  @override
+  State<ProductCategoryListWidget> createState() => _ProductCategoryListWidgetState();
+}
+
+class _ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
   late Future<List<ProductCategory>> futureCategories;
 
   @override
   void initState() {
     super.initState();
     futureCategories = fetchProductCategories();
+  }
+
+  void _reloadData() {
+    setState(() {
+      futureCategories = fetchProductCategories();
+    });
   }
 
   Future<List<ProductCategory>> fetchProductCategories() async {
@@ -40,8 +52,7 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
     );
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((e) => ProductCategory.fromJson(e)).toList();
+      return compute(_parseProductCategories, response.body);
     } else {
       throw Exception("Gagal memuat data: Status code ${response.statusCode}");
     }
@@ -49,32 +60,47 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder<List<ProductCategory>>(
-        future: futureCategories,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("Tidak ada data product category"));
-          }
+    return FutureBuilder<List<ProductCategory>>(
+      future: futureCategories,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text("Error: ${snapshot.error}"),
+                ),
+                ElevatedButton(
+                  onPressed: _reloadData,
+                  child: const Text("Coba Lagi"),
+                ),
+              ],
+            ),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text("Tidak ada data product category"));
+        }
 
-          final categories = snapshot.data!;
-          return ListView.builder(
+        final categories = snapshot.data!;
+        return RefreshIndicator(
+          onRefresh: () async => _reloadData(),
+          child: ListView.builder(
             itemCount: categories.length,
             itemBuilder: (context, index) {
               final category = categories[index];
               return ListTile(
-                leading: Text("${index + 1}"), // numbering
+                leading: Text("${index + 1}"),
                 title: Text(category.name),
-                subtitle: Text("Source: ${category.source}"),
+                subtitle: Text("ID: ${category.id}"),
               );
             },
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

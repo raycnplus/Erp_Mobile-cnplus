@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widget/product_category_index.dart'; 
 
 class ProductCategoryScreen extends StatelessWidget {
   const ProductCategoryScreen({super.key});
@@ -7,7 +8,7 @@ class ProductCategoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Product Category")),
-      body: const ProductCategoryScreen(),
+      body: const ProductCategoryListWidget(), 
     );
   }
 }
