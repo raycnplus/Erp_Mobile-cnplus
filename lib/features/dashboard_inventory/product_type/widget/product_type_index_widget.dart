@@ -5,7 +5,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../../services/api_base.dart'; 
 import '../../product_type/models/product_type_index_model.dart';
 
-
 class ProductTypeScreen extends StatefulWidget {
   const ProductTypeScreen({super.key});
 
@@ -21,7 +20,6 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
     super.initState();
     futureTypes = fetchProductTypes();
   }
-
 
   Future<List<ProductType>> fetchProductTypes() async {
     const storage = FlutterSecureStorage();
@@ -42,8 +40,15 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
     );
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((e) => ProductType.fromJson(e)).toList();
+      final decoded = jsonDecode(response.body);
+
+      if (decoded is List) {
+        return decoded.map((e) => ProductType.fromJson(e)).toList();
+      } else if (decoded is Map) {
+        return [ProductType.fromJson(decoded as Map<String, dynamic>)];
+      } else {
+        throw Exception("Format response tidak dikenali");
+      }
     } else {
       throw Exception("Gagal memuat data: Status code ${response.statusCode}");
     }
@@ -52,6 +57,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text("Product Types")),
       body: FutureBuilder<List<ProductType>>(
         future: futureTypes,
         builder: (context, snapshot) {
@@ -64,6 +70,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
           }
 
           final types = snapshot.data!;
+
           return ListView.builder(
             itemCount: types.length,
             itemBuilder: (context, index) {

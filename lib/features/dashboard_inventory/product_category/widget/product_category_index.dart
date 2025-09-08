@@ -50,7 +50,6 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Product Category")),
       body: FutureBuilder<List<ProductCategory>>(
         future: futureCategories,
         builder: (context, snapshot) {
