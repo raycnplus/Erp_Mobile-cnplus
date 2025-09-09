@@ -107,7 +107,6 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                   leading: Text("${type.id}"),
                   title: Text(type.name),
                   onTap: () {
-                    // ✅ panggil callback kalau ada
                     if (widget.onTap != null) {
                       widget.onTap!(type);
                     }

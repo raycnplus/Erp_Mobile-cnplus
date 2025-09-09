@@ -14,10 +14,12 @@ class ProductTypeIndexScreen extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  ProductTypeShowScreen(productTypeId: productType.id),
+              builder: (context) => ProductTypeShowScreen(
+                productTypeId: productType.id, // kirim id ke detail
+              ),
             ),
           );
+          ;
         },
       ),
     );
