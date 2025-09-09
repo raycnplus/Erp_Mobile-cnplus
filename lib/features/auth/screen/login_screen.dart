@@ -47,7 +47,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final result = await AuthService.login(loginReq);
       if (result['success'] == true) {
-        // Simpan token ke secure storage dengan key 'token'
         final storage = const FlutterSecureStorage();
         final token = result['token'] ?? result['data']?['token'] ?? '';
         if (token.isNotEmpty) {
@@ -114,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 40),
-                Image.asset('assets/logo.png', height: 80),
+                Image.asset('assets/logo.png', height: 65),
                 const SizedBox(height: 20),
                 const SizedBox(height: 40),
                 LoginForm(
