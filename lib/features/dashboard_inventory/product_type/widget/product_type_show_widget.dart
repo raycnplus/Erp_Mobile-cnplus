@@ -15,7 +15,7 @@ class ProductTypeShowScreen extends StatefulWidget {
 }
 
 class _ProductTypeShowScreenState extends State<ProductTypeShowScreen> {
-  late Future<ProductTypeDetail> futureDetail;
+  late Future<ProductTypeShowModel> futureDetail;
 
   @override
   void initState() {
@@ -23,7 +23,7 @@ class _ProductTypeShowScreenState extends State<ProductTypeShowScreen> {
     futureDetail = fetchProductTypeDetail(widget.id);
   }
 
-  Future<ProductTypeDetail> fetchProductTypeDetail(int id) async {
+  Future<ProductTypeShowModel> fetchProductTypeDetail(int id) async {
     const storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
 
@@ -47,7 +47,7 @@ class _ProductTypeShowScreenState extends State<ProductTypeShowScreen> {
       final Map<String, dynamic> decoded = jsonDecode(response.body);
 
       if (decoded['status'] == true && decoded['data'] != null) {
-        return ProductTypeDetail.fromJson(decoded['data']);
+        return ProductTypeShowModel.fromJson(decoded['data']);
       } else {
         throw Exception("Format respons API tidak valid atau data kosong.");
       }
@@ -60,13 +60,29 @@ class _ProductTypeShowScreenState extends State<ProductTypeShowScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Product Type Detail")),
-      body: FutureBuilder<ProductTypeDetail>(
+      body: FutureBuilder<ProductTypeShowModel>(
         future: futureDetail,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Error: ${snapshot.error}"),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        futureDetail = fetchProductTypeDetail(widget.id);
+                      });
+                    },
+                    child: const Text("Coba Lagi"),
+                  ),
+                ],
+              ),
+            );
           } else if (!snapshot.hasData) {
             return const Center(child: Text("Data tidak ditemukan"));
           }
@@ -80,9 +96,10 @@ class _ProductTypeShowScreenState extends State<ProductTypeShowScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  Text("ID: ${type.idProductCategory}", style: const TextStyle(fontSize: 18)),
+                  Text("ID: ${type.idProductType}",
+                      style: const TextStyle(fontSize: 18)),
                   const SizedBox(height: 8),
-                  Text("Product Type Name: ${type.productCategoryName}",
+                  Text("Product Type Name: ${type.productTypeName}",
                       style: const TextStyle(fontSize: 18)),
                   const SizedBox(height: 8),
                   Text("Created On: ${type.createdDate ?? '-'}",
