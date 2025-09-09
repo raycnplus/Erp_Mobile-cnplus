@@ -1,25 +1,22 @@
 class ProductTypeDetail {
-  final int id;
-  final String name;
-  final String encryption;
+  final int idProductCategory;
+  final String productCategoryName;
   final String? createdDate;
   final String? createdBy;
 
   ProductTypeDetail({
-    required this.id,
-    required this.name,
-    required this.encryption,
+    required this.idProductCategory,
+    required this.productCategoryName,
     this.createdDate,
     this.createdBy,
   });
 
   factory ProductTypeDetail.fromJson(Map<String, dynamic> json) {
     return ProductTypeDetail(
-      id: json['id_product_type'] ?? 0,
-      name: json['product_type_name'] ?? '',
-      encryption: json['encryption'] ?? '',
+      idProductCategory: json['id_product_category'],
+      productCategoryName: json['product_category_name'] ?? '-',
       createdDate: json['created_date'],
-      createdBy: json['created_by']?.toString(), 
+      createdBy: json['created_by'],
     );
   }
 }

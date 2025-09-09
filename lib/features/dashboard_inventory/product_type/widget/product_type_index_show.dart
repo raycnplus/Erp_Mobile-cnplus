@@ -80,13 +80,10 @@ class _ProductTypeShowScreenState extends State<ProductTypeShowScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  Text("ID: ${type.id}", style: const TextStyle(fontSize: 18)),
+                  Text("ID: ${type.idProductCategory}", style: const TextStyle(fontSize: 18)),
                   const SizedBox(height: 8),
-                  Text("Product Type Name: ${type.name}",
+                  Text("Product Type Name: ${type.productCategoryName}",
                       style: const TextStyle(fontSize: 18)),
-                  const SizedBox(height: 8),
-                  Text("Encryption: ${type.encryption}",
-                      style: const TextStyle(fontSize: 16)),
                   const SizedBox(height: 8),
                   Text("Created On: ${type.createdDate ?? '-'}",
                       style: const TextStyle(fontSize: 16)),
