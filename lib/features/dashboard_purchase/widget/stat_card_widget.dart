@@ -33,6 +33,7 @@ class StatCard extends StatelessWidget {
       child: Card(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        color: Colors.white,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
           child: Column(
