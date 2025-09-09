@@ -6,7 +6,9 @@ import '../../../../../services/api_base.dart';
 import '../../product_type/models/product_type_index_model.dart';
 
 class ProductTypeScreen extends StatefulWidget {
-  const ProductTypeScreen({super.key});
+  final void Function(ProductType type)? onTap; // ✅ tambahin callback
+
+  const ProductTypeScreen({super.key, this.onTap});
 
   @override
   State<ProductTypeScreen> createState() => _ProductTypeScreenState();
@@ -40,10 +42,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
 
     final response = await http.get(
       url,
-      headers: {
-        "Authorization": "Bearer $token",
-        "Accept": "application/json",
-      },
+      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
     );
 
     print('Response Body from fetchProductTypes: ${response.body}');
@@ -85,7 +84,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                   ElevatedButton(
                     onPressed: _reloadData,
                     child: const Text("Coba Lagi"),
-                  )
+                  ),
                 ],
               ),
             );
@@ -107,6 +106,12 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                 return ListTile(
                   leading: Text("${type.id}"),
                   title: Text(type.name),
+                  onTap: () {
+                    // ✅ panggil callback kalau ada
+                    if (widget.onTap != null) {
+                      widget.onTap!(type);
+                    }
+                  },
                 );
               },
             ),
