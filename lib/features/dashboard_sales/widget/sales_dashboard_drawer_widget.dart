@@ -71,13 +71,13 @@ class _SalesDashboardDrawerState extends State<SalesDashboardDrawer> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Row(
               children: [
-                const Icon(Icons.storage, color: Colors.teal),
+                const Icon(Icons.storage, color: Colors.grey),
                 const SizedBox(width: 8),
                 Text(
                   'Master Data',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.teal.shade700,
+                    color: Colors.grey,
                   ),
                 ),
               ],
