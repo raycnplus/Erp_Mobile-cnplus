@@ -85,23 +85,23 @@ class _SalesDashboardDrawerState extends State<SalesDashboardDrawer> {
           ),
 
           ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.teal)),
+            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.grey)),
             title: const Text('Customer'),
             onTap: () {
               Navigator.pop(context);
             },
           ),
           ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.teal)),
+            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.grey)),
             title: const Text('Customer Category'),
             onTap: () {
               Navigator.pop(context);
             },
           ),
           ExpansionTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.teal)),
+            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.grey)),
             title: const Text('Product'),
-            trailing: const Icon(Icons.keyboard_arrow_down, color: Colors.teal),
+            trailing: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(left: 40.0),
@@ -124,28 +124,28 @@ class _SalesDashboardDrawerState extends State<SalesDashboardDrawer> {
             ],
           ),
           ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.teal)),
+            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.grey)),
             title: const Text('Sales Team'),
             onTap: () {
               Navigator.pop(context);
             },
           ),
           ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.teal)),
+            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.grey)),
             title: const Text('Products Type'),
             onTap: () {
               Navigator.pop(context);
             },
           ),
           ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.teal)),
+            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.grey)),
             title: const Text('Products Category'),
             onTap: () {
               Navigator.pop(context);
             },
           ),
           ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.teal)),
+            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.grey)),
             title: const Text('Brands'),
             onTap: () {
               Navigator.pop(context);

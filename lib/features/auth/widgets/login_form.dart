@@ -27,7 +27,6 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    // Mendefinisikan gaya border untuk input field agar konsisten
     final inputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
       borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
@@ -35,7 +34,7 @@ class _LoginFormState extends State<LoginForm> {
 
     final focusedBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: Color(0xff409c9c), width: 2.0), // <-- Ubah di sini
+      borderSide: const BorderSide(color: Color(0xff409c9c), width: 2.0),
     );
 
     return Card(
@@ -61,7 +60,7 @@ class _LoginFormState extends State<LoginForm> {
                 prefixIcon: const Icon(Icons.storage),
                 border: inputBorder,
                 enabledBorder: inputBorder,
-                focusedBorder: focusedBorder, // <-- Pastikan ini dipakai
+                focusedBorder: focusedBorder,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 16,
@@ -80,13 +79,14 @@ class _LoginFormState extends State<LoginForm> {
             const SizedBox(height: 18),
             // Username
             TextField(
+              cursorColor: const Color(0xff409c9c),
               controller: widget.emailController,
               decoration: InputDecoration(
                 hintText: 'Username',
                 prefixIcon: const Icon(Icons.person),
                 border: inputBorder,
                 enabledBorder: inputBorder,
-                focusedBorder: focusedBorder, // <-- Pastikan ini dipakai
+                focusedBorder: focusedBorder,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 16,
@@ -96,6 +96,7 @@ class _LoginFormState extends State<LoginForm> {
             const SizedBox(height: 18),
             // Password
             TextField(
+              cursorColor: const Color(0xff409c9c),
               controller: widget.passwordController,
               obscureText: _obscurePassword,
               decoration: InputDecoration(
@@ -103,7 +104,7 @@ class _LoginFormState extends State<LoginForm> {
                 prefixIcon: const Icon(Icons.lock),
                 border: inputBorder,
                 enabledBorder: inputBorder,
-                focusedBorder: focusedBorder, // <-- Pastikan ini dipakai
+                focusedBorder: focusedBorder,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 16,
@@ -155,19 +156,18 @@ class _LoginFormState extends State<LoginForm> {
                     child: widget.isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
-                      'Login',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
+                            'Login',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 24),
-
           ],
         ),
       ),

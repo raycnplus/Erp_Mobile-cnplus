@@ -7,6 +7,7 @@ import '../widget/sales_dashboard_drawer_widget.dart';
 import '../services/sales_dashboard_service.dart';
 import '../helpers/currency_helper.dart';
 import '../../../core/routes/app_routes.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class DashboardSalesScreen extends StatefulWidget {
   const DashboardSalesScreen({super.key});
@@ -69,7 +70,7 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                // 4 StatCard dalam 1 baris, responsif tanpa overflow
+                
                 Wrap(
                   spacing: spacing,
                   runSpacing: spacing,
@@ -115,6 +116,10 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
                       child: StatCard(
                         title: "Products",
                         value: data.salesProductCount.toString(),
+                        titleStyle: const TextStyle(
+                          fontSize: 11,
+                          // color: const Color(0xFF2D6A4F)
+                        ),
                       ),
                     ),
                     SizedBox(
@@ -123,6 +128,12 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
                         title: "Revenue",
                         value: formatCurrency(data.grandTotal),
                         valueColor: const Color(0xFF2D6A4F),
+                        titleStyle: GoogleFonts.poppins(
+                          textStyle: const TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF2D6A4F),
+                          ),
+                        ),
                       ),
                     ),
                   ],
