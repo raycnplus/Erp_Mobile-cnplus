@@ -6,16 +6,20 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../../services/api_base.dart';
 import '../../product_category/models/product_category_index.dart';
 
+
 List<ProductCategory> _parseProductCategories(String responseBody) {
   final List<dynamic> data = jsonDecode(responseBody);
   return data.map((e) => ProductCategory.fromJson(e)).toList();
 }
 
 class ProductCategoryListWidget extends StatefulWidget {
-  const ProductCategoryListWidget({super.key});
+  final ValueChanged<int> onTap; // ✅ Tambahkan deklarasi onTap
+
+  const ProductCategoryListWidget({super.key, required this.onTap});
 
   @override
-  State<ProductCategoryListWidget> createState() => _ProductCategoryListWidgetState();
+  State<ProductCategoryListWidget> createState() =>
+      _ProductCategoryListWidgetState();
 }
 
 class _ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
@@ -94,8 +98,9 @@ class _ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
               final category = categories[index];
               return ListTile(
                 leading: Text("${index + 1}"),
-                title: Text(category.name),
+                title: Text(category.name), // Replace 'name' with the actual property if different
                 subtitle: Text("ID: ${category.id}"),
+                onTap: () => widget.onTap(category.id), 
               );
             },
           ),
