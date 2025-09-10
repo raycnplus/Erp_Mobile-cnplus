@@ -1,5 +1,7 @@
+
+import '../../product_type/widget/product_type_show_widget.dart'; 
+
 import '../../product_type/widget/product_type_index_widget.dart';
-import '../../product_type/screen/product_type_show_screen.dart';
 import 'package:flutter/material.dart';
 
 class ProductTypeIndexScreen extends StatelessWidget {
@@ -15,8 +17,7 @@ class ProductTypeIndexScreen extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => ProductTypeShowScreen(
-                productTypeId:
-                    productType.id, 
+                id: productType.id, 
               ),
             ),
           );

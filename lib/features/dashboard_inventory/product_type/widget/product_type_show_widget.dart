@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:logger/logger.dart';
 import '../../../../../services/api_base.dart';
 import '../../product_type/models/product_type_show_model.dart';
+
+final logger = Logger();
 
 class ProductTypeShowScreen extends StatefulWidget {
   final int id;
@@ -41,7 +44,8 @@ class _ProductTypeShowScreenState extends State<ProductTypeShowScreen> {
       },
     );
 
-    print("Response Body (detail): ${response.body}");
+
+    logger.d("Response Body (detail): ${response.body}");
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> decoded = jsonDecode(response.body);
@@ -89,25 +93,48 @@ class _ProductTypeShowScreenState extends State<ProductTypeShowScreen> {
 
           final type = snapshot.data!;
 
+
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: Card(
               elevation: 4,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Text("ID: ${type.idProductType}",
-                      style: const TextStyle(fontSize: 18)),
-                  const SizedBox(height: 8),
-                  Text("Product Type Name: ${type.productTypeName}",
-                      style: const TextStyle(fontSize: 18)),
-                  const SizedBox(height: 8),
-                  Text("Created On: ${type.createdDate ?? '-'}",
-                      style: const TextStyle(fontSize: 16)),
-                  const SizedBox(height: 8),
-                  Text("Created By: ${type.createdBy ?? '-'}",
-                      style: const TextStyle(fontSize: 16)),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min, // Agar card tidak memenuhi layar
+                  children: [
+                    Text(
+                      "Product Type Name",
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                    Text(
+                      type.productTypeName,
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Menampilkan Created On
+                    Text(
+                      "Created On",
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                    Text(
+                      type.createdDate ?? '-',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(height: 16),
+
+                    Text(
+                      "Created By",
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
+                    Text(
+                      type.createdBy?.toString() ?? '-',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
               ),
             ),
           );

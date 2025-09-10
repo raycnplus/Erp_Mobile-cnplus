@@ -16,7 +16,7 @@ class ProductTypeShowModel {
       idProductType: json['id_product_type']?.toString() ?? '-',
       productTypeName: json['product_type_name'] ?? '-',
       createdDate: json['created_date'],
-      createdBy: json['created_by']?.toString(), // bisa angka / string
+      createdBy: json['created_by_name']?.toString(),
     );
   }
 }
