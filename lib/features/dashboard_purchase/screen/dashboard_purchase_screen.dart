@@ -11,6 +11,7 @@ import '../services/purchase_service.dart';
 import '../../../core/routes/app_routes.dart';
 import '../models/purchase_dashboard_model.dart' as ApiModel;
 import '../utils/formatters.dart';
+import '../../../shared/widgets/personalized_header.dart';
 
 class DashboardPurchaseScreen extends StatefulWidget {
   const DashboardPurchaseScreen({super.key});
@@ -33,58 +34,70 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
   }
 
   List<PurchaseChartData> _transformToProductChartData(
-      List<ApiModel.TopProduct> products) {
+    List<ApiModel.TopProduct> products,
+  ) {
     return products
-        .map((p) => PurchaseChartData(
-              label: p.productName,
-              value: p.totalSpent,
-              color: Colors.pinkAccent,
-            ))
+        .map(
+          (p) => PurchaseChartData(
+            label: p.productName,
+            value: p.totalSpent,
+            color: Colors.pinkAccent,
+          ),
+        )
         .toList();
   }
 
   List<PurchaseChartData> _transformToVendorChartData(
-      List<ApiModel.TopVendor> vendors) {
+    List<ApiModel.TopVendor> vendors,
+  ) {
     return vendors
-        .map((v) => PurchaseChartData(
-              label: v.vendorName,
-              value: v.totalSpent,
-              color: Colors.cyan,
-            ))
+        .map(
+          (v) => PurchaseChartData(
+            label: v.vendorName,
+            value: v.totalSpent,
+            color: Colors.cyan,
+          ),
+        )
         .toList();
   }
 
   List<MonthlyPurchaseData> _transformToAnalysisData(
-      ApiModel.SpendingByMonth spending) {
+    ApiModel.SpendingByMonth spending,
+  ) {
     List<MonthlyPurchaseData> chartData = [];
     for (int i = 0; i < spending.labels.length; i++) {
       // Extract month number from "MM-YYYY" label
       final month = int.tryParse(spending.labels[i].split('-')[0]) ?? (i + 1);
-      chartData.add(MonthlyPurchaseData(
-        month: month,
-        amount: spending.data[i],
-      ));
+      chartData.add(
+        MonthlyPurchaseData(month: month, amount: spending.data[i]),
+      );
     }
     return chartData;
   }
 
   List<TopListData> _transformToCategoryList(
-      List<ApiModel.TopCategory> categories) {
+    List<ApiModel.TopCategory> categories,
+  ) {
     return categories
-        .map((c) => TopListData(
-              title: c.productCategoryName,
-              value: formatCurrency(c.totalAmount),
-            ))
+        .map(
+          (c) => TopListData(
+            title: c.productCategoryName,
+            value: formatCurrency(c.totalAmount),
+          ),
+        )
         .toList();
   }
 
   List<TopListData> _transformToPurchaseOrderList(
-      List<ApiModel.TopPurchaseOrder> orders) {
+    List<ApiModel.TopPurchaseOrder> orders,
+  ) {
     return orders
-        .map((o) => TopListData(
-              title: o.reference,
-              value: formatCurrency(o.totalAmount),
-            ))
+        .map(
+          (o) => TopListData(
+            title: o.reference,
+            value: formatCurrency(o.totalAmount),
+          ),
+        )
         .toList();
   }
 
@@ -93,20 +106,17 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-      title: GestureDetector(
-      onTap: () {
-      Navigator.pushNamed(context, AppRoutes.modul);
-      },
-      child: const Text(
-        'Purchase',
-      style: TextStyle(color: Colors.black),
-     ),
-   ),
-   centerTitle: true,
-   backgroundColor: Colors.white,
-   elevation: 1,
-   iconTheme: const IconThemeData(color: Colors.black),
-),
+        title: GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(context, AppRoutes.modul);
+          },
+          child: const Text('Purchase', style: TextStyle(color: Colors.black)),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 1,
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
       drawer: const PurchaseDashboardDrawer(),
       body: FutureBuilder<ApiModel.PurchaseDashboardResponse>(
         future: _dashboardDataFuture,
@@ -131,13 +141,17 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
           final data = snapshot.data!;
           final summary = data.summary;
 
-          final top5ProductData = _transformToProductChartData(data.topProducts);
+          final top5ProductData = _transformToProductChartData(
+            data.topProducts,
+          );
           final top5VendorData = _transformToVendorChartData(data.topVendors);
-          final purchaseAnalysisData =
-              _transformToAnalysisData(data.charts.spendingByMonth);
+          final purchaseAnalysisData = _transformToAnalysisData(
+            data.charts.spendingByMonth,
+          );
           final topCategoryData = _transformToCategoryList(data.topCategories);
-          final topPurchaseOrderData =
-              _transformToPurchaseOrderList(data.topPurchaseOrders);
+          final topPurchaseOrderData = _transformToPurchaseOrderList(
+            data.topPurchaseOrders,
+          );
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
@@ -152,6 +166,8 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
                   mainAxisSpacing: 8,
                   childAspectRatio: 0.7,
                   children: [
+                    const PersonalizedHeader(),
+                    const SizedBox(height: 16),
                     StatCard(
                       title: "Purchase Request",
                       value: summary.purchaseRequest.toString(),
@@ -196,7 +212,7 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
                       ),
                       children: const [
                         Text("Top 5 Product"),
-                        Text("Top 5 Vendor")
+                        Text("Top 5 Vendor"),
                       ],
                     );
                   },

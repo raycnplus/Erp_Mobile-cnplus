@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// ❌ SharedPreferences tidak lagi digunakan
+// import 'package:shared_preferences/shared_preferences.dart';
 import '../../../services/api_base.dart';
 import '../models/login_request.dart';
 
 class AuthService {
-  static final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+  static final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   static Future<Map<String, dynamic>> login(LoginRequest loginReq) async {
     final url = Uri.parse('${ApiBase.baseUrl}/auth/login');
@@ -24,17 +25,19 @@ class AuthService {
     if (response.statusCode == 200) {
       final token = data['token'];
       final user = data['user'];
-      final prefs = await SharedPreferences.getInstance();
 
-      await secureStorage.write(key: 'user_token', value: token);
+      await _secureStorage.write(key: 'token', value: token);
 
       if (user != null) {
-        if (user['username'] != null)
-          await prefs.setString('username', user['username']);
-        if (user['email'] != null)
-          await prefs.setString('email', user['email']);
-        if (user['nama_lengkap'] != null)
-          await prefs.setString('nama_lengkap', user['nama_lengkap']);
+        if (user['username'] != null) {
+          await _secureStorage.write(key: 'username', value: user['username']);
+        }
+        if (user['email'] != null) {
+          await _secureStorage.write(key: 'email', value: user['email']);
+        }
+        if (user['nama_lengkap'] != null) {
+          await _secureStorage.write(key: 'nama_lengkap', value: user['nama_lengkap']);
+        }
       }
 
       return {'success': true, 'user': user, 'token': token};

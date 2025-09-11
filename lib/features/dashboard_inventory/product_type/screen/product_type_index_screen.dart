@@ -17,7 +17,7 @@ class ProductTypeIndexScreen extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => ProductTypeShowScreen(
-                id: productType.id, 
+                id: productType.id, // <-- Ganti dari 'productTypeId' menjadi 'id'
               ),
             ),
           );

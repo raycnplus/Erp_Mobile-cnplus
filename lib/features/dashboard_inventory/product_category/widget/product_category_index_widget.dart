@@ -13,7 +13,7 @@ List<ProductCategory> _parseProductCategories(String responseBody) {
 }
 
 class ProductCategoryListWidget extends StatefulWidget {
-  final ValueChanged<int> onTap; // ✅ Tambahkan deklarasi onTap
+   final ValueChanged<ProductCategory> onTap; 
 
   const ProductCategoryListWidget({super.key, required this.onTap});
 
@@ -100,7 +100,7 @@ class _ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
                 leading: Text("${index + 1}"),
                 title: Text(category.name), // Replace 'name' with the actual property if different
                 subtitle: Text("ID: ${category.id}"),
-                onTap: () => widget.onTap(category.id), 
+                onTap: () => widget.onTap(category),  
               );
             },
           ),

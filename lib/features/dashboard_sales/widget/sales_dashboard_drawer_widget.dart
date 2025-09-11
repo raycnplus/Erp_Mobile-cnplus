@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SalesDashboardDrawer extends StatefulWidget {
   const SalesDashboardDrawer({super.key});
@@ -19,10 +20,14 @@ class _SalesDashboardDrawerState extends State<SalesDashboardDrawer> {
   }
 
   Future<void> _loadUserInfo() async {
-    final prefs = await SharedPreferences.getInstance();
+    const storage = FlutterSecureStorage();
+
+    final storedUsername = await storage.read(key: 'nama_lengkap');
+    final storedEmail = await storage.read(key: 'email');
+
     setState(() {
-      username = prefs.getString('nama_lengkap') ?? '';
-      email = prefs.getString('email') ?? '';
+      username = storedUsername ?? '';
+      email = storedEmail ?? '';
     });
   }
 

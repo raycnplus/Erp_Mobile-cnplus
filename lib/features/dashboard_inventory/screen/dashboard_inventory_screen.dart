@@ -7,10 +7,11 @@ import '../models/chart_data_model.dart';
 import '../widget/bar_chart_widget.dart';
 import '../widget/pie_chart_widget.dart';
 import '../widget/stat_card_widget.dart';
-import '../widget/dashboard_drawer_widget.dart';
+import '../widget/inventory_drawer_widget.dart';
 import '../widget/top_product_widget.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../services/api_base.dart';
+import '../../../shared/widgets/personalized_header.dart';
 
 class DashboardInventoryScreen extends StatefulWidget {
   const DashboardInventoryScreen({super.key});
@@ -141,6 +142,8 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const PersonalizedHeader(),
+                  const SizedBox(height: 16),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,

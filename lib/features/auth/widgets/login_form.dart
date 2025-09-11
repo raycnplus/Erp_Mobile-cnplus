@@ -56,7 +56,7 @@ class _LoginFormState extends State<LoginForm> {
                   .map((db) => DropdownMenuItem(value: db, child: Text(db)))
                   .toList(),
               decoration: InputDecoration(
-                hintText: 'Pilih Database',
+                hintText: 'Select Database',
                 prefixIcon: const Icon(Icons.storage),
                 border: inputBorder,
                 enabledBorder: inputBorder,

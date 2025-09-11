@@ -24,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> handleLogin() async {
     setState(() => isLoading = true);
 
-    // Cek koneksi internet sebelum login
+
     final connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
       if (mounted) {
@@ -46,13 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       final result = await AuthService.login(loginReq);
-      if (result['success'] == true) {
-        final storage = const FlutterSecureStorage();
-        final token = result['token'] ?? result['data']?['token'] ?? '';
-        if (token.isNotEmpty) {
-          await storage.write(key: 'token', value: token);
-        }
 
+      // ✅ Logika disederhanakan. AuthService sudah menyimpan semua data.
+      if (result['success'] == true) {
         if (mounted) {
           Navigator.pushReplacement(
             context,

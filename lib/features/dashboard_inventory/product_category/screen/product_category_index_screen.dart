@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../../product_category/widget/product_category_show_widget.dart';
 import '../widget/product_category_index_widget.dart';
-import '../../product_category/screen/product_category_show_screen.dart'; // pastikan path sesuai
+import '../../product_category/models/product_category_index.dart';
 
 class ProductCategoryScreen extends StatelessWidget {
   const ProductCategoryScreen({super.key});
@@ -11,12 +11,13 @@ class ProductCategoryScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text("Product Category")),
       body: ProductCategoryListWidget(
-        onTap: (id) {
+        onTap: (ProductCategory category) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  ProductCategoryShowScreen(id: id),
+              builder: (context) => ProductCategoryShowScreen(
+                id: category.id,
+              ),
             ),
           );
         },
