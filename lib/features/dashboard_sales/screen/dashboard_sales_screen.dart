@@ -8,6 +8,7 @@ import '../services/sales_dashboard_service.dart';
 import '../helpers/currency_helper.dart';
 import '../../../core/routes/app_routes.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../shared/widgets/personalized_header.dart';
 
 class DashboardSalesScreen extends StatefulWidget {
   const DashboardSalesScreen({super.key});
@@ -70,7 +71,8 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                
+                const PersonalizedHeader(),
+                const SizedBox(height: 16,),
                 Wrap(
                   spacing: spacing,
                   runSpacing: spacing,

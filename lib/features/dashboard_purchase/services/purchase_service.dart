@@ -10,7 +10,7 @@ class PurchaseService {
   final _secureStorage = const FlutterSecureStorage();
 
   Future<PurchaseDashboardResponse> fetchDashboardData() async {
-    final token = await _secureStorage.read(key: 'user_token');
+    final token = await _secureStorage.read(key: 'token');
 
     if (token == null) {
       throw Exception('Authorization token not found. Please log in again.');

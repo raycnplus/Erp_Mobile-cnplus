@@ -7,7 +7,7 @@ import '../../../../services/api_base.dart';
 class SalesDashboardService {
   static Future<SalesDashboardResponse> fetchDashboardData() async {
     final storage = const FlutterSecureStorage();
-    final token = await storage.read(key: 'user_token');
+    final token = await storage.read(key: 'token');
 
     if (token == null || token.isEmpty) {
       throw Exception('Token tidak ditemukan. Silakan login ulang.');
