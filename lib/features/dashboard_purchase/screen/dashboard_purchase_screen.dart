@@ -158,6 +158,8 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const PersonalizedHeader(),
+                const SizedBox(height: 16),
                 GridView.count(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -166,8 +168,6 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
                   mainAxisSpacing: 8,
                   childAspectRatio: 0.7,
                   children: [
-                    const PersonalizedHeader(),
-                    const SizedBox(height: 16),
                     StatCard(
                       title: "Purchase Request",
                       value: summary.purchaseRequest.toString(),

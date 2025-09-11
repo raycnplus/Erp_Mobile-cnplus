@@ -20,7 +20,6 @@ class ModulScreen extends StatelessWidget {
             stops: [0.0, 0.8],
           ),
         ),
-        // Menggunakan SafeArea dan SingleChildScrollView agar bisa di-scroll
         child: SafeArea(
           child: SingleChildScrollView(
             child: Center(
