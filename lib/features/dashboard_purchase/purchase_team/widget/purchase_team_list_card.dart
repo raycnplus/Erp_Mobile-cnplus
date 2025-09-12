@@ -31,7 +31,7 @@ class _PurchaseTeamCardListState extends State<PurchaseTeamCardList> {
 
   Future<List<PurchaseTeamIndexModel>> fetchTeams() async {
     final storage = const FlutterSecureStorage();
-    final token = await storage.read(key: 'user_token');
+    final token = await storage.read(key: 'token');
 
     if (token == null) {
       throw Exception('Token tidak ditemukan. Silakan login kembali.');
