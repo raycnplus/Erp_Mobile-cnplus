@@ -4,7 +4,7 @@ import '../product_type/screen/product_type_index_screen.dart';
 import '../product_category/screen/product_category_index_screen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../brand/screen/brand_index_screen.dart';
-
+import '../../dashboard_inventory/product_type/screen/product_type_index_screen.dart';
 class DashboardDrawer extends StatefulWidget {
   const DashboardDrawer({super.key});
 

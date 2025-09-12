@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../product_category/widget/product_category_show_widget.dart';
 import '../widget/product_category_index_widget.dart';
 import '../../product_category/models/product_category_index.dart';
-import 'product_category_create_screen.dart'; // 👉 import screen create
+import 'product_category_create_screen.dart'; 
 
 class ProductCategoryScreen extends StatefulWidget {
   const ProductCategoryScreen({super.key});
