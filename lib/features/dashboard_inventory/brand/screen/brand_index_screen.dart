@@ -1,3 +1,5 @@
+import 'package:erp_mobile_cnplus/features/dashboard_inventory/brand/screen/brand_create_screen.dart';
+import 'package:erp_mobile_cnplus/features/dashboard_inventory/brand/widget/brand_create_form_widget.dart';
 import 'package:flutter/material.dart';
 import '../../brand/screen/brand_show_screen.dart';
 import '../../brand/widget/brand_index_widget.dart';
@@ -19,6 +21,15 @@ class BrandIndexScreen extends StatelessWidget {
             ),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const BrandCreateScreen()),
+          );
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
