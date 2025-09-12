@@ -1,12 +1,16 @@
+// product_type_index_model.dart
+
 class ProductType {
   final int id;
   final String name;
   final String encryption;
+  final String createdDate;
 
   ProductType({
     required this.id,
     required this.name,
     required this.encryption,
+    required this.createdDate,
   });
 
   factory ProductType.fromJson(Map<String, dynamic> json) {
@@ -14,6 +18,7 @@ class ProductType {
       id: json['id_product_type'] ?? 0,
       name: json['product_type_name'] ?? '',
       encryption: json['encryption'] ?? '',
+      createdDate: json['created_date'] ?? '',
     );
   }
 
@@ -22,6 +27,7 @@ class ProductType {
       "id_product_type": id,
       "product_type_name": name,
       "encryption": encryption,
+      "created_date": createdDate,
     };
   }
 }

@@ -41,7 +41,7 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
       style: TextStyle(color: Colors.black),
      ),
    ),
-   centerTitle: true,
+   centerTitle: false ,
    backgroundColor: Colors.white,
    elevation: 1,
    iconTheme: const IconThemeData(color: Colors.black),

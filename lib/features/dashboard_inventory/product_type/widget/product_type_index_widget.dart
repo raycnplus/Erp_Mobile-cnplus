@@ -1,12 +1,15 @@
+// product_type_index_widget.dart
+
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:intl/intl.dart';
 import '../../../../../services/api_base.dart';
 import '../../product_type/models/product_type_index_model.dart';
 
 class ProductTypeScreen extends StatefulWidget {
-  final void Function(ProductType type)? onTap; // ✅ tambahin callback
+  final void Function(ProductType type)? onTap;
 
   const ProductTypeScreen({super.key, this.onTap});
 
@@ -23,11 +26,36 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
     futureTypes = fetchProductTypes();
   }
 
-  // Fungsi untuk memuat ulang data
   void _reloadData() {
     setState(() {
       futureTypes = fetchProductTypes();
     });
+  }
+
+  // Fungsi untuk memilih ikon berdasarkan nama product type
+  IconData _getIconForProductType(String productTypeName) {
+    String name = productTypeName.toLowerCase();
+    if (name.contains('storable')) {
+      return Icons.inventory_2_outlined;
+    } else if (name.contains('service')) {
+      return Icons.build_outlined;
+    } else if (name.contains('consumable')) {
+      return Icons.fastfood_outlined;
+    } else if (name.contains('free')) {
+      return Icons.card_giftcard_outlined;
+    } else {
+      return Icons.category_outlined;
+    }
+  }
+
+  String _formatDate(String dateString) {
+    if (dateString.isEmpty) return 'No date';
+    try {
+      final dateTime = DateTime.parse(dateString);
+      return DateFormat('d MMM yyyy').format(dateTime);
+    } catch (e) {
+      return dateString;
+    }
   }
 
   Future<List<ProductType>> fetchProductTypes() async {
@@ -45,19 +73,12 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
       headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
     );
 
-    print('Response Body from fetchProductTypes: ${response.body}');
-
     if (response.statusCode == 200) {
-      // 1. Decode respons sebagai Map (objek)
       final Map<String, dynamic> decoded = jsonDecode(response.body);
-
-      // 2. Cek status dan pastikan ada kunci 'data' yang berisi List
       if (decoded['status'] == true && decoded['data'] is List) {
         final List<dynamic> dataList = decoded['data'];
-        // 3. Ubah setiap item di dalam list menjadi objek ProductType
         return dataList.map((item) => ProductType.fromJson(item)).toList();
       } else {
-        // Lemparkan error jika format tidak sesuai
         throw Exception("Format respons API tidak valid atau status gagal.");
       }
     } else {
@@ -67,62 +88,95 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder<List<ProductType>>(
-        future: futureTypes,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            // Tampilkan tombol coba lagi jika ada error
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("Error: ${snapshot.error}"),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _reloadData,
-                    child: const Text("Coba Lagi"),
-                  ),
-                ],
-              ),
-            );
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text("Tidak ada data product type"));
-          }
+    return FutureBuilder<List<ProductType>>(
+      future: futureTypes,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Error: ${snapshot.error}"),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _reloadData,
+                  child: const Text("Coba Lagi"),
+                ),
+              ],
+            ),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text("Tidak ada data product type"));
+        }
 
-          final types = snapshot.data!;
+        final types = snapshot.data!;
 
-          // Tambahkan RefreshIndicator untuk pull-to-refresh
-          return RefreshIndicator(
-            onRefresh: () async {
-              _reloadData();
-            },
-            child: ListView.builder(
-              itemCount: types.length,
-              itemBuilder: (context, index) {
-                final type = types[index];
-                return ListTile(
-                  leading: Text("${type.id}"),
-                  title: Text(type.name),
+        return RefreshIndicator(
+          onRefresh: () async {
+            _reloadData();
+          },
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16.0),
+            itemCount: types.length,
+            itemBuilder: (context, index) {
+              final type = types[index];
+              return Card(
+                color: Colors.white,
+                elevation: 4,
+                margin: const EdgeInsets.only(bottom: 12.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: InkWell(
                   onTap: () {
                     if (widget.onTap != null) {
                       widget.onTap!(type);
                     }
                   },
-                );
-              },
-            ),
-          );
-        },
-      ),
-      // Tombol FAB untuk refresh manual
-      floatingActionButton: FloatingActionButton(
-        onPressed: _reloadData,
-        tooltip: 'Refresh',
-        child: const Icon(Icons.refresh),
-      ),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      children: [
+                        Icon(
+                          _getIconForProductType(type.name),
+                          color: Theme.of(context).primaryColor,
+                          size: 40,
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                type.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "Created: ${_formatDate(type.createdDate)}",
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
