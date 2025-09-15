@@ -1,29 +1,11 @@
+// product_type_index_screen.dart
 
-import '../../product_type/widget/product_type_show_widget.dart'; 
-
-import '../../product_type/widget/product_type_index_widget.dart';
 import 'package:flutter/material.dart';
+import '../../product_type/widget/product_type_index_widget.dart';
+import '../../product_type/widget/product_type_show_widget.dart';
 
-class ProductTypeIndexScreen extends StatefulWidget {
+class ProductTypeIndexScreen extends StatelessWidget {
   const ProductTypeIndexScreen({super.key});
-
-  @override
-  State<ProductTypeIndexScreen> createState() => _ProductTypeIndexScreenState();
-}
-
-class _ProductTypeIndexScreenState extends State<ProductTypeIndexScreen> {
-  Future<void> _navigateToCreate() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ProductTypeCreateScreen(),
-      ),
-    );
-
-    if (result == true) {
-      setState(() {});
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +27,16 @@ class _ProductTypeIndexScreenState extends State<ProductTypeIndexScreen> {
             ),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          //  Tambahkan logika untuk navigasi ke halaman Tambah Product Type
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Navigasi ke halaman Tambah Data')),
+          );
+        },
+        tooltip: 'Add Product Type',
+        child: const Icon(Icons.add),
       ),
     );
   }
