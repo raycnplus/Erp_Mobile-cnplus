@@ -1,9 +1,9 @@
 import 'package:erp_mobile_cnplus/features/modul/screen/modul_screen.dart';
 import 'package:flutter/material.dart';
 import '../../features/auth/screen/login_screen.dart';
-import '../../features/dashboard_inventory/screen/dashboard_inventory_screen.dart';
-import '../../features/dashboard_purchase/screen/dashboard_purchase_screen.dart';
-import '../../features/dashboard_sales/screen/dashboard_sales_screen.dart';
+import '../../features/dashboard_inventory/dashboard/screen/dashboard_inventory_screen.dart';
+import '../../features/dashboard_purchase/dashboard/screen/dashboard_purchase_screen.dart';
+import '../../features/dashboard_sales/dashboard/screen/dashboard_sales_screen.dart';
 
 class AppRoutes {
   static const String initial = '/login';

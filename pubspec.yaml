@@ -22,6 +22,7 @@ dependencies:
   google_fonts: ^6.3.0
   connectivity_plus: ^6.1.5
   logger: ^2.6.1
+  translator: ^1.0.4+1
   
 
 dev_dependencies:
