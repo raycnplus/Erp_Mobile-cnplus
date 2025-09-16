@@ -183,8 +183,8 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                           );
                         },
                       );
-                    } else { // Aksi Edit
-                      // TODO: Navigasi ke halaman edit di sini
+                    } else { 
+                      
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Navigasi ke halaman Edit ${type.name}')),
                       );
