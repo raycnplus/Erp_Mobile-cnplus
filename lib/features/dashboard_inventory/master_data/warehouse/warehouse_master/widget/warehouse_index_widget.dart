@@ -18,7 +18,6 @@ List<WarehouseIndexModel> _parseWarehouses(String responseBody) {
       throw Exception("Field 'data' bukan berupa List");
     }
   } else if (parsed is List) {
-    // Kalau API langsung kasih list
     return parsed.map((e) => WarehouseIndexModel.fromJson(e)).toList();
   } else {
     throw Exception("Format response warehouse tidak sesuai");
