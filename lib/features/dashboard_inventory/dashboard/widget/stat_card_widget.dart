@@ -25,12 +25,13 @@ class StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final finalValueStyle =
         valueStyle ??
-        TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: valueColor);
+            TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: valueColor);
     final finalTitleStyle =
         titleStyle ?? const TextStyle(fontSize: 14, color: Colors.black54);
 
     String displayValue = value;
-    if (double.tryParse(value) != null) {
+    // Cek apakah value bisa di-parse sebagai angka sebelum memformat
+    if (num.tryParse(value) != null) {
       displayValue = formatShortNumber(value);
     }
 
@@ -44,7 +45,7 @@ class StatCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -55,11 +56,17 @@ class StatCard extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: finalTitleStyle,
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: finalTitleStyle,
+                    ),
+                  ),
                 ),
+                // --- AKHIR PERUBAHAN ---
               ],
             ),
           ),

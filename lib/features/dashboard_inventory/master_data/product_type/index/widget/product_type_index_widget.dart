@@ -6,6 +6,10 @@ import 'package:intl/intl.dart';
 import '../../../../../../../services/api_base.dart';
 import '../models/product_type_index_model.dart';
 
+// Import widget dan model untuk update
+import '../../update/widget/product_type_update_widget.dart';
+import '../../update/models/product_type_update_models.dart';
+
 class ProductTypeScreen extends StatefulWidget {
   final void Function(ProductType type)? onTap;
 
@@ -21,13 +25,38 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
   @override
   void initState() {
     super.initState();
-    futureTypes = fetchProductTypes();
+    futureTypes = fetchProductTypes() ;
   }
 
   void _reloadData() {
     setState(() {
       futureTypes = fetchProductTypes();
     });
+  }
+
+  Future<void> _showUpdateDialog(ProductType type) async {
+    final bool? wasUpdated = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Update Product Type"),
+          content: ProductTypeUpdateWidget(
+            id: type.id,
+            initialData: ProductTypeUpdateModel(productTypeName: type.name),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text("Batal"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (wasUpdated == true) {
+      _reloadData();
+    }
   }
 
   String _formatDate(String dateString) {
@@ -43,41 +72,24 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
   Future<bool> _deleteProductType(int id) async {
     const storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
-
     final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-type/$id");
-
-    final response = await http.delete(
-      url,
-      headers: {
-        "Authorization": "Bearer $token",
-        "Accept": "application/json",
-      },
-    );
-
+    final response = await http.delete(url,
+        headers: {"Authorization": "Bearer $token", "Accept": "application/json"});
     if (response.statusCode == 200) {
-      final responseBody = jsonDecode(response.body);
-      return responseBody['status'] == true;
-    } else {
-      // Gagal menghapus
-      return false;
+      return jsonDecode(response.body)['status'] == true;
     }
+    return false;
   }
 
   Future<List<ProductType>> fetchProductTypes() async {
     const storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
-
     if (token == null || token.isEmpty) {
       throw Exception("Token tidak ditemukan. Silakan login ulang.");
     }
-
     final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-type/");
-
-    final response = await http.get(
-      url,
-      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
-    );
-
+    final response = await http.get(url,
+        headers: {"Authorization": "Bearer $token", "Accept": "application/json"});
     if (response.statusCode == 200) {
       final Map<String, dynamic> decoded = jsonDecode(response.body);
       if (decoded['status'] == true && decoded['data'] is List) {
@@ -119,9 +131,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
         final types = snapshot.data!;
 
         return RefreshIndicator(
-          onRefresh: () async {
-            _reloadData();
-          },
+          onRefresh: () async => _reloadData(),
           child: ListView.builder(
             padding: const EdgeInsets.all(16.0),
             itemCount: types.length,
@@ -176,55 +186,49 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                     ),
                   ),
                   confirmDismiss: (direction) async {
-                    if (direction == DismissDirection.endToStart) { // Aksi Hapus
+                    if (direction == DismissDirection.endToStart) {
+                      // Aksi Hapus
                       bool? deleteConfirmed = await showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
                             title: const Text("Konfirmasi Hapus"),
-                            content: Text("Anda yakin ingin menghapus ${type.name}?"),
+                            content: Text(
+                                "Anda yakin ingin menghapus ${type.name}?"),
                             actions: <Widget>[
                               TextButton(
-                                onPressed: () => Navigator.of(context).pop(false),
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
                                 child: const Text("Batal"),
                               ),
                               TextButton(
-                                onPressed: () async {
-                                  // Panggil API untuk hapus data
-                                  bool success = await _deleteProductType(type.id);
-                                  if (mounted) {
-                                    Navigator.of(context).pop(success);
-                                  }
-                                },
-                                child: const Text("Hapus", style: TextStyle(color: Colors.red)),
+                                onPressed: () =>
+                                    Navigator.of(context).pop(true),
+                                child: const Text("Hapus",
+                                    style: TextStyle(color: Colors.red)),
                               ),
                             ],
                           );
                         },
                       );
 
-                      // Jika berhasil dihapus, tampilkan SnackBar dan muat ulang data
                       if (deleteConfirmed == true) {
+                        bool success = await _deleteProductType(type.id);
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('${type.name} berhasil dihapus')),
+                            SnackBar(
+                                content: Text(success
+                                    ? '${type.name} berhasil dihapus'
+                                    : 'Gagal menghapus ${type.name}')),
                           );
                         }
-                        _reloadData(); // Muat ulang data untuk refresh UI
-                        return true;
-                      } else {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Gagal menghapus ${type.name}')),
-                          );
-                        }
-                        return false;
+                        if (success) _reloadData();
+                        return success;
                       }
-                    } else { // Aksi Edit
-                      // TODO: Navigasi ke halaman edit di sini
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Navigasi ke halaman Edit ${type.name}')),
-                      );
+                      return false;
+                    } else {
+                      // Aksi Edit
+                      _showUpdateDialog(type);
                       return false;
                     }
                   },

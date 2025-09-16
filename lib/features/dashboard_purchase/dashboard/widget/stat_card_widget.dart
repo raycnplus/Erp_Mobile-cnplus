@@ -1,4 +1,4 @@
-// file: lib/widget/stat_card_widget.dart
+// file: lib/features/purchase/widget/stat_card_widget.dart
 
 import 'package:flutter/material.dart';
 
@@ -24,9 +24,9 @@ class StatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final finalValueStyle =
         valueStyle ??
-        TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: valueColor);
+        TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: valueColor);
     final finalTitleStyle =
-        titleStyle ?? const TextStyle(fontSize: 10, color: Colors.grey);
+        titleStyle ?? const TextStyle(fontSize: 12, color: Colors.grey);
 
     return Container(
       width: width,
@@ -35,14 +35,23 @@ class StatCard extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         color: Colors.white,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(value, style: finalValueStyle, textAlign: TextAlign.center),
-              const SizedBox(height: 4),
-              Text(title, textAlign: TextAlign.center, style: finalTitleStyle),
+              const SizedBox(height: 8),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: finalTitleStyle,
+                  ),
+                ),
+              ),
             ],
           ),
         ),

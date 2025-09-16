@@ -35,70 +35,45 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
   }
 
   List<PurchaseChartData> _transformToProductChartData(
-    List<ApiModel.TopProduct> products,
-  ) {
+      List<ApiModel.TopProduct> products) {
     return products
-        .map(
-          (p) => PurchaseChartData(
-            label: p.productName,
-            value: p.totalSpent,
-            color: Colors.pinkAccent,
-          ),
-        )
+        .map((p) => PurchaseChartData(
+            label: p.productName, value: p.totalSpent, color: Colors.pinkAccent))
         .toList();
   }
 
   List<PurchaseChartData> _transformToVendorChartData(
-    List<ApiModel.TopVendor> vendors,
-  ) {
+      List<ApiModel.TopVendor> vendors) {
     return vendors
-        .map(
-          (v) => PurchaseChartData(
-            label: v.vendorName,
-            value: v.totalSpent,
-            color: Colors.cyan,
-          ),
-        )
+        .map((v) => PurchaseChartData(
+            label: v.vendorName, value: v.totalSpent, color: Colors.cyan))
         .toList();
   }
 
   List<MonthlyPurchaseData> _transformToAnalysisData(
-    ApiModel.SpendingByMonth spending,
-  ) {
+      ApiModel.SpendingByMonth spending) {
     List<MonthlyPurchaseData> chartData = [];
     for (int i = 0; i < spending.labels.length; i++) {
-      // Extract month number from "MM-YYYY" label
       final month = int.tryParse(spending.labels[i].split('-')[0]) ?? (i + 1);
       chartData.add(
-        MonthlyPurchaseData(month: month, amount: spending.data[i]),
-      );
+          MonthlyPurchaseData(month: month, amount: spending.data[i]));
     }
     return chartData;
   }
 
   List<TopListData> _transformToCategoryList(
-    List<ApiModel.TopCategory> categories,
-  ) {
+      List<ApiModel.TopCategory> categories) {
     return categories
-        .map(
-          (c) => TopListData(
-            title: c.productCategoryName,
-            value: formatCurrency(c.totalAmount),
-          ),
-        )
+        .map((c) => TopListData(
+            title: c.productCategoryName, value: formatCurrency(c.totalAmount)))
         .toList();
   }
 
   List<TopListData> _transformToPurchaseOrderList(
-    List<ApiModel.TopPurchaseOrder> orders,
-  ) {
+      List<ApiModel.TopPurchaseOrder> orders) {
     return orders
-        .map(
-          (o) => TopListData(
-            title: o.reference,
-            value: formatCurrency(o.totalAmount),
-          ),
-        )
+        .map((o) => TopListData(
+            title: o.reference, value: formatCurrency(o.totalAmount)))
         .toList();
   }
 
@@ -114,7 +89,7 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
           child: Text(
             'Purchase',
             style: GoogleFonts.montserrat(
-              color: Color(0xFF2D6A4F),
+              color: const Color(0xFF2D6A4F),
               fontSize: 24,
               fontWeight: FontWeight.w700,
               height: 4,
@@ -150,17 +125,13 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
           final data = snapshot.data!;
           final summary = data.summary;
 
-          final top5ProductData = _transformToProductChartData(
-            data.topProducts,
-          );
+          final top5ProductData = _transformToProductChartData(data.topProducts);
           final top5VendorData = _transformToVendorChartData(data.topVendors);
-          final purchaseAnalysisData = _transformToAnalysisData(
-            data.charts.spendingByMonth,
-          );
+          final purchaseAnalysisData =
+              _transformToAnalysisData(data.charts.spendingByMonth);
           final topCategoryData = _transformToCategoryList(data.topCategories);
-          final topPurchaseOrderData = _transformToPurchaseOrderList(
-            data.topPurchaseOrders,
-          );
+          final topPurchaseOrderData =
+              _transformToPurchaseOrderList(data.topPurchaseOrders);
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
@@ -175,33 +146,30 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
                   crossAxisCount: 4,
                   crossAxisSpacing: 8,
                   mainAxisSpacing: 8,
-                  childAspectRatio: 0.7,
+                  // --- PERUBAHAN DI SINI ---
+                  // Nilai diubah agar rasio lebih seimbang, misal 0.9
+                  childAspectRatio: 0.9,
                   children: [
                     StatCard(
                       title: "Purchase Request",
                       value: summary.purchaseRequest.toString(),
-                      valueColor: const Color.fromARGB(255, 0, 0, 0),
                     ),
                     StatCard(
                       title: "Request For Quotation",
                       value: summary.rfq.toString(),
-                      valueColor: const Color.fromARGB(255, 0, 0, 0),
                     ),
                     StatCard(
                       title: "Purchase Order",
                       value: summary.purchaseOrder.toString(),
-                      valueColor: const Color.fromARGB(255, 0, 0, 0),
                     ),
                     StatCard(
                       title: "Direct Purchase",
                       value: summary.directPurchase.toString(),
-                      valueColor: const Color.fromARGB(255, 0, 0, 0),
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
 
-                // Toggle Bar Chart
                 LayoutBuilder(
                   builder: (context, constraints) {
                     return ToggleButtons(
@@ -227,8 +195,6 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-
-                // Bar Chart
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   child: _selectedChart == 0
@@ -244,19 +210,13 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
                         ),
                 ),
                 const SizedBox(height: 24),
-
-                // Grafik Analisis
                 PurchaseAnalysisChart(purchaseData: purchaseAnalysisData),
                 const SizedBox(height: 24),
-
-                // Daftar Top 5 Category
                 TopListCard(
                   title: 'Top 5 Category Product',
                   items: topCategoryData,
                 ),
                 const SizedBox(height: 24),
-
-                // Daftar Top 5 Purchase Order
                 TopListCard(
                   title: 'Top 5 Purchase Order',
                   items: topPurchaseOrderData,

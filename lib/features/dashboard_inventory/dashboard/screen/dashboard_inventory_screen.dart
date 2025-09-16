@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// Import baru untuk Repository dan Model
 import '../repositories/inventory_repository.dart';
 import '../models/dashboard_data_model.dart';
 
@@ -28,29 +26,21 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
   int _selectedStockView = 0;
   int _selectedStockMovesView = 0;
 
-  // Instance dari repository
   final InventoryRepository _repository = InventoryRepository();
-  // Future sekarang menggunakan model DashboardData
   late Future<DashboardData> _dashboardFuture;
 
   @override
   void initState() {
     super.initState();
-    // Panggil method baru untuk fetch data
     _dashboardFuture = _fetchData();
   }
 
-  /// Method baru yang bertanggung jawab memanggil repository dan parsing data.
   Future<DashboardData> _fetchData() async {
     const storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token') ?? '';
-    // Panggil repository untuk mendapatkan data mentah (Map)
     final rawData = await _repository.fetchDashboardData(token);
-    // Parse data mentah menjadi model DashboardData yang kuat
     return DashboardData.fromJson(rawData);
   }
-
-  // >>> FUNGSI fetchDashboardData() LAMA DIHAPUS DARI SINI <<<
 
   void _showDetailDialog(BuildContext context, String title) {
     showDialog(
@@ -80,7 +70,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
           child: Text(
             'Inventory',
             style: GoogleFonts.montserrat(
-              color: Color(0xFF2D6A4F),
+              color: const Color(0xFF2D6A4F),
               fontSize: 24,
               fontWeight: FontWeight.w700,
               height: 4,
@@ -93,7 +83,6 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       drawer: const DashboardDrawer(),
-      // FutureBuilder sekarang menggunakan tipe DashboardData
       body: FutureBuilder<DashboardData>(
         future: _dashboardFuture,
         builder: (context, snapshot) {
@@ -105,10 +94,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
             return const Center(child: Text('No data'));
           }
 
-          // Data sekarang adalah objek DashboardData yang aman
           final dashboardData = snapshot.data!;
-
-          // >> SEMUA PROSES PARSING MANUAL DIHAPUS DARI SINI <<
 
           return SingleChildScrollView(
             child: Padding(
@@ -118,61 +104,38 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                 children: [
                   const PersonalizedHeader(),
                   const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+                  GridView.count(
+                    crossAxisCount: 4,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    // --- PERUBAHAN DI SINI ---
+                    // Kembalikan ke nilai yang lebih seimbang, misal 0.9
+                    // Karena StatCard sekarang sudah bisa menangani ukurannya sendiri.
+                    childAspectRatio: 0.9,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     children: [
-                      SizedBox(
-                        width:
-                            (MediaQuery.of(context).size.width -
-                                16 * 2 -
-                                8 * 3) /
-                            4,
-                        child: StatCard(
-                          title: "Receipt Note",
-                          value: dashboardData.summary.receiptNote,
-                          onTap: () =>
-                              _showDetailDialog(context, 'Receipt Note'),
-                        ),
+                      StatCard(
+                        title: "Receipt Note",
+                        value: dashboardData.summary.receiptNote,
+                        onTap: () => _showDetailDialog(context, 'Receipt Note'),
                       ),
-                      SizedBox(
-                        width:
-                            (MediaQuery.of(context).size.width -
-                                16 * 2 -
-                                8 * 3) /
-                            4,
-                        child: StatCard(
-                          title: "Delivery Note",
-                          value: dashboardData.summary.deliveryNote,
-                          onTap: () =>
-                              _showDetailDialog(context, 'Delivery Note'),
-                        ),
+                      StatCard(
+                        title: "Delivery Note",
+                        value: dashboardData.summary.deliveryNote,
+                        onTap: () =>
+                            _showDetailDialog(context, 'Delivery Note'),
                       ),
-                      SizedBox(
-                        width:
-                            (MediaQuery.of(context).size.width -
-                                16 * 2 -
-                                8 * 3) /
-                            4,
-                        child: StatCard(
-                          title: "Internal Transfer",
-                          value: dashboardData.summary.internalTransfer,
-                          onTap: () =>
-                              _showDetailDialog(context, 'Internal Transfer'),
-                        ),
+                      StatCard(
+                        title: "Internal Transfer",
+                        value: dashboardData.summary.internalTransfer,
+                        onTap: () =>
+                            _showDetailDialog(context, 'Internal Transfer'),
                       ),
-                      SizedBox(
-                        width:
-                            (MediaQuery.of(context).size.width -
-                                16 * 2 -
-                                8 * 3) /
-                            4,
-                        child: StatCard(
-                          title: "Stock count",
-                          value: dashboardData.summary.stockCount,
-                          onTap: () =>
-                              _showDetailDialog(context, 'Stock count'),
-                        ),
+                      StatCard(
+                        title: "Stock count",
+                        value: dashboardData.summary.stockCount,
+                        onTap: () => _showDetailDialog(context, 'Stock count'),
                       ),
                     ],
                   ),
@@ -220,15 +183,15 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                     duration: const Duration(milliseconds: 300),
                     child: _selectedStockView == 0
                         ? StockPieChart(
-                            key: const ValueKey('warehouse'),
-                            data: dashboardData.charts.stockByWarehouse,
-                            title: "Stok per Gudang",
-                          )
+                      key: const ValueKey('warehouse'),
+                      data: dashboardData.charts.stockByWarehouse,
+                      title: "Stok per Gudang",
+                    )
                         : StockPieChart(
-                            key: const ValueKey('location'),
-                            data: dashboardData.charts.stockByLocation,
-                            title: "Stok per Lokasi",
-                          ),
+                      key: const ValueKey('location'),
+                      data: dashboardData.charts.stockByLocation,
+                      title: "Stok per Lokasi",
+                    ),
                   ),
                   const SizedBox(height: 8),
                   _buildLegend(
@@ -239,7 +202,6 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                   const SizedBox(height: 24),
                   _buildSectionTitle("Top 5 Hand Stock"),
                   const SizedBox(height: 8),
-                  // Mengirim data topProducts yang sudah dalam bentuk model
                   TopProductList(topProducts: dashboardData.topProducts),
                   const SizedBox(height: 24),
                   _buildSectionTitle("Product Category"),
@@ -256,15 +218,15 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                     duration: const Duration(milliseconds: 300),
                     child: _selectedStockMovesView == 0
                         ? ProductBarChart(
-                            key: const ValueKey('moves_product'),
-                            data: dashboardData.charts.stockMovesByProduct,
-                            barColor: Colors.green,
-                          )
+                      key: const ValueKey('moves_product'),
+                      data: dashboardData.charts.stockMovesByProduct,
+                      barColor: Colors.green,
+                    )
                         : ProductBarChart(
-                            key: const ValueKey('moves_location'),
-                            data: dashboardData.charts.stockMovesByLocation,
-                            barColor: const Color.fromARGB(255, 74, 227, 214),
-                          ),
+                      key: const ValueKey('moves_location'),
+                      data: dashboardData.charts.stockMovesByLocation,
+                      barColor: const Color.fromARGB(255, 74, 227, 214),
+                    ),
                   ),
                 ],
               ),
@@ -336,7 +298,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
   Widget _buildLegend(List<ChartData> data) {
     final double totalValue = data.fold(
       0,
-      (previousValue, element) => previousValue + element.value,
+          (previousValue, element) => previousValue + element.value,
     );
 
     if (data.isEmpty || totalValue == 0) {
