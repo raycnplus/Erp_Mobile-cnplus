@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import '../widget/warehouse_show_widget.dart';
 
-class WarehouseShowScreen extends StatelessWidget {
-  final int warehouseId;
+import '../models/warehouse_index_models.dart'; 
+import 'warehouse_update_screen.dart'; 
 
-  const WarehouseShowScreen({super.key, required this.warehouseId});
+class WarehouseShowScreen extends StatelessWidget {
+  final WarehouseIndexModel warehouse;
+
+  const WarehouseShowScreen({super.key, required this.warehouse});
 
   @override
   Widget build(BuildContext context) {
@@ -14,13 +17,18 @@ class WarehouseShowScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () {
-              // TODO: navigasi ke edit screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => WarehouseEditScreen(warehouse: warehouse),
+                ),
+              );
             },
             child: const Text("Edit"),
           ),
         ],
       ),
-      body: WarehouseShowWidget(warehouseId: warehouseId),
+      body: WarehouseShowWidget(warehouseId: warehouse.id),
     );
   }
 }
