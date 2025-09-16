@@ -5,6 +5,7 @@ import '../../master_data/product_category/screen/product_category_index_screen.
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../master_data/brand/screen/brand_index_screen.dart';
 import '../../master_data/product_type/index/screen/product_type_index_screen.dart';
+import '../../master_data/warehouse/warehouse_master/screen/warehouse_index_screen.dart';
 class DashboardDrawer extends StatefulWidget {
   const DashboardDrawer({super.key});
 
@@ -131,7 +132,7 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
               Padding(
                 padding: const EdgeInsets.only(left: 40.0),
                 child: ListTile(
-                  title: const Text('Product'),
+                  title: const Text('Location'),
                   onTap: () {
                     Navigator.pop(context);
                   },
@@ -140,9 +141,15 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
               Padding(
                 padding: const EdgeInsets.only(left: 40.0),
                 child: ListTile(
-                  title: const Text('Serial Number'),
+                  title: const Text('Warehouse'),
                   onTap: () {
                     Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const WarehouseIndexScreen(),
+                      ),
+                    );
                   },
                 ),
               ),
