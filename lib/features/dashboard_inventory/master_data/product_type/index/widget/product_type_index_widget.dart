@@ -25,7 +25,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
   @override
   void initState() {
     super.initState();
-    futureTypes = fetchProductTypes() ;
+    futureTypes = fetchProductTypes();
   }
 
   void _reloadData() {

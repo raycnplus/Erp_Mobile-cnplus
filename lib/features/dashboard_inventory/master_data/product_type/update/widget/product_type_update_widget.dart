@@ -47,8 +47,8 @@ class _ProductTypeUpdateWidgetState extends State<ProductTypeUpdateWidget> {
     try {
       final token = await _storage.read(key: "token");
       final model =
-      ProductTypeUpdateModel(productTypeName: _nameController.text);
-
+          ProductTypeUpdateModel(productTypeName: _nameController.text);
+      
       final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-type/${widget.id}");
 
       final response = await http.put(
@@ -88,30 +88,72 @@ class _ProductTypeUpdateWidgetState extends State<ProductTypeUpdateWidget> {
     return Form(
       key: _formKey,
       child: Column(
-        mainAxisSize: MainAxisSize.min, // Agar dialog tidak memakan banyak tempat
+        mainAxisSize: MainAxisSize.min,
         children: [
           TextFormField(
             controller: _nameController,
-            decoration: const InputDecoration(
-              labelText: "Product Type Name",
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: "Enter your update here...",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30.0),
+                borderSide: const BorderSide(
+                  color: Colors.blueAccent,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30.0),
+                borderSide: const BorderSide(
+                  color: Colors.blueAccent,
+                  width: 1.0,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(30.0),
+                borderSide: const BorderSide(
+                  color: Colors.blue,
+                  width: 2.0,
+                ),
+              ),
             ),
             validator: (value) =>
-            value == null || value.isEmpty ? "Wajib diisi" : null,
+                value == null || value.isEmpty ? "Wajib diisi" : null,
           ),
           const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _isLoading ? null : _updateProductType,
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 48),
+          Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF6AB7F9), Color(0xFF007BFF)],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+              borderRadius: BorderRadius.circular(30.0),
             ),
-            child: _isLoading
-                ? const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(color: Colors.white),
-            )
-                : const Text("Update"),
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _updateProductType,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                minimumSize: const Size(double.infinity, 52),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                ),
+              ),
+              child: _isLoading
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(color: Colors.white),
+                    )
+                  : const Text(
+                      "Update",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+            ),
           ),
         ],
       ),
