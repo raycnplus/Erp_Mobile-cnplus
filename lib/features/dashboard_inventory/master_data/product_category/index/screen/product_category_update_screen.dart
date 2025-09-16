@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../product_category/models/product_category_update_models.dart';
+import '../models/product_category_update_models.dart';
 import '../widget/product_category_update_widget.dart';
 
 class ProductCategoryUpdateScreen extends StatelessWidget {

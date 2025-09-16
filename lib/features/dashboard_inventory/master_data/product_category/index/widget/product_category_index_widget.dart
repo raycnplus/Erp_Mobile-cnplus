@@ -1,69 +1,56 @@
+// product_category_index_widget.dart
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:intl/intl.dart';
 import '../../../../../../../services/api_base.dart';
-import '../models/product_type_index_model.dart';
+import '../models/product_category_index_models.dart';
 
-class ProductTypeScreen extends StatefulWidget {
-  final void Function(ProductType type)? onTap;
+List<ProductCategory> _parseProductCategories(String responseBody) {
+  final decoded = jsonDecode(responseBody);
 
-  const ProductTypeScreen({super.key, this.onTap});
+  if (decoded is List) {
+    return decoded.map((e) => ProductCategory.fromJson(e)).toList();
+  }
 
-  @override
-  State<ProductTypeScreen> createState() => _ProductTypeScreenState();
+  if (decoded is Map<String, dynamic> &&
+      decoded['status'] == true &&
+      decoded['data'] is List) {
+    final List<dynamic> dataList = decoded['data'];
+    return dataList.map((e) => ProductCategory.fromJson(e)).toList();
+  }
+
+  throw Exception("Format respons API tidak valid.");
 }
 
-class _ProductTypeScreenState extends State<ProductTypeScreen> {
-  late Future<List<ProductType>> futureTypes;
+class ProductCategoryListWidget extends StatefulWidget {
+  final ValueChanged<ProductCategory> onTap;
+
+  const ProductCategoryListWidget({super.key, required this.onTap});
+
+  @override
+  State<ProductCategoryListWidget> createState() =>
+      _ProductCategoryListWidgetState();
+}
+
+class _ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
+  late Future<List<ProductCategory>> futureCategories;
 
   @override
   void initState() {
     super.initState();
-    futureTypes = fetchProductTypes();
+    futureCategories = fetchProductCategories();
   }
 
   void _reloadData() {
     setState(() {
-      futureTypes = fetchProductTypes();
+      futureCategories = fetchProductCategories();
     });
   }
 
-  String _formatDate(String dateString) {
-    if (dateString.isEmpty) return 'No date';
-    try {
-      final dateTime = DateTime.parse(dateString);
-      return DateFormat('d MMM yyyy').format(dateTime);
-    } catch (e) {
-      return dateString;
-    }
-  }
-
-  Future<bool> _deleteProductType(int id) async {
-    const storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'token');
-
-    final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-type/$id");
-
-    final response = await http.delete(
-      url,
-      headers: {
-        "Authorization": "Bearer $token",
-        "Accept": "application/json",
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final responseBody = jsonDecode(response.body);
-      return responseBody['status'] == true;
-    } else {
-      // Gagal menghapus
-      return false;
-    }
-  }
-
-  Future<List<ProductType>> fetchProductTypes() async {
+  Future<List<ProductCategory>> fetchProductCategories() async {
     const storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
 
@@ -71,7 +58,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
       throw Exception("Token tidak ditemukan. Silakan login ulang.");
     }
 
-    final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-type/");
+    final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-category/");
 
     final response = await http.get(
       url,
@@ -79,13 +66,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
     );
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> decoded = jsonDecode(response.body);
-      if (decoded['status'] == true && decoded['data'] is List) {
-        final List<dynamic> dataList = decoded['data'];
-        return dataList.map((item) => ProductType.fromJson(item)).toList();
-      } else {
-        throw Exception("Format respons API tidak valid atau status gagal.");
-      }
+      return compute(_parseProductCategories, response.body);
     } else {
       throw Exception("Gagal memuat data: Status code ${response.statusCode}");
     }
@@ -93,8 +74,8 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<ProductType>>(
-      future: futureTypes,
+    return FutureBuilder<List<ProductCategory>>(
+      future: futureCategories,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -103,8 +84,12 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Error: ${snapshot.error}"),
-                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    "Error: ${snapshot.error.toString().replaceFirst("Exception: ", "")}",
+                  ),
+                ),
                 ElevatedButton(
                   onPressed: _reloadData,
                   child: const Text("Coba Lagi"),
@@ -113,20 +98,17 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
             ),
           );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text("Tidak ada data product type"));
+          return const Center(child: Text("Tidak ada data product category"));
         }
 
-        final types = snapshot.data!;
-
+        final categories = snapshot.data!;
         return RefreshIndicator(
-          onRefresh: () async {
-            _reloadData();
-          },
+          onRefresh: () async => _reloadData(),
           child: ListView.builder(
             padding: const EdgeInsets.all(16.0),
-            itemCount: types.length,
+            itemCount: categories.length,
             itemBuilder: (context, index) {
-              final type = types[index];
+              final category = categories[index];
               final cardBorderRadius = BorderRadius.circular(12);
 
               return Container(
@@ -143,7 +125,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                   ],
                 ),
                 child: Dismissible(
-                  key: Key(type.id.toString()),
+                  key: Key(category.id.toString()),
                   background: Container(
                     decoration: BoxDecoration(
                       color: Colors.blue,
@@ -176,54 +158,50 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                     ),
                   ),
                   confirmDismiss: (direction) async {
-                    if (direction == DismissDirection.endToStart) { // Aksi Hapus
-                      bool? deleteConfirmed = await showDialog(
+                    if (direction == DismissDirection.endToStart) {
+                      // Aksi Hapus
+                      return await showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: const Text("Konfirmasi Hapus"),
-                            content: Text("Anda yakin ingin menghapus ${type.name}?"),
+                            title: const Text("Konfirmasi"),
+                            content: Text(
+                              "Anda yakin ingin menghapus ${category.name}?",
+                            ),
                             actions: <Widget>[
                               TextButton(
-                                onPressed: () => Navigator.of(context).pop(false),
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
                                 child: const Text("Batal"),
                               ),
                               TextButton(
-                                onPressed: () async {
-                                  // Panggil API untuk hapus data
-                                  bool success = await _deleteProductType(type.id);
-                                  if (mounted) {
-                                    Navigator.of(context).pop(success);
-                                  }
+                                onPressed: () {
+                                  // TODO: Panggil API untuk menghapus data di sini
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('${category.name} dihapus'),
+                                    ),
+                                  );
+                                  Navigator.of(context).pop(true);
                                 },
-                                child: const Text("Hapus", style: TextStyle(color: Colors.red)),
+                                child: const Text(
+                                  "Hapus",
+                                  style: TextStyle(color: Colors.red),
+                                ),
                               ),
                             ],
                           );
                         },
                       );
-
-                      // Jika berhasil dihapus, tampilkan SnackBar dan muat ulang data
-                      if (deleteConfirmed == true) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('${type.name} berhasil dihapus')),
-                          );
-                        }
-                        _reloadData(); // Muat ulang data untuk refresh UI
-                        return true;
-                      } else {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Gagal menghapus ${type.name}')),
-                          );
-                        }
-                        return false;
-                      }
-                    } else { // Aksi Edit
+                    } else {
+                      // Aksi Edit
                       // TODO: Navigasi ke halaman edit di sini
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Navigasi ke halaman Edit ${type.name}')),
+                        SnackBar(
+                          content: Text(
+                            'Navigasi ke halaman Edit ${category.name}',
+                          ),
+                        ),
                       );
                       return false;
                     }
@@ -233,13 +211,10 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                     child: Material(
                       color: Colors.white,
                       child: InkWell(
-                        onTap: () {
-                          if (widget.onTap != null) {
-                            widget.onTap!(type);
-                          }
-                        },
+                        onTap: () => widget.onTap(category),
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
+                          // [MODIFIKASI] Menambahkan Row dan Expanded di sini
                           child: Row(
                             children: [
                               Expanded(
@@ -247,7 +222,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      type.name,
+                                      category.name,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
@@ -255,7 +230,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      "Created: ${_formatDate(type.createdDate)}",
+                                      "Source: Lokal",
                                       style: TextStyle(
                                         color: Colors.grey[600],
                                         fontSize: 12,

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../../../../../services/api_base.dart';
-import '../../product_category/models/product_category_update_models.dart';
+import '../../../../../../services/api_base.dart';
+import '../models/product_category_update_models.dart';
 
 class ProductCategoryUpdateWidget extends StatefulWidget {
   final int id;

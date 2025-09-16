@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widget/product_category_show_widget.dart';
+import '../../show/widget/product_category_show_widget.dart';
 import '../widget/product_category_index_widget.dart';
-import '../models/product_category_index.dart';
-import 'product_category_create_screen.dart'; 
+import '../models/product_category_index_models.dart';
+import '../../creeate/screen/product_category_create_screen.dart'; 
 
 class ProductCategoryScreen extends StatefulWidget {
   const ProductCategoryScreen({super.key});

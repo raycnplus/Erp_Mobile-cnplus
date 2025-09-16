@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../master_data/product_type/index/screen/product_type_index_screen.dart'; 
-import '../../master_data/product_category/screen/product_category_index_screen.dart';
+import '../../master_data/product_category/index/screen/product_category_index_screen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../master_data/brand/screen/brand_index_screen.dart';
 import '../../master_data/product_type/index/screen/product_type_index_screen.dart';
