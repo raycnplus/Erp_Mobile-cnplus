@@ -18,7 +18,7 @@ class WarehouseIndexScreen extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  WarehouseShowScreen(warehouseId: warehouse.id),
+                  WarehouseShowScreen(warehouse: warehouse),
             ),
           );
         },
