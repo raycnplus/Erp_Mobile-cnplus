@@ -50,6 +50,21 @@ class _ProductTypeIndexScreenState extends State<ProductTypeIndexScreen> {
     );
   }
 
+  // FUNGSI BARU: Notifikasi untuk DELETE (Merah)
+  void _showDeleteSuccessMessage(String deletedItemName) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return SuccessBottomSheet(
+          title: "Successfully Deleted!",
+          message: "'$deletedItemName' has been removed.",
+          themeColor: const Color(0xFFF35D5D), // KIRIM WARNA MERAH DI SINI
+        );
+      },
+    );
+  }
+
   void _showCreateProductTypeModal() async {
     final result = await showModalBottomSheet<bool>(
       context: context,
@@ -77,14 +92,11 @@ class _ProductTypeIndexScreenState extends State<ProductTypeIndexScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // ## PERUBAHAN UTAMA ADA DI APPBAR INI ##
       appBar: AppBar(
-        // 1. Mengganti ikon back arrow default
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new), // Ikon panah tanpa "buntut"
+          icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        // 2. Mengubah title menjadi Column untuk menampung subtitle
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -96,7 +108,6 @@ class _ProductTypeIndexScreenState extends State<ProductTypeIndexScreen> {
                 fontSize: 20,
               ),
             ),
-            // Subtitle dengan teks kecil dan warna abu-abu
             Text(
               'Swipe an item for actions',
               style: GoogleFonts.poppins(
@@ -109,7 +120,7 @@ class _ProductTypeIndexScreenState extends State<ProductTypeIndexScreen> {
         ),
         elevation: 0.5,
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black87, // Warna ini akan diterapkan ke ikon juga
+        foregroundColor: Colors.black87,
       ),
       body: CustomRefreshIndicator(
         onRefresh: _refreshData,
@@ -126,6 +137,10 @@ class _ProductTypeIndexScreenState extends State<ProductTypeIndexScreen> {
           },
           onUpdateSuccess: () {
             _showUpdateSuccessMessage();
+          },
+          // SAMBUNGKAN CALLBACK DELETE KE FUNGSI BARU DI SINI
+          onDeleteSuccess: (String itemName) {
+            _showDeleteSuccessMessage(itemName);
           },
         ),
       ),

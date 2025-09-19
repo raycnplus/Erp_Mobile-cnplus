@@ -12,13 +12,14 @@ import '../../update/models/product_type_update_models.dart';
 
 class ProductTypeScreen extends StatefulWidget {
   final void Function(ProductType type)? onTap;
-  final VoidCallback?
-  onUpdateSuccess; //  Callback untuk sukses update
+  final VoidCallback? onUpdateSuccess;
+  final Function(String name)? onDeleteSuccess; // TAMBAHKAN: Callback untuk sukses delete
 
   const ProductTypeScreen({
     super.key,
     this.onTap,
-    this.onUpdateSuccess, //  Parameter di constructor
+    this.onUpdateSuccess,
+    this.onDeleteSuccess, // TAMBAHKAN: Parameter di constructor
   });
 
   @override
@@ -49,11 +50,10 @@ class ProductTypeScreenState extends State<ProductTypeScreen> {
 
     if (wasUpdated == true) {
       reloadData();
-      widget.onUpdateSuccess?.call(); // PANGGIL CALLBACK DI SINI!
+      widget.onUpdateSuccess?.call();
     }
   }
 
-  // ... (sisa kode biarkan sama persis, tidak perlu diubah)
   String _formatDate(String dateString) {
     if (dateString.isEmpty) return 'No date';
     try {
@@ -134,29 +134,17 @@ class ProductTypeScreenState extends State<ProductTypeScreen> {
                         Positioned(
                           top: -2,
                           right: -8,
-                          child: Icon(
-                            Icons.star_rate_rounded,
-                            color: Color(0xFFF35D5D),
-                            size: 15,
-                          ),
+                          child: Icon(Icons.star_rate_rounded, color: Color(0xFFF35D5D), size: 15),
                         ),
                         Positioned(
                           top: 12,
                           left: -5,
-                          child: Icon(
-                            Icons.star_rate_rounded,
-                            color: Color(0xFFF35D5D),
-                            size: 10,
-                          ),
+                          child: Icon(Icons.star_rate_rounded, color: Color(0xFFF35D5D), size: 10),
                         ),
                         Positioned(
                           bottom: 2,
                           right: -5,
-                          child: Icon(
-                            Icons.star_rate_rounded,
-                            color: Color(0xFFF35D5D),
-                            size: 12,
-                          ),
+                          child: Icon(Icons.star_rate_rounded, color: Color(0xFFF35D5D), size: 12),
                         ),
                       ],
                     ),
@@ -186,10 +174,7 @@ class ProductTypeScreenState extends State<ProductTypeScreen> {
                     },
                     child: const Text(
                       "Yes, Delete",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -199,10 +184,7 @@ class ProductTypeScreenState extends State<ProductTypeScreen> {
                     },
                     child: const Text(
                       "Keep It",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -304,16 +286,21 @@ class ProductTypeScreenState extends State<ProductTypeScreen> {
                       if (deleteConfirmed == true) {
                         final success = await _deleteProductType(type.id);
                         if (!mounted) return false;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              success
-                                  ? '${type.name} berhasil dihapus'
-                                  : 'Gagal menghapus ${type.name}',
+                        
+                        // ## PERUBAHAN DI SINI ##
+                        if (success) {
+                          reloadData();
+                          // Panggil callback, kirim nama item yang dihapus
+                          widget.onDeleteSuccess?.call(type.name); 
+                        } else {
+                          // Jika gagal, tampilkan SnackBar seperti biasa
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Gagal menghapus ${type.name}'),
+                              backgroundColor: Colors.redAccent,
                             ),
-                          ),
-                        );
-                        if (success) reloadData();
+                          );
+                        }
                         return success;
                       }
                       return false;
