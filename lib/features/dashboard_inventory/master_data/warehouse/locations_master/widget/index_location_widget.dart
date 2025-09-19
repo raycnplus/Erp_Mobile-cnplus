@@ -6,7 +6,9 @@ import '../../../../../../services/api_base.dart';
 import '../models/index_location_models.dart';
 
 class LocationListWidget extends StatefulWidget {
-  const LocationListWidget({super.key});
+  final Function(LocationIndexModel) onTap; 
+
+  const LocationListWidget({super.key, required this.onTap});
 
   @override
   State<LocationListWidget> createState() => _LocationListWidgetState();
@@ -66,11 +68,7 @@ class _LocationListWidgetState extends State<LocationListWidget> {
                     Text("Parent: ${location.parentLocationName}"),
                   ],
                 ),
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Selected: ${location.locationName}")),
-                  );
-                },
+                onTap: () => widget.onTap(location), // panggil callback
               ),
             );
           },
