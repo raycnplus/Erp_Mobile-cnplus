@@ -6,5 +6,10 @@ class AppTheme {
     useMaterial3: true,
     scaffoldBackgroundColor: Colors.white,
     fontFamily: 'Roboto',
+
+    // Tambahkan kode ini
+    textSelectionTheme: TextSelectionThemeData(
+      selectionHandleColor: const Color.fromARGB(255, 58, 121, 183), // Warna handle (bentuk tetesan air)
+    ),
   );
 }

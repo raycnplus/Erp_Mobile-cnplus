@@ -108,9 +108,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                     crossAxisCount: 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
-                    // --- PERUBAHAN DI SINI ---
-                    // Kembalikan ke nilai yang lebih seimbang, misal 0.9
-                    // Karena StatCard sekarang sudah bisa menangani ukurannya sendiri.
+
                     childAspectRatio: 0.9,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),

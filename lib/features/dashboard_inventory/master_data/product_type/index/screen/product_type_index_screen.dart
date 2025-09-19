@@ -1,45 +1,156 @@
-// product_type_index_screen.dart
-import '../../create/screen/product_type_create_screen.dart';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+import '../../../../../../shared/widgets/success_bottom_sheet.dart';
+import '../../create/widget/product_type_create_form_widget.dart';
 import '../widget/product_type_index_widget.dart';
+import '../../../../../../shared/widgets/custom_refresh_indicator.dart';
 import '../../show/widget/product_type_show_widget.dart';
 
-class ProductTypeIndexScreen extends StatelessWidget {
+class ProductTypeIndexScreen extends StatefulWidget {
   const ProductTypeIndexScreen({super.key});
+
+  @override
+  State<ProductTypeIndexScreen> createState() => _ProductTypeIndexScreenState();
+}
+
+class _ProductTypeIndexScreenState extends State<ProductTypeIndexScreen> {
+  final GlobalKey<ProductTypeScreenState> _productTypeScreenKey =
+      GlobalKey<ProductTypeScreenState>();
+
+  Future<void> _refreshData() async {
+    _productTypeScreenKey.currentState?.reloadData();
+  }
+
+  void _showCreateSuccessMessage() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return const SuccessBottomSheet(
+          title: "Successfully Created!",
+          message: "New product type has been added to the list.",
+        );
+      },
+    );
+  }
+
+  void _showUpdateSuccessMessage() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return const SuccessBottomSheet(
+          title: "Successfully Updated!",
+          message: "The product type has been updated.",
+          themeColor: Color(0xFF4A90E2),
+        );
+      },
+    );
+  }
+
+  void _showCreateProductTypeModal() async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: const ProductTypeCreateWidget(),
+          ),
+        );
+      },
+    );
+
+    if (result == true) {
+      _productTypeScreenKey.currentState?.reloadData();
+      _showCreateSuccessMessage();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // ## PERUBAHAN UTAMA ADA DI APPBAR INI ##
       appBar: AppBar(
-        title: const Text("Product Types"),
+        // 1. Mengganti ikon back arrow default
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new), // Ikon panah tanpa "buntut"
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        // 2. Mengubah title menjadi Column untuk menampung subtitle
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Product Types",
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+                fontSize: 20,
+              ),
+            ),
+            // Subtitle dengan teks kecil dan warna abu-abu
+            Text(
+              'Swipe an item for actions',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.normal,
+                color: Colors.grey.shade600,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
         elevation: 0.5,
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-
-
-
+        foregroundColor: Colors.black87, // Warna ini akan diterapkan ke ikon juga
       ),
-      body: ProductTypeScreen(
-        onTap: (productType) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProductTypeShowScreen(id: productType.id),
-            ),
-          );
-        },
+      body: CustomRefreshIndicator(
+        onRefresh: _refreshData,
+        child: ProductTypeScreen(
+          key: _productTypeScreenKey,
+          onTap: (productType) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    ProductTypeShowScreen(id: productType.id),
+              ),
+            );
+          },
+          onUpdateSuccess: () {
+            _showUpdateSuccessMessage();
+          },
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const ProductTypeCreateScreen(),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF679436).withAlpha(102),
+              blurRadius: 15,
+              spreadRadius: 2,
+              offset: const Offset(0, 5),
             ),
-          );
-        },
-        tooltip: 'Add Product Type',
-        child: const Icon(Icons.add),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: _showCreateProductTypeModal,
+          tooltip: 'Add Product Type',
+          backgroundColor: const Color(0xFF679436),
+          elevation: 0,
+          child: const Icon(
+            Icons.add,
+            color: Color(0xFFF0E68C),
+          ),
+        ),
       ),
     );
   }

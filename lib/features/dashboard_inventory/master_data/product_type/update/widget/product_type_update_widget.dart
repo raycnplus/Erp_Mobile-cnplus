@@ -1,9 +1,52 @@
+import 'dart:ui' as ui;
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../../../services/api_base.dart';
 import '../models/product_type_update_models.dart';
+
+Future<bool?> showUpdateProductTypeDialog(
+  BuildContext context, {
+  required int id,
+  required ProductTypeUpdateModel initialData,
+}) {
+  return showDialog<bool>(
+    context: context,
+    barrierColor: Colors.black.withOpacity(0.4),
+    builder: (BuildContext context) {
+      return BackdropFilter(
+        filter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Update Product Type",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF2D3748),
+                    fontSize: 20,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ProductTypeUpdateWidget(id: id, initialData: initialData),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
 
 class ProductTypeUpdateWidget extends StatefulWidget {
   final int id;
@@ -26,11 +69,16 @@ class _ProductTypeUpdateWidgetState extends State<ProductTypeUpdateWidget> {
   late TextEditingController _nameController;
   bool _isLoading = false;
 
+  static const Color primaryBlue = Color(0xFF4A90E2);
+  static const Color darkText = Color(0xFF2D3748);
+  static const Color lightText = Color(0xFF718096);
+
   @override
   void initState() {
     super.initState();
-    _nameController =
-        TextEditingController(text: widget.initialData.productTypeName);
+    _nameController = TextEditingController(
+      text: widget.initialData.productTypeName,
+    );
   }
 
   @override
@@ -41,16 +89,15 @@ class _ProductTypeUpdateWidgetState extends State<ProductTypeUpdateWidget> {
 
   Future<void> _updateProductType() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() => _isLoading = true);
-
     try {
       final token = await _storage.read(key: "token");
-      final model =
-          ProductTypeUpdateModel(productTypeName: _nameController.text);
-      
-      final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-type/${widget.id}");
-
+      final model = ProductTypeUpdateModel(
+        productTypeName: _nameController.text,
+      );
+      final url = Uri.parse(
+        "${ApiBase.baseUrl}/inventory/product-type/${widget.id}",
+      );
       final response = await http.put(
         url,
         headers: {
@@ -59,22 +106,20 @@ class _ProductTypeUpdateWidgetState extends State<ProductTypeUpdateWidget> {
         },
         body: jsonEncode(model.toJson()),
       );
-
       if (!mounted) return;
-
       if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Product Type berhasil diupdate")),
-        );
-        Navigator.pop(context, true); // Kirim 'true' sebagai sinyal sukses
+        Navigator.pop(context, true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Gagal update: ${response.body}")),
+          SnackBar(
+            content: Text("Gagal update: ${response.body}"),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
+        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.redAccent),
       );
     } finally {
       if (mounted) {
@@ -85,75 +130,106 @@ class _ProductTypeUpdateWidgetState extends State<ProductTypeUpdateWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final borderRadius = BorderRadius.circular(16.0);
+
     return Form(
       key: _formKey,
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TextFormField(
-            controller: _nameController,
-            decoration: InputDecoration(
-              hintText: "Enter your update here...",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-                borderSide: const BorderSide(
-                  color: Colors.blueAccent,
-                  width: 1.0,
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-                borderSide: const BorderSide(
-                  color: Colors.blueAccent,
-                  width: 1.0,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-                borderSide: const BorderSide(
-                  color: Colors.blue,
-                  width: 2.0,
-                ),
+          // ## PERUBAHAN UTAMA ADA DI SINI ##
+          // Bungkus TextFormField dengan widget Theme
+          Theme(
+            data: Theme.of(context).copyWith(
+              // Terapkan tema seleksi teks khusus di sini
+              textSelectionTheme: TextSelectionThemeData(
+                cursorColor: primaryBlue,
+                selectionColor: primaryBlue.withOpacity(0.4),
+                selectionHandleColor: primaryBlue, // <-- INI YANG ANDA INGIN UBAH
               ),
             ),
-            validator: (value) =>
-                value == null || value.isEmpty ? "Wajib diisi" : null,
+            child: TextFormField(
+              controller: _nameController,
+              style: GoogleFonts.poppins(color: darkText),
+              // cursorColor dan selectionControls sekarang diatur oleh Theme di atas
+              decoration: InputDecoration(
+                labelText: "Product Type Name",
+                labelStyle: GoogleFonts.poppins(color: lightText),
+                filled: true,
+                fillColor: primaryBlue.withOpacity(0.1),
+                border: OutlineInputBorder(
+                  borderRadius: borderRadius,
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: borderRadius,
+                  borderSide: BorderSide(
+                    color: primaryBlue.withOpacity(0.5),
+                    width: 1.0,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: borderRadius,
+                  borderSide: const BorderSide(
+                    color: primaryBlue,
+                    width: 2.0,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+              ),
+              validator: (value) =>
+                  value == null || value.isEmpty ? "Nama wajib diisi" : null,
+            ),
           ),
           const SizedBox(height: 24),
-          Container(
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF6AB7F9), Color(0xFF007BFF)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.circular(30.0),
-            ),
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : _updateProductType,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                minimumSize: const Size(double.infinity, 52),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  "Batal",
+                  style: GoogleFonts.poppins(
+                    color: lightText,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-              child: _isLoading
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(color: Colors.white),
-                    )
-                  : const Text(
-                      "Update",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+              const SizedBox(width: 12),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _updateProductType,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryBlue,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(100, 48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: borderRadius,
+                  ),
+                  elevation: 4,
+                  shadowColor: primaryBlue.withOpacity(0.4),
+                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 3,
+                        ),
+                      )
+                    : Text(
+                        "Update",
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-            ),
+              ),
+            ],
           ),
         ],
       ),

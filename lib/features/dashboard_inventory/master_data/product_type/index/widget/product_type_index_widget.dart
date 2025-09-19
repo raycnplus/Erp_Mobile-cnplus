@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -6,20 +7,25 @@ import 'package:intl/intl.dart';
 import '../../../../../../../services/api_base.dart';
 import '../models/product_type_index_model.dart';
 
-// Import widget dan model untuk update
 import '../../update/widget/product_type_update_widget.dart';
 import '../../update/models/product_type_update_models.dart';
 
 class ProductTypeScreen extends StatefulWidget {
   final void Function(ProductType type)? onTap;
+  final VoidCallback?
+  onUpdateSuccess; //  Callback untuk sukses update
 
-  const ProductTypeScreen({super.key, this.onTap});
+  const ProductTypeScreen({
+    super.key,
+    this.onTap,
+    this.onUpdateSuccess, //  Parameter di constructor
+  });
 
   @override
-  State<ProductTypeScreen> createState() => _ProductTypeScreenState();
+  State<ProductTypeScreen> createState() => ProductTypeScreenState();
 }
 
-class _ProductTypeScreenState extends State<ProductTypeScreen> {
+class ProductTypeScreenState extends State<ProductTypeScreen> {
   late Future<List<ProductType>> futureTypes;
 
   @override
@@ -28,37 +34,26 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
     futureTypes = fetchProductTypes();
   }
 
-  void _reloadData() {
+  void reloadData() {
     setState(() {
       futureTypes = fetchProductTypes();
     });
   }
 
   Future<void> _showUpdateDialog(ProductType type) async {
-    final bool? wasUpdated = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Update Product Type"),
-          content: ProductTypeUpdateWidget(
-            id: type.id,
-            initialData: ProductTypeUpdateModel(productTypeName: type.name),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text("Batal"),
-            ),
-          ],
-        );
-      },
+    final bool? wasUpdated = await showUpdateProductTypeDialog(
+      context,
+      id: type.id,
+      initialData: ProductTypeUpdateModel(productTypeName: type.name),
     );
 
     if (wasUpdated == true) {
-      _reloadData();
+      reloadData();
+      widget.onUpdateSuccess?.call(); // PANGGIL CALLBACK DI SINI!
     }
   }
 
+  // ... (sisa kode biarkan sama persis, tidak perlu diubah)
   String _formatDate(String dateString) {
     if (dateString.isEmpty) return 'No date';
     try {
@@ -73,8 +68,10 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
     const storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-type/$id");
-    final response = await http.delete(url,
-        headers: {"Authorization": "Bearer $token", "Accept": "application/json"});
+    final response = await http.delete(
+      url,
+      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
+    );
     if (response.statusCode == 200) {
       return jsonDecode(response.body)['status'] == true;
     }
@@ -88,8 +85,10 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
       throw Exception("Token tidak ditemukan. Silakan login ulang.");
     }
     final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-type/");
-    final response = await http.get(url,
-        headers: {"Authorization": "Bearer $token", "Accept": "application/json"});
+    final response = await http.get(
+      url,
+      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
+    );
     if (response.statusCode == 200) {
       final Map<String, dynamic> decoded = jsonDecode(response.body);
       if (decoded['status'] == true && decoded['data'] is List) {
@@ -101,6 +100,118 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
     } else {
       throw Exception("Gagal memuat data: Status code ${response.statusCode}");
     }
+  }
+
+  Future<bool?> _showDeleteConfirmationDialog(ProductType type) {
+    return showDialog<bool>(
+      context: context,
+      barrierColor: Colors.black.withAlpha(102),
+      builder: (BuildContext context) {
+        return BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: Dialog(
+            backgroundColor: Colors.white.withAlpha(230),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24.0),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  SizedBox(
+                    height: 50,
+                    width: 50,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      alignment: Alignment.center,
+                      children: const [
+                        Icon(
+                          Icons.delete_rounded,
+                          color: Color(0xFFF35D5D),
+                          size: 50.0,
+                        ),
+                        Positioned(
+                          top: -2,
+                          right: -8,
+                          child: Icon(
+                            Icons.star_rate_rounded,
+                            color: Color(0xFFF35D5D),
+                            size: 15,
+                          ),
+                        ),
+                        Positioned(
+                          top: 12,
+                          left: -5,
+                          child: Icon(
+                            Icons.star_rate_rounded,
+                            color: Color(0xFFF35D5D),
+                            size: 10,
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 2,
+                          right: -5,
+                          child: Icon(
+                            Icons.star_rate_rounded,
+                            color: Color(0xFFF35D5D),
+                            size: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  Text(
+                    "Are you sure you want to delete ${type.name}?",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF333333),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFF35D5D),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      minimumSize: const Size(double.infinity, 48),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                    child: const Text(
+                      "Yes, Delete",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(false);
+                    },
+                    child: const Text(
+                      "Keep It",
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -118,7 +229,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                 Text("Error: ${snapshot.error}"),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: _reloadData,
+                  onPressed: reloadData,
                   child: const Text("Coba Lagi"),
                 ),
               ],
@@ -131,7 +242,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
         final types = snapshot.data!;
 
         return RefreshIndicator(
-          onRefresh: () async => _reloadData(),
+          onRefresh: () async => reloadData(),
           child: ListView.builder(
             padding: const EdgeInsets.all(16.0),
             itemCount: types.length,
@@ -145,7 +256,7 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                   borderRadius: cardBorderRadius,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withAlpha(26),
                       spreadRadius: 0,
                       blurRadius: 10,
                       offset: const Offset(0, 4),
@@ -187,47 +298,26 @@ class _ProductTypeScreenState extends State<ProductTypeScreen> {
                   ),
                   confirmDismiss: (direction) async {
                     if (direction == DismissDirection.endToStart) {
-                      // Aksi Hapus
-                      bool? deleteConfirmed = await showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text("Konfirmasi Hapus"),
-                            content: Text(
-                                "Anda yakin ingin menghapus ${type.name}?"),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.of(context).pop(false),
-                                child: const Text("Batal"),
-                              ),
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.of(context).pop(true),
-                                child: const Text("Hapus",
-                                    style: TextStyle(color: Colors.red)),
-                              ),
-                            ],
-                          );
-                        },
-                      );
+                      bool? deleteConfirmed =
+                          await _showDeleteConfirmationDialog(type);
 
                       if (deleteConfirmed == true) {
-                        bool success = await _deleteProductType(type.id);
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text(success
-                                    ? '${type.name} berhasil dihapus'
-                                    : 'Gagal menghapus ${type.name}')),
-                          );
-                        }
-                        if (success) _reloadData();
+                        final success = await _deleteProductType(type.id);
+                        if (!mounted) return false;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              success
+                                  ? '${type.name} berhasil dihapus'
+                                  : 'Gagal menghapus ${type.name}',
+                            ),
+                          ),
+                        );
+                        if (success) reloadData();
                         return success;
                       }
                       return false;
                     } else {
-                      // Aksi Edit
                       _showUpdateDialog(type);
                       return false;
                     }
