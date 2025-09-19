@@ -13,13 +13,13 @@ import '../../update/models/product_type_update_models.dart';
 class ProductTypeScreen extends StatefulWidget {
   final void Function(ProductType type)? onTap;
   final VoidCallback? onUpdateSuccess;
-  final Function(String name)? onDeleteSuccess; // TAMBAHKAN: Callback untuk sukses delete
+  final Function(String name)? onDeleteSuccess;
 
   const ProductTypeScreen({
     super.key,
     this.onTap,
     this.onUpdateSuccess,
-    this.onDeleteSuccess, // TAMBAHKAN: Parameter di constructor
+    this.onDeleteSuccess,
   });
 
   @override
@@ -126,26 +126,10 @@ class ProductTypeScreenState extends State<ProductTypeScreen> {
                       clipBehavior: Clip.none,
                       alignment: Alignment.center,
                       children: const [
-                        Icon(
-                          Icons.delete_rounded,
-                          color: Color(0xFFF35D5D),
-                          size: 50.0,
-                        ),
-                        Positioned(
-                          top: -2,
-                          right: -8,
-                          child: Icon(Icons.star_rate_rounded, color: Color(0xFFF35D5D), size: 15),
-                        ),
-                        Positioned(
-                          top: 12,
-                          left: -5,
-                          child: Icon(Icons.star_rate_rounded, color: Color(0xFFF35D5D), size: 10),
-                        ),
-                        Positioned(
-                          bottom: 2,
-                          right: -5,
-                          child: Icon(Icons.star_rate_rounded, color: Color(0xFFF35D5D), size: 12),
-                        ),
+                        Icon(Icons.delete_rounded, color: Color(0xFFF35D5D), size: 50.0),
+                        Positioned(top: -2, right: -8, child: Icon(Icons.star_rate_rounded, color: Color(0xFFF35D5D), size: 15)),
+                        Positioned(top: 12, left: -5, child: Icon(Icons.star_rate_rounded, color: Color(0xFFF35D5D), size: 10)),
+                        Positioned(bottom: 2, right: -5, child: Icon(Icons.star_rate_rounded, color: Color(0xFFF35D5D), size: 12)),
                       ],
                     ),
                   ),
@@ -153,39 +137,23 @@ class ProductTypeScreenState extends State<ProductTypeScreen> {
                   Text(
                     "Are you sure you want to delete ${type.name}?",
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF333333),
-                    ),
+                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF333333)),
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFF35D5D),
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
                       minimumSize: const Size(double.infinity, 48),
                     ),
-                    onPressed: () {
-                      Navigator.of(context).pop(true);
-                    },
-                    child: const Text(
-                      "Yes, Delete",
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: const Text("Yes, Delete", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   ),
                   const SizedBox(height: 8),
                   TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(false);
-                    },
-                    child: const Text(
-                      "Keep It",
-                      style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
-                    ),
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text("Keep It", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -210,10 +178,7 @@ class ProductTypeScreenState extends State<ProductTypeScreen> {
               children: [
                 Text("Error: ${snapshot.error}"),
                 const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: reloadData,
-                  child: const Text("Coba Lagi"),
-                ),
+                ElevatedButton(onPressed: reloadData, child: const Text("Coba Lagi")),
               ],
             ),
           );
@@ -236,69 +201,34 @@ class ProductTypeScreenState extends State<ProductTypeScreen> {
                 margin: const EdgeInsets.only(bottom: 12.0),
                 decoration: BoxDecoration(
                   borderRadius: cardBorderRadius,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withAlpha(26),
-                      spreadRadius: 0,
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  boxShadow: [BoxShadow(color: Colors.grey.withAlpha(26), spreadRadius: 0, blurRadius: 10, offset: const Offset(0, 4))],
                 ),
                 child: Dismissible(
                   key: Key(type.id.toString()),
                   background: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: cardBorderRadius,
-                    ),
+                    decoration: BoxDecoration(color: Colors.blue, borderRadius: cardBorderRadius),
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     alignment: Alignment.centerLeft,
-                    child: const Row(
-                      children: [
-                        Icon(Icons.edit, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text('Edit', style: TextStyle(color: Colors.white)),
-                      ],
-                    ),
+                    child: const Row(children: [Icon(Icons.edit, color: Colors.white), SizedBox(width: 8), Text('Edit', style: TextStyle(color: Colors.white))]),
                   ),
                   secondaryBackground: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: cardBorderRadius,
-                    ),
+                    decoration: BoxDecoration(color: Colors.red, borderRadius: cardBorderRadius),
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     alignment: Alignment.centerRight,
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text('Delete', style: TextStyle(color: Colors.white)),
-                        SizedBox(width: 8),
-                        Icon(Icons.delete, color: Colors.white),
-                      ],
-                    ),
+                    child: const Row(mainAxisAlignment: MainAxisAlignment.end, children: [Text('Delete', style: TextStyle(color: Colors.white)), SizedBox(width: 8), Icon(Icons.delete, color: Colors.white)]),
                   ),
                   confirmDismiss: (direction) async {
                     if (direction == DismissDirection.endToStart) {
-                      bool? deleteConfirmed =
-                          await _showDeleteConfirmationDialog(type);
-
+                      bool? deleteConfirmed = await _showDeleteConfirmationDialog(type);
                       if (deleteConfirmed == true) {
                         final success = await _deleteProductType(type.id);
                         if (!mounted) return false;
-                        
-                        // ## PERUBAHAN DI SINI ##
                         if (success) {
                           reloadData();
-                          // Panggil callback, kirim nama item yang dihapus
-                          widget.onDeleteSuccess?.call(type.name); 
+                          widget.onDeleteSuccess?.call(type.name);
                         } else {
-                          // Jika gagal, tampilkan SnackBar seperti biasa
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Gagal menghapus ${type.name}'),
-                              backgroundColor: Colors.redAccent,
-                            ),
+                            SnackBar(content: Text('Gagal menghapus ${type.name}'), backgroundColor: Colors.redAccent),
                           );
                         }
                         return success;
@@ -327,21 +257,9 @@ class ProductTypeScreenState extends State<ProductTypeScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      type.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
+                                    Text(type.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                     const SizedBox(height: 4),
-                                    Text(
-                                      "Created: ${_formatDate(type.createdDate)}",
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 12,
-                                      ),
-                                    ),
+                                    Text("Created: ${_formatDate(type.createdDate)}", style: TextStyle(color: Colors.grey[600], fontSize: 12)),
                                   ],
                                 ),
                               ),
