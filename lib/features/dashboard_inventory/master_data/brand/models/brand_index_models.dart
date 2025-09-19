@@ -13,7 +13,7 @@ class BrandIndexModel {
 
   factory BrandIndexModel.fromJson(Map<String, dynamic> json) {
     return BrandIndexModel(
-      brandId: json['id_brand'] ?? 0,
+      brandId: int.parse(json['id_brand'].toString()),
       brandName: json['brand_name'] ?? '',
       brandCode: json['brand_code'],
       source: "Lokal",
