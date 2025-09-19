@@ -6,7 +6,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../../../services/api_base.dart';
 import '../models/warehouse_index_models.dart';
 
-/// Parser untuk list warehouse
 List<WarehouseIndexModel> _parseWarehouses(String responseBody) {
   final dynamic parsed = jsonDecode(responseBody);
 
@@ -26,8 +25,13 @@ List<WarehouseIndexModel> _parseWarehouses(String responseBody) {
 
 class WarehouseListWidget extends StatefulWidget {
   final ValueChanged<WarehouseIndexModel> onTap;
+  final void Function(WarehouseIndexModel, VoidCallback)? onDelete;
 
-  const WarehouseListWidget({super.key, required this.onTap});
+  const WarehouseListWidget({
+    super.key,
+    required this.onTap,
+    required this.onDelete,
+  });
 
   @override
   State<WarehouseListWidget> createState() => _WarehouseListWidgetState();
@@ -60,16 +64,63 @@ class _WarehouseListWidgetState extends State<WarehouseListWidget> {
 
     final response = await http.get(
       url,
-      headers: {
-        "Authorization": "Bearer $token",
-        "Accept": "application/json",
-      },
+      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
     );
 
     if (response.statusCode == 200) {
       return compute(_parseWarehouses, response.body);
     } else {
       throw Exception("Gagal memuat data: Status code ${response.statusCode}");
+    }
+  }
+
+  Future<void> _deleteWarehouse(BuildContext context, int id) async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+
+    if (token == null || token.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Token tidak ditemukan")));
+      return;
+    }
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Hapus Warehouse"),
+        content: const Text("Apakah Anda yakin ingin menghapus warehouse ini?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text("Batal"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text("Hapus", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final url = Uri.parse("${ApiBase.baseUrl}/inventory/warehouse/$id");
+
+    final response = await http.delete(
+      url,
+      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
+    );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Warehouse berhasil dihapus")),
+      );
+      _reloadData();
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Gagal hapus: ${response.body}")));
     }
   }
 
@@ -116,6 +167,14 @@ class _WarehouseListWidgetState extends State<WarehouseListWidget> {
                     Text("Code: ${warehouse.warehouseCode}"),
                     Text("Branch: ${warehouse.branch ?? '-'}"),
                   ],
+                ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    if (widget.onDelete != null) {
+                      widget.onDelete!(warehouse, _reloadData);
+                    }
+                  },
                 ),
                 onTap: () => widget.onTap(warehouse),
               );

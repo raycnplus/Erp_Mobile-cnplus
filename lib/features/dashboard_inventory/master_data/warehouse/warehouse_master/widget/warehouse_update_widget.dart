@@ -65,27 +65,13 @@ class _WarehouseEditWidgetState extends State<WarehouseEditWidget> {
     final model = WarehouseUpdateModel(
       warehouseName: _nameController.text.trim(),
       warehouseCode: _codeController.text.trim(),
-      branch: _branchController.text.isNotEmpty
-          ? _branchController.text.trim()
-          : null,
-      address: _addressController.text.isNotEmpty
-          ? _addressController.text.trim()
-          : null,
-      length: _lengthController.text.isNotEmpty
-          ? int.tryParse(_lengthController.text)
-          : null,
-      width: _widthController.text.isNotEmpty
-          ? int.tryParse(_widthController.text)
-          : null,
-      height: _heightController.text.isNotEmpty
-          ? int.tryParse(_heightController.text)
-          : null,
-      volume: _volumeController.text.isNotEmpty
-          ? int.tryParse(_volumeController.text)
-          : null,
-      description: _descriptionController.text.isNotEmpty
-          ? _descriptionController.text.trim()
-          : null,
+      branch: _branchController.text.trim().isNotEmpty ? _branchController.text.trim() : null,
+      address: _addressController.text.trim().isNotEmpty ? _addressController.text.trim() : null,
+      length: _lengthController.text.trim().isNotEmpty ? int.tryParse(_lengthController.text.trim()) : null,
+      width: _widthController.text.trim().isNotEmpty ? int.tryParse(_widthController.text.trim()) : null,
+      height: _heightController.text.trim().isNotEmpty ? int.tryParse(_heightController.text.trim()) : null,
+      volume: _volumeController.text.trim().isNotEmpty ? int.tryParse(_volumeController.text.trim()) : null,
+      description: _descriptionController.text.trim().isNotEmpty ? _descriptionController.text.trim() : null,
     );
 
     setState(() => _isLoading = true);
@@ -106,11 +92,6 @@ class _WarehouseEditWidgetState extends State<WarehouseEditWidget> {
       final url = Uri.parse(
         "${ApiBase.baseUrl}/inventory/warehouse/${widget.warehouse.id}",
       );
-      // debug logs (hapus atau non-aktifkan token print di produksi)
-      print("PUT $url");
-      print(
-        "token: ${token.substring(0, token.length > 10 ? 10 : token.length)}...",
-      );
 
       final response = await http.put(
         url,
@@ -122,8 +103,6 @@ class _WarehouseEditWidgetState extends State<WarehouseEditWidget> {
         body: jsonEncode(model.toJson()),
       );
 
-      print("status: ${response.statusCode}");
-      // coba parse body sebagai JSON, kalau gagal tampilkan mentah (mungkin HTML)
       String message;
       try {
         final parsed = jsonDecode(response.body);
@@ -141,18 +120,14 @@ class _WarehouseEditWidgetState extends State<WarehouseEditWidget> {
         );
         Navigator.pop(context, true);
       } else {
-        // jika body dimulai dengan '<' besar kemungkinan HTML (login page / error page)
-        final isHtml = response.body.trimLeft().startsWith("<");
-        final dialogContent = isHtml
-            ? "Server returned HTML (possible redirect or server error). Status: ${response.statusCode}\n\nResponse snippet:\n${response.body.substring(0, response.body.length > 400 ? 400 : response.body.length)}"
-            : "Status: ${response.statusCode}\n\n$message";
-
         if (!mounted) return;
         await showDialog(
           context: context,
           builder: (_) => AlertDialog(
             title: const Text("Update failed"),
-            content: SingleChildScrollView(child: Text(dialogContent)),
+            content: SingleChildScrollView(
+              child: Text("Status: ${response.statusCode}\n\n$message"),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -161,10 +136,9 @@ class _WarehouseEditWidgetState extends State<WarehouseEditWidget> {
             ],
           ),
         );
-        throw Exception("Update failed: ${response.statusCode}");
       }
     } catch (e, st) {
-      print("update error: $e\n$st");
+      debugPrint("update error: $e\n$st");
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
