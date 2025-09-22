@@ -27,6 +27,8 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
+    const Color themeColor = Color(0xff409c9c);
+
     final inputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
       borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
@@ -34,7 +36,7 @@ class _LoginFormState extends State<LoginForm> {
 
     final focusedBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: Color(0xff409c9c), width: 2.0),
+      borderSide: const BorderSide(color: themeColor, width: 2.0),
     );
 
     return Card(
@@ -79,7 +81,7 @@ class _LoginFormState extends State<LoginForm> {
             const SizedBox(height: 18),
             // Username
             TextField(
-              cursorColor: const Color(0xff409c9c),
+              cursorColor: themeColor,
               controller: widget.emailController,
               decoration: InputDecoration(
                 hintText: 'Username',
@@ -96,7 +98,7 @@ class _LoginFormState extends State<LoginForm> {
             const SizedBox(height: 18),
             // Password
             TextField(
-              cursorColor: const Color(0xff409c9c),
+              cursorColor: themeColor,
               controller: widget.passwordController,
               obscureText: _obscurePassword,
               decoration: InputDecoration(
@@ -110,9 +112,12 @@ class _LoginFormState extends State<LoginForm> {
                   vertical: 16,
                 ),
                 suffixIcon: IconButton(
+                  // ## PERUBAHAN UTAMA ADA DI SINI ##
                   icon: Icon(
-                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                    color: Colors.grey,
+                    _obscurePassword 
+                        ? Icons.visibility_off_outlined // Gunakan versi outline
+                        : Icons.visibility_outlined,   // Gunakan versi outline
+                    color: themeColor,
                   ),
                   onPressed: () {
                     setState(() {
@@ -142,8 +147,8 @@ class _LoginFormState extends State<LoginForm> {
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [
-                        Color(0xff409c9c), // kiri: terang
-                        Color(0xff2b6e6e), // kanan: gelap
+                        themeColor,
+                        Color(0xff2b6e6e),
                       ],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,

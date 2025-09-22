@@ -66,7 +66,6 @@ class StatCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                // --- AKHIR PERUBAHAN ---
               ],
             ),
           ),
