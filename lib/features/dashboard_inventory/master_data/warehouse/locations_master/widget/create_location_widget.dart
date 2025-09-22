@@ -36,21 +36,48 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
     fetchParentLocations();
   }
 
- Future<void> fetchWarehouses() async {
-  final token = await storage.read(key: 'token');
-  final response = await http.get(
-    Uri.parse('${ApiBase.baseUrl}/inventory/warehouse'),
-    headers: {"Authorization": "Bearer $token"},
-  );
-  debugPrint("Warehouse response: ${response.body}");
-  if (response.statusCode == 200) {
-    final List<dynamic> parsed = jsonDecode(response.body);
-    setState(() {
-      warehouses = parsed.map((e) => WarehouseDropdownModel.fromJson(e)).toList();
-    });
+  String _snippet(String s, [int max = 300]) {
+    if (s.isEmpty) return s;
+    return s.length <= max ? s : s.substring(0, max);
   }
-}
 
+  Future<void> fetchWarehouses() async {
+    final token = await storage.read(key: 'token');
+    final response = await http.get(
+      Uri.parse('${ApiBase.baseUrl}/inventory/warehouse'),
+      headers: {
+        if (token != null && token.isNotEmpty) "Authorization": "Bearer $token",
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+    );
+    debugPrint("Warehouse response status: ${response.statusCode}");
+    debugPrint("Warehouse response body: ${_snippet(response.body, 800)}");
+
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+      final List<dynamic> parsedList = decoded is Map
+          ? (decoded['data'] is List
+                ? decoded['data']
+                : (decoded['data'] == null && decoded['result'] is List
+                      ? decoded['result']
+                      : []))
+          : (decoded is List ? decoded : []);
+      setState(() {
+        warehouses = parsedList
+            .map(
+              (e) => WarehouseDropdownModel.fromJson(e as Map<String, dynamic>),
+            )
+            .toList();
+        if (warehouses.isNotEmpty && selectedWarehouse == null) {
+          selectedWarehouse = warehouses.first;
+        }
+      });
+    } else {
+      debugPrint('fetchWarehouses failed: ${response.statusCode}');
+      // optional: show snack / dialog for non-200
+    }
+  }
 
   Future<void> fetchParentLocations() async {
     final token = await storage.read(key: 'token');
@@ -87,7 +114,7 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
       Uri.parse('${ApiBase.baseUrl}/inventory/location'),
       headers: {
         "Authorization": "Bearer $token",
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: jsonEncode(model.toJson()),
     );
@@ -98,9 +125,9 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
       );
       Navigator.pop(context, true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed: ${response.body}")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed: ${response.body}")));
     }
   }
 
@@ -124,7 +151,7 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
             ),
             DropdownButtonFormField<WarehouseDropdownModel>(
               value: selectedWarehouse,
-                  items: warehouses.map((w) {
+              items: warehouses.map((w) {
                 return DropdownMenuItem(value: w, child: Text(w.warehouseName));
               }).toList(),
               onChanged: (val) => setState(() => selectedWarehouse = val),
@@ -167,7 +194,7 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
             ElevatedButton(
               onPressed: createLocation,
               child: const Text("Create"),
-            )
+            ),
           ],
         ),
       ),
