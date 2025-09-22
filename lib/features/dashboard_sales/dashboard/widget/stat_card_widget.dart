@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class StatCard extends StatelessWidget {
   final String title;
@@ -7,6 +8,7 @@ class StatCard extends StatelessWidget {
   final TextStyle? valueStyle;
   final TextStyle? titleStyle;
   final double? width;
+  final bool useFittedBox;
 
   const StatCard({
     super.key,
@@ -16,12 +18,12 @@ class StatCard extends StatelessWidget {
     this.valueStyle,
     this.titleStyle,
     this.width,
+    this.useFittedBox = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final finalValueStyle =
-        valueStyle ??
+    final finalValueStyle = valueStyle ??
         TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: valueColor);
     final finalTitleStyle =
         titleStyle ?? const TextStyle(fontSize: 10, color: Colors.grey);
@@ -33,14 +35,44 @@ class StatCard extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         color: Colors.white,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 25),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(value, style: finalValueStyle, textAlign: TextAlign.center),
+              if (useFittedBox)
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    value,
+                    style: finalValueStyle,
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              else
+                Text(
+                  value,
+                  style: finalValueStyle,
+                  textAlign: TextAlign.center,
+                ),
               const SizedBox(height: 4),
-              Text(title, textAlign: TextAlign.center, style: finalTitleStyle),
+              if (useFittedBox)
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: finalTitleStyle,
+                    ),
+                  ),
+                )
+              else
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: finalTitleStyle,
+                ),
             ],
           ),
         ),

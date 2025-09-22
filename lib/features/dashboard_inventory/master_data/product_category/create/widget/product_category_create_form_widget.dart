@@ -1,20 +1,62 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import '../../../../../../../services/api_base.dart';
+import '../models/product_category_create_models.dart';
 
 class ProductCategoryCreateWidget extends StatefulWidget {
   const ProductCategoryCreateWidget({super.key});
 
   @override
-  State<ProductCategoryCreateWidget> createState() => _ProductCategoryCreateWidgetState();
+  State<ProductCategoryCreateWidget> createState() =>
+      _ProductCategoryCreateWidgetState();
 }
 
 class _ProductCategoryCreateWidgetState extends State<ProductCategoryCreateWidget> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final _storage = const FlutterSecureStorage();
   bool _isLoading = false;
+
+  Future<void> _createCategory() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isLoading = true);
+    try {
+      final token = await _storage.read(key: "token");
+      final model = ProductCategoryCreateModel(
+        productCategoryName: _nameController.text,
+      );
+      final response = await http.post(
+        Uri.parse("${ApiBase.baseUrl}/inventory/product-category"),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonEncode(model.toJson()),
+      );
+      if (!mounted) return;
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        Navigator.pop(context, true); // Kirim sinyal sukses
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to create Category: ${response.body}"),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.redAccent),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -22,68 +64,95 @@ class _ProductCategoryCreateWidgetState extends State<ProductCategoryCreateWidge
     super.dispose();
   }
 
-  Future<void> _createCategory() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
-
-    try {
-      const storage = FlutterSecureStorage();
-      final token = await storage.read(key: 'token');
-
-      if (token == null || token.isEmpty) {
-        throw Exception("Token tidak ditemukan. Silakan login ulang.");
-      }
-
-      final response = await http.post(
-        Uri.parse("${ApiBase.baseUrl}/inventory/product-category"),
-        headers: {
-          "Authorization": "Bearer $token",
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode({
-          "product_category_name": _nameController.text,
-        }),
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Product Category created successfully!")),
-        );
-        Navigator.pop(context, true); // kembali ke index & trigger refresh
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed: ${response.body}")),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: ListView(
-        padding: const EdgeInsets.all(16),
+    // Definisikan tema warna hijau yang konsisten
+    final softGreen = const Color(0xFF679436);
+    final lightGreen = const Color(0xFFC8E6C9);
+    final borderRadius = BorderRadius.circular(16.0);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(28.0),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            spreadRadius: 2,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextFormField(
-            controller: _nameController,
-            decoration: const InputDecoration(labelText: "Category Name"),
-            validator: (value) => value == null || value.isEmpty ? "Required" : null,
+          Text(
+            "Create New Product Category",
+            style: GoogleFonts.poppins(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
           ),
           const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _isLoading ? null : _createCategory,
-            child: _isLoading
-                ? const CircularProgressIndicator(color: Colors.white)
-                : const Text("Save"),
+          Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                Theme(
+                  data: Theme.of(context).copyWith(
+                    textSelectionTheme: TextSelectionThemeData(
+                      cursorColor: softGreen,
+                      selectionColor: softGreen.withOpacity(0.4),
+                      selectionHandleColor: softGreen,
+                    ),
+                  ),
+                  child: TextFormField(
+                    controller: _nameController,
+                    style: GoogleFonts.poppins(color: Colors.black87),
+                    decoration: InputDecoration(
+                      labelText: "Category Name",
+                      labelStyle: GoogleFonts.poppins(color: Colors.grey.shade600),
+                      filled: true,
+                      fillColor: lightGreen.withOpacity(0.3),
+                      border: OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide.none),
+                      enabledBorder: OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide(color: softGreen.withOpacity(0.5), width: 1.0)),
+                      focusedBorder: OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide(color: softGreen, width: 2.0)),
+                    ),
+                    validator: (value) =>
+                        value == null || value.isEmpty ? "This field is required" : null,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: borderRadius,
+                    boxShadow: [
+                      BoxShadow(color: softGreen.withOpacity(0.4), blurRadius: 18, spreadRadius: 1, offset: const Offset(0, 6)),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 52),
+                      backgroundColor: softGreen,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: borderRadius),
+                      elevation: 0,
+                    ),
+                    onPressed: _isLoading ? null : _createCategory,
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                        : Text("Save", style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600)),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
