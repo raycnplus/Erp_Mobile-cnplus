@@ -47,44 +47,41 @@ class WarehouseDropdownModel {
   });
 
   factory WarehouseDropdownModel.fromJson(Map<String, dynamic> json) {
-    return WarehouseDropdownModel(
-      idWarehouse: json['id_warehouse'],
-      warehouseName: json['warehouse_name'],
-    );
+    final rawId = json['id_warehouse'] ?? json['id'] ?? json['warehouse_id'];
+    final id = rawId == null
+        ? 0
+        : (rawId is int ? rawId : int.tryParse(rawId.toString()) ?? 0);
+    final name =
+        json['warehouse_name'] ??
+        json['name'] ??
+        json['warehouse_name_display'] ??
+        '';
+    return WarehouseDropdownModel(idWarehouse: id, warehouseName: name);
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id_warehouse': idWarehouse,
-      'warehouse_name': warehouseName,
-    };
+    return {'id_warehouse': idWarehouse, 'warehouse_name': warehouseName};
   }
 
   @override
-  String toString() => warehouseName; 
+  String toString() => warehouseName;
 }
 
 class LocationDropdownModel {
   final int id;
   final String name;
 
-  LocationDropdownModel({
-    required this.id,
-    required this.name,
-  });
+  LocationDropdownModel({required this.id, required this.name});
 
   factory LocationDropdownModel.fromJson(Map<String, dynamic> json) {
     return LocationDropdownModel(
-      id: json['id_location'], 
-      name: json['location_name'], 
+      id: json['id_location'],
+      name: json['location_name'],
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id_location': id,
-      'location_name': name,
-    };
+    return {'id_location': id, 'location_name': name};
   }
 
   @override
