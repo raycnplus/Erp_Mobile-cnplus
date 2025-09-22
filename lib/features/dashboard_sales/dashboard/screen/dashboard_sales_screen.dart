@@ -31,7 +31,7 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
     return Scaffold(
       drawer: const SalesDashboardDrawer(),
       backgroundColor: Colors.grey[100],
-     appBar: AppBar(
+      appBar: AppBar(
         title: GestureDetector(
           onTap: () {
             Navigator.pushNamed(context, AppRoutes.modul);
@@ -39,10 +39,9 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
           child: Text(
             'Sales',
             style: GoogleFonts.montserrat(
-              color: Color(0xFF2D6A4F),
+              color: const Color(0xFF2D6A4F),
               fontSize: 24,
               fontWeight: FontWeight.w700,
-              height: 4,
             ),
           ),
         ),
@@ -64,13 +63,6 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
             return const Center(child: Text('No data'));
           }
           final data = snapshot.data!;
-          final double spacing = 8;
-          final double horizontalPadding = 16;
-          final double screenWidth = MediaQuery.of(context).size.width;
-          final double cardWidth4 =
-              (screenWidth - horizontalPadding * 2 - spacing * 3) / 4;
-          final double cardWidth2 =
-              (screenWidth - horizontalPadding * 2 - spacing) / 2;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -78,59 +70,54 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
               children: [
                 const PersonalizedHeader(),
                 const SizedBox(height: 16),
-                Wrap(
-                  spacing: spacing,
-                  runSpacing: spacing,
+
+                // 4 StatCard atas dengan GridView dan FittedBox
+                GridView.count(
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 0.9,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    SizedBox(
-                      width: cardWidth4,
-                      child: StatCard(
-                        title: "Quotations",
-                        value: data.quotation.toString(),
-                      ),
+                    StatCard(
+                      title: "Quotations",
+                      value: data.quotation.toString(),
+                      useFittedBox: true,
                     ),
-                    SizedBox(
-                      width: cardWidth4,
-                      child: StatCard(
-                        title: "Sales Order",
-                        value: data.salesOrder.toString(),
-                      ),
+                    StatCard(
+                      title: "Sales Order",
+                      value: data.salesOrder.toString(),
+                      useFittedBox: true,
                     ),
-                    SizedBox(
-                      width: cardWidth4,
-                      child: StatCard(
-                        title: "Direct Sales",
-                        value: data.directSales.toString(),
-                      ),
+                    StatCard(
+                      title: "Direct Sales",
+                      value: data.directSales.toString(),
+                      useFittedBox: true,
                     ),
-                    SizedBox(
-                      width: cardWidth4,
-                      child: StatCard(
-                        title: "Invoices",
-                        value: data.invoice.toString(),
-                      ),
+                    StatCard(
+                      title: "Invoices", 
+                      value: data.invoice.toString(),
+                      useFittedBox: true,
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 16),
-                // 2 StatCard dalam 1 baris
-                Wrap(
-                  spacing: spacing,
-                  runSpacing: spacing,
+                // 2 StatCard bawah dengan Row
+                Row(
                   children: [
-                    SizedBox(
-                      width: cardWidth2,
+                    Expanded(
                       child: StatCard(
                         title: "Products",
                         value: data.salesProductCount.toString(),
                         titleStyle: const TextStyle(
                           fontSize: 11,
-                          // color: const Color(0xFF2D6A4F)
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: cardWidth2,
+                    const SizedBox(width: 10),
+                    Expanded(
                       child: StatCard(
                         title: "Revenue",
                         value: formatCurrency(data.grandTotal),
@@ -145,6 +132,7 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 24),
                 SalesBarChart(data: data.revenuePerDay, title: "Daily Revenue"),
                 const SizedBox(height: 24),
