@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widget/index_location_widget.dart';
 import '../screen/show_location_screen.dart';
+import '../screen/create_location_screen.dart';
 import '../models/index_location_models.dart';
 
 class LocationIndexScreen extends StatelessWidget {
@@ -20,6 +21,17 @@ class LocationIndexScreen extends StatelessWidget {
             ),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const LocationCreateScreen(),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }

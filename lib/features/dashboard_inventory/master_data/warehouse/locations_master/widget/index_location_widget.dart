@@ -6,7 +6,7 @@ import '../../../../../../services/api_base.dart';
 import '../models/index_location_models.dart';
 
 class LocationListWidget extends StatefulWidget {
-  final Function(LocationIndexModel) onTap; 
+  final Function(LocationIndexModel) onTap;
 
   const LocationListWidget({super.key, required this.onTap});
 
@@ -30,6 +30,27 @@ class _LocationListWidgetState extends State<LocationListWidget> {
       return parsed.map((json) => LocationIndexModel.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load locations');
+    }
+  }
+
+  Future<void> _deleteLocation(int id) async {
+    final token = await storage.read(key: 'token');
+    final response = await http.delete(
+      Uri.parse('${ApiBase.baseUrl}/inventory/location/$id'),
+      headers: {"Authorization": "Bearer $token"},
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        futureLocations = fetchLocations(); // refresh list setelah delete
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Location deleted successfully")),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to delete: ${response.body}")),
+      );
     }
   }
 
@@ -63,12 +84,43 @@ class _LocationListWidgetState extends State<LocationListWidget> {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text("Location Name: ${location.locationName}"),
                     Text("Code: ${location.locationCode}"),
                     Text("Warehouse: ${location.warehouseName}"),
                     Text("Parent: ${location.parentLocationName}"),
                   ],
                 ),
-                onTap: () => widget.onTap(location), // panggil callback
+                onTap: () => widget.onTap(location),
+                trailing: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text("Confirm Delete"),
+                        content: Text(
+                            "Are you sure you want to delete ${location.locationName}?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx, false),
+                            child: const Text("Cancel"),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => Navigator.pop(ctx, true),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                            ),
+                            child: const Text("Delete"),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (confirm == true) {
+                      _deleteLocation(location.idLocation);
+                    }
+                  },
+                ),
               ),
             );
           },
