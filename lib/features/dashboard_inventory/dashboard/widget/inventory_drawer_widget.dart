@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../master_data/product_type/index/screen/product_type_index_screen.dart'; 
 import '../../master_data/product_category/index/screen/product_category_index_screen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../master_data/brand/screen/brand_index_screen.dart';
+import '../../master_data/brand/index/screen/brand_index_screen.dart';
 import '../../master_data/product_type/index/screen/product_type_index_screen.dart';
 import '../../master_data/warehouse/warehouse_master/screen/warehouse_index_screen.dart';
 import '../../master_data/warehouse/locations_master/screen/index_location_screen.dart';

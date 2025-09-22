@@ -59,7 +59,7 @@ class ProductTypeDetailSheet extends StatelessWidget {
           const Divider(height: 24),
           _buildDetailRow("Created Date", _formatDate(productType.createdDate)),
           const Divider(height: 24),
-          _buildDetailRow("Created By", productType.createdBy ?? 'N/A'),
+          _buildDetailRow("Created By", productType.createdBy ?? 'Unknown'),
           const SizedBox(height: 20),
         ],
       ),

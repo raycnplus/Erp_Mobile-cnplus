@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../../../../services/api_base.dart';
-import '../models/brand_show_models.dart';
+import '../../../../../../services/api_base.dart';
+import '../../show/models/brand_show_models.dart';
 
 class BrandUpdateWidget extends StatefulWidget {
   final int brandId;

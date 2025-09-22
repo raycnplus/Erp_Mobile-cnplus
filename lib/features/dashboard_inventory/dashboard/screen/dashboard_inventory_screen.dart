@@ -139,7 +139,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
-                    height: 120,
+                    height: 90,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
                       children: [
@@ -152,8 +152,11 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                         StatCard(
                           title: "On Hand Stock",
                           value: dashboardData.summary.onHandStock,
-                          valueColor: Colors.teal,
+                          valueColor: const Color(0xFF2D6A4F),
                           width: 150,
+                          titleStyle: GoogleFonts.poppins(
+                            fontSize: 11,
+                          ),
                         ),
                         const SizedBox(width: 10),
                         StatCard(
