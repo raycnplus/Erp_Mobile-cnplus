@@ -22,8 +22,9 @@ dependencies:
   google_fonts: ^6.3.0
   connectivity_plus: ^6.1.5
   logger: ^2.6.1
-  pull_to_refresh: ^2.0.0 
-  
+  pull_to_refresh: ^2.0.0
+  shimmer: ^3.0.0
+
 
 dev_dependencies:
   flutter_test:

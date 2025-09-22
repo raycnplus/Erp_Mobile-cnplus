@@ -1,42 +1,51 @@
-// product_category_index_widget.dart
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'dart:ui' as ui;
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../../../../services/api_base.dart';
 import '../models/product_category_index_models.dart';
 
+import '../../update/widget/product_category_update_dialog.dart';
+import '../../update/models/product_category_update_models.dart';
+
+// ## PERUBAHAN UTAMA ADA DI FUNGSI INI ##
 List<ProductCategory> _parseProductCategories(String responseBody) {
   final decoded = jsonDecode(responseBody);
 
+  // 1. Tambahkan pengecekan jika respons adalah List langsung
   if (decoded is List) {
     return decoded.map((e) => ProductCategory.fromJson(e)).toList();
   }
 
-  if (decoded is Map<String, dynamic> &&
-      decoded['status'] == true &&
-      decoded['data'] is List) {
+  // 2. Jaga pengecekan lama jika formatnya adalah Map yang dibungkus
+  if (decoded is Map<String, dynamic> && decoded['status'] == true && decoded['data'] is List) {
     final List<dynamic> dataList = decoded['data'];
     return dataList.map((e) => ProductCategory.fromJson(e)).toList();
   }
 
+  // Jika kedua format tidak cocok, baru lempar error
   throw Exception("Format respons API tidak valid.");
 }
 
 class ProductCategoryListWidget extends StatefulWidget {
   final ValueChanged<ProductCategory> onTap;
+  final Function(String name)? onDeleteSuccess;
 
-  const ProductCategoryListWidget({super.key, required this.onTap});
+  const ProductCategoryListWidget({
+    super.key,
+    required this.onTap,
+    this.onDeleteSuccess,
+  });
 
   @override
-  State<ProductCategoryListWidget> createState() =>
-      _ProductCategoryListWidgetState();
+  State<ProductCategoryListWidget> createState() => ProductCategoryListWidgetState();
 }
 
-class _ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
+class ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
   late Future<List<ProductCategory>> futureCategories;
+  final _storage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -44,32 +53,73 @@ class _ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
     futureCategories = fetchProductCategories();
   }
 
-  void _reloadData() {
+  void reloadData() {
     setState(() {
       futureCategories = fetchProductCategories();
     });
   }
 
   Future<List<ProductCategory>> fetchProductCategories() async {
-    const storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'token');
-
+    final token = await _storage.read(key: 'token');
     if (token == null || token.isEmpty) {
       throw Exception("Token tidak ditemukan. Silakan login ulang.");
     }
-
     final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-category/");
-
-    final response = await http.get(
-      url,
-      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
-    );
-
+    final response = await http.get(url, headers: {"Authorization": "Bearer $token", "Accept": "application/json"});
     if (response.statusCode == 200) {
       return compute(_parseProductCategories, response.body);
     } else {
       throw Exception("Gagal memuat data: Status code ${response.statusCode}");
     }
+  }
+
+  Future<bool> _deleteCategory(int id) async {
+    final token = await _storage.read(key: "token");
+    final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-category/$id");
+    final response = await http.delete(url, headers: {"Authorization": "Bearer $token"});
+    if (response.statusCode == 200) {
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool?> _showDeleteConfirmationDialog(ProductCategory category) {
+    return showDialog<bool>(
+      context: context,
+      barrierColor: Colors.black.withAlpha(102),
+      builder: (BuildContext context) {
+        return BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: Dialog(
+            backgroundColor: Colors.white.withAlpha(230),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.0)),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                const SizedBox(height: 50, width: 50, child: Icon(Icons.delete_rounded, color: Color(0xFFF35D5D), size: 50.0)),
+                const SizedBox(height: 28),
+                Text("Are you sure you want to delete ${category.name}?", textAlign: TextAlign.center, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF333333))),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF35D5D), foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+                    minimumSize: const Size(double.infinity, 48),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text("Yes, Delete", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                ),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text("Keep It", style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+                ),
+              ]),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -81,21 +131,10 @@ class _ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    "Error: ${snapshot.error.toString().replaceFirst("Exception: ", "")}",
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: _reloadData,
-                  child: const Text("Coba Lagi"),
-                ),
-              ],
-            ),
+            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Padding(padding: const EdgeInsets.all(16.0), child: Text("Error: ${snapshot.error.toString().replaceFirst("Exception: ", "")}")),
+              ElevatedButton(onPressed: reloadData, child: const Text("Coba Lagi")),
+            ]),
           );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text("Tidak ada data product category"));
@@ -103,7 +142,7 @@ class _ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
 
         final categories = snapshot.data!;
         return RefreshIndicator(
-          onRefresh: () async => _reloadData(),
+          onRefresh: () async => reloadData(),
           child: ListView.builder(
             padding: const EdgeInsets.all(16.0),
             itemCount: categories.length,
@@ -115,94 +154,46 @@ class _ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
                 margin: const EdgeInsets.only(bottom: 12.0),
                 decoration: BoxDecoration(
                   borderRadius: cardBorderRadius,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 0,
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), spreadRadius: 0, blurRadius: 10, offset: const Offset(0, 4))],
                 ),
                 child: Dismissible(
                   key: Key(category.id.toString()),
                   background: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: cardBorderRadius,
-                    ),
+                    decoration: BoxDecoration(color: Colors.blue, borderRadius: cardBorderRadius),
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     alignment: Alignment.centerLeft,
-                    child: const Row(
-                      children: [
-                        Icon(Icons.edit, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text('Edit', style: TextStyle(color: Colors.white)),
-                      ],
-                    ),
+                    child: const Row(children: [Icon(Icons.edit, color: Colors.white), SizedBox(width: 8), Text('Edit', style: TextStyle(color: Colors.white))]),
                   ),
                   secondaryBackground: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: cardBorderRadius,
-                    ),
+                    decoration: BoxDecoration(color: Colors.red, borderRadius: cardBorderRadius),
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     alignment: Alignment.centerRight,
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text('Delete', style: TextStyle(color: Colors.white)),
-                        SizedBox(width: 8),
-                        Icon(Icons.delete, color: Colors.white),
-                      ],
-                    ),
+                    child: const Row(mainAxisAlignment: MainAxisAlignment.end, children: [Text('Delete', style: TextStyle(color: Colors.white)), SizedBox(width: 8), Icon(Icons.delete, color: Colors.white)]),
                   ),
                   confirmDismiss: (direction) async {
                     if (direction == DismissDirection.endToStart) {
-                      // Aksi Hapus
-                      return await showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text("Konfirmasi"),
-                            content: Text(
-                              "Anda yakin ingin menghapus ${category.name}?",
-                            ),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () =>
-                                    Navigator.of(context).pop(false),
-                                child: const Text("Batal"),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  // TODO: Panggil API untuk menghapus data di sini
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('${category.name} dihapus'),
-                                    ),
-                                  );
-                                  Navigator.of(context).pop(true);
-                                },
-                                child: const Text(
-                                  "Hapus",
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
+                      final confirmed = await _showDeleteConfirmationDialog(category);
+                      if (confirmed == true) {
+                        final success = await _deleteCategory(category.id);
+                        if (!mounted) return false;
+                        if (success) {
+                          reloadData();
+                          widget.onDeleteSuccess?.call(category.name);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal menghapus ${category.name}'), backgroundColor: Colors.redAccent));
+                        }
+                        return success;
+                      }
+                      return false;
                     } else {
-                      // Aksi Edit
-                      // TODO: Navigasi ke halaman edit di sini
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Navigasi ke halaman Edit ${category.name}',
-                          ),
-                        ),
+                      final result = await showUpdateProductCategoryDialog(
+                        context,
+                        id: category.id,
+                        initialData: ProductCategoryUpdateModel(productCategoryName: category.name),
                       );
+                      if (result == true) {
+                        reloadData();
+                      }
                       return false;
                     }
                   },
@@ -214,33 +205,15 @@ class _ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
                         onTap: () => widget.onTap(category),
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
-                          // [MODIFIKASI] Menambahkan Row dan Expanded di sini
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      category.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      "Source: Lokal",
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                          child: Row(children: [
+                            Expanded(
+                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                Text(category.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                const SizedBox(height: 4),
+                                Text("Source: Lokal", style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                              ]),
+                            ),
+                          ]),
                         ),
                       ),
                     ),
