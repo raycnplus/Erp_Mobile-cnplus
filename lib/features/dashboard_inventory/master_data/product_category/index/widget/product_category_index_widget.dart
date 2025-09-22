@@ -10,33 +10,28 @@ import '../models/product_category_index_models.dart';
 import '../../update/widget/product_category_update_dialog.dart';
 import '../../update/models/product_category_update_models.dart';
 
-// ## PERUBAHAN UTAMA ADA DI FUNGSI INI ##
 List<ProductCategory> _parseProductCategories(String responseBody) {
   final decoded = jsonDecode(responseBody);
-
-  // 1. Tambahkan pengecekan jika respons adalah List langsung
   if (decoded is List) {
     return decoded.map((e) => ProductCategory.fromJson(e)).toList();
   }
-
-  // 2. Jaga pengecekan lama jika formatnya adalah Map yang dibungkus
   if (decoded is Map<String, dynamic> && decoded['status'] == true && decoded['data'] is List) {
     final List<dynamic> dataList = decoded['data'];
     return dataList.map((e) => ProductCategory.fromJson(e)).toList();
   }
-
-  // Jika kedua format tidak cocok, baru lempar error
   throw Exception("Format respons API tidak valid.");
 }
 
 class ProductCategoryListWidget extends StatefulWidget {
   final ValueChanged<ProductCategory> onTap;
   final Function(String name)? onDeleteSuccess;
+  final VoidCallback? onUpdateSuccess; // TAMBAHKAN: Callback untuk sukses update
 
   const ProductCategoryListWidget({
     super.key,
     required this.onTap,
     this.onDeleteSuccess,
+    this.onUpdateSuccess, // TAMBAHKAN: Parameter di constructor
   });
 
   @override
@@ -128,7 +123,7 @@ class ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
       future: futureCategories,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator()); // TODO: Ganti dengan Shimmer
         } else if (snapshot.hasError) {
           return Center(
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -193,6 +188,8 @@ class ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
                       );
                       if (result == true) {
                         reloadData();
+                        // Panggil callback update sukses
+                        widget.onUpdateSuccess?.call();
                       }
                       return false;
                     }

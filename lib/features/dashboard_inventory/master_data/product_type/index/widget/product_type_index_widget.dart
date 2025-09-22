@@ -114,10 +114,8 @@ class ProductTypeScreenState extends State<ProductTypeScreen> {
     Widget content;
 
     if (_isLoading && _productTypes.isEmpty) {
-      // 1. Loading Awal: Tampilkan shimmer dengan jumlah default
       content = const ProductTypeListShimmer();
     } else if (_error != null) {
-      // 2. State Error
       content = Center(
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
           Text("Error: $_error"),
