@@ -7,6 +7,7 @@ import '../../master_data/warehouse/warehouse_master/screen/warehouse_index_scre
 import '../../master_data/warehouse/locations_master/screen/index_location_screen.dart';
 import '../../master_data/product/product/screen/index_product_screen.dart';
 import '../../master_data/product/lot_serial_numbers/screen/index_screen_lsn.dart';
+import '../../master_data/vendor/screen/index_screen_vendor.dart';
 
 class DashboardDrawer extends StatefulWidget {
   const DashboardDrawer({super.key});
@@ -214,6 +215,12 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
             title: const Text('Vendor'),
             onTap: () {
               Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const VendorIndexScreen(),
+                ),
+              );
             },
           ),
         ],
