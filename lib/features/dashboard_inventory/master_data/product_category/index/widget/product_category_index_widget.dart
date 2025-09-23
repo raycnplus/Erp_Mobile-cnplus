@@ -9,6 +9,7 @@ import '../models/product_category_index_models.dart';
 
 import '../../update/widget/product_category_update_dialog.dart';
 import '../../update/models/product_category_update_models.dart';
+import '../../../../../../../shared/widgets/master_data_list_shimmer.dart';
 
 List<ProductCategory> _parseProductCategories(String responseBody) {
   final decoded = jsonDecode(responseBody);
@@ -25,13 +26,13 @@ List<ProductCategory> _parseProductCategories(String responseBody) {
 class ProductCategoryListWidget extends StatefulWidget {
   final ValueChanged<ProductCategory> onTap;
   final Function(String name)? onDeleteSuccess;
-  final VoidCallback? onUpdateSuccess; // TAMBAHKAN: Callback untuk sukses update
+  final VoidCallback? onUpdateSuccess;
 
   const ProductCategoryListWidget({
     super.key,
     required this.onTap,
     this.onDeleteSuccess,
-    this.onUpdateSuccess, // TAMBAHKAN: Parameter di constructor
+    this.onUpdateSuccess,
   });
 
   @override
@@ -39,19 +40,53 @@ class ProductCategoryListWidget extends StatefulWidget {
 }
 
 class ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
-  late Future<List<ProductCategory>> futureCategories;
+  // 1. Ganti FutureBuilder dengan state manual
+  bool _isLoading = true;
+  List<ProductCategory> _productCategories = [];
+  String? _error;
   final _storage = const FlutterSecureStorage();
 
   @override
   void initState() {
     super.initState();
-    futureCategories = fetchProductCategories();
+    // 3. Panggil _loadData di initState
+    _loadData();
+  }
+
+  // 2. Tambahkan method _loadData untuk mengambil data dan mengelola state
+  Future<void> _loadData() async {
+    // Saat refresh, jangan langsung set state agar data lama tetap terlihat
+    if (!_isLoading) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+
+    try {
+      final data = await fetchProductCategories();
+      if (mounted) {
+        setState(() {
+          _productCategories = data;
+          _error = null;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString().replaceFirst("Exception: ", "");
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   void reloadData() {
-    setState(() {
-      futureCategories = fetchProductCategories();
-    });
+    _loadData();
   }
 
   Future<List<ProductCategory>> fetchProductCategories() async {
@@ -72,10 +107,7 @@ class ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
     final token = await _storage.read(key: "token");
     final url = Uri.parse("${ApiBase.baseUrl}/inventory/product-category/$id");
     final response = await http.delete(url, headers: {"Authorization": "Bearer $token"});
-    if (response.statusCode == 200) {
-      return true;
-    }
-    return false;
+    return response.statusCode == 200;
   }
 
   Future<bool?> _showDeleteConfirmationDialog(ProductCategory category) {
@@ -119,108 +151,140 @@ class ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<ProductCategory>>(
-      future: futureCategories,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator()); // TODO: Ganti dengan Shimmer
-        } else if (snapshot.hasError) {
-          return Center(
-            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Padding(padding: const EdgeInsets.all(16.0), child: Text("Error: ${snapshot.error.toString().replaceFirst("Exception: ", "")}")),
-              ElevatedButton(onPressed: reloadData, child: const Text("Coba Lagi")),
-            ]),
-          );
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text("Tidak ada data product category"));
-        }
+    // 4. Ubah build method untuk menampilkan shimmer, error, atau list berdasarkan state
+    Widget content;
 
-        final categories = snapshot.data!;
-        return RefreshIndicator(
-          onRefresh: () async => reloadData(),
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16.0),
-            itemCount: categories.length,
-            itemBuilder: (context, index) {
-              final category = categories[index];
-              final cardBorderRadius = BorderRadius.circular(12);
+    if (_isLoading && _productCategories.isEmpty) {
+      // State Loading Awal
+      content = const MasterDataListShimmer();
+    } else if (_error != null) {
+      // State Error
+      content = Center(
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Padding(padding: const EdgeInsets.all(16.0), child: Text("Error: $_error")),
+          ElevatedButton(onPressed: reloadData, child: const Text("Coba Lagi")),
+        ]),
+      );
+    } else if (_productCategories.isEmpty) {
+      // State Data Kosong
+      content = const Center(child: Text("Tidak ada data product category"));
+    } else {
+      // State Data Tersedia (atau saat refresh)
+      content = _isLoading
+          ? MasterDataListShimmer(itemCount: _productCategories.length)
+          : ListView.builder(
+        padding: const EdgeInsets.all(16.0),
+        itemCount: _productCategories.length,
+        itemBuilder: (context, index) {
+          final category = _productCategories[index];
+          return _buildCategoryCard(category);
+        },
+      );
+    }
 
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12.0),
-                decoration: BoxDecoration(
-                  borderRadius: cardBorderRadius,
-                  boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), spreadRadius: 0, blurRadius: 10, offset: const Offset(0, 4))],
-                ),
-                child: Dismissible(
-                  key: Key(category.id.toString()),
-                  background: Container(
-                    decoration: BoxDecoration(color: Colors.blue, borderRadius: cardBorderRadius),
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    alignment: Alignment.centerLeft,
-                    child: const Row(children: [Icon(Icons.edit, color: Colors.white), SizedBox(width: 8), Text('Edit', style: TextStyle(color: Colors.white))]),
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      child: content,
+    );
+  }
+
+  Widget _buildCategoryCard(ProductCategory category) {
+    final cardBorderRadius = BorderRadius.circular(12);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: cardBorderRadius,
+        boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), spreadRadius: 0, blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: Dismissible(
+        key: Key(category.id.toString()),
+        background: _buildSwipeActionContainer(
+          color: Colors.blue,
+          icon: Icons.edit,
+          text: 'Edit',
+          alignment: Alignment.centerLeft,
+        ),
+        secondaryBackground: _buildSwipeActionContainer(
+          color: Colors.red,
+          icon: Icons.delete,
+          text: 'Delete',
+          alignment: Alignment.centerRight,
+        ),
+        confirmDismiss: (direction) async {
+          if (direction == DismissDirection.endToStart) {
+            final confirmed = await _showDeleteConfirmationDialog(category);
+            if (confirmed == true) {
+              final success = await _deleteCategory(category.id);
+              if (!mounted) return false;
+              if (success) {
+                reloadData();
+                widget.onDeleteSuccess?.call(category.name);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal menghapus ${category.name}'), backgroundColor: Colors.redAccent));
+              }
+              return success;
+            }
+            return false;
+          } else {
+            final result = await showUpdateProductCategoryDialog(
+              context,
+              id: category.id,
+              initialData: ProductCategoryUpdateModel(productCategoryName: category.name),
+            );
+            if (result == true) {
+              reloadData();
+              widget.onUpdateSuccess?.call();
+            }
+            return false;
+          }
+        },
+        child: ClipRRect(
+          borderRadius: cardBorderRadius,
+          child: Material(
+            color: Colors.white,
+            child: InkWell(
+              onTap: () => widget.onTap(category),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(children: [
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(category.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      const SizedBox(height: 4),
+                      Text("Source: Lokal", style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                    ]),
                   ),
-                  secondaryBackground: Container(
-                    decoration: BoxDecoration(color: Colors.red, borderRadius: cardBorderRadius),
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    alignment: Alignment.centerRight,
-                    child: const Row(mainAxisAlignment: MainAxisAlignment.end, children: [Text('Delete', style: TextStyle(color: Colors.white)), SizedBox(width: 8), Icon(Icons.delete, color: Colors.white)]),
-                  ),
-                  confirmDismiss: (direction) async {
-                    if (direction == DismissDirection.endToStart) {
-                      final confirmed = await _showDeleteConfirmationDialog(category);
-                      if (confirmed == true) {
-                        final success = await _deleteCategory(category.id);
-                        if (!mounted) return false;
-                        if (success) {
-                          reloadData();
-                          widget.onDeleteSuccess?.call(category.name);
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal menghapus ${category.name}'), backgroundColor: Colors.redAccent));
-                        }
-                        return success;
-                      }
-                      return false;
-                    } else {
-                      final result = await showUpdateProductCategoryDialog(
-                        context,
-                        id: category.id,
-                        initialData: ProductCategoryUpdateModel(productCategoryName: category.name),
-                      );
-                      if (result == true) {
-                        reloadData();
-                        // Panggil callback update sukses
-                        widget.onUpdateSuccess?.call();
-                      }
-                      return false;
-                    }
-                  },
-                  child: ClipRRect(
-                    borderRadius: cardBorderRadius,
-                    child: Material(
-                      color: Colors.white,
-                      child: InkWell(
-                        onTap: () => widget.onTap(category),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(children: [
-                            Expanded(
-                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                Text(category.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                const SizedBox(height: 4),
-                                Text("Source: Lokal", style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-                              ]),
-                            ),
-                          ]),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
+                ]),
+              ),
+            ),
           ),
-        );
-      },
+        ),
+      ),
+    );
+  }
+
+  // Helper widget untuk background swipe
+  Widget _buildSwipeActionContainer({
+    required Color color,
+    required IconData icon,
+    required String text,
+    required Alignment alignment,
+  }) {
+    bool isLeft = alignment == Alignment.centerLeft;
+    return Container(
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      alignment: alignment,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isLeft) Icon(icon, color: Colors.white),
+          if (isLeft) const SizedBox(width: 8),
+          Text(text, style: const TextStyle(color: Colors.white)),
+          if (!isLeft) const SizedBox(width: 8),
+          if (!isLeft) Icon(icon, color: Colors.white),
+        ],
+      ),
     );
   }
 }

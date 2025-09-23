@@ -28,14 +28,15 @@ class StatValue {
 
   static List<ChartData> parseChartDataFromApi(dynamic apiResponse) {
     final colors = [
-      const Color(0xFF2196F3), // Blue
-      const Color(0xFFFF9800), // Orange
-      const Color(0xFF4CAF50), // Green
-      const Color(0xFF9C27B0), // Purple
-      const Color(0xFFF44336), // Red
-      const Color(0xFF00BCD4), // Cyan
-      const Color(0xFFFFEB3B), // Yellow
-      const Color(0xFF795548), // Brown
+      const Color(0xFF42A5F5), // Blue 400
+      const Color(0xFFFFA726), // Orange 400
+      const Color(0xFF66BB6A), // Green 400
+      const Color(0xFFAB47BC), // Purple 400
+      const Color(0xFFEF5350), // Red 400
+      const Color(0xFF26C6DA), // Cyan 400
+      const Color(0xFFFFCA28), // Amber 400
+      const Color(0xFF8D6E63), // Brown 400
+      const Color(0xFF78909C), // Blue Grey 400
     ];
 
     List<dynamic> dataList = [];

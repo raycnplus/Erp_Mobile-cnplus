@@ -195,7 +195,7 @@ class _ProductTypeCreateWidgetState extends State<ProductTypeCreateWidget> {
                             strokeWidth: 2,
                           )
                         : Text(
-                            "Save",
+                            "Save type",
                             style: GoogleFonts.poppins(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,

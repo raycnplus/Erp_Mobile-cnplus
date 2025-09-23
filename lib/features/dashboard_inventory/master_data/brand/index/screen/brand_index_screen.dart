@@ -5,16 +5,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-// Import yang diperlukan
-import '../../../../../../services/api_base.dart';
-import '../../../../../../shared/widgets/success_bottom_sheet.dart';
+import '../../../../../../../services/api_base.dart';
+import '../../../../../../../shared/widgets/success_bottom_sheet.dart';
 import '../widget/brand_index_widget.dart';
 import '../models/brand_index_models.dart';
-// Import model dan widget detail yang baru
 import '../../show/models/brand_show_models.dart';
 import '../../show/widget/brand_show_sheet.dart';
-// Import create widget (untuk modal)
-// import '../../create/widget/brand_create_form_widget.dart'; // Pastikan file ini ada
+import '../../create/widget/brand_create_form_widget.dart';
 
 class BrandIndexScreen extends StatefulWidget {
   const BrandIndexScreen({super.key});
@@ -24,43 +21,33 @@ class BrandIndexScreen extends StatefulWidget {
 }
 
 class _BrandIndexScreenState extends State<BrandIndexScreen> {
-  final GlobalKey<BrandListWidgetState> _listKey =
-      GlobalKey<BrandListWidgetState>();
+  final GlobalKey<BrandListWidgetState> _listKey = GlobalKey<BrandListWidgetState>();
 
   Future<void> _refreshData() async {
     _listKey.currentState?.reloadData();
   }
 
-  // FUNGSI BARU: Fetch detail untuk brand
   Future<BrandShowModel> fetchBrandDetail(int id) async {
     const storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
-    if (token == null || token.isEmpty) {
-      throw Exception("Token tidak ditemukan.");
-    }
+    if (token == null) throw Exception("Token tidak ditemukan.");
+    
     final url = Uri.parse("${ApiBase.baseUrl}/inventory/brand/$id");
     final response = await http.get(url, headers: {"Authorization": "Bearer $token", "Accept": "application/json"});
+
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
-      // Asumsi API mengembalikan data langsung, bukan dibungkus 'data'
       return BrandShowModel.fromJson(data);
     } else {
       throw Exception("Gagal memuat detail: Status ${response.statusCode}");
     }
   }
 
-  // FUNGSI BARU: Menampilkan modal detail
   Future<void> _showDetailModal(BrandIndexModel brand) async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
-
+    showDialog(context: context, barrierDismissible: false, builder: (context) => const Center(child: CircularProgressIndicator()));
     try {
       final brandDetail = await fetchBrandDetail(brand.brandId);
-      if (mounted) Navigator.pop(context); // Tutup loading
-
+      if (mounted) Navigator.pop(context);
       if (mounted) {
         showModalBottomSheet(
           context: context,
@@ -70,23 +57,44 @@ class _BrandIndexScreenState extends State<BrandIndexScreen> {
         );
       }
     } catch (e) {
-      if (mounted) Navigator.pop(context); // Tutup loading
+      if (mounted) Navigator.pop(context);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: ${e.toString()}"), backgroundColor: Colors.redAccent),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}"), backgroundColor: Colors.redAccent));
       }
     }
   }
 
-  // TODO: Implementasikan fungsi show create modal jika belum ada
   Future<void> _showCreateModal() async {
-    // const result = await showModalBottomSheet(...);
-    // if (result == true) { ... }
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Create modal belum diimplementasikan.")));
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: const BrandCreateWidget(),
+        ),
+      ),
+    );
+
+    if (result == true) {
+      _refreshData();
+      _showCreateSuccessMessage();
+    }
   }
 
-  // Fungsi Notifikasi (tetap sama)
+  void _showCreateSuccessMessage() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const SuccessBottomSheet(
+        title: "Successfully Created!",
+        message: "New brand has been added to the list.",
+      ),
+    );
+  }
+
   void _showUpdateSuccessMessage() {
     showModalBottomSheet(
       context: context,
@@ -133,7 +141,7 @@ class _BrandIndexScreenState extends State<BrandIndexScreen> {
       body: BrandListWidget(
         key: _listKey,
         onTap: (BrandIndexModel brand) {
-          _showDetailModal(brand); // PANGGIL FUNGSI MODAL DI SINI
+          _showDetailModal(brand);
         },
         onUpdateSuccess: () {
           _showUpdateSuccessMessage();
