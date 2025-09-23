@@ -1,7 +1,7 @@
 class BrandShowModel {
   final int brandId;
   final String brandName;
-  final String brandCode;
+  final String brandCode; // Diubah agar tidak nullable, tapi diberi nilai default ahmad2025
   final String? createdDate;
   final String? updatedDate;
 
@@ -15,11 +15,15 @@ class BrandShowModel {
 
   factory BrandShowModel.fromJson(Map<String, dynamic> json) {
     return BrandShowModel(
-     brandId: int.parse(json['id_brand'].toString()),
-      brandName: json['brand_name'] as String,
-      brandCode: json['brand_code'] as String,
-      createdDate: json['created_date'] as String?,
-      updatedDate: json['updated_date'] as String?,
+      brandId: int.parse(json['id_brand'].toString()),
+      
+      // ## PERBAIKAN  ##
+      //  null-aware operator (??) untuk memberikan nilai default
+      brandName: json['brand_name'] ?? 'No Name', 
+      brandCode: json['brand_code'] ?? '-', // Jika brand_code null, beri nilai '-'
+      
+      createdDate: json['created_date'], // Tidak perlu 'as String?' karena sudah nullable
+      updatedDate: json['updated_date'],
     );
   }
 
@@ -33,4 +37,3 @@ class BrandShowModel {
     };
   }
 }
-

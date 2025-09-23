@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import '../models/product_type_show_model.dart';
+import '../models/brand_show_models.dart'; // Pastikan path model ini benar
 
-class ProductTypeDetailSheet extends StatelessWidget {  
-  final ProductTypeShowModel productType;
+class BrandDetailSheet extends StatelessWidget {
+  final BrandShowModel brand;
 
-  const ProductTypeDetailSheet({super.key, required this.productType});
+  const BrandDetailSheet({super.key, required this.brand});
 
   // Helper untuk format tanggal
   String _formatDate(String? dateString) {
@@ -46,7 +46,7 @@ class ProductTypeDetailSheet extends StatelessWidget {
           const SizedBox(height: 24),
           // Judul
           Text(
-            "Product Type Detail",
+            "Brand Detail",
             style: GoogleFonts.poppins(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -55,11 +55,13 @@ class ProductTypeDetailSheet extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           // Widget untuk menampilkan baris data
-          _buildDetailRow("Type Name", productType.productTypeName),
+          _buildDetailRow("Brand Name", brand.brandName),
           const Divider(height: 24),
-          _buildDetailRow("Created Date", _formatDate(productType.createdDate)),
+          _buildDetailRow("Brand Code", brand.brandCode),
           const Divider(height: 24),
-          _buildDetailRow("Created By", productType.createdBy ?? 'Unknown'),
+          _buildDetailRow("Created Date", _formatDate(brand.createdDate)),
+          const Divider(height: 24),
+          _buildDetailRow("Last Updated", _formatDate(brand.updatedDate)),
           const SizedBox(height: 20),
         ],
       ),

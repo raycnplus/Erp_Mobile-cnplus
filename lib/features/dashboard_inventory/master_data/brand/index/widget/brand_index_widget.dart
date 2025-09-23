@@ -168,7 +168,7 @@ class BrandListWidgetState extends State<BrandListWidget> {
                       }
                       return false;
                     } else {
-                      // ## PERUBAHAN UTAMA ADA DI SINI ##
+                      // ##  ##
                       final result = await showUpdateBrandDialog(
                         context,
                         id: brand.brandId,

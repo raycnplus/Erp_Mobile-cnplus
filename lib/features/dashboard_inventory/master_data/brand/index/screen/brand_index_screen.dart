@@ -1,15 +1,20 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 // Import yang diperlukan
+import '../../../../../../services/api_base.dart';
 import '../../../../../../shared/widgets/success_bottom_sheet.dart';
 import '../widget/brand_index_widget.dart';
 import '../models/brand_index_models.dart';
-// TODO: Import file-file modal yang akan dibuat
-// import '../../show/widget/brand_show_sheet.dart';
-// import '../../show/models/brand_show_models.dart';
-// import '../../create/widget/brand_create_form_widget.dart';
+// Import model dan widget detail yang baru
+import '../../show/models/brand_show_models.dart';
+import '../../show/widget/brand_show_sheet.dart';
+// Import create widget (untuk modal)
+// import '../../create/widget/brand_create_form_widget.dart'; // Pastikan file ini ada
 
 class BrandIndexScreen extends StatefulWidget {
   const BrandIndexScreen({super.key});
@@ -25,19 +30,63 @@ class _BrandIndexScreenState extends State<BrandIndexScreen> {
   Future<void> _refreshData() async {
     _listKey.currentState?.reloadData();
   }
-  
-  // TODO: Implementasikan fungsi fetch detail
+
+  // FUNGSI BARU: Fetch detail untuk brand
+  Future<BrandShowModel> fetchBrandDetail(int id) async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+    if (token == null || token.isEmpty) {
+      throw Exception("Token tidak ditemukan.");
+    }
+    final url = Uri.parse("${ApiBase.baseUrl}/inventory/brand/$id");
+    final response = await http.get(url, headers: {"Authorization": "Bearer $token", "Accept": "application/json"});
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      // Asumsi API mengembalikan data langsung, bukan dibungkus 'data'
+      return BrandShowModel.fromJson(data);
+    } else {
+      throw Exception("Gagal memuat detail: Status ${response.statusCode}");
+    }
+  }
+
+  // FUNGSI BARU: Menampilkan modal detail
   Future<void> _showDetailModal(BrandIndexModel brand) async {
-    // Logika fetch & show modal
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final brandDetail = await fetchBrandDetail(brand.brandId);
+      if (mounted) Navigator.pop(context); // Tutup loading
+
+      if (mounted) {
+        showModalBottomSheet(
+          context: context,
+          backgroundColor: Colors.transparent,
+          isScrollControlled: true,
+          builder: (context) => BrandDetailSheet(brand: brandDetail),
+        );
+      }
+    } catch (e) {
+      if (mounted) Navigator.pop(context); // Tutup loading
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: ${e.toString()}"), backgroundColor: Colors.redAccent),
+        );
+      }
+    }
   }
 
-  // TODO: Implementasikan fungsi show create modal
+  // TODO: Implementasikan fungsi show create modal jika belum ada
   Future<void> _showCreateModal() async {
-    // final result = await showModalBottomSheet(...);
+    // const result = await showModalBottomSheet(...);
     // if (result == true) { ... }
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Create modal belum diimplementasikan.")));
   }
 
-  // Fungsi Notifikasi (bisa langsung dipakai)
+  // Fungsi Notifikasi (tetap sama)
   void _showUpdateSuccessMessage() {
     showModalBottomSheet(
       context: context,
@@ -84,7 +133,7 @@ class _BrandIndexScreenState extends State<BrandIndexScreen> {
       body: BrandListWidget(
         key: _listKey,
         onTap: (BrandIndexModel brand) {
-          _showDetailModal(brand);
+          _showDetailModal(brand); // PANGGIL FUNGSI MODAL DI SINI
         },
         onUpdateSuccess: () {
           _showUpdateSuccessMessage();
