@@ -1,4 +1,5 @@
 import 'package:erp_mobile_cnplus/features/dashboard_inventory/master_data/brand/index/screen/brand_index_screen.dart';
+import 'package:erp_mobile_cnplus/features/dashboard_sales/master%20data/costumer_category/screen/costumer_category_index_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../master data/product_category/screen/product_category_index_screen.dart';
@@ -103,6 +104,12 @@ class _SalesDashboardDrawerState extends State<SalesDashboardDrawer> {
             title: const Text('Customer Category'),
             onTap: () {
               Navigator.pop(context);
+               Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CustomerCategoryScreen(),
+                      )
+              );
             },
           ),
           ExpansionTile(
