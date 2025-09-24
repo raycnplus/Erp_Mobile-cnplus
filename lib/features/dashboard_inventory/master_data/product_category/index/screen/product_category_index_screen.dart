@@ -5,11 +5,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../../../../../../services/api_base.dart';
-import '../../../../../../shared/widgets/success_bottom_sheet.dart';
+import '../../../../../../../services/api_base.dart';
+import '../../../../../../../shared/widgets/success_bottom_sheet.dart';
 import '../widget/product_category_index_widget.dart';
 import '../models/product_category_index_models.dart';
-// 
 import '../../create/widget/product_category_create_form_widget.dart';
 import '../../show/models/product_category_show_models.dart';
 import '../../show/widget/product_category_show_sheet.dart';
@@ -24,10 +23,7 @@ class ProductCategoryScreen extends StatefulWidget {
 class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
   final GlobalKey<ProductCategoryListWidgetState> _listKey =
       GlobalKey<ProductCategoryListWidgetState>();
-      
-  // ## PERUBAHAN UTAMA ADA DI SINI ##
-  // sistem create diubah menjadi modal bottom sheet -> design konsisten dengan yang type : ahmad 29/09/2025 update 
-  // Fungsi _navigateToCreate diubah menjadi _showCreateModal
+
   Future<void> _showCreateModal() async {
     final result = await showModalBottomSheet<bool>(
       context: context,
@@ -36,8 +32,8 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
       builder: (context) => Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: const ProductCategoryCreateWidget(), // Gunakan widget form yang baru
+          filter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: const ProductCategoryCreateWidget(),
         ),
       ),
     );
@@ -62,7 +58,8 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
       if (decoded['status'] == true && decoded['data'] != null) {
         return ProductCategoryShowModels.fromJson(decoded['data']);
       } else {
-        throw Exception("Gagal memuat data dari API.");
+        // Jika API detail mengembalikan data langsung
+        return ProductCategoryShowModels.fromJson(decoded);
       }
     } else {
       throw Exception("Gagal memuat detail: Status ${response.statusCode}");
@@ -167,7 +164,7 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF679436),
-        onPressed: _showCreateModal, // Panggil fungsi modal
+        onPressed: _showCreateModal,
         elevation: 0,
         tooltip: 'Add Product Category',
         child: const Icon(Icons.add, color: Color(0xFFF0E68C)),

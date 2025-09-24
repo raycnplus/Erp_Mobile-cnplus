@@ -58,6 +58,43 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
     );
   }
 
+  List<ChartData> _processPieData(List<ChartData> originalData, {double thresholdPercent = 3.0}) {
+    if (originalData.isEmpty) return [];
+
+    // Hitung total nilai untuk mendapatkan persentase
+    final double totalValue = originalData.fold(0, (sum, item) => sum + item.value);
+    if (totalValue == 0) return [];
+
+    List<ChartData> mainSlices = [];
+    List<ChartData> otherSlices = [];
+
+    for (var item in originalData) {
+      final percentage = (item.value / totalValue) * 100;
+      if (percentage < thresholdPercent) {
+        otherSlices.add(item);
+      } else {
+        mainSlices.add(item);
+      }
+    }
+
+    // Jika ada slice kecil, gabungkan menjadi "Lainnya"
+    if (otherSlices.isNotEmpty) {
+      final double otherValue = otherSlices.fold(0, (sum, item) => sum + item.value);
+      mainSlices.add(
+        ChartData(
+          label: 'Lainnya',
+          value: otherValue,
+          color: Colors.grey.shade400, // Warna khusus untuk "Lainnya"
+        ),
+      );
+    }
+
+    // Urutkan dari terbesar ke terkecil agar tampilan lebih rapi
+    mainSlices.sort((a, b) => b.value.compareTo(a.value));
+
+    return mainSlices;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,6 +132,8 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
           }
 
           final dashboardData = snapshot.data!;
+          final processedWarehouseData = _processPieData(dashboardData.charts.stockByWarehouse);
+          final processedLocationData = _processPieData(dashboardData.charts.stockByLocation);
 
           return SingleChildScrollView(
             child: Padding(
@@ -185,35 +224,64 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                     child: _selectedStockView == 0
                         ? StockPieChart(
                       key: const ValueKey('warehouse'),
-                      data: dashboardData.charts.stockByWarehouse,
-                      title: "Stok per Gudang",
+                      data: processedWarehouseData,
+                      title: "Stok By warehouse",
                     )
                         : StockPieChart(
                       key: const ValueKey('location'),
-                      data: dashboardData.charts.stockByLocation,
-                      title: "Stok per Lokasi",
+                      data: processedLocationData,
+                      title: "Stok By location",
                     ),
                   ),
                   const SizedBox(height: 8),
+                  Text(
+                    "Tap on a slice to view details",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
                   _buildLegend(
                     _selectedStockView == 0
-                        ? dashboardData.charts.stockByWarehouse
-                        : dashboardData.charts.stockByLocation,
+                        ? processedWarehouseData
+                        : processedLocationData,
                   ),
                   const SizedBox(height: 24),
                   _buildSectionTitle("Top 5 Hand Stock"),
                   const SizedBox(height: 8),
                   TopProductList(topProducts: dashboardData.topProducts),
                   const SizedBox(height: 24),
+
                   _buildSectionTitle("Product Category"),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Tap a bar for more details",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   ProductBarChart(
                     data: dashboardData.charts.productsByCategory,
                   ),
                   const SizedBox(height: 24),
+
                   _buildSectionTitle("Stock Moves"),
-                  const SizedBox(height: 16),
-                  _buildStockMovesToggleButtons(),
+                  const SizedBox(height: 4), // Spasi setelah judul
+                  Text( // Teks petunjuk baru
+                    "Tap a bar for more details",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                  const SizedBox(height: 12), // Spasi sebelum tombol
+                  _buildStockMovesToggleButtons(), // Tombol dengan gaya baru
                   const SizedBox(height: 16),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
@@ -246,53 +314,182 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
   }
 
   Widget _buildStockToggleButtons() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return ToggleButtons(
-          isSelected: [_selectedStockView == 0, _selectedStockView == 1],
-          onPressed: (index) {
-            setState(() {
-              _selectedStockView = index;
-            });
-          },
-          borderRadius: BorderRadius.circular(8),
-          selectedColor: Colors.white,
-          fillColor: Colors.teal,
-          color: Colors.teal,
-          constraints: BoxConstraints.expand(
-            width: constraints.maxWidth / 2 - 2,
-            height: 40,
+    // Definisi warna agar mudah diubah
+    const Color selectedColor = Color(0xFF2D6A4F); // Warna hijau tua yang solid
+    const Color unselectedColor = Colors.white;
+    const Color selectedTextColor = Colors.white;
+    const Color unselectedTextColor = Colors.black54;
+
+    return Container(
+      height: 45,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          // Tombol "By Warehouse"
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedStockView = 0;
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: _selectedStockView == 0 ? selectedColor : unselectedColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: _selectedStockView == 0
+                      ? [
+                    BoxShadow(
+                      color: selectedColor.withOpacity(0.3),
+                      blurRadius: 8,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                      : null,
+                ),
+                child: Text(
+                  "By Warehouse",
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    color: _selectedStockView == 0 ? selectedTextColor : unselectedTextColor,
+                  ),
+                ),
+              ),
+            ),
           ),
-          children: const [Text("By Warehouse"), Text("Per Location")],
-        );
-      },
+          // Tombol "Per Location"
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedStockView = 1;
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: _selectedStockView == 1 ? selectedColor : unselectedColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: _selectedStockView == 1
+                      ? [
+                    BoxShadow(
+                      color: selectedColor.withOpacity(0.3),
+                      blurRadius: 8,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                      : null,
+                ),
+                child: Text(
+                  "By Location",
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    color: _selectedStockView == 1 ? selectedTextColor : unselectedTextColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
+  // === FUNGSI INI TELAH DIMODIFIKASI ===
   Widget _buildStockMovesToggleButtons() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return ToggleButtons(
-          isSelected: [
-            _selectedStockMovesView == 0,
-            _selectedStockMovesView == 1,
-          ],
-          onPressed: (index) {
-            setState(() {
-              _selectedStockMovesView = index;
-            });
-          },
-          borderRadius: BorderRadius.circular(8),
-          selectedColor: Colors.white,
-          fillColor: const Color.fromARGB(255, 101, 196, 126),
-          color: const Color.fromARGB(255, 32, 157, 49),
-          constraints: BoxConstraints.expand(
-            width: constraints.maxWidth / 2 - 2,
-            height: 40,
+    const Color selectedColor = Color(0xFF2D6A4F); // Warna biru sebagai pembeda
+    const Color unselectedColor = Colors.white;
+    const Color selectedTextColor = Colors.white;
+    const Color unselectedTextColor = Colors.black54;
+
+    return Container(
+      height: 45,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          // Tombol "By Product"
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedStockMovesView = 0;
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: _selectedStockMovesView == 0 ? selectedColor : unselectedColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: _selectedStockMovesView == 0
+                      ? [
+                    BoxShadow(
+                      color: selectedColor.withOpacity(0.3),
+                      blurRadius: 8,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                      : null,
+                ),
+                child: Text(
+                  "By Product",
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    color: _selectedStockMovesView == 0 ? selectedTextColor : unselectedTextColor,
+                  ),
+                ),
+              ),
+            ),
           ),
-          children: const [Text("By Product"), Text("By Location")],
-        );
-      },
+          // Tombol "By Location"
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedStockMovesView = 1;
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: _selectedStockMovesView == 1 ? selectedColor : unselectedColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: _selectedStockMovesView == 1
+                      ? [
+                    BoxShadow(
+                      color: selectedColor.withOpacity(0.3),
+                      blurRadius: 8,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                      : null,
+                ),
+                child: Text(
+                  "By Location",
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    color: _selectedStockMovesView == 1 ? selectedTextColor : unselectedTextColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

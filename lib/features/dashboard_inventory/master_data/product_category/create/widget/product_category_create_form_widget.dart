@@ -148,7 +148,7 @@ class _ProductCategoryCreateWidgetState extends State<ProductCategoryCreateWidge
                     onPressed: _isLoading ? null : _createCategory,
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                        : Text("Save", style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600)),
+                        : Text("Save Category", style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600)),
                   ),
                 ),
               ],
