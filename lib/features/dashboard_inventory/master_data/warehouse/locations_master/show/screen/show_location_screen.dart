@@ -4,9 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../widget/show_location_widget.dart';
-import '../models/update_location_models.dart';
-import '../screen/update_location_screen.dart';
-import '../../../../../../services/api_base.dart';
+import '../../update/models/update_location_models.dart';
+import '../../update/screen/update_location_screen.dart';
+import '../../../../../../../services/api_base.dart';
 
 class LocationShowScreen extends StatefulWidget {
   final int idLocation;

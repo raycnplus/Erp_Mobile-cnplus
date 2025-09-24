@@ -1,3 +1,5 @@
+// create_location_models.dart
+
 class LocationCreateModel {
   final String locationName;
   final String locationCode;
@@ -21,22 +23,28 @@ class LocationCreateModel {
     this.description,
   });
 
+  // ▼▼▼ FUNGSI INI TELAH DIPERBAIKI LAGI ▼▼▼
   Map<String, dynamic> toJson() {
     return {
       "location_name": locationName,
       "location_code": locationCode,
       "warehouse_id": warehouseId,
       "parent_location_id": parentLocationId,
-      "length": length,
-      "width": width,
-      "height": height,
-      "volume": volume,
+
+      // PERBAIKAN: Konversi ke integer untuk field dimensi
+      "length": length?.toInt(),
+      "width": width?.toInt(),
+      "height": height?.toInt(),
+
+      // Biarkan volume sebagai string sesuai error sebelumnya
+      "volume": volume?.toString(),
+
       "description": description,
     };
   }
 }
 
-// Model for dropdowns
+// Model for dropdowns (tidak ada perubahan di sini)
 class WarehouseDropdownModel {
   final int idWarehouse;
   final String warehouseName;
@@ -53,9 +61,9 @@ class WarehouseDropdownModel {
         : (rawId is int ? rawId : int.tryParse(rawId.toString()) ?? 0);
     final name =
         json['warehouse_name'] ??
-        json['name'] ??
-        json['warehouse_name_display'] ??
-        '';
+            json['name'] ??
+            json['warehouse_name_display'] ??
+            '';
     return WarehouseDropdownModel(idWarehouse: id, warehouseName: name);
   }
 
