@@ -1,6 +1,9 @@
+import 'package:erp_mobile_cnplus/features/dashboard_inventory/master_data/brand/index/screen/brand_index_screen.dart';
+import 'package:erp_mobile_cnplus/features/dashboard_sales/master%20data/costumer_category/screen/costumer_category_index_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../master data/product_category/screen/product_category_index_screen.dart';
+import '../../master data/product_type/screen/product_type_index_screen.dart';
 
 class SalesDashboardDrawer extends StatefulWidget {
   const SalesDashboardDrawer({super.key});
@@ -101,6 +104,12 @@ class _SalesDashboardDrawerState extends State<SalesDashboardDrawer> {
             title: const Text('Customer Category'),
             onTap: () {
               Navigator.pop(context);
+               Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CustomerCategoryScreen(),
+                      )
+              );
             },
           ),
           ExpansionTile(
@@ -140,6 +149,12 @@ class _SalesDashboardDrawerState extends State<SalesDashboardDrawer> {
             title: const Text('Products Type'),
             onTap: () {
               Navigator.pop(context);
+              Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProductTypeIndexScreen(),
+                      )
+              );
             },
           ),
           ListTile(
@@ -147,6 +162,12 @@ class _SalesDashboardDrawerState extends State<SalesDashboardDrawer> {
             title: const Text('Products Category'),
             onTap: () {
               Navigator.pop(context);
+              Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProductCategoryScreen(),
+                      )
+              );
             },
           ),
           ListTile(
@@ -154,6 +175,12 @@ class _SalesDashboardDrawerState extends State<SalesDashboardDrawer> {
             title: const Text('Brands'),
             onTap: () {
               Navigator.pop(context);
+               Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const BrandIndexScreen(),
+                      )
+              );
             },
           ),
         ],
