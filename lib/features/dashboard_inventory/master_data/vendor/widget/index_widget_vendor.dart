@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../../../services/api_base.dart';
 import '../models/index_models_vendor.dart';
+import '../screen/show_screen_vendor.dart'; 
 
 class VendorIndexWidget extends StatefulWidget {
   const VendorIndexWidget({super.key});
@@ -98,10 +99,15 @@ class _VendorIndexWidgetState extends State<VendorIndexWidget> {
           margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
           child: ListTile(
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Tapped ${vendor.vendorName}")),
+              // ⬇ Navigasi ke halaman detail/show vendor
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => VendorShowScreen(
+                    vendorId: vendor.idVendor.toString(),
+                  ),
+                ),
               );
-              // TODO: arahkan ke detail/edit screen
             },
             title: Text(vendor.vendorName.isNotEmpty ? vendor.vendorName : "-"),
             subtitle: Column(
