@@ -11,10 +11,12 @@ class CustomerCategoryShowWidget extends StatefulWidget {
   const CustomerCategoryShowWidget({super.key, required this.id});
 
   @override
-  State<CustomerCategoryShowWidget> createState() => _CustomerCategoryShowWidgetState();
+  State<CustomerCategoryShowWidget> createState() =>
+      _CustomerCategoryShowWidgetState();
 }
 
-class _CustomerCategoryShowWidgetState extends State<CustomerCategoryShowWidget> {
+class _CustomerCategoryShowWidgetState
+    extends State<CustomerCategoryShowWidget> {
   final storage = const FlutterSecureStorage();
   CustomerCategoryShowModel? category;
   bool isLoading = true;
@@ -62,7 +64,10 @@ class _CustomerCategoryShowWidgetState extends State<CustomerCategoryShowWidget>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(flex: 2, child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold))),
+          Expanded(
+              flex: 2,
+              child: Text(label,
+                  style: const TextStyle(fontWeight: FontWeight.bold))),
           Expanded(flex: 3, child: Text(value.isEmpty ? '-' : value)),
         ],
       ),

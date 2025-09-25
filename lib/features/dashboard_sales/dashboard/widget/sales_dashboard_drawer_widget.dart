@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../master data/product_category/screen/product_category_index_screen.dart';
 import '../../master data/product_type/screen/product_type_index_screen.dart';
+import '../../master data/costumer/screen/costumer_index_screen.dart';
 
 class SalesDashboardDrawer extends StatefulWidget {
   const SalesDashboardDrawer({super.key});
@@ -97,6 +98,13 @@ class _SalesDashboardDrawerState extends State<SalesDashboardDrawer> {
             title: const Text('Customer'),
             onTap: () {
               Navigator.pop(context);
+              Navigator.pop(context);
+               Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CustomerIndexScreen(),
+                      )
+              );
             },
           ),
           ListTile(

@@ -4,9 +4,15 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../../../services/api_base.dart';
 import '../models/costumer_category_index_models.dart';
-import '../screen/costumer_category_show_screen.dart'; 
+import '../screen/costumer_category_show_screen.dart';
+
 class CustomerCategoryIndexWidget extends StatefulWidget {
-  const CustomerCategoryIndexWidget({super.key});
+  final Future<void> Function(int)? onTap; // ✅ optional callback
+
+  const CustomerCategoryIndexWidget({
+    super.key,
+    this.onTap,
+  });
 
   @override
   State<CustomerCategoryIndexWidget> createState() => _CustomerCategoryIndexWidgetState();
@@ -77,17 +83,20 @@ class _CustomerCategoryIndexWidgetState extends State<CustomerCategoryIndexWidge
         setState(() {
           categories.removeWhere((item) => item.idCustomerCategory == id);
         });
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Category deleted successfully")),
         );
       } else {
         debugPrint("Failed to delete: ${response.body}");
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Failed to delete category")),
         );
       }
     } catch (e) {
       debugPrint("Error: $e");
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Error occurred while deleting")),
       );
@@ -146,15 +155,23 @@ class _CustomerCategoryIndexWidgetState extends State<CustomerCategoryIndexWidge
               icon: const Icon(Icons.delete, color: Colors.red),
               onPressed: () => confirmDelete(category.idCustomerCategory),
             ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CustomerCategoryShowScreen(
-                    id: category.idCustomerCategory,
+            onTap: () async {
+              if (widget.onTap != null) {
+                await widget.onTap!(category.idCustomerCategory);
+              } else {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CustomerCategoryShowScreen(
+                      id: category.idCustomerCategory,
+                    ),
                   ),
-                ),
-              );
+                );
+
+                if (result == true) {
+                  fetchCategories(); // refresh setelah update
+                }
+              }
             },
           ),
         );

@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-// Import widget dan screen
 import '../widget/index_location_widget.dart';
 import '../../show/screen/show_location_screen.dart';
 import '../../create/screen/create_location_screen.dart';
 import '../models/index_location_models.dart';
 
-// Widget diubah menjadi StatefulWidget untuk mengelola state refresh dan notifikasi
 class LocationIndexScreen extends StatefulWidget {
   const LocationIndexScreen({super.key});
 
@@ -16,28 +13,25 @@ class LocationIndexScreen extends StatefulWidget {
 }
 
 class _LocationIndexScreenState extends State<LocationIndexScreen> {
-  // Kunci global untuk mengakses fungsi reloadData() di child widget
   final GlobalKey<LocationListWidgetState> _listKey = GlobalKey<LocationListWidgetState>();
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = "";
 
-  // Fungsi untuk mentrigger refresh
   Future<void> _refreshData() async {
-    // Memanggil fungsi reloadData yang ada di dalam LocationListWidgetState
     _listKey.currentState?.reloadData();
   }
 
-  // ▼▼▼ FUNGSI NOTIFIKASI SUKSES CREATE BARU ▼▼▼
   void _showCreateSuccessMessage() {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text("New location has been successfully created."),
-        backgroundColor: const Color(0xFF679436), // Warna hijau
+        backgroundColor: const Color(0xFF679436),
         behavior: SnackBarBehavior.floating,
       ),
     );
   }
 
-  // Fungsi notifikasi untuk hapus data
   void _showDeleteSuccessMessage(String locationName) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -60,8 +54,16 @@ class _LocationIndexScreenState extends State<LocationIndexScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Locations", style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.black87, fontSize: 20)),
-            Text('Swipe an item for actions', style: GoogleFonts.poppins(fontWeight: FontWeight.normal, color: Colors.grey.shade600, fontSize: 12)),
+            Text("Locations",
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                    fontSize: 20)),
+            Text('Swipe an item for actions',
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.normal,
+                    color: Colors.grey.shade600,
+                    fontSize: 12)),
           ],
         ),
         elevation: 0,
@@ -74,28 +76,70 @@ class _LocationIndexScreenState extends State<LocationIndexScreen> {
           ),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _refreshData,
-        child: LocationListWidget(
-          key: _listKey,
-          onTap: (LocationIndexModel location) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LocationShowScreen(idLocation: location.idLocation),
+      body: Column(
+        children: [
+          // 🔎 Search Bar
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() => _searchQuery = value);
+              },
+              decoration: InputDecoration(
+                hintText: "Search locations...",
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() => _searchQuery = "");
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: Colors.grey.shade100,
+                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                  borderSide: BorderSide.none,
+                ),
               ),
-            );
-          },
-          onDeleteSuccess: (String locationName) {
-            _showDeleteSuccessMessage(locationName);
-          },
-        ),
+            ),
+          ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _refreshData,
+              child: LocationListWidget(
+                key: _listKey,
+                searchQuery: _searchQuery, // << dikirim ke child
+                onTap: (LocationIndexModel location) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          LocationShowScreen(idLocation: location.idLocation),
+                    ),
+                  );
+                },
+                onDeleteSuccess: (String locationName) {
+                  _showDeleteSuccessMessage(locationName);
+                },
+              ),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           boxShadow: [
-            BoxShadow(color: const Color(0xFF679436).withAlpha(102), blurRadius: 15, spreadRadius: 2, offset: const Offset(0, 5)),
+            BoxShadow(
+                color: const Color(0xFF679436).withAlpha(102),
+                blurRadius: 15,
+                spreadRadius: 2,
+                offset: const Offset(0, 5)),
           ],
         ),
         child: FloatingActionButton(
@@ -106,10 +150,9 @@ class _LocationIndexScreenState extends State<LocationIndexScreen> {
                 builder: (context) => const LocationCreateScreen(),
               ),
             );
-            // ▼▼▼ LOGIKA DIPERBARUI DI SINI ▼▼▼
             if (result == true) {
               _refreshData();
-              _showCreateSuccessMessage(); // Panggil notifikasi hijau
+              _showCreateSuccessMessage();
             }
           },
           tooltip: 'Add Location',
