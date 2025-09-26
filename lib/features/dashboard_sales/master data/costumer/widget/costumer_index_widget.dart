@@ -4,24 +4,32 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../../../services/api_base.dart';
 import '../models/costumer_index_models.dart';
+import '../screen/costumer_show_screen.dart';
 
 class CustomerIndexWidget extends StatefulWidget {
-  final Function(CustomerIndexModel) onTap;
+  final Function(CustomerIndexModel)? onTap; // nullable, biar opsional
 
-  const CustomerIndexWidget({super.key, required this.onTap});
+  const CustomerIndexWidget({super.key, this.onTap});
 
   @override
-  State<CustomerIndexWidget> createState() => _CustomerIndexWidgetState();
+  State<CustomerIndexWidget> createState() => CustomerIndexWidgetState();
 }
 
-class _CustomerIndexWidgetState extends State<CustomerIndexWidget> {
+class CustomerIndexWidgetState extends State<CustomerIndexWidget> {
   final _storage = const FlutterSecureStorage();
   late Future<List<CustomerIndexModel>> _futureCustomers;
+
+  /// panggil ini dari luar pakai GlobalKey untuk refresh data
+  Future<void> fetchData() async {
+    setState(() {
+      _futureCustomers = fetchCustomers();
+    });
+  }
 
   Future<List<CustomerIndexModel>> fetchCustomers() async {
     final token = await _storage.read(key: 'token');
     final response = await http.get(
-      Uri.parse('${ApiBase.baseUrl}/sales/customer/'), 
+      Uri.parse('${ApiBase.baseUrl}/sales/customer/'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -33,6 +41,30 @@ class _CustomerIndexWidgetState extends State<CustomerIndexWidget> {
       return data.map((json) => CustomerIndexModel.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load customers');
+    }
+  }
+
+  Future<void> deleteCustomer(int id) async {
+    final token = await _storage.read(key: 'token');
+    final response = await http.delete(
+      Uri.parse('${ApiBase.baseUrl}/sales/customer/$id'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Customer deleted successfully")),
+      );
+      await fetchData(); // langsung refresh
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to delete: ${response.body}")),
+      );
     }
   }
 
@@ -67,12 +99,57 @@ class _CustomerIndexWidgetState extends State<CustomerIndexWidget> {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Email: ${customer.email}"),
-                    Text("Phone: ${customer.phoneNo}"),
+                    Text("Email: ${customer.email ?? '-'}"),
+                    Text("Phone: ${customer.phoneNo ?? '-'}"),
                   ],
                 ),
-                trailing: Text(customer.city ?? "-"),
-                onTap: () => widget.onTap(customer),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(customer.city ?? "-"),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      tooltip: "Delete Customer",
+                      onPressed: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text("Confirm Delete"),
+                            content: Text(
+                              "Are you sure you want to delete ${customer.customerName}?",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, false),
+                                child: const Text("Cancel"),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, true),
+                                child: const Text("Delete"),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirm == true) {
+                          await deleteCustomer(customer.idCustomer);
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                onTap: () {
+                  if (widget.onTap != null) {
+                    widget.onTap!(customer);
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            CustomerShowScreen(id: customer.idCustomer),
+                      ),
+                    );
+                  }
+                },
               ),
             );
           },
