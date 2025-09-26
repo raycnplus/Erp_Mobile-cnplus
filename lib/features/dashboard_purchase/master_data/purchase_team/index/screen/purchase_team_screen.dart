@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../widget/purchase_team_list_card.dart';
-import '../../Team_create/screen/purchase_team_screen_create.dart';
-import '../../Team_Show/screen/purchase_team_show_screen.dart';
+import '../../creeate/screen/purchase_team_screen_create.dart';
+import '../../show/screen/purchase_team_show_screen.dart';
 
 class PurchaseTeamScreen extends StatefulWidget {
   const PurchaseTeamScreen({super.key});

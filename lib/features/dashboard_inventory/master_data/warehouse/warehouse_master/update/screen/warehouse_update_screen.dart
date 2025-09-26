@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/warehouse_index_models.dart';
-import '../../warehouse_master/widget/warehouse_update_widget.dart';
+import '../../index/models/warehouse_index_models.dart';
+import '../widget/warehouse_update_widget.dart';
 
 class WarehouseEditScreen extends StatelessWidget {
   final WarehouseIndexModel warehouse;

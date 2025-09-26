@@ -113,7 +113,7 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
     final token = await storage.read(key: 'token');
     final response = await http.get(
       Uri.parse('${ApiBase.baseUrl}/inventory/location'),
-      headers: {"Authorization": "Bearer $token", "Accept": "application/json"}, // Ditambahkan Accept header
+      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
     );
     if (response.statusCode == 200) {
       final List<dynamic> parsed = jsonDecode(response.body);
@@ -174,7 +174,7 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json",
-          "Accept": "application/json", // ▼▼▼ TAMBAHKAN BARIS INI ▼▼▼
+          "Accept": "application/json", 
         },
         body: jsonEncode(model.toJson()),
       );

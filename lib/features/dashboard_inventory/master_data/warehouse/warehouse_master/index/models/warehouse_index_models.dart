@@ -33,19 +33,24 @@ class WarehouseIndexModel {
 
   factory WarehouseIndexModel.fromJson(Map<String, dynamic> json) {
     return WarehouseIndexModel(
-      id: json['id_warehouse'] ?? 0,
+      // Mengonversi ID secara aman. Bisa menerima angka maupun teks dari API.
+      id: int.tryParse(json['id_warehouse'].toString()) ?? 0,
+      
       encryption: json['encryption'] ?? '',
       warehouseName: json['warehouse_name'] ?? '',
       warehouseCode: json['warehouse_code'] ?? '',
       branch: json['branch'],
       address: json['address'],
-      length: json['length'],
-      width: json['width'],
-      height: json['height'],
-      volume: json['volume'],
+      length: int.tryParse(json['length'].toString()), // Juga dibuat aman jika null
+      width: int.tryParse(json['width'].toString()),
+      height: int.tryParse(json['height'].toString()),
+      volume: int.tryParse(json['volume'].toString()),
       description: json['description'],
       createdDate: json['created_date'] ?? '',
-      createdBy: json['created_by'] ?? 0,
+
+      // Mengonversi createdBy secara aman.
+      createdBy: int.tryParse(json['created_by'].toString()) ?? 0,
+
       isDelete: json['is_delete'] ?? 'N',
     );
   }
