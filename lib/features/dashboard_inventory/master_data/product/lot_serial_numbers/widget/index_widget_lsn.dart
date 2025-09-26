@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../../../services/api_base.dart';
@@ -16,6 +17,7 @@ class _LotSerialIndexWidgetState extends State<LotSerialIndexWidget> {
   final storage = const FlutterSecureStorage();
   late Future<List<LotSerialIndexModel>> futureLots;
 
+  // Fungsi untuk mengambil data dari API (tidak ada perubahan)
   Future<List<LotSerialIndexModel>> fetchLots() async {
     final token = await storage.read(key: 'token');
     final response = await http.get(
@@ -27,13 +29,7 @@ class _LotSerialIndexWidgetState extends State<LotSerialIndexWidget> {
 
     if (response.statusCode == 200) {
       final decoded = json.decode(response.body);
-
-      // debug print untuk cek struktur API
-      debugPrint("API Response: $decoded");
-
-      // cek apakah hasil API berupa list atau object dengan key "data"
       final List<dynamic> data = decoded is List ? decoded : decoded['data'];
-
       return data.map((json) => LotSerialIndexModel.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load lot/serial number data');
@@ -54,45 +50,142 @@ class _LotSerialIndexWidgetState extends State<LotSerialIndexWidget> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text("Error: ${snapshot.error}"));
+          return Center(
+              child: Text("Error: ${snapshot.error}",
+                  style: GoogleFonts.poppins()));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text("No data available"));
+          return Center(
+              child: Text("No data available", style: GoogleFonts.poppins()));
         } else {
           final lots = snapshot.data!;
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              columns: const [
-                DataColumn(label: Text("No")),
-                DataColumn(label: Text("Source Type")),
-                DataColumn(label: Text("Lot/Serial Number")),
-                DataColumn(label: Text("Product")),
-                DataColumn(label: Text("Initial Qty")),
-                DataColumn(label: Text("Used Qty")),
-                DataColumn(label: Text("Remaining")),
-                DataColumn(label: Text("Tracking Method")),
-                DataColumn(label: Text("Created Date")),
-              ],
-              rows: List.generate(lots.length, (index) {
-                final lot = lots[index];
-                return DataRow(
-                  cells: [
-                    DataCell(Text("${index + 1}")),
-                    DataCell(Text(lot.sourceType)),
-                    DataCell(Text(lot.lotSerialNumber)),
-                    DataCell(Text(lot.productName)),
-                    DataCell(Text(lot.initialQuantity)),
-                    DataCell(Text(lot.usedQuantity)),
-                    DataCell(Text(lot.remainingQuantity)),
-                    DataCell(Text(lot.trackingMethod)),
-                    DataCell(Text(lot.createdDate)),
-                  ],
-                );
-              }),
-            ),
+          // Menggunakan ListView.builder untuk performa yang lebih baik
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            itemCount: lots.length,
+            itemBuilder: (context, index) {
+              final lot = lots[index];
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                elevation: 2.5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Baris Header Kartu: Nama Produk dan Status
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              lot.productName,
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF333333),
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: lot.status.toLowerCase() == 'active'
+                                  ? Colors.green.shade100
+                                  : Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              lot.status,
+                              style: GoogleFonts.poppins(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: lot.status.toLowerCase() == 'active'
+                                    ? Colors.green.shade800
+                                    : Colors.grey.shade700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Lot/Serial: ${lot.lotSerialNumber}',
+                        style: GoogleFonts.poppins(
+                            color: Colors.black54, fontSize: 13),
+                      ),
+                      const Divider(height: 24, thickness: 0.5),
+
+                      // Bagian Kuantitas
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildQuantityInfo("Initial", lot.initialQuantity),
+                          _buildQuantityInfo("Used", lot.usedQuantity),
+                          _buildQuantityInfo("Remaining", lot.remainingQuantity,
+                              highlight: true),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Informasi Tambahan
+                      _buildInfoRow("Tracking Method", lot.trackingMethod),
+                      _buildInfoRow("Created Date", lot.createdDate),
+                    ],
+                  ),
+                ),
+              );
+            },
           );
         }
       },
+    );
+  }
+
+  // Widget helper untuk menampilkan informasi kuantitas dengan gaya
+  Widget _buildQuantityInfo(String label, String value,
+      {bool highlight = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade600),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: highlight ? FontWeight.bold : FontWeight.w600,
+            color: highlight
+                ? Theme.of(context).primaryColor
+                : Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Widget helper untuk baris informasi tambahan
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label,
+              style: GoogleFonts.poppins(
+                  fontSize: 12, color: Colors.grey.shade700)),
+          Text(value,
+              style: GoogleFonts.poppins(
+                  fontSize: 12, fontWeight: FontWeight.w500)),
+        ],
+      ),
     );
   }
 }

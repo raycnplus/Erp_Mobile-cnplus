@@ -26,6 +26,7 @@ class LotSerialIndexModel {
   });
 
   factory LotSerialIndexModel.fromJson(Map<String, dynamic> json) {
+    // Menggunakan .toString() untuk keamanan jika API mengembalikan angka
     return LotSerialIndexModel(
       idProductLotSerial: json['id_product_lot_serial'] ?? 0,
       sourceType: json['source_type'] ?? '-',
@@ -33,10 +34,10 @@ class LotSerialIndexModel {
       lotSerialNumber: json['lot_serial_number'] ?? '-',
       productName: json['product_name'] ?? '-',
       trackingMethod: json['tracking_method'] ?? '-',
-      initialQuantity: json['initial_quantity'] ?? '-',
-      remainingQuantity: json['remaining_quantity'] ?? '-',
-      status: json['status'] ?? '-',
-      usedQuantity: json['used_quantity'] ?? '-',
+      initialQuantity: json['initial_quantity']?.toString() ?? '0',
+      remainingQuantity: json['remaining_quantity']?.toString() ?? '0',
+      status: json['status'] ?? 'Unknown',
+      usedQuantity: json['used_quantity']?.toString() ?? '0',
       createdDate: json['created_date'] ?? '-',
     );
   }
