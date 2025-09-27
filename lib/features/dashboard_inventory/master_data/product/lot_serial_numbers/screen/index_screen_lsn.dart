@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widget/index_widget_lsn.dart';
-
+//IMPORT CDE
 class LotSerialIndexScreen extends StatelessWidget {
   const LotSerialIndexScreen({super.key});
 

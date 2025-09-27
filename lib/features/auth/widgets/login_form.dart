@@ -49,6 +49,14 @@ class _LoginFormState extends State<LoginForm> {
       color: Colors.black87,
     );
 
+    // Style untuk label yang mengambang (lebih subtle/ringan)
+    final floatingLabelStyle = TextStyle(
+      color: Colors.grey.shade500, // Sedikit lebih terang
+      fontWeight: FontWeight.w400, // Lebih ringan
+      fontSize: 14,
+    );
+    // ---------------------------------------------------
+
     return Card(
       elevation: 4,
       shadowColor: Colors.black.withOpacity(0.1),
@@ -65,10 +73,19 @@ class _LoginFormState extends State<LoginForm> {
                   ? widget.databaseController.text
                   : null,
               items: widget.databaseOptions
-                  .map((db) => DropdownMenuItem(value: db, child: Text(db)))
+                  .map((db) => DropdownMenuItem(
+                value: db,
+                child: Text(
+                  db,
+                  style: inputTextStyle, // Menggunakan style teks input yang baru
+                ),
+              ))
                   .toList(),
+              style: inputTextStyle, // Menggunakan style teks input yang baru
               decoration: InputDecoration(
                 hintText: 'Select Database',
+                labelText: 'Database',
+                floatingLabelBehavior: FloatingLabelBehavior.always,
                 prefixIcon: const Icon(Icons.storage),
                 border: inputBorder,
                 enabledBorder: inputBorder,
@@ -77,6 +94,13 @@ class _LoginFormState extends State<LoginForm> {
                   horizontal: 16,
                   vertical: 16,
                 ),
+                labelStyle: floatingLabelStyle,
+                // Mengubah warna prefix icon saat fokus
+                prefixIconColor: MaterialStateColor.resolveWith((states) =>
+                states.contains(MaterialState.focused) ? themeColor : Colors.grey.shade600,
+                ),
+                isDense: true,
+                focusColor: themeColor,
               ),
               borderRadius: BorderRadius.circular(12),
               onChanged: (value) {
@@ -93,8 +117,11 @@ class _LoginFormState extends State<LoginForm> {
             TextField(
               cursorColor: themeColor,
               controller: widget.emailController,
+              style: inputTextStyle, // Menggunakan style teks input yang baru
               decoration: InputDecoration(
                 hintText: 'Username',
+                labelText: 'Username',
+                floatingLabelBehavior: FloatingLabelBehavior.always,
                 prefixIcon: const Icon(Icons.person),
                 border: inputBorder,
                 enabledBorder: inputBorder,
@@ -103,6 +130,11 @@ class _LoginFormState extends State<LoginForm> {
                   horizontal: 16,
                   vertical: 16,
                 ),
+                // Mengubah warna prefix icon saat fokus
+                prefixIconColor: MaterialStateColor.resolveWith((states) =>
+                states.contains(MaterialState.focused) ? themeColor : Colors.grey.shade600,
+                ),
+                labelStyle: floatingLabelStyle,
               ),
             ),
             const SizedBox(height: 18),
@@ -111,8 +143,11 @@ class _LoginFormState extends State<LoginForm> {
               cursorColor: themeColor,
               controller: widget.passwordController,
               obscureText: _obscurePassword,
+              style: inputTextStyle, // Menggunakan style teks input yang baru
               decoration: InputDecoration(
                 hintText: 'Password',
+                labelText: 'Password',
+                floatingLabelBehavior: FloatingLabelBehavior.always,
                 prefixIcon: const Icon(Icons.lock),
                 border: inputBorder,
                 enabledBorder: inputBorder,
@@ -121,12 +156,16 @@ class _LoginFormState extends State<LoginForm> {
                   horizontal: 16,
                   vertical: 16,
                 ),
+                // Mengubah warna prefix icon saat fokus
+                prefixIconColor: MaterialStateColor.resolveWith((states) =>
+                states.contains(MaterialState.focused) ? themeColor : Colors.grey.shade600,
+                ),
+                labelStyle: floatingLabelStyle,
                 suffixIcon: IconButton(
-                  // ## PERUBAHAN UTAMA ADA DI SINI ##
                   icon: Icon(
-                    _obscurePassword 
-                        ? Icons.visibility_off_outlined // Gunakan versi outline
-                        : Icons.visibility_outlined,   // Gunakan versi outline
+                    _obscurePassword
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
                     color: themeColor,
                   ),
                   onPressed: () {
@@ -138,7 +177,7 @@ class _LoginFormState extends State<LoginForm> {
               ),
             ),
             const SizedBox(height: 28),
-            // Login Button
+            // Login Button (Tidak ada perubahan)
             SizedBox(
               width: double.infinity,
               height: 52,
@@ -171,13 +210,13 @@ class _LoginFormState extends State<LoginForm> {
                     child: widget.isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
-                            'Login',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
+                      'Login',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
                 ),
               ),

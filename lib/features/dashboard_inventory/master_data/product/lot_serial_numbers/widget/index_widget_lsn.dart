@@ -84,8 +84,8 @@ class _LotSerialIndexWidgetState extends State<LotSerialIndexWidget> {
                               lot.productName,
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: const Color(0xFF333333),
+                                fontWeight: FontWeight.w700, // Dibuat lebih tebal
+                                color: Colors.black, // Hitam solid untuk fokus
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -103,7 +103,7 @@ class _LotSerialIndexWidgetState extends State<LotSerialIndexWidget> {
                               lot.status,
                               style: GoogleFonts.poppins(
                                 fontSize: 11,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w600, // Dibuat lebih tebal
                                 color: lot.status.toLowerCase() == 'active'
                                     ? Colors.green.shade800
                                     : Colors.grey.shade700,
@@ -116,7 +116,10 @@ class _LotSerialIndexWidgetState extends State<LotSerialIndexWidget> {
                       Text(
                         'Lot/Serial: ${lot.lotSerialNumber}',
                         style: GoogleFonts.poppins(
-                            color: Colors.black54, fontSize: 13),
+                          color: Colors.blueGrey.shade800, // Warna gelap yang berbeda
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       const Divider(height: 24, thickness: 0.5),
 
@@ -149,6 +152,9 @@ class _LotSerialIndexWidgetState extends State<LotSerialIndexWidget> {
   // Widget helper untuk menampilkan informasi kuantitas dengan gaya
   Widget _buildQuantityInfo(String label, String value,
       {bool highlight = false}) {
+    // Menetapkan warna utama dari tema (biasanya warna biru)
+    final highlightColor = Theme.of(context).primaryColor;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -161,10 +167,10 @@ class _LotSerialIndexWidgetState extends State<LotSerialIndexWidget> {
           value,
           style: GoogleFonts.poppins(
             fontSize: 18,
-            fontWeight: highlight ? FontWeight.bold : FontWeight.w600,
+            fontWeight: highlight ? FontWeight.w900 : FontWeight.w700, // Remaining paling tebal
             color: highlight
-                ? Theme.of(context).primaryColor
-                : Colors.black87,
+                ? highlightColor // Menggunakan Primary Color untuk Remaining
+                : Colors.black87, // Hitam solid untuk Initial & Used
           ),
         ),
       ],
@@ -180,10 +186,10 @@ class _LotSerialIndexWidgetState extends State<LotSerialIndexWidget> {
         children: [
           Text(label,
               style: GoogleFonts.poppins(
-                  fontSize: 12, color: Colors.grey.shade700)),
+                  fontSize: 12, color: Colors.grey.shade600)), // Label lebih terang
           Text(value,
               style: GoogleFonts.poppins(
-                  fontSize: 12, fontWeight: FontWeight.w500)),
+                  fontSize: 12, color: Colors.black87, fontWeight: FontWeight.w600)), // Nilai lebih gelap dan tebal
         ],
       ),
     );
