@@ -27,16 +27,26 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    const Color themeColor = Color(0xff409c9c);
+    const Color themeColor = Color(0xff409c9c); // Warna tema utama
 
+    // --- Definisi Style Input Baru (Lebih Minimalis) ---
+    // Border tipis dan sangat terang saat tidak fokus
     final inputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
+      borderSide: BorderSide(color: Colors.grey.shade200, width: 1.0), // Lebih tipis (1.0) dan lebih terang (shade200)
     );
 
+    // Border sedikit lebih tebal dan menggunakan warna tema saat fokus
     final focusedBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: themeColor, width: 2.0),
+      borderSide: const BorderSide(color: themeColor, width: 1.5), // Sedikit lebih tipis dari sebelumnya (2.0 -> 1.5)
+    );
+
+    // Style untuk teks yang dimasukkan
+    const inputTextStyle = TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w600, // Lebih tebal agar menonjol
+      color: Colors.black87,
     );
 
     return Card(
