@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart'; // Digunakan untuk font modern
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+// --- Imports Screens yang sudah ada ---
 import '../../master_data/product_type/index/screen/product_type_index_screen.dart'; 
 import '../../master_data/product_category/index/screen/product_category_index_screen.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../master_data/brand/index/screen/brand_index_screen.dart';
 import '../../master_data/warehouse/warehouse_master/index/screen/warehouse_index_screen.dart';
 import '../../master_data/warehouse/locations_master/index/screen/index_location_screen.dart';
-import '../../master_data/product/product/screen/index_product_screen.dart';
+import '../../master_data/product/product/index/screen/index_product_screen.dart';
 import '../../master_data/product/lot_serial_numbers/screen/index_screen_lsn.dart';
 import '../../master_data/vendor/screen/index_screen_vendor.dart';
-//TEST
+
 class DashboardDrawer extends StatefulWidget {
   const DashboardDrawer({super.key});
 
@@ -19,6 +22,8 @@ class DashboardDrawer extends StatefulWidget {
 class _DashboardDrawerState extends State<DashboardDrawer> {
   String username = '';
   String email = '';
+  // Mendefinisikan warna aksen utama
+  static const Color accentColor = Color(0xFF2D6A4F); // Warna hijau tua
 
   @override
   void initState() {
@@ -41,189 +46,230 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Image.asset('assets/logo.png', height: 24),
-                const SizedBox(height: 8),
-                const Text("Mobile Erp", style: TextStyle(color: Colors.grey)),
-                const SizedBox(height: 30),
-                const Center(
-                  child: CircleAvatar(
-                    radius: 40,
-                    backgroundImage: AssetImage('assets/avatar.png'),
+      // Latar belakang yang bersih
+      child: Container(
+        color: Colors.white,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            // === 1. DRAWER HEADER (PROFILE) ===
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                // Soft Shadow di bagian bawah header
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 10,
+                    spreadRadius: 1,
+                    offset: const Offset(0, 5),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Center(
-                  child: Text(
-                    username.isNotEmpty ? username : "User",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Logo Placeholder (Ganti dengan logo asli jika ada)
+                  Image.asset('assets/logo.png', height: 28),
+                  const SizedBox(height: 4),
+                  Text("Mobile ERP", style: GoogleFonts.poppins(color: Colors.grey.shade500, fontSize: 13)),
+                  const SizedBox(height: 30),
+                  
+                  // Avatar dengan Soft Shadow
+                  Center(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: accentColor.withOpacity(0.2),
+                            blurRadius: 15,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: const CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage('assets/avatar.png'),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Center(
-                  child: Text(
-                    email.isNotEmpty ? email : "-",
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  const SizedBox(height: 16),
+                  
+                  // Username
+                  Center(
+                    child: Text(
+                      username.isNotEmpty ? username : "User",
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.black87
+                      ),
+                    ),
                   ),
+                  const SizedBox(height: 4),
+                  
+                  // Email
+                  Center(
+                    child: Text(
+                      email.isNotEmpty ? email : "-",
+                      style: GoogleFonts.poppins(color: Colors.grey.shade600, fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // === 2. MASTER DATA TITLE ===
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 8.0),
+              child: Text(
+                'MASTER DATA',
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.w700,
+                  color: accentColor,
+                  fontSize: 13,
+                  letterSpacing: 1.2,
                 ),
-              ],
+              ),
             ),
-          ),
-          const Divider(thickness: 1),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
-            child: Row(
+            
+            // === 3. MENU NAVIGASI (DENGAN IKON & EXPANSION YANG LEBIH BAIK) ===
+            
+            // Product Expansion
+            _buildCustomExpansionTile(
+              title: 'Product',
+              icon: Icons.inventory_2_outlined,
               children: [
-                const Icon(Icons.storage, color: Colors.grey),
-                const SizedBox(width: 8),
-                Text(
-                  'Master Data',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey.shade700,
-                  ),
+                _buildDrawerItem(
+                  title: 'Product',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ProductIndexScreen()));
+                  },
+                  isSubItem: true,
+                ),
+                _buildDrawerItem(
+                  title: 'Serial Number',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const LotSerialIndexScreen()));
+                  },
+                  isSubItem: true,
                 ),
               ],
             ),
-          ),
 
-          ExpansionTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20)),
-            title: const Text('Product'),
-            trailing: const Icon(Icons.keyboard_arrow_down),
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(left: 40.0),
-                child: ListTile(
-                  title: const Text('Product'),
+            // Warehouse Expansion
+            _buildCustomExpansionTile(
+              title: 'Warehouse',
+              icon: Icons.warehouse_outlined,
+              children: [
+                _buildDrawerItem(
+                  title: 'Warehouse',
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ProductIndexScreen(),
-                      ),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const WarehouseIndexScreen()));
                   },
+                  isSubItem: true,
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 40.0),
-                child: ListTile(
-                  title: const Text('Serial Number'),
+                _buildDrawerItem(
+                  title: 'Location',
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LotSerialIndexScreen(),
-                      ),
-                    );
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const LocationIndexScreen()));
                   },
+                  isSubItem: true,
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
 
-          ExpansionTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20)),
-            title: const Text('Warehouse'),
-            trailing: const Icon(Icons.keyboard_arrow_down),
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(left: 40.0),
-                child: ListTile(
-                  title: const Text('Location'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LocationIndexScreen(),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 40.0),
-                child: ListTile(
-                  title: const Text('Warehouse'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const WarehouseIndexScreen(),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            // Single Menu Items
+            _buildDrawerItem(
+              title: 'Products Type',
+              icon: Icons.category_outlined,
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProductTypeIndexScreen()));
+              },
+            ),
+            _buildDrawerItem(
+              title: 'Products Category',
+              icon: Icons.list_alt,
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProductCategoryScreen()));
+              },
+            ),
+            _buildDrawerItem(
+              title: 'Brand',
+              icon: Icons.sell_outlined,
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => BrandIndexScreen()));
+              },
+            ),
+            _buildDrawerItem(
+              title: 'Vendor',
+              icon: Icons.business_outlined,
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const VendorIndexScreen()));
+              },
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  // Custom Widget untuk Item Menu (ListTile)
+  Widget _buildDrawerItem({
+    required String title,
+    IconData? icon,
+    required VoidCallback onTap,
+    bool isSubItem = false,
+  }) {
+    return ListTile(
+      leading: isSubItem
+          ? const SizedBox(width: 24) // Indentasi untuk Sub Item
+          : (icon != null ? Icon(icon, color: Colors.grey.shade600) : null),
+      title: Text(
+        title,
+        style: GoogleFonts.poppins(
+          fontWeight: isSubItem ? FontWeight.normal : FontWeight.w500,
+          fontSize: 14,
+          color: Colors.black87,
+        ),
+      ),
+      onTap: onTap,
+    );
+  }
 
-          ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20)),
-            title: const Text('Products Type'),
-            onTap: () {
-              // <-- Perubahan di sini
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProductTypeIndexScreen(),
-                ),
-              );
-            },
+  // Custom Widget untuk Expansion Tile yang lebih rapi
+  Widget _buildCustomExpansionTile({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        tilePadding: const EdgeInsets.symmetric(horizontal: 16.0),
+        leading: Icon(icon, color: Colors.grey.shade600),
+        title: Text(
+          title,
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+            color: Colors.black87,
           ),
-          ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20)),
-            title: const Text('Products Category'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context, MaterialPageRoute(builder: (context) => const ProductCategoryScreen())
-              );
-            },
-          ),
-          ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20)),
-            title: const Text('Brand'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => BrandIndexScreen())
-              );
-            },
-          ),
-          ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20)),
-            title: const Text('Vendor'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const VendorIndexScreen(),
-                ),
-              );
-            },
-          ),
-        ],
+        ),
+        iconColor: Colors.grey.shade600,
+        collapsedIconColor: Colors.grey.shade400,
+        children: children,
       ),
     );
   }

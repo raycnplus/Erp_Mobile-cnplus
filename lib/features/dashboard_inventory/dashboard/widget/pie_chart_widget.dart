@@ -24,6 +24,7 @@ class _StockPieChartState extends State<StockPieChart> {
 
   // Helper untuk format angka dengan pemisah ribuan
   String _formatNumber(double number) {
+    // Menggunakan NumberFormat dengan locale id_ID
     final formatter = NumberFormat('#,##0', 'id_ID');
     return formatter.format(number);
   }
@@ -34,7 +35,10 @@ class _StockPieChartState extends State<StockPieChart> {
       return const Center(child: Text("No data"));
     }
 
-    final double totalValue = widget.data.fold(0, (sum, item) => sum + item.value);
+    final double totalValue = widget.data.fold(
+      0,
+      (sum, item) => sum + item.value,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
