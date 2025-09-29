@@ -37,10 +37,8 @@ class WarehouseShowModel {
     }
 
     return WarehouseShowModel(
-      // [PERBAIKAN] Menggunakan int.tryParse untuk keamanan tipe data
       idWarehouse: _safeParseInt(json['id_warehouse']) ?? 0,
 
-      // [PERBAIKAN] Memberi nilai default untuk memastikan tidak pernah null
       warehouseName: json['warehouse_name'] as String? ?? '',
       warehouseCode: json['warehouse_code'] as String? ?? '',
 

@@ -40,40 +40,29 @@ class WarehouseShowWidgetInternalState extends State<WarehouseShowWidget> {
         Uri.parse("${ApiBase.baseUrl}/inventory/warehouse/${widget.warehouseId}"),
         headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
       );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> decoded = jsonDecode(response.body);
-        
-        dynamic rawData = decoded;
-        
-        // Coba ambil dari kunci 'data' jika ada
-        if (decoded.containsKey('data')) {
-            rawData = decoded['data'];
-        }
-
-        // --- PERBAIKAN LOGIKA EKSTRAKSI DATA ---
-        Map<String, dynamic>? warehouseData;
-
-        if (rawData is List && rawData.isNotEmpty) {
-            // Kasus 1: Jika data dikirim dalam bentuk list, ambil elemen pertama
-            warehouseData = rawData.first as Map<String, dynamic>;
-        } else if (rawData is Map<String, dynamic>) {
-            // Kasus 2: Jika data dikirim langsung sebagai Map
-            warehouseData = rawData;
-        }
-
-        if (warehouseData == null) {
-            throw Exception("Format data tidak valid atau kosong.");
-        }
-        // --- END OF PERBAIKAN LOGIKA EKSTRAKSI DATA ---
-
-        if (mounted) {
-          setState(() {
-            _warehouse = WarehouseShowModel.fromJson(warehouseData!);
-          });
-        }
-      } else {
-        throw Exception("Gagal memuat detail: Status ${response.statusCode}");
+      // DEBUG: Print response body ke console
+      print('Warehouse Detail Response: ' + response.body);
+      final Map<String, dynamic> decoded = jsonDecode(response.body);
+      // Ambil data dari kunci 'warehouse' jika ada
+      dynamic rawData = decoded;
+      if (decoded.containsKey('warehouse')) {
+        rawData = decoded['warehouse'];
+      } else if (decoded.containsKey('data')) {
+        rawData = decoded['data'];
+      }
+      Map<String, dynamic>? warehouseData;
+      if (rawData is List && rawData.isNotEmpty) {
+        warehouseData = rawData.first as Map<String, dynamic>;
+      } else if (rawData is Map<String, dynamic>) {
+        warehouseData = rawData;
+      }
+      if (warehouseData == null) {
+        throw Exception("Format data tidak valid atau kosong.");
+      }
+      if (mounted) {
+        setState(() {
+          _warehouse = WarehouseShowModel.fromJson(warehouseData!);
+        });
       }
     } catch (e) {
       if (mounted) _error = e.toString().replaceFirst("Exception: ", "");
