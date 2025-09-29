@@ -48,7 +48,9 @@ class _StockPieChartState extends State<StockPieChart> {
             padding: const EdgeInsets.only(bottom: 8),
             child: Text(
               widget.title!,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
         AspectRatio(
@@ -67,13 +69,16 @@ class _StockPieChartState extends State<StockPieChart> {
                           touchedIndex = -1;
                           return;
                         }
-                        touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                        touchedIndex = pieTouchResponse
+                            .touchedSection!
+                            .touchedSectionIndex;
                       });
                     },
                   ),
                   borderData: FlBorderData(show: false),
                   sectionsSpace: 2,
-                  centerSpaceRadius: 60, // Lubang tengah dikecilkan
+                  // Center Radius yang sudah dikecilkan
+                  centerSpaceRadius: 45,
                   sections: showingSections(totalValue),
                 ),
               ),
@@ -85,8 +90,10 @@ class _StockPieChartState extends State<StockPieChart> {
     );
   }
 
+  // === FUNGSI INI TELAH DIOPTIMALKAN FONTNYA ===
   Widget _buildCenterText(double totalValue) {
     if (touchedIndex == -1) {
+      // Tampilan Default (Total Stok)
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -94,22 +101,23 @@ class _StockPieChartState extends State<StockPieChart> {
             "Total Stok",
             style: TextStyle(
               color: Colors.grey.shade600,
-              fontSize: 14, // Dikecilkan dari 16
+              fontSize: 12, // Dikecilkan lagi
               fontWeight: FontWeight.normal,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2), // Spasi dikurangi
           Text(
             _formatNumber(totalValue),
             style: const TextStyle(
               color: Colors.black87,
-              fontSize: 20, // Dikecilkan dari 22
+              fontSize: 16, // Dikecilkan dari 20/18
               fontWeight: FontWeight.bold,
             ),
           ),
         ],
       );
     } else {
+      // Tampilan Saat Disentuh (Detail Slice)
       final touchedData = widget.data[touchedIndex];
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -117,18 +125,20 @@ class _StockPieChartState extends State<StockPieChart> {
           Text(
             touchedData.label,
             textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: touchedData.color,
-              fontSize: 16, // Dikecilkan dari 18
+              fontSize: 13,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
             _formatNumber(touchedData.value),
             style: const TextStyle(
               color: Colors.black87,
-              fontSize: 18, // Dikecilkan dari 20
+              fontSize: 15,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -140,10 +150,10 @@ class _StockPieChartState extends State<StockPieChart> {
   List<PieChartSectionData> showingSections(double totalValue) {
     return List.generate(widget.data.length, (i) {
       final isTouched = i == touchedIndex;
-      // Ukuran font persen dikecilkan
-      final fontSize = isTouched ? 16.0 : 12.0;
-      // Ukuran radius lingkaran dikecilkan
-      final radius = isTouched ? 80.0 : 70.0;
+      final fontSize = isTouched ? 14.0 : 10.0;
+
+      final radius = isTouched ? 65.0 : 55.0;
+
       final data = widget.data[i];
 
       final percentage = totalValue > 0 ? (data.value / totalValue) * 100 : 0;

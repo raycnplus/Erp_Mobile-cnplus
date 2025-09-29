@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui'; // Digunakan untuk ImageFilter
 import '../models/sales_dashboard_model.dart';
 import '../widget/stat_card_widget.dart';
 import '../widget/sales_bar_chart_widget.dart';
@@ -28,20 +29,52 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Definisi warna aksen utama
+    const Color accentColor = Color(0xFF2D6A4F);
+
     return Scaffold(
-      drawer: const SalesDashboardDrawer(),
+      // =========================================================
+      // >>> MODIFIKASI UNTUK EFEK BLUR LEBIH HALUS <<<
+      // =========================================================
+      drawerScrimColor: Colors.black.withOpacity(0.25), // Opasitas lebih rendah
+      drawer: BackdropFilter(
+        // Sigma yang lebih kecil untuk blur yang lebih halus
+        filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5), 
+        child: const SalesDashboardDrawer(),
+      ),
+      // =========================================================
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: GestureDetector(
           onTap: () {
             Navigator.pushNamed(context, AppRoutes.modul);
           },
-          child: Text(
-            'Sales',
-            style: GoogleFonts.montserrat(
-              color: const Color(0xFF2D6A4F),
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: accentColor,
+              border: Border.all(color: accentColor.withOpacity(0.5), width: 1),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.arrow_back_ios_new, 
+                  size: 14, 
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Sales',
+                  style: GoogleFonts.montserrat(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    height: 1.0,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

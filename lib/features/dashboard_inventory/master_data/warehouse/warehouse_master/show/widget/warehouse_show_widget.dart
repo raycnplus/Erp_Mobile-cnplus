@@ -43,11 +43,33 @@ class WarehouseShowWidgetInternalState extends State<WarehouseShowWidget> {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> decoded = jsonDecode(response.body);
-        final warehouseData = decoded.containsKey('data') ? decoded['data'] : decoded;
+        
+        dynamic rawData = decoded;
+        
+        // Coba ambil dari kunci 'data' jika ada
+        if (decoded.containsKey('data')) {
+            rawData = decoded['data'];
+        }
+
+        // --- PERBAIKAN LOGIKA EKSTRAKSI DATA ---
+        Map<String, dynamic>? warehouseData;
+
+        if (rawData is List && rawData.isNotEmpty) {
+            // Kasus 1: Jika data dikirim dalam bentuk list, ambil elemen pertama
+            warehouseData = rawData.first as Map<String, dynamic>;
+        } else if (rawData is Map<String, dynamic>) {
+            // Kasus 2: Jika data dikirim langsung sebagai Map
+            warehouseData = rawData;
+        }
+
+        if (warehouseData == null) {
+            throw Exception("Format data tidak valid atau kosong.");
+        }
+        // --- END OF PERBAIKAN LOGIKA EKSTRAKSI DATA ---
 
         if (mounted) {
           setState(() {
-            _warehouse = WarehouseShowModel.fromJson(warehouseData);
+            _warehouse = WarehouseShowModel.fromJson(warehouseData!);
           });
         }
       } else {
@@ -181,7 +203,8 @@ Widget _buildDetailCard(BuildContext context, {required String title, String? su
 }
 
 Widget _buildDetailRow(String label, String? value, {String? unit}) {
-  if (value == null || value.isEmpty || value == 'null') return const SizedBox.shrink();
+  final displayValue = (value == null || value.isEmpty || value == 'null') ? 'N/A' : value;
+  final displayUnit = (value == null || value.isEmpty || value == 'null') ? '' : (unit ?? '');
 
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -194,7 +217,7 @@ Widget _buildDetailRow(String label, String? value, {String? unit}) {
         ),
         const SizedBox(height: 4),
         Text(
-          unit != null ? '$value $unit' : value,
+          displayUnit.isNotEmpty ? '$displayValue $displayUnit' : displayValue,
           style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87),
         ),
       ],

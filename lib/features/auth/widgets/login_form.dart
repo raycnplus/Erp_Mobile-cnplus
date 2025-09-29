@@ -22,37 +22,84 @@ class LoginForm extends StatefulWidget {
   State<LoginForm> createState() => _LoginFormState();
 }
 
-class _LoginFormState extends State<LoginForm> {
+// Tambahkan SingleTickerProviderStateMixin untuk animasi
+class _LoginFormState extends State<LoginForm> with SingleTickerProviderStateMixin {
   bool _obscurePassword = true;
+
+  // Variabel untuk animasi skala tombol
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inisialisasi AnimationController
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150), // Durasi cepat untuk feedback sentuh
+      lowerBound: 0.95, // Skala minimum saat ditekan
+      upperBound: 1.0,  // Skala normal
+    );
+
+    // Definisi animasi skala
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOut,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  // Fungsi untuk menjalankan/membalikkan animasi saat tombol ditekan/dilepas
+  void _onTapDown(TapDownDetails details) {
+    if (!widget.isLoading) {
+      _animationController.forward();
+    }
+  }
+
+  void _onTapUp(TapUpDetails details) {
+    if (!widget.isLoading) {
+      _animationController.reverse();
+      widget.onLogin(); // Panggil fungsi login setelah dilepas
+    }
+  }
+
+  void _onTapCancel() {
+    if (!widget.isLoading) {
+      _animationController.reverse();
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     const Color themeColor = Color(0xff409c9c); // Warna tema utama
 
-    // --- Definisi Style Input Baru (Lebih Minimalis) ---
-    // Border tipis dan sangat terang saat tidak fokus
     final inputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: Colors.grey.shade200, width: 1.0), // Lebih tipis (1.0) dan lebih terang (shade200)
+      borderSide: BorderSide(color: Colors.grey.shade200, width: 1.0),
     );
 
-    // Border sedikit lebih tebal dan menggunakan warna tema saat fokus
     final focusedBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: themeColor, width: 1.5), // Sedikit lebih tipis dari sebelumnya (2.0 -> 1.5)
+      borderSide: const BorderSide(color: themeColor, width: 1.5),
     );
 
-    // Style untuk teks yang dimasukkan
     const inputTextStyle = TextStyle(
       fontSize: 16,
-      fontWeight: FontWeight.w600, // Lebih tebal agar menonjol
+      fontWeight: FontWeight.w600,
       color: Colors.black87,
     );
 
-    // Style untuk label yang mengambang (lebih subtle/ringan)
     final floatingLabelStyle = TextStyle(
-      color: Colors.grey.shade500, // Sedikit lebih terang
-      fontWeight: FontWeight.w400, // Lebih ringan
+      color: Colors.grey.shade500,
+      fontWeight: FontWeight.w400,
       fontSize: 14,
     );
     // ---------------------------------------------------
@@ -67,7 +114,7 @@ class _LoginFormState extends State<LoginForm> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Dropdown Database
+            // Dropdown Database (Tidak Berubah)
             DropdownButtonFormField<String>(
               value: widget.databaseController.text.isNotEmpty
                   ? widget.databaseController.text
@@ -77,11 +124,11 @@ class _LoginFormState extends State<LoginForm> {
                 value: db,
                 child: Text(
                   db,
-                  style: inputTextStyle, // Menggunakan style teks input yang baru
+                  style: inputTextStyle,
                 ),
               ))
                   .toList(),
-              style: inputTextStyle, // Menggunakan style teks input yang baru
+              style: inputTextStyle,
               decoration: InputDecoration(
                 hintText: 'Select Database',
                 labelText: 'Database',
@@ -95,7 +142,6 @@ class _LoginFormState extends State<LoginForm> {
                   vertical: 16,
                 ),
                 labelStyle: floatingLabelStyle,
-                // Mengubah warna prefix icon saat fokus
                 prefixIconColor: MaterialStateColor.resolveWith((states) =>
                 states.contains(MaterialState.focused) ? themeColor : Colors.grey.shade600,
                 ),
@@ -113,11 +159,11 @@ class _LoginFormState extends State<LoginForm> {
               dropdownColor: Colors.white,
             ),
             const SizedBox(height: 18),
-            // Username
+            // Username (Tidak Berubah)
             TextField(
               cursorColor: themeColor,
               controller: widget.emailController,
-              style: inputTextStyle, // Menggunakan style teks input yang baru
+              style: inputTextStyle,
               decoration: InputDecoration(
                 hintText: 'Username',
                 labelText: 'Username',
@@ -130,7 +176,6 @@ class _LoginFormState extends State<LoginForm> {
                   horizontal: 16,
                   vertical: 16,
                 ),
-                // Mengubah warna prefix icon saat fokus
                 prefixIconColor: MaterialStateColor.resolveWith((states) =>
                 states.contains(MaterialState.focused) ? themeColor : Colors.grey.shade600,
                 ),
@@ -138,12 +183,12 @@ class _LoginFormState extends State<LoginForm> {
               ),
             ),
             const SizedBox(height: 18),
-            // Password
+            // Password (Tidak Berubah)
             TextField(
               cursorColor: themeColor,
               controller: widget.passwordController,
               obscureText: _obscurePassword,
-              style: inputTextStyle, // Menggunakan style teks input yang baru
+              style: inputTextStyle,
               decoration: InputDecoration(
                 hintText: 'Password',
                 labelText: 'Password',
@@ -156,7 +201,6 @@ class _LoginFormState extends State<LoginForm> {
                   horizontal: 16,
                   vertical: 16,
                 ),
-                // Mengubah warna prefix icon saat fokus
                 prefixIconColor: MaterialStateColor.resolveWith((states) =>
                 states.contains(MaterialState.focused) ? themeColor : Colors.grey.shade600,
                 ),
@@ -171,56 +215,74 @@ class _LoginFormState extends State<LoginForm> {
                   onPressed: () {
                     setState(() {
                       _obscurePassword = !_obscurePassword;
-                    });
+                    }
+                    );
                   },
                 ),
               ),
             ),
             const SizedBox(height: 28),
-            // Login Button (Tidak ada perubahan)
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: widget.isLoading ? null : widget.onLogin,
-                style: ElevatedButton.styleFrom(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(26),
-                  ),
-                  padding: EdgeInsets.zero,
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                ),
-                child: Ink(
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        themeColor,
-                        Color(0xff2b6e6e),
-                      ],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
-                    borderRadius: BorderRadius.circular(26),
-                  ),
+            // === START: Login Button dengan Animasi Modern ===
+            ScaleTransition(
+              scale: _scaleAnimation,
+              child: Material(
+                color: Colors.transparent, // Transparan agar gradien terlihat
+                borderRadius: BorderRadius.circular(26),
+                child: InkWell(
+                  onTap: widget.isLoading ? null : () {}, // onTap kosong karena logika dipindah ke onTapUp
+                  onTapDown: _onTapDown, // Menekan ke bawah
+                  onTapUp: _onTapUp,     // Melepas ke atas
+                  onTapCancel: _onTapCancel, // Batal/geser
+                  borderRadius: BorderRadius.circular(26),
+                  splashColor: Colors.white.withOpacity(0.3), // Efek riak putih yang halus
+                  highlightColor: Colors.transparent, // Hindari highlight default
+
                   child: Container(
-                    alignment: Alignment.center,
+                    width: double.infinity,
                     height: 52,
-                    child: widget.isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                      'Login',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      gradient: widget.isLoading ? null : const LinearGradient( // Hilangkan gradien saat loading untuk efek 'disabled'
+                        colors: [
+                          themeColor,
+                          Color(0xff2b6e6e),
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
                       ),
+                      color: widget.isLoading ? Colors.grey.shade400 : null, // Warna solid abu-abu saat loading
+                      borderRadius: BorderRadius.circular(26),
+                      // Tambahkan bayangan untuk efek "mengambang"
+                      boxShadow: widget.isLoading ? null : [
+                        BoxShadow(
+                          color: themeColor.withOpacity(0.4),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
+                    child: widget.isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 3,
+                            ),
+                          )
+                        : const Text(
+                            'Login',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
                   ),
                 ),
               ),
             ),
+            // === END: Login Button dengan Animasi Modern ===
             const SizedBox(height: 24),
           ],
         ),

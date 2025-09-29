@@ -2,6 +2,7 @@ import 'package:erp_mobile_cnplus/features/dashboard_inventory/master_data/brand
 import 'package:erp_mobile_cnplus/features/dashboard_sales/master%20data/costumer_category/screen/costumer_category_index_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_fonts/google_fonts.dart'; // <<< DITAMBAHKAN
 import '../../master data/product_category/screen/product_category_index_screen.dart';
 import '../../master data/product_type/screen/product_type_index_screen.dart';
 import '../../master data/costumer/screen/costumer_index_screen.dart';
@@ -16,6 +17,8 @@ class SalesDashboardDrawer extends StatefulWidget {
 class _SalesDashboardDrawerState extends State<SalesDashboardDrawer> {
   String username = '';
   String email = '';
+  // Mendefinisikan warna aksen utama
+  static const Color accentColor = Color(0xFF2D6A4F); // Warna hijau tua
 
   @override
   void initState() {
@@ -38,160 +41,224 @@ class _SalesDashboardDrawerState extends State<SalesDashboardDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      // Latar belakang yang bersih
+      child: Container(
+        color: Colors.white,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            // === 1. DRAWER HEADER (PROFILE) - Mengikuti Desain Inventory ===
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                // Soft Shadow di bagian bawah header
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 10,
+                    spreadRadius: 1,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Logo Placeholder (Ganti dengan logo asli jika ada)
+                  Image.asset('assets/logo.png', height: 28),
+                  const SizedBox(height: 4),
+                  Text("Mobile ERP", style: GoogleFonts.poppins(color: Colors.grey.shade500, fontSize: 13)),
+                  const SizedBox(height: 30),
+                  
+                  // Avatar dengan Soft Shadow
+                  Center(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: accentColor.withOpacity(0.2),
+                            blurRadius: 15,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: const CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage('assets/avatar.png'),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Username
+                  Center(
+                    child: Text(
+                      username.isNotEmpty ? username : "User",
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.black87
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  
+                  // Email
+                  Center(
+                    child: Text(
+                      email.isNotEmpty ? email : "-",
+                      style: GoogleFonts.poppins(color: Colors.grey.shade600, fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // === 2. MASTER DATA TITLE ===
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 8.0),
+              child: Text(
+                'MASTER DATA',
+                style: GoogleFonts.montserrat(
+                  fontWeight: FontWeight.w700,
+                  color: accentColor,
+                  fontSize: 13,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ),
+            
+            // === 3. MENU NAVIGASI (DENGAN IKON & EXPANSION YANG LEBIH BAIK) ===
+            
+            // Single Menu Items
+            _buildDrawerItem(
+              title: 'Customer',
+              icon: Icons.people_outline,
+              onTap: () {
+                Navigator.pop(context);
+                // Navigator.pop(context); // Baris ini sepertinya tidak diperlukan lagi
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomerIndexScreen()));
+              },
+            ),
+            _buildDrawerItem(
+              title: 'Customer Category',
+              icon: Icons.group_work_outlined,
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const CustomerCategoryScreen()));
+              },
+            ),
+
+            // Product Expansion (Mengikuti struktur Inventory)
+            _buildCustomExpansionTile(
+              title: 'Product',
+              icon: Icons.inventory_2_outlined,
               children: [
-                Image.asset('assets/logo.png', height: 24),
-                const SizedBox(height: 8),
-                const Text("Mobile Erp", style: TextStyle(color: Colors.grey)),
-                const SizedBox(height: 30),
-                const Center(
-                  child: CircleAvatar(
-                    radius: 40,
-                    backgroundImage: AssetImage('assets/avatar.png'),
-                  ),
+                _buildDrawerItem(
+                  title: 'Product',
+                  onTap: () {
+                    Navigator.pop(context);
+                    // Tambahkan navigasi ke Product screen jika ada
+                  },
+                  isSubItem: true,
                 ),
-                const SizedBox(height: 16),
-                Center(
-                  child: Text(
-                    username.isNotEmpty ? username : "User",
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Center(
-                  child: Text(
-                    email.isNotEmpty ? email : "-",
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
+                _buildDrawerItem(
+                  title: 'Serial Number',
+                  onTap: () {
+                    Navigator.pop(context);
+                    // Tambahkan navigasi ke Serial Number screen jika ada
+                  },
+                  isSubItem: true,
                 ),
               ],
             ),
-          ),
-          const Divider(thickness: 1),
-
-          // Master Data Section
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Row(
-              children: [
-                const Icon(Icons.storage, color: Colors.grey),
-                const SizedBox(width: 8),
-                Text(
-                  'Master Data',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
+            
+            _buildDrawerItem(
+              title: 'Sales Team',
+              icon: Icons.group_add_outlined,
+              onTap: () {
+                Navigator.pop(context);
+              },
             ),
-          ),
 
-          ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.grey)),
-            title: const Text('Customer'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-               Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const CustomerIndexScreen(),
-                      )
-              );
-            },
+            _buildDrawerItem(
+              title: 'Products Type',
+              icon: Icons.category_outlined,
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProductTypeIndexScreen()));
+              },
+            ),
+            _buildDrawerItem(
+              title: 'Products Category',
+              icon: Icons.list_alt,
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProductCategoryScreen()));
+              },
+            ),
+            _buildDrawerItem(
+              title: 'Brands',
+              icon: Icons.sell_outlined,
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const BrandIndexScreen()));
+              },
+            ),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  // Custom Widget untuk Item Menu (ListTile) - Dari Inventory
+  Widget _buildDrawerItem({
+    required String title,
+    IconData? icon,
+    required VoidCallback onTap,
+    bool isSubItem = false,
+  }) {
+    return ListTile(
+      leading: isSubItem
+          ? const SizedBox(width: 24) // Indentasi untuk Sub Item
+          : (icon != null ? Icon(icon, color: Colors.grey.shade600) : null),
+      title: Text(
+        title,
+        style: GoogleFonts.poppins(
+          fontWeight: isSubItem ? FontWeight.normal : FontWeight.w500,
+          fontSize: 14,
+          color: Colors.black87,
+        ),
+      ),
+      onTap: onTap,
+    );
+  }
+
+  // Custom Widget untuk Expansion Tile yang lebih rapi - Dari Inventory
+  Widget _buildCustomExpansionTile({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        tilePadding: const EdgeInsets.symmetric(horizontal: 16.0),
+        leading: Icon(icon, color: Colors.grey.shade600),
+        title: Text(
+          title,
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+            color: Colors.black87,
           ),
-          ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.grey)),
-            title: const Text('Customer Category'),
-            onTap: () {
-              Navigator.pop(context);
-               Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const CustomerCategoryScreen(),
-                      )
-              );
-            },
-          ),
-          ExpansionTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.grey)),
-            title: const Text('Product'),
-            trailing: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(left: 40.0),
-                child: ListTile(
-                  title: const Text('Product'),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 40.0),
-                child: ListTile(
-                  title: const Text('Serial Number'),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-            ],
-          ),
-          ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.grey)),
-            title: const Text('Sales Team'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.grey)),
-            title: const Text('Products Type'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ProductTypeIndexScreen(),
-                      )
-              );
-            },
-          ),
-          ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.grey)),
-            title: const Text('Products Category'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ProductCategoryScreen(),
-                      )
-              );
-            },
-          ),
-          ListTile(
-            leading: const Text('•', style: TextStyle(fontSize: 20, color: Colors.grey)),
-            title: const Text('Brands'),
-            onTap: () {
-              Navigator.pop(context);
-               Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const BrandIndexScreen(),
-                      )
-              );
-            },
-          ),
-        ],
+        ),
+        iconColor: Colors.grey.shade600,
+        collapsedIconColor: Colors.grey.shade400,
+        children: children,
       ),
     );
   }

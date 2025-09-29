@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:ui'; // Digunakan untuk ImageFilter (efek blur)
 
 import '../repositories/inventory_repository.dart';
 import '../models/dashboard_data_model.dart';
@@ -97,6 +98,9 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Definisi warna aksen utama
+    const Color accentColor = Color(0xFF2D6A4F); 
+    
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -104,13 +108,32 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
           onTap: () {
             Navigator.pushNamed(context, AppRoutes.modul);
           },
-          child: Text(
-            'Inventory',
-            style: GoogleFonts.montserrat(
-              color: const Color(0xFF2D6A4F),
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              height: 4,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: accentColor,
+              border: Border.all(color: accentColor.withOpacity(0.5), width: 1),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.arrow_back_ios_new, 
+                  size: 14, 
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Inventory',
+                  style: GoogleFonts.montserrat(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    height: 1.0,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -119,7 +142,16 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
         elevation: 1,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      drawer: const DashboardDrawer(),
+      
+     
+      drawerScrimColor: Colors.black.withOpacity(0.25), // Opasitas lebih rendah
+      drawer: BackdropFilter(
+        // Sigma yang lebih kecil untuk blur yang lebih halus
+        filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5), 
+        child: const DashboardDrawer(),
+      ),
+      // =========================================================
+      
       body: FutureBuilder<DashboardData>(
         future: _dashboardFuture,
         builder: (context, snapshot) {
@@ -403,7 +435,6 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
     );
   }
 
-  // === FUNGSI INI TELAH DIMODIFIKASI ===
   Widget _buildStockMovesToggleButtons() {
     const Color selectedColor = Color(0xFF2D6A4F); // Warna biru sebagai pembeda
     const Color unselectedColor = Colors.white;
