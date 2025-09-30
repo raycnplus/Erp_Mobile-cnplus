@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart'; // Digunakan untuk font modern
+import 'package:google_fonts/google_fonts.dart'; //  font
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-// --- Imports Screens yang sudah ada ---
-import '../../master_data/product_type/index/screen/product_type_index_screen.dart'; 
+import '../../master_data/product_type/index/screen/product_type_index_screen.dart';
 import '../../master_data/product_category/index/screen/product_category_index_screen.dart';
 import '../../master_data/brand/index/screen/brand_index_screen.dart';
 import '../../master_data/warehouse/warehouse_master/index/screen/warehouse_index_screen.dart';
@@ -22,7 +21,7 @@ class DashboardDrawer extends StatefulWidget {
 class _DashboardDrawerState extends State<DashboardDrawer> {
   String username = '';
   String email = '';
-  // Mendefinisikan warna aksen utama
+  // warna aksen utama
   static const Color accentColor = Color(0xFF2D6A4F); // Warna hijau tua
 
   @override

@@ -99,8 +99,11 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
   @override
   Widget build(BuildContext context) {
     // Definisi warna aksen utama
-    const Color accentColor = Color(0xFF2D6A4F); 
-    
+    const Color accentColor = Color(0xFF2D6A4F);
+
+    // Warna Khaki untuk Shadow
+    const Color khakiShadow = Color(0xFFF0E68C);
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -114,13 +117,22 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
               borderRadius: BorderRadius.circular(20),
               color: accentColor,
               border: Border.all(color: accentColor.withOpacity(0.5), width: 1),
+              boxShadow: [
+                BoxShadow(
+                  // Menggunakan warna Khaki dengan sedikit transparansi untuk kelembutan
+                  color: khakiShadow.withOpacity(0.4),
+                  blurRadius: 2, // Blur yang cukup besar
+                  spreadRadius: 2,
+                  offset: const Offset(0, 2), // Shadow di bawah
+                ),
+              ],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(
-                  Icons.arrow_back_ios_new, 
-                  size: 14, 
+                  Icons.arrow_back_ios_new,
+                  size: 14,
                   color: Colors.white,
                 ),
                 const SizedBox(width: 4),
@@ -142,16 +154,16 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
         elevation: 1,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      
-     
+
+
       drawerScrimColor: Colors.black.withOpacity(0.25), // Opasitas lebih rendah
       drawer: BackdropFilter(
         // Sigma yang lebih kecil untuk blur yang lebih halus
-        filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5), 
+        filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
         child: const DashboardDrawer(),
       ),
       // =========================================================
-      
+
       body: FutureBuilder<DashboardData>(
         future: _dashboardFuture,
         builder: (context, snapshot) {

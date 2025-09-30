@@ -18,7 +18,7 @@ class StatValue {
   factory StatValue.fromJson(Map<String, dynamic> json) {
     return StatValue(
       value:
-          json['value'] ?? json['data'] ?? json['count'] ?? json['total'] ?? 0,
+      json['value'] ?? json['data'] ?? json['count'] ?? json['total'] ?? 0,
       total: json['total'] ?? json['value'] ?? 0,
       label: json['label'] ?? '',
       unit: json['unit'],
@@ -27,17 +27,19 @@ class StatValue {
   }
 
   static List<ChartData> parseChartDataFromApi(dynamic apiResponse) {
+    // START: PALET WARNA BARU YANG LEBIH CERAH DAN VIBRANT
     final colors = [
-      const Color(0xFF42A5F5), // Blue 400
-      const Color(0xFFFFA726), // Orange 400
-      const Color(0xFF66BB6A), // Green 400
-      const Color(0xFFAB47BC), // Purple 400
-      const Color(0xFFEF5350), // Red 400
-      const Color(0xFF26C6DA), // Cyan 400
-      const Color(0xFFFFCA28), // Amber 400
-      const Color(0xFF8D6E63), // Brown 400
-      const Color(0xFF78909C), // Blue Grey 400
+      const Color(0xFF2D6A4F), // Hijau Utama (Accent Color)
+      const Color(0xFF3498DB), // Biru Vibrant
+      const Color(0xFFF39C12), // Oranye Vibrant
+      const Color(0xFFE74C3C), // Merah/Coral
+      const Color(0xFF9B59B6), // Ungu Vibrant
+      const Color(0xFF1ABC9C), // Teal/Aqua
+      const Color(0xFF7F8C8D), // Abu-abu Netral
+      const Color(0xFF1E8449), // Hijau Tua
+      const Color(0xFF2C3E50), // Midnight Blue
     ];
+    // END: PALET WARNA BARU
 
     List<dynamic> dataList = [];
 
@@ -46,10 +48,10 @@ class StatValue {
     } else if (apiResponse is Map<String, dynamic>) {
       dataList =
           apiResponse['data'] ??
-          apiResponse['items'] ??
-          apiResponse['results'] ??
-          apiResponse['chart_data'] ??
-          [apiResponse];
+              apiResponse['items'] ??
+              apiResponse['results'] ??
+              apiResponse['chart_data'] ??
+              [apiResponse];
     }
 
     return List<ChartData>.generate(dataList.length, (i) {
@@ -57,7 +59,7 @@ class StatValue {
 
       return ChartData(
         label:
-            item['label'] ??
+        item['label'] ??
             item['name'] ??
             item['category'] ??
             'Item ${i + 1}',
