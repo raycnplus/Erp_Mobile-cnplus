@@ -53,37 +53,49 @@ class CustomerCreateModel {
 
   factory CustomerCreateModel.fromJson(Map<String, dynamic> json) {
     return CustomerCreateModel(
-      idCustomer: json["id_customer"],
-      encryption: json["encryption"],
-      customerType: json["customer_type"],
-      customerName: json["customer_name"],
-      customerCode: json["customer_code"],
-      customerCategory: json["customer_category"],
-      phoneNo: json["phone_no"],
-      email: json["email"],
-      country: json["country"],
-      province: json["province"],
-      city: json["city"],
-      address: json["address"],
-      postalCode: json["postal_code"],
-      website: json["website"],
-      picName: json["pic_name"],
-      picPhone: json["pic_phone"],
-      picEmail: json["pic_email"],
-      isDelete: json["is_delete"],
-      createdBy: json["created_by"],
-      createdDate: json["created_date"],
-      updatedBy: json["updated_by"],
-      updatedDate: json["updated_date"],
-      deletedBy: json["deleted_by"],
-      deletedDate: json["deleted_date"],
+      idCustomer: json["id_customer"] is int
+          ? json["id_customer"]
+          : int.tryParse(json["id_customer"].toString()) ?? 0,
+      encryption: json["encryption"]?.toString() ?? "",
+      customerType: json["customer_type"]?.toString() ?? "",
+      customerName: json["customer_name"]?.toString() ?? "",
+      customerCode: json["customer_code"]?.toString() ?? "",
+      customerCategory: json["customer_category"] is int
+          ? json["customer_category"]
+          : int.tryParse(json["customer_category"].toString()) ?? 0,
+      phoneNo: json["phone_no"]?.toString(),
+      email: json["email"]?.toString(),
+      country: json["country"]?.toString(),
+      province: json["province"]?.toString(),
+      city: json["city"]?.toString(),
+      address: json["address"]?.toString(),
+      postalCode: json["postal_code"]?.toString(),
+      website: json["website"]?.toString(),
+      picName: json["pic_name"]?.toString(),
+      picPhone: json["pic_phone"]?.toString(),
+      picEmail: json["pic_email"]?.toString(),
+      isDelete: json["is_delete"]?.toString() ?? "0",
+      createdBy: json["created_by"] is int
+          ? json["created_by"]
+          : int.tryParse(json["created_by"].toString()) ?? 0,
+      createdDate: json["created_date"]?.toString() ?? "",
+      updatedBy: json["updated_by"] is int
+          ? json["updated_by"]
+          : int.tryParse(json["updated_by"].toString()) ?? 0,
+      updatedDate: json["updated_date"]?.toString() ?? "",
+      deletedBy: json["deleted_by"] == null
+          ? null
+          : (json["deleted_by"] is int
+              ? json["deleted_by"]
+              : int.tryParse(json["deleted_by"].toString())),
+      deletedDate: json["deleted_date"]?.toString(),
     );
   }
 }
 
 // ▼▼▼ Dropdown Models ▼▼▼
 
-// Dropdown untuk Customer Category (API)
+// Dropdown untuk Customer Category (dari API)
 class CustomerCategoryDropdownModel {
   final int idCategory;
   final String categoryName;
@@ -100,12 +112,14 @@ class CustomerCategoryDropdownModel {
         ? 0
         : (rawId is int ? rawId : int.tryParse(rawId.toString()) ?? 0);
 
-    final name =
-        json['customer_category_name'] ?? json['name'] ?? json['category'] ?? '';
+    final name = json['customer_category_name'] ??
+        json['name'] ??
+        json['category'] ??
+        "-";
 
     return CustomerCategoryDropdownModel(
       idCategory: id,
-      categoryName: name,
+      categoryName: name.toString(),
     );
   }
 
