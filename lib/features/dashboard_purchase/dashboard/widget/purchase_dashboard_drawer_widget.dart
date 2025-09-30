@@ -1,13 +1,16 @@
+import 'package:erp_mobile_cnplus/features/dashboard_inventory/master_data/brand/index/screen/brand_index_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../master_data/purchase_team/index/screen/purchase_team_screen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../master_data/product_category/screen/product_category_index_screen.dart';
 
 class PurchaseDashboardDrawer extends StatefulWidget {
   const PurchaseDashboardDrawer({super.key});
 
   @override
-  State<PurchaseDashboardDrawer> createState() => _PurchaseDashboardDrawerState();
+  State<PurchaseDashboardDrawer> createState() =>
+      _PurchaseDashboardDrawerState();
 }
 
 class _PurchaseDashboardDrawerState extends State<PurchaseDashboardDrawer> {
@@ -58,7 +61,10 @@ class _PurchaseDashboardDrawerState extends State<PurchaseDashboardDrawer> {
                 Center(
                   child: Text(
                     username.isNotEmpty ? username : "User",
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -75,7 +81,10 @@ class _PurchaseDashboardDrawerState extends State<PurchaseDashboardDrawer> {
 
           // Master Data Section
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: Row(
               children: [
                 const Icon(Icons.storage, color: Colors.grey),
@@ -93,20 +102,20 @@ class _PurchaseDashboardDrawerState extends State<PurchaseDashboardDrawer> {
 
           // Purchase Team
           ListTile(
-  leading: const Text('•', style: TextStyle(fontSize: 20)),
-  title: const Text('Purchase Team'),
-  onTap: () {
-    Navigator.pop(context); // Tutup drawer dulu
-    Future.delayed(const Duration(milliseconds: 200), () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const PurchaseTeamScreen(),
-        ),
-      );
-    });
-  },
-),
+            leading: const Text('•', style: TextStyle(fontSize: 20)),
+            title: const Text('Purchase Team'),
+            onTap: () {
+              Navigator.pop(context); // Tutup drawer dulu
+              Future.delayed(const Duration(milliseconds: 200), () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PurchaseTeamScreen(),
+                  ),
+                );
+              });
+            },
+          ),
 
           // Product Expandable
           ExpansionTile(
@@ -132,6 +141,21 @@ class _PurchaseDashboardDrawerState extends State<PurchaseDashboardDrawer> {
             title: const Text('Products Type'),
             onTap: () {
               Navigator.pop(context);
+              // Navigator.push(context, MaterialPageRoute(builder: (context) => const Product()));
+            },
+          ),
+
+          ListTile(
+            leading: const Text('•', style: TextStyle(fontSize: 20)),
+            title: const Text('Products Type'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProductCategoryScreen(),
+                ),
+              );
             },
           ),
 
@@ -141,6 +165,12 @@ class _PurchaseDashboardDrawerState extends State<PurchaseDashboardDrawer> {
             title: const Text('Brand'),
             onTap: () {
               Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BrandIndexScreen(),
+                ),
+              );
             },
           ),
 

@@ -38,7 +38,7 @@ class _ProductTypeIndexScreenState extends State<ProductTypeIndexScreen> {
       throw Exception("Token tidak ditemukan.");
     }
 
-    final url = Uri.parse("${ApiBase.baseUrl}/sales/product-type/$id");
+    final url = Uri.parse("${ApiBase.baseUrl}/purchase/product-type/$id");
     final response = await http.get(
       url,
       headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
