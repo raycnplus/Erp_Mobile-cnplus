@@ -7,9 +7,7 @@ class CustomerCreateScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Create Customer"),
-      ),
+      appBar: AppBar(title: const Text("Create Customer")),
       body: const CustomerCreateWidget(),
     );
   }
