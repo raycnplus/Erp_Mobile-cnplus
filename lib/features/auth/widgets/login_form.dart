@@ -22,26 +22,23 @@ class LoginForm extends StatefulWidget {
   State<LoginForm> createState() => _LoginFormState();
 }
 
-// Tambahkan SingleTickerProviderStateMixin untuk animasi
 class _LoginFormState extends State<LoginForm> with SingleTickerProviderStateMixin {
   bool _obscurePassword = true;
 
-  // Variabel untuk animasi skala tombol
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    // Inisialisasi AnimationController
+    // Inisialisasi AnimationController untuk feedback tombol
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 150), // Durasi cepat untuk feedback sentuh
-      lowerBound: 0.95, // Skala minimum saat ditekan
-      upperBound: 1.0,  // Skala normal
+      duration: const Duration(milliseconds: 150),
+      lowerBound: 0.95,
+      upperBound: 1.0,
     );
 
-    // Definisi animasi skala
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
       CurvedAnimation(
         parent: _animationController,
@@ -81,14 +78,18 @@ class _LoginFormState extends State<LoginForm> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     const Color themeColor = Color(0xff409c9c); // Warna tema utama
 
+    // --- Definisi Gaya Input Field ---
+
+    // Border yang lebih halus saat normal
     final inputBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: BorderSide(color: Colors.grey.shade200, width: 1.0),
+      borderSide: BorderSide(color: Colors.grey.shade300, width: 1.0),
     );
 
+    // Border saat fokus (garis lebih tebal dan berwarna tema)
     final focusedBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(14),
-      borderSide: const BorderSide(color: themeColor, width: 1.5),
+      borderSide: const BorderSide(color: themeColor, width: 2.0),
     );
 
     const inputTextStyle = TextStyle(
@@ -97,16 +98,24 @@ class _LoginFormState extends State<LoginForm> with SingleTickerProviderStateMix
       color: Colors.black87,
     );
 
-    final floatingLabelStyle = TextStyle(
-      color: Colors.grey.shade500,
-      fontWeight: FontWeight.w400,
-      fontSize: 14,
+    // Gaya untuk label saat berada di dalam field (sebagai placeholder)
+    final labelStyleInField = TextStyle(
+      color: Colors.grey.shade600,
+      fontWeight: FontWeight.w500,
+      fontSize: 16, // Ukuran teks standar
     );
-    // ---------------------------------------------------
+
+    // Gaya untuk label saat mengambang di atas (fokus/terisi)
+    const floatingLabelFocusStyle = TextStyle(
+      color: themeColor,
+      fontWeight: FontWeight.w600,
+      fontSize: 14, // Ukuran lebih kecil saat mengambang
+    );
+
 
     return Card(
-      elevation: 4,
-      shadowColor: Colors.black.withOpacity(0.1),
+      elevation: 8,
+      shadowColor: Colors.black.withOpacity(0.15),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       color: Colors.white,
       child: Padding(
@@ -114,7 +123,7 @@ class _LoginFormState extends State<LoginForm> with SingleTickerProviderStateMix
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Dropdown Database (Tidak Berubah)
+            // Dropdown Database
             DropdownButtonFormField<String>(
               value: widget.databaseController.text.isNotEmpty
                   ? widget.databaseController.text
@@ -130,9 +139,9 @@ class _LoginFormState extends State<LoginForm> with SingleTickerProviderStateMix
                   .toList(),
               style: inputTextStyle,
               decoration: InputDecoration(
-                hintText: 'Select Database',
                 labelText: 'Database',
-                floatingLabelBehavior: FloatingLabelBehavior.always,
+                // Perilaku floating label standar
+                floatingLabelBehavior: FloatingLabelBehavior.auto,
                 prefixIcon: const Icon(Icons.storage),
                 border: inputBorder,
                 enabledBorder: inputBorder,
@@ -141,7 +150,8 @@ class _LoginFormState extends State<LoginForm> with SingleTickerProviderStateMix
                   horizontal: 16,
                   vertical: 16,
                 ),
-                labelStyle: floatingLabelStyle,
+                labelStyle: labelStyleInField,
+                floatingLabelStyle: floatingLabelFocusStyle,
                 prefixIconColor: MaterialStateColor.resolveWith((states) =>
                 states.contains(MaterialState.focused) ? themeColor : Colors.grey.shade600,
                 ),
@@ -159,15 +169,15 @@ class _LoginFormState extends State<LoginForm> with SingleTickerProviderStateMix
               dropdownColor: Colors.white,
             ),
             const SizedBox(height: 18),
-            // Username (Tidak Berubah)
+            // Username Input Field (Stylish + Floating Label Standard)
             TextField(
               cursorColor: themeColor,
               controller: widget.emailController,
               style: inputTextStyle,
               decoration: InputDecoration(
-                hintText: 'Username',
                 labelText: 'Username',
-                floatingLabelBehavior: FloatingLabelBehavior.always,
+                // Mengatur label agar beranimasi naik saat fokus/terisi
+                floatingLabelBehavior: FloatingLabelBehavior.auto,
                 prefixIcon: const Icon(Icons.person),
                 border: inputBorder,
                 enabledBorder: inputBorder,
@@ -176,23 +186,24 @@ class _LoginFormState extends State<LoginForm> with SingleTickerProviderStateMix
                   horizontal: 16,
                   vertical: 16,
                 ),
+                labelStyle: labelStyleInField,
+                floatingLabelStyle: floatingLabelFocusStyle,
                 prefixIconColor: MaterialStateColor.resolveWith((states) =>
                 states.contains(MaterialState.focused) ? themeColor : Colors.grey.shade600,
                 ),
-                labelStyle: floatingLabelStyle,
               ),
             ),
             const SizedBox(height: 18),
-            // Password (Tidak Berubah)
+            // Password Input Field (Stylish + Floating Label Standard)
             TextField(
               cursorColor: themeColor,
               controller: widget.passwordController,
               obscureText: _obscurePassword,
               style: inputTextStyle,
               decoration: InputDecoration(
-                hintText: 'Password',
                 labelText: 'Password',
-                floatingLabelBehavior: FloatingLabelBehavior.always,
+                // Mengatur label agar beranimasi naik saat fokus/terisi
+                floatingLabelBehavior: FloatingLabelBehavior.auto,
                 prefixIcon: const Icon(Icons.lock),
                 border: inputBorder,
                 enabledBorder: inputBorder,
@@ -201,10 +212,12 @@ class _LoginFormState extends State<LoginForm> with SingleTickerProviderStateMix
                   horizontal: 16,
                   vertical: 16,
                 ),
+                labelStyle: labelStyleInField,
+                floatingLabelStyle: floatingLabelFocusStyle,
+
                 prefixIconColor: MaterialStateColor.resolveWith((states) =>
                 states.contains(MaterialState.focused) ? themeColor : Colors.grey.shade600,
                 ),
-                labelStyle: floatingLabelStyle,
                 suffixIcon: IconButton(
                   icon: Icon(
                     _obscurePassword
@@ -222,27 +235,27 @@ class _LoginFormState extends State<LoginForm> with SingleTickerProviderStateMix
               ),
             ),
             const SizedBox(height: 28),
-            // === START: Login Button dengan Animasi Modern ===
+            // === Login Button dengan Animasi Modern ===
             ScaleTransition(
               scale: _scaleAnimation,
               child: Material(
-                color: Colors.transparent, // Transparan agar gradien terlihat
+                color: Colors.transparent,
                 borderRadius: BorderRadius.circular(26),
                 child: InkWell(
-                  onTap: widget.isLoading ? null : () {}, // onTap kosong karena logika dipindah ke onTapUp
-                  onTapDown: _onTapDown, // Menekan ke bawah
-                  onTapUp: _onTapUp,     // Melepas ke atas
-                  onTapCancel: _onTapCancel, // Batal/geser
+                  onTap: widget.isLoading ? null : () {},
+                  onTapDown: _onTapDown,
+                  onTapUp: _onTapUp,
+                  onTapCancel: _onTapCancel,
                   borderRadius: BorderRadius.circular(26),
-                  splashColor: Colors.white.withOpacity(0.3), // Efek riak putih yang halus
-                  highlightColor: Colors.transparent, // Hindari highlight default
+                  splashColor: Colors.white.withOpacity(0.3),
+                  highlightColor: Colors.transparent,
 
                   child: Container(
                     width: double.infinity,
                     height: 52,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      gradient: widget.isLoading ? null : const LinearGradient( // Hilangkan gradien saat loading untuk efek 'disabled'
+                      gradient: widget.isLoading ? null : const LinearGradient(
                         colors: [
                           themeColor,
                           Color(0xff2b6e6e),
@@ -250,9 +263,8 @@ class _LoginFormState extends State<LoginForm> with SingleTickerProviderStateMix
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
-                      color: widget.isLoading ? Colors.grey.shade400 : null, // Warna solid abu-abu saat loading
+                      color: widget.isLoading ? Colors.grey.shade400 : null,
                       borderRadius: BorderRadius.circular(26),
-                      // Tambahkan bayangan untuk efek "mengambang"
                       boxShadow: widget.isLoading ? null : [
                         BoxShadow(
                           color: themeColor.withOpacity(0.4),
@@ -263,21 +275,21 @@ class _LoginFormState extends State<LoginForm> with SingleTickerProviderStateMix
                     ),
                     child: widget.isLoading
                         ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 3,
-                            ),
-                          )
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 3,
+                      ),
+                    )
                         : const Text(
-                            'Login',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
+                      'Login',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
                 ),
               ),
