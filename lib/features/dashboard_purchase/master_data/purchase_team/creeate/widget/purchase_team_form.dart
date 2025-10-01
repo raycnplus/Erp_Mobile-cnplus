@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../services/api_base.dart';
-import '../models/purchase_team_create_model.dart';
 import '../models/karyawan_dropdown_model.dart';
+import '../models/purchase_team_create_model.dart';
 
 class PurchaseTeamForm extends StatefulWidget {
   const PurchaseTeamForm({super.key});
@@ -18,7 +19,11 @@ class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
   final _teamNameController = TextEditingController();
   final _descController = TextEditingController();
 
-  final String _purchaseTeamUrl = "${ApiBase.baseUrl}/purchase/purchase-team";
+  // URL BARU untuk mendapatkan data yang diperlukan (termasuk Karyawan) untuk form CREATE
+  final String _createDataUrl = "${ApiBase.baseUrl}/master/karyawans";
+  // URL untuk membuat team
+  final String _storePurchaseTeamUrl = "${ApiBase.baseUrl}/purchase/purchase-team/store";
+
 
   bool _isLoading = false;
   bool _loadingKaryawan = true;
@@ -30,7 +35,6 @@ class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
   @override
   void initState() {
     super.initState();
-    print('[DEBUG] PurchaseTeamForm initState, mulai load karyawan');
     _loadKaryawanList();
   }
 
@@ -39,22 +43,23 @@ class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
     return await storage.read(key: 'token');
   }
 
+  // LOGIKA BARU: Menangani respons API yang bisa berupa Map atau List.
   Future<void> _loadKaryawanList() async {
     setState(() => _loadingKaryawan = true);
 
     final token = await _getToken();
     if (token == null || !mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Token tidak ditemukan, silakan login ulang."),
-        ),
-      );
+      if(mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Token tidak ditemukan, silakan login ulang.")),
+        );
+      }
       setState(() => _loadingKaryawan = false);
       return;
     }
 
     try {
-      final url = Uri.parse(_purchaseTeamUrl);
+      final url = Uri.parse(_createDataUrl);
       final response = await http.get(
         url,
         headers: {
@@ -63,41 +68,31 @@ class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
         },
       );
 
-      print('Response Body from _loadKaryawanList: ${response.body}');
-
-
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final dynamic decoded = jsonDecode(response.body);
 
-        // Kumpulkan semua karyawan unik dari team_leader dan members
-        final seen = <int>{};
-        final result = <KaryawanDropdownModel>[];
+        List<dynamic> karyawanData = [];
 
-        for (final team in data) {
-          // team_leader
-          final leader = team['team_leader'];
-          if (leader != null) {
-            final int? id = leader['id_karyawan'] as int?;
-            final String name = (leader['nama_lengkap'] ?? '') as String;
-            if (id != null && !seen.contains(id)) {
-              seen.add(id);
-              result.add(KaryawanDropdownModel(id: id, fullName: name));
-            }
+        if (decoded is Map<String, dynamic>) {
+          // KASUS 1: Respons adalah Map ({status: true, data: [...]})
+          // Kita coba ambil dari key 'data', 'karyawan', atau root Map itu sendiri jika berupa List.
+          final dynamic rawData = decoded['data'] ?? decoded['karyawan'] ?? decoded;
+          if (rawData is List) {
+            karyawanData = rawData;
+          } else if (rawData is Map<String, dynamic>) {
+            // Jika 'data' adalah Map, kita asumsikan karyawan ada di situ
+            karyawanData = rawData['karyawan'] ?? [];
           }
-          // members
-          final List<dynamic> members = (team['members'] as List<dynamic>?) ?? [];
-          for (final m in members) {
-            final k = m['karyawan'];
-            if (k != null) {
-              final int? id = k['id_karyawan'] as int?;
-              final String name = (k['nama_lengkap'] ?? '') as String;
-              if (id != null && !seen.contains(id)) {
-                seen.add(id);
-                result.add(KaryawanDropdownModel(id: id, fullName: name));
-              }
-            }
-          }
+
+        } else if (decoded is List) {
+          // KASUS 2: Respons adalah List (Inilah yang menyebabkan error sebelumnya)
+          karyawanData = decoded;
+        } else {
+          throw Exception("Format respons API tidak valid.");
         }
+
+        // Parsing ke KaryawanDropdownModel
+        final result = karyawanData.map((e) => KaryawanDropdownModel.fromJson(e)).toList();
 
         result.sort((a, b) => a.fullName.toLowerCase().compareTo(b.fullName.toLowerCase()));
 
@@ -109,17 +104,21 @@ class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$e")));
+      // Memastikan widget masih mounted sebelum menampilkan SnackBar
+      if (ScaffoldMessenger.of(context).mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error memuat karyawan: ${e.toString()}")));
+      }
     } finally {
       if (mounted) setState(() => _loadingKaryawan = false);
     }
   }
 
+
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate() || _selectedLeader == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Harap lengkapi semua data yang wajib diisi."),
+          content: Text("Harap lengkapi Team Leader dan Team Name."),
         ),
       );
       return;
@@ -129,35 +128,34 @@ class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
 
     final token = await _getToken();
     if (token == null || !mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Token tidak ditemukan, silakan login ulang."),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Token tidak ditemukan, silakan login ulang.")),
+        );
+      }
       setState(() => _isLoading = false);
       return;
     }
 
-    // Members: hanya id karyawan, tidak boleh duplikat, tidak boleh sama dengan leader
-    final cleanedMembers = _selectedMembers.where((m) => m.id != _selectedLeader!.id).toList();
-    final memberIds = <int>{};
-    final membersBody = <Map<String, dynamic>>[];
-    for (final m in cleanedMembers) {
-      if (!memberIds.contains(m.id)) {
-        memberIds.add(m.id);
-        membersBody.add({"id_karyawan": m.id});
-      }
-    }
+    // Members: hanya id karyawan yang tidak duplikat dan BUKAN leader
+    final memberIds = _selectedMembers
+        .where((m) => m.id != _selectedLeader!.id)
+        .map((m) => m.id)
+        .toSet()
+        .toList();
 
-    final body = {
-      "purchase_team_name": _teamNameController.text.trim(),
-      "team_leader": _selectedLeader!.id,
-      "description": _descController.text.trim(),
-      "members": membersBody,
-    };
+    // Menggunakan PurchaseTeamCreateModel untuk membuat JSON body
+    final purchaseTeam = PurchaseTeamCreateModel(
+      teamName: _teamNameController.text.trim(),
+      teamLeaderId: _selectedLeader!.id,
+      description: _descController.text.trim(),
+      memberIds: memberIds,
+    );
+
+    final body = purchaseTeam.toJson();
 
     try {
-      final url = Uri.parse(_purchaseTeamUrl);
+      final url = Uri.parse(_storePurchaseTeamUrl);
       final response = await http.post(
         url,
         headers: {
@@ -170,24 +168,24 @@ class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Purchase Team berhasil dibuat")),
+          const SnackBar(content: Text("Purchase Team berhasil dibuat!")),
         );
         Navigator.pop(context, true);
       } else {
         String errorMsg = "Gagal membuat team (${response.statusCode})";
         try {
           final errorBody = jsonDecode(response.body);
-          errorMsg = errorBody['message'] ?? response.body;
+          errorMsg = errorBody['message'] ?? errorBody['error'] ?? response.body;
         } catch (_) {
-          errorMsg = response.body;
+          errorMsg = "Server error: ${response.statusCode}";
         }
         throw Exception(errorMsg);
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+      if (ScaffoldMessenger.of(context).mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -200,121 +198,175 @@ class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
     super.dispose();
   }
 
+  // Custom Widget untuk status error/retry
+  Widget _buildErrorState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 40, color: Colors.redAccent),
+          const SizedBox(height: 10),
+          Text(
+            "Gagal memuat data karyawan.",
+            style: GoogleFonts.poppins(fontSize: 16, color: Colors.black87),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _loadKaryawanList,
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            label: Text(
+              "Coba Lagi",
+              style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF2D6A4F), // Warna aksen
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    final isLoadingUi = _loadingKaryawan;
+    if (_loadingKaryawan) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-    return Scaffold(
-      body: isLoadingUi
-          ? const Center(child: CircularProgressIndicator())
-          : (_karyawanList.isEmpty)
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Gagal memuat data karyawan."),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: _loadKaryawanList,
-                        child: const Text("Coba Lagi"),
-                      ),
-                    ],
-                  ),
-                )
-              : Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: ListView(
-                      children: [
-                        TextFormField(
-                          controller: _teamNameController,
-                          decoration: const InputDecoration(labelText: "Team Name"),
-                          validator: (v) => v == null || v.trim().isEmpty ? "Wajib diisi" : null,
-                        ),
-                        const SizedBox(height: 12),
+    if (_karyawanList.isEmpty) {
+      return _buildErrorState();
+    }
 
-                        // Leader Dropdown
-                        DropdownButtonFormField<KaryawanDropdownModel>(
-                          decoration: const InputDecoration(
-                            labelText: "Team Leader",
-                          ),
-                          value: _selectedLeader,
-                          items: _karyawanList.map((k) {
-                            return DropdownMenuItem(
-                              value: k,
-                              child: Text(k.fullName),
-                            );
-                          }).toList(),
-                          onChanged: (val) {
-                            setState(() {
-                              _selectedLeader = val;
-                              if (val != null) {
-                                _selectedMembers.removeWhere((m) => m.id == val.id);
-                              }
-                            });
-                          },
-                          validator: (v) => v == null ? "Pilih team leader" : null,
-                        ),
-                        const SizedBox(height: 12),
+    // Tampilan Form
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          children: [
+            TextFormField(
+              controller: _teamNameController,
+              decoration: const InputDecoration(
+                labelText: "Team Name",
+                prefixIcon: Icon(Icons.groups_3_outlined),
+              ),
+              validator: (v) => v == null || v.trim().isEmpty ? "Team Name wajib diisi" : null,
+            ),
+            const SizedBox(height: 20),
 
-                        // Members Multi-select
-                        ExpansionTile(
-                          title: Text(
-                            _selectedMembers.isEmpty
-                                ? "Pilih Anggota Tim"
-                                : "${_selectedMembers.length} anggota terpilih",
-                          ),
-                          children: _karyawanList.map((k) {
-                            final isSelected = _selectedMembers.any((m) => m.id == k.id);
-                            final isLeader = _selectedLeader?.id == k.id;
-                            return CheckboxListTile(
-                              title: Text(
-                                isLeader ? "${k.fullName} (Leader)" : k.fullName,
-                                style: isLeader
-                                    ? const TextStyle(
-                                        fontStyle: FontStyle.italic,
-                                        color: Colors.grey,
-                                      )
-                                    : null,
-                              ),
-                              value: isSelected,
-                              onChanged: isLeader
-                                  ? null
-                                  : (val) {
-                                      setState(() {
-                                        if (val == true) {
-                                          _selectedMembers.add(k);
-                                        } else {
-                                          _selectedMembers.removeWhere((m) => m.id == k.id);
-                                        }
-                                      });
-                                    },
-                            );
-                          }).toList(),
-                        ),
-                        const SizedBox(height: 12),
+            // Leader Dropdown
+            DropdownButtonFormField<KaryawanDropdownModel>(
+              decoration: const InputDecoration(
+                labelText: "Team Leader",
+                prefixIcon: Icon(Icons.star_outline),
+              ),
+              value: _selectedLeader,
+              items: _karyawanList.map((k) {
+                return DropdownMenuItem(
+                  value: k,
+                  child: Text(k.fullName, style: GoogleFonts.poppins()),
+                );
+              }).toList(),
+              onChanged: (val) {
+                setState(() {
+                  _selectedLeader = val;
+                  // Hapus leader dari member jika sudah terpilih
+                  if (val != null) {
+                    _selectedMembers.removeWhere((m) => m.id == val.id);
+                  }
+                });
+              },
+              validator: (v) => v == null ? "Pilih team leader" : null,
+            ),
+            const SizedBox(height: 20),
 
-                        TextFormField(
-                          controller: _descController,
-                          decoration: const InputDecoration(
-                            labelText: "Description",
-                          ),
-                          maxLines: 3,
-                          validator: (v) => v == null || v.trim().isEmpty ? "Wajib diisi" : null,
-                        ),
-                        const SizedBox(height: 20),
-
-                        _isLoading
-                            ? const Center(child: CircularProgressIndicator())
-                            : ElevatedButton(
-                                onPressed: _submitForm,
-                                child: const Text("Create Team"),
-                              ),
-                      ],
-                    ),
+            // Members Multi-select
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  side: BorderSide(color: Colors.grey.shade300)
+              ),
+              child: ExpansionTile(
+                tilePadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                leading: const Icon(Icons.people_outline, color: Color(0xFF2D6A4F)),
+                title: Text(
+                  _selectedMembers.isEmpty
+                      ? "Pilih Anggota Tim (Opsional)"
+                      : "${_selectedMembers.length} anggota terpilih",
+                  style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87
                   ),
                 ),
+                childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
+                children: _karyawanList.map((k) {
+                  final isSelected = _selectedMembers.any((m) => m.id == k.id);
+                  final isLeader = _selectedLeader?.id == k.id;
+
+                  return CheckboxListTile(
+                    dense: true,
+                    title: Text(
+                      isLeader ? "${k.fullName} (Leader)" : k.fullName,
+                      style: GoogleFonts.poppins(
+                        color: isLeader ? Colors.grey.shade600 : Colors.black87,
+                        fontStyle: isLeader ? FontStyle.italic : FontStyle.normal,
+                        fontWeight: isLeader ? FontWeight.normal : FontWeight.w500,
+                      ),
+                    ),
+                    value: isSelected,
+                    onChanged: isLeader
+                        ? null
+                        : (val) {
+                      setState(() {
+                        if (val == true) {
+                          // Pastikan member tidak duplikat
+                          if (!_selectedMembers.any((m) => m.id == k.id)) {
+                            _selectedMembers.add(k);
+                          }
+                        } else {
+                          _selectedMembers.removeWhere((m) => m.id == k.id);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            TextFormField(
+              controller: _descController,
+              decoration: const InputDecoration(
+                labelText: "Description",
+                prefixIcon: Icon(Icons.notes_outlined),
+                alignLabelWithHint: true,
+              ),
+              maxLines: 3,
+              validator: (v) => v == null || v.trim().isEmpty ? "Description wajib diisi" : null,
+            ),
+            const SizedBox(height: 30),
+
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ElevatedButton(
+              onPressed: _submitForm,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2D6A4F),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: Text(
+                "Create Purchase Team",
+                style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

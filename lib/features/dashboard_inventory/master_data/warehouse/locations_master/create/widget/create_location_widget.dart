@@ -170,7 +170,7 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
         description: _descriptionController.text,
       );
       final response = await http.post(
-        Uri.parse('${ApiBase.baseUrl}/inventory/location'),
+        Uri.parse('${ApiBase.baseUrl}/inventory/location/store'),
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json",

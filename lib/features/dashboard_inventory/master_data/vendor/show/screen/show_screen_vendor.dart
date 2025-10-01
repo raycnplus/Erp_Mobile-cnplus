@@ -8,8 +8,9 @@ class VendorShowScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Scaffold hanya membungkus widget detail
     return Scaffold(
-      appBar: AppBar(title: const Text("Vendor Show")),
+      // AppBar dihapus, akan dihandle di VendorDetailWidget
       body: VendorDetailWidget(vendorId: vendorId),
     );
   }
