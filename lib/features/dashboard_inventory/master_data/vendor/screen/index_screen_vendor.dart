@@ -8,27 +8,19 @@ class VendorIndexScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Vendor")),
+      appBar: AppBar(
+        title: const Text("Vendor"),
+      ),
       body: const VendorIndexWidget(),
 
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.blue, // warna FAB
         foregroundColor: Colors.white,
-        onPressed: () async {
-          final result = await Navigator.push(
+        onPressed: () {
+         Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const VendorCreateScreen()),
           );
-
-          
-          if (result == true) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const VendorIndexScreen(),
-              ),
-            );
-          }
         },
         child: const Icon(Icons.add),
       ),

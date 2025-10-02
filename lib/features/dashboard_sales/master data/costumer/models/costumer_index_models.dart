@@ -22,4 +22,4 @@ class CustomerIndexModel {
       city: json['city'] ?? '-',
     );
   }
-}
+}          

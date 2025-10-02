@@ -22,6 +22,15 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
   final _emailController = TextEditingController();
   final _addressController = TextEditingController();
 
+  // Tambahan field
+  final _provinceController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _postalCodeController = TextEditingController();
+  final _websiteController = TextEditingController();
+  final _picNameController = TextEditingController();
+  final _picPhoneController = TextEditingController();
+  final _picEmailController = TextEditingController();
+
   bool _isDropdownLoading = true;
   bool _isSubmitting = false;
 
@@ -43,6 +52,13 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
     _phoneController.dispose();
     _emailController.dispose();
     _addressController.dispose();
+    _provinceController.dispose();
+    _cityController.dispose();
+    _postalCodeController.dispose();
+    _websiteController.dispose();
+    _picNameController.dispose();
+    _picPhoneController.dispose();
+    _picEmailController.dispose();
     super.dispose();
   }
 
@@ -74,12 +90,17 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
     );
 
     if (response.statusCode == 200) {
-      final List<dynamic> parsed = jsonDecode(response.body)['data'];
+      final decoded = jsonDecode(response.body);
+
+      final List<dynamic> parsed = decoded is Map && decoded.containsKey("data")
+          ? decoded["data"]
+          : (decoded is List ? decoded : []);
+
       return parsed
           .map((e) => CustomerCategoryDropdownModel.fromJson(e))
           .toList();
     }
-    throw Exception('Failed to load categories');
+    throw Exception('Failed to load categories: ${response.statusCode}');
   }
 
   Future<void> _createCustomer() async {
@@ -98,6 +119,15 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
         "phone_no": _phoneController.text,
         "email": _emailController.text,
         "address": _addressController.text,
+
+        // tambahan
+        "province": _provinceController.text,
+        "city": _cityController.text,
+        "postal_code": _postalCodeController.text,
+        "website": _websiteController.text,
+        "pic_name": _picNameController.text,
+        "pic_phone": _picPhoneController.text,
+        "pic_email": _picEmailController.text,
       };
 
       final response = await http.post(
@@ -139,14 +169,17 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
       filled: true,
       fillColor: lightGreen.withOpacity(0.3),
       border: OutlineInputBorder(
-          borderRadius: borderRadius, borderSide: BorderSide.none),
+        borderRadius: borderRadius,
+        borderSide: BorderSide.none,
+      ),
       enabledBorder: OutlineInputBorder(
-          borderRadius: borderRadius,
-          borderSide:
-              BorderSide(color: softGreen.withOpacity(0.5), width: 1.0)),
+        borderRadius: borderRadius,
+        borderSide: BorderSide(color: softGreen.withOpacity(0.5), width: 1.0),
+      ),
       focusedBorder: OutlineInputBorder(
-          borderRadius: borderRadius,
-          borderSide: BorderSide(color: softGreen, width: 2.0)),
+        borderRadius: borderRadius,
+        borderSide: BorderSide(color: softGreen, width: 2.0),
+      ),
     );
 
     return SingleChildScrollView(
@@ -160,46 +193,46 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
                 style: GoogleFonts.poppins(
                     fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
+
             TextFormField(
               controller: _nameController,
-              decoration:
-                  inputDecorationTheme.copyWith(labelText: "Customer Name"),
+              decoration: inputDecorationTheme.copyWith(labelText: "Customer Name"),
               validator: (val) => val!.isEmpty ? "required" : null,
             ),
             const SizedBox(height: 16),
+
             TextFormField(
               controller: _codeController,
-              decoration:
-                  inputDecorationTheme.copyWith(labelText: "Customer Code"),
+              decoration: inputDecorationTheme.copyWith(labelText: "Customer Code"),
               validator: (val) => val!.isEmpty ? "required" : null,
             ),
             const SizedBox(height: 16),
+
             DropdownButtonFormField<CustomerTypeDropdownModel>(
               value: _selectedType,
               items: CustomerTypeDropdownModel.types
-                  .map((t) => DropdownMenuItem(
-                        value: t,
-                        child: Text(t.type),
-                      ))
+                  .map((t) => DropdownMenuItem(value: t, child: Text(t.type)))
                   .toList(),
               onChanged: (val) => setState(() => _selectedType = val),
-              decoration:
-                  inputDecorationTheme.copyWith(labelText: "Customer Type"),
-              validator: (val) => val == null ? "required costumer type" : null,
+              decoration: inputDecorationTheme.copyWith(labelText: "Customer Type"),
+              validator: (val) => val == null ? "required customer type" : null,
             ),
-            const SizedBox(height: 24),
 
+            const SizedBox(height: 24),
             Text("Contact & Category",
                 style: GoogleFonts.poppins(
                     fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
+
             if (_isDropdownLoading)
               const Center(child: CircularProgressIndicator())
             else if (_dropdownError != null)
               Text("Error: $_dropdownError")
             else
               DropdownButtonFormField<CustomerCategoryDropdownModel>(
-                value: _selectedCategory,
+                value: _categories.contains(_selectedCategory)
+                    ? _selectedCategory
+                    : null,
                 items: _categories
                     .map((c) => DropdownMenuItem(
                           value: c,
@@ -208,10 +241,12 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
                     .toList(),
                 onChanged: (val) => setState(() => _selectedCategory = val),
                 decoration: inputDecorationTheme.copyWith(
-                    labelText: "Customer Category"),
+                  labelText: "Customer Category",
+                ),
                 validator: (val) =>
-                    val == null ? "required costumer category" : null,
+                    val == null ? "required customer category" : null,
               ),
+
             const SizedBox(height: 16),
             TextFormField(
               controller: _phoneController,
@@ -224,19 +259,66 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
               decoration: inputDecorationTheme.copyWith(labelText: "Email"),
               keyboardType: TextInputType.emailAddress,
             ),
-            const SizedBox(height: 24),
 
+            const SizedBox(height: 24),
             Text("Address",
                 style: GoogleFonts.poppins(
                     fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
+
             TextFormField(
               controller: _addressController,
               decoration: inputDecorationTheme.copyWith(labelText: "Address"),
               maxLines: 3,
             ),
-            const SizedBox(height: 32),
 
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _provinceController,
+              decoration: inputDecorationTheme.copyWith(labelText: "Province"),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _cityController,
+              decoration: inputDecorationTheme.copyWith(labelText: "City"),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _postalCodeController,
+              decoration: inputDecorationTheme.copyWith(labelText: "Postal Code"),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _websiteController,
+              decoration: inputDecorationTheme.copyWith(labelText: "Website"),
+              keyboardType: TextInputType.url,
+            ),
+
+            const SizedBox(height: 24),
+            Text("PIC Information",
+                style: GoogleFonts.poppins(
+                    fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+
+            TextFormField(
+              controller: _picNameController,
+              decoration: inputDecorationTheme.copyWith(labelText: "PIC Name"),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _picPhoneController,
+              decoration: inputDecorationTheme.copyWith(labelText: "PIC Phone"),
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _picEmailController,
+              decoration: inputDecorationTheme.copyWith(labelText: "PIC Email"),
+              keyboardType: TextInputType.emailAddress,
+            ),
+
+            const SizedBox(height: 32),
             Center(
               child: ElevatedButton(
                 onPressed: _isSubmitting ? null : _createCustomer,
