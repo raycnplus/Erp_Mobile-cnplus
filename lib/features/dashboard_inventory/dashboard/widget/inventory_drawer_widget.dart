@@ -9,7 +9,7 @@ import '../../master_data/warehouse/warehouse_master/index/screen/warehouse_inde
 import '../../master_data/warehouse/locations_master/index/screen/index_location_screen.dart';
 import '../../master_data/product/product/index/screen/index_product_screen.dart';
 import '../../master_data/product/lot_serial_numbers/screen/index_screen_lsn.dart';
-import '../../master_data/vendor/screen/index_screen_vendor.dart';
+import '../../master_data/vendor/index/screen/index_screen_vendor.dart';
 
 class DashboardDrawer extends StatefulWidget {
   const DashboardDrawer({super.key});

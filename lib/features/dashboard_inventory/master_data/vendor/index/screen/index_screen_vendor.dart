@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widget/index_widget_vendor.dart';
-import '../screen/create_screen_vendor.dart';
+import '../../create/screen/create_screen_vendor.dart';
 
 class VendorIndexScreen extends StatelessWidget {
   const VendorIndexScreen({super.key});

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import '../../../../../../services/api_base.dart';
+import '../../../../../../../services/api_base.dart';
 import '../models/show_models_vendor.dart';
 
 class VendorDetailWidget extends StatefulWidget {
