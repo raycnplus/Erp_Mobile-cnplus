@@ -1,6 +1,7 @@
 import 'package:erp_mobile_cnplus/features/dashboard_inventory/master_data/brand/index/screen/brand_index_screen.dart';
 import 'package:erp_mobile_cnplus/features/dashboard_inventory/master_data/product/product/index/screen/index_product_screen.dart';
 import 'package:erp_mobile_cnplus/features/dashboard_sales/master%20data/costumer_category/screen/costumer_category_index_screen.dart';
+import 'package:erp_mobile_cnplus/features/dashboard_sales/master%20data/sales_team/index/screen/sales_team_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart'; // <<< DITAMBAHKAN
@@ -165,14 +166,6 @@ class _SalesDashboardDrawerState extends State<SalesDashboardDrawer> {
                   },
                   isSubItem: true,
                 ),
-                _buildDrawerItem(
-                  title: 'Serial Number',
-                  onTap: () {
-                    Navigator.pop(context);
-                    // Tambahkan navigasi ke Serial Number screen jika ada
-                  },
-                  isSubItem: true,
-                ),
               ],
             ),
             
@@ -181,6 +174,7 @@ class _SalesDashboardDrawerState extends State<SalesDashboardDrawer> {
               icon: Icons.group_add_outlined,
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const SalesTeamScreen()));
               },
             ),
 

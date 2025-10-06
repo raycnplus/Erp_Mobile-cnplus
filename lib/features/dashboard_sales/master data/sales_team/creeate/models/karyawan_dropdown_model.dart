@@ -1,0 +1,19 @@
+class KaryawanDropdownModel {
+  final int id;
+  final String fullName;
+
+  KaryawanDropdownModel({
+    required this.id,
+    required this.fullName,
+  });
+
+  factory KaryawanDropdownModel.fromJson(Map<String, dynamic> json) {
+    return KaryawanDropdownModel(
+      id: json['id_karyawan'] ?? json['id'] ?? 0,
+      fullName: json['nama_lengkap'] ?? json['fullName'] ?? '',
+    );
+  }
+
+  @override
+  String toString() => fullName;
+}

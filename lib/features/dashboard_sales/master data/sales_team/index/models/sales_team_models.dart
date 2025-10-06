@@ -1,19 +1,19 @@
-class PurchaseTeamIndexModel {
-  final int idSalesTeam;
+class SalesTeamModels {
+  final int idPurchaseTeam;
   final String teamName;
   final String teamLeader;
   final String description;
 
-  PurchaseTeamIndexModel({
-    required this.idSalesTeam,
+  SalesTeamModels({
+    required this.idPurchaseTeam,
     required this.teamName,
     required this.teamLeader,
     required this.description,
   });
 
-  factory PurchaseTeamIndexModel.fromJson(Map<String, dynamic> json) {
-    return PurchaseTeamIndexModel(
-      idSalesTeam: json['id_sales_team'] ?? 0,
+  factory SalesTeamModels.fromJson(Map<String, dynamic> json) {
+    return SalesTeamModels(
+      idPurchaseTeam: json['id_purchase_team'] ?? 0,
       teamName: json['team_name'] ?? '',
       teamLeader: json['team_leader']?['nama_lengkap'] ?? '',
       description: json['description'] ?? '',
@@ -22,7 +22,7 @@ class PurchaseTeamIndexModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'id_purchase_team': idSalesTeam,
+      'id_purchase_team': idPurchaseTeam,
       'team_name': teamName,
       'team_leader': teamLeader,
       'description': description,
@@ -47,7 +47,7 @@ class SalesTeamEditModel {
 
   Map<String, dynamic> toUpdateJson() {
     return {
-      'id_sales_team': id,
+      'id_purchase_team': id,
       'team_name': teamName,
       'team_leader': teamLeaderId,
       'description': description,
