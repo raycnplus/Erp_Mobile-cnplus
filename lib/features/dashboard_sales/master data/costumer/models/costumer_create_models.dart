@@ -173,4 +173,18 @@ class CustomerTypeDropdownModel {
 
   @override
   int get hashCode => value.hashCode;
+} 
+
+class CountryModel {
+  final int id;
+  final String name;
+
+  CountryModel({required this.id, required this.name});
+
+  factory CountryModel.fromJson(Map<String, dynamic> json) {
+    return CountryModel(
+      id: json['id_country'],
+      name: json['name'],
+    );
+  }
 }

@@ -34,17 +34,22 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
   final _picEmailController = TextEditingController();
 
   bool _isDropdownLoading = true;
+  bool isLoadingCountry = true;
   bool _isSubmitting = false;
 
   List<CustomerCategoryDropdownModel> _categories = [];
   CustomerCategoryDropdownModel? _selectedCategory;
   CustomerTypeDropdownModel? _selectedType;
+  int? selectedCountry;
+  List<CountryModel> countries = [];
+
   String? _dropdownError;
 
   @override
   void initState() {
     super.initState();
     _fetchDropdownData();
+    _fetchCountries(); // Add this line
   }
 
   @override
@@ -67,10 +72,13 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
   Future<void> _fetchDropdownData() async {
     try {
       final categories = await _fetchCategories();
+      final countries = await _fetchCountries(); // Fetch countries here
       if (mounted) {
         setState(() {
           _categories = categories;
+          this.countries = countries; // Set countries to state
           _isDropdownLoading = false;
+          isLoadingCountry = false; // Stop loading indicator for countries
         });
       }
     } catch (e) {
@@ -78,9 +86,30 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
         setState(() {
           _dropdownError = e.toString();
           _isDropdownLoading = false;
+          isLoadingCountry = false; // Stop loading indicator on error
         });
       }
     }
+  }
+
+  Future<List<CountryModel>> _fetchCountries() async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'token');
+    final response = await http.get(
+      Uri.parse('${ApiBase.baseUrl}/master/countries/'),
+      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
+    );
+
+    if (response.statusCode == 200) {
+      final decoded = jsonDecode(response.body);
+
+      final List<dynamic> parsed = decoded is Map && decoded.containsKey("data")
+          ? decoded["data"]
+          : (decoded is List ? decoded : []);
+
+      return parsed.map((e) => CountryModel.fromJson(e)).toList();
+    }
+    throw Exception('Failed to load country: ${response.statusCode}');
   }
 
   Future<List<CustomerCategoryDropdownModel>> _fetchCategories() async {
@@ -116,7 +145,7 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
       final body = {
         "customer_name": _nameController.text,
         "customer_code": _codeController.text,
-        "customer_type": _selectedType?.value, // Menggunakan .value
+        "customer_type": _selectedType?.value,
         "customer_category": _selectedCategory?.idCategory,
         "phone_no": _phoneController.text,
         "email": _emailController.text,
@@ -128,6 +157,7 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
         "pic_name": _picNameController.text,
         "pic_phone": _picPhoneController.text,
         "pic_email": _picEmailController.text,
+        "id_country": selectedCountry, // Add this line
       };
 
       final response = await http.post(
@@ -144,14 +174,14 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
       if (response.statusCode == 201 || response.statusCode == 200) {
         Navigator.pop(context, true);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed: ${response.body}")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Failed: ${response.body}")));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
     } finally {
       if (mounted) {
         setState(() => _isSubmitting = false);
@@ -189,21 +219,29 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Information",
-                style: GoogleFonts.poppins(
-                    fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              "Information",
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 16),
 
             TextFormField(
               controller: _nameController,
-              decoration: inputDecorationTheme.copyWith(labelText: "Customer Name"),
+              decoration: inputDecorationTheme.copyWith(
+                labelText: "Customer Name",
+              ),
               validator: (val) => val!.isEmpty ? "required" : null,
             ),
             const SizedBox(height: 16),
 
             TextFormField(
               controller: _codeController,
-              decoration: inputDecorationTheme.copyWith(labelText: "Customer Code"),
+              decoration: inputDecorationTheme.copyWith(
+                labelText: "Customer Code",
+              ),
               validator: (val) => val!.isEmpty ? "required" : null,
             ),
             const SizedBox(height: 16),
@@ -211,17 +249,26 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
             DropdownButtonFormField<CustomerTypeDropdownModel>(
               value: _selectedType,
               items: CustomerTypeDropdownModel.types
-                  .map((t) => DropdownMenuItem(value: t, child: Text(t.displayName))) // Menggunakan .displayName
+                  .map(
+                    (t) =>
+                        DropdownMenuItem(value: t, child: Text(t.displayName)),
+                  ) // Menggunakan .displayName
                   .toList(),
               onChanged: (val) => setState(() => _selectedType = val),
-              decoration: inputDecorationTheme.copyWith(labelText: "Customer Type"),
+              decoration: inputDecorationTheme.copyWith(
+                labelText: "Customer Type",
+              ),
               validator: (val) => val == null ? "required customer type" : null,
             ),
 
             const SizedBox(height: 24),
-            Text("Contact & Category",
-                style: GoogleFonts.poppins(
-                    fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              "Contact & Category",
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 16),
 
             if (_isDropdownLoading)
@@ -234,10 +281,12 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
                     ? _selectedCategory
                     : null,
                 items: _categories
-                    .map((c) => DropdownMenuItem(
-                          value: c,
-                          child: Text(c.categoryName),
-                        ))
+                    .map(
+                      (c) => DropdownMenuItem(
+                        value: c,
+                        child: Text(c.categoryName),
+                      ),
+                    )
                     .toList(),
                 onChanged: (val) => setState(() => _selectedCategory = val),
                 decoration: inputDecorationTheme.copyWith(
@@ -261,9 +310,13 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
             ),
 
             const SizedBox(height: 24),
-            Text("Address",
-                style: GoogleFonts.poppins(
-                    fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              "Address",
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 16),
 
             TextFormField(
@@ -284,7 +337,9 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _postalCodeController,
-              decoration: inputDecorationTheme.copyWith(labelText: "Postal Code"),
+              decoration: inputDecorationTheme.copyWith(
+                labelText: "Postal Code",
+              ),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
@@ -293,11 +348,32 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
               decoration: inputDecorationTheme.copyWith(labelText: "Website"),
               keyboardType: TextInputType.url,
             ),
-            
+            const SizedBox(height: 16),
+
+            // Add country dropdown here
+            if (isLoadingCountry)
+              const Center(child: CircularProgressIndicator())
+            else
+              DropdownButtonFormField<int>(
+                value: selectedCountry,
+                items: countries
+                    .map(
+                      (c) => DropdownMenuItem(value: c.id, child: Text(c.name)),
+                    )
+                    .toList(),
+                onChanged: (val) => setState(() => selectedCountry = val),
+                decoration: inputDecorationTheme.copyWith(labelText: "Country"),
+                validator: (val) => val == null ? "Country is required" : null,
+              ),
+
             const SizedBox(height: 24),
-            Text("PIC Information",
-                style: GoogleFonts.poppins(
-                    fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              "PIC Information",
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 16),
 
             TextFormField(
@@ -328,10 +404,17 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
                 ),
                 child: _isSubmitting
                     ? const CircularProgressIndicator(
-                        color: Colors.white, strokeWidth: 2)
-                    : Text("Create Customer",
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      )
+                    : Text(
+                        "Create Customer",
                         style: GoogleFonts.poppins(
-                            fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white)),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
             ),
           ],
