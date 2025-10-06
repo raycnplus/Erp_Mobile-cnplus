@@ -1,3 +1,5 @@
+// costumer_create_models.dart
+
 class CustomerCreateModel {
   final int idCustomer;
   final String encryption;
@@ -132,20 +134,43 @@ class CustomerCategoryDropdownModel {
 
   @override
   String toString() => categoryName;
+
+  // Menambahkan operator == dan hashCode untuk perbandingan objek yang benar
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CustomerCategoryDropdownModel &&
+          runtimeType == other.runtimeType &&
+          idCategory == other.idCategory;
+
+  @override
+  int get hashCode => idCategory.hashCode;
 }
 
-// Dropdown statis untuk Customer Type
+// Dropdown statis untuk Customer Type (DIPERBAIKI)
 class CustomerTypeDropdownModel {
-  final String type;
+  final String value; // Nilai yang dikirim ke backend (e.g., "person")
+  final String displayName; // Teks yang ditampilkan ke user (e.g., "Person")
 
-  CustomerTypeDropdownModel({required this.type});
+  CustomerTypeDropdownModel({required this.value, required this.displayName});
 
-  // List statis
+  // List statis diperbarui dengan display name
   static List<CustomerTypeDropdownModel> get types => [
-        CustomerTypeDropdownModel(type: "person"),
-        CustomerTypeDropdownModel(type: "company"),
+        CustomerTypeDropdownModel(value: "person", displayName: "Person"),
+        CustomerTypeDropdownModel(value: "company", displayName: "Company"),
       ];
 
   @override
-  String toString() => type;
+  String toString() => displayName;
+
+  // PENTING: Menambahkan ini untuk memperbaiki crash/aplikasi tidak menanggapi
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CustomerTypeDropdownModel &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
 }
