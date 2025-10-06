@@ -161,7 +161,7 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
       };
 
       final response = await http.post(
-        Uri.parse('${ApiBase.baseUrl}/sales/customer/'),
+        Uri.parse('${ApiBase.baseUrl}/sales/customer/store'),
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json",
