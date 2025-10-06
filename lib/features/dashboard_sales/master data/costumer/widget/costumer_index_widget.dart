@@ -8,8 +8,14 @@ import '../screen/costumer_show_screen.dart';
 
 class CustomerIndexWidget extends StatefulWidget {
   final Function(CustomerIndexModel)? onTap; // nullable, biar opsional
+  final Function(CustomerIndexModel) onEdit;
+  final GlobalKey<CustomerIndexWidgetState>? key;
 
-  const CustomerIndexWidget({super.key, this.onTap});
+  const CustomerIndexWidget({
+    required this.onTap,
+    required this.onEdit,
+    this.key,
+  }) : super(key: key);
 
   @override
   State<CustomerIndexWidget> createState() => CustomerIndexWidgetState();
