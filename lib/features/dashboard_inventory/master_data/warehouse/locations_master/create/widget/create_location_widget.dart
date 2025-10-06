@@ -9,7 +9,6 @@ import '../../../../../../../services/api_base.dart';
 import '../models/create_location_models.dart';
 
 class LocationCreateWidget extends StatefulWidget {
-  // Callback untuk memberitahu parent (screen) tentang perubahan step
   final Function(int currentStep, int totalSteps) onStepChanged;
 
   const LocationCreateWidget({
@@ -59,7 +58,6 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
   @override
   void dispose() {
     _pageController.dispose();
-    // Dispose semua controller
     _nameController.dispose();
     _codeController.dispose();
     _lengthController.dispose();
@@ -70,7 +68,6 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
     super.dispose();
   }
 
-  // --- LOGIKA PENGAMBILAN DATA ---
   Future<void> _fetchDropdownData() async {
     try {
       final results = await Future.wait([
@@ -122,9 +119,7 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
     throw Exception('Failed to load parent locations');
   }
 
-  // --- LOGIKA STEPPER ---
   void _nextStep() {
-    // Validasi form pada step saat ini
     bool isStepValid = false;
     if (_currentStep == 0) {
       isStepValid = _formKeyStep1.currentState!.validate();
@@ -139,7 +134,6 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
       _pageController.animateToPage(_currentStep, duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
       widget.onStepChanged(_currentStep, _totalSteps);
     } else if (isStepValid && _currentStep == _totalSteps - 1) {
-      // Jika di step terakhir dan valid, jalankan fungsi create
       _createLocation();
     }
   }
@@ -152,7 +146,6 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
     }
   }
 
-  // --- LOGIKA SUBMIT DATA ---
   Future<void> _createLocation() async {
     setState(() => _isSubmitting = true);
     try {
@@ -161,8 +154,8 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
       final model = LocationCreateModel(
         locationName: _nameController.text,
         locationCode: _codeController.text,
-        warehouseId: _selectedWarehouse!.idWarehouse,
-        parentLocationId: _selectedParent?.id,
+        warehouse: _selectedWarehouse!.idWarehouse,
+        parentLocation: _selectedParent?.id, // <-- DIUBAH DI SINI
         length: double.tryParse(_lengthController.text),
         width: double.tryParse(_widthController.text),
         height: double.tryParse(_heightController.text),
@@ -174,14 +167,14 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
         headers: {
           "Authorization": "Bearer $token",
           "Content-Type": "application/json",
-          "Accept": "application/json", 
+          "Accept": "application/json",
         },
         body: jsonEncode(model.toJson()),
       );
 
       if (!mounted) return;
       if (response.statusCode == 201 || response.statusCode == 200) {
-        Navigator.pop(context, true); // Kirim sinyal sukses kembali ke index
+        Navigator.pop(context, true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed: ${response.body}")));
       }
@@ -194,10 +187,8 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
     }
   }
 
-  // --- UI WIDGETS ---
   @override
   Widget build(BuildContext context) {
-    // Referensi warna dan style dari Product Type
     final softGreen = const Color(0xFF679436);
     final lightGreen = const Color(0xFFC8E6C9);
     final borderRadius = BorderRadius.circular(16.0);
@@ -210,7 +201,6 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
       focusedBorder: OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide(color: softGreen, width: 2.0)),
     );
 
-    // Daftar judul dan guide text untuk setiap step
     final stepDetails = [
       {'title': 'Informasi Utama', 'guide': 'Isi nama dan kode unik untuk lokasi ini.'},
       {'title': 'Penempatan & Asosiasi', 'guide': 'Pilih gudang dan lokasi induk (jika ada).'},
@@ -221,14 +211,11 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Header Stepper Kustom (sesuai referensi gambar)
           _buildStepperHeader(stepDetails),
-
-          // Body Stepper dengan PageView
           Expanded(
             child: PageView(
               controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(), // Nonaktifkan swipe
+              physics: const NeverScrollableScrollPhysics(),
               children: [
                 _buildStep1(inputDecorationTheme),
                 _buildStep2(inputDecorationTheme),
@@ -236,8 +223,6 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
               ],
             ),
           ),
-
-          // Tombol Navigasi
           _buildNavigationButtons(softGreen, borderRadius),
         ],
       ),
@@ -275,7 +260,6 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
     );
   }
 
-  // --- WIDGET UNTUK SETIAP LANGKAH ---
   Widget _buildStep1(InputDecoration inputDecorationTheme) {
     return Form(
       key: _formKeyStep1,
@@ -307,7 +291,6 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
       child: ListView(
         padding: const EdgeInsets.only(top: 24),
         children: [
-          // Menggunakan Dropdown standar, namun bisa diganti dengan searchable_dropdown
           DropdownButtonFormField<WarehouseDropdownModel>(
             value: _selectedWarehouse,
             items: _warehouses.map((w) => DropdownMenuItem(value: w, child: Text(w.warehouseName))).toList(),
@@ -322,6 +305,7 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
             items: _parents.map((p) => DropdownMenuItem(value: p, child: Text(p.name, overflow: TextOverflow.ellipsis,))).toList(),
             onChanged: (val) => setState(() => _selectedParent = val),
             decoration: inputDecorationTheme.copyWith(labelText: "Pilih Lokasi Induk (Opsional)"),
+            // Validator dihilangkan untuk membuatnya opsional
           ),
         ],
       ),
@@ -353,7 +337,6 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          // Tombol Kembali
           if (_currentStep > 0)
             Expanded(
               child: OutlinedButton(
@@ -367,8 +350,6 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
               ),
             ),
           if (_currentStep > 0) const SizedBox(width: 16),
-
-          // Tombol Lanjut / Simpan
           Expanded(
             child: Container(
               decoration: BoxDecoration(

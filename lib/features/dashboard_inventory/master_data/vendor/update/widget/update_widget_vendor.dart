@@ -1,13 +1,14 @@
-import 'dart:convert';
+// widget/update_widget_vendor.dart
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../../../../../../../services/api_base.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../models/update_models_vendor.dart';
+import '../services/vendor_api_service.dart';
+import '../views/step_1_general_info.dart';
+import '../views/step_2_contact_location.dart'; // Nama file disesuaikan
+import '../views/step_3_financial_details.dart';
 
 class VendorUpdateWidget extends StatefulWidget {
   final String vendorId;
-
   const VendorUpdateWidget({super.key, required this.vendorId});
 
   @override
@@ -15,370 +16,193 @@ class VendorUpdateWidget extends StatefulWidget {
 }
 
 class _VendorUpdateWidgetState extends State<VendorUpdateWidget> {
-  final _formKey = GlobalKey<FormState>();
-  final storage = const FlutterSecureStorage();
+  // --- State Management ---
+  final PageController _pageController = PageController();
+  int _currentStep = 0;
+  final int _totalSteps = 3;
+  final List<GlobalKey<FormState>> _formKeys = [
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>()
+  ];
 
-  // Controllers
-  late TextEditingController vendorNameCtrl;
-  late TextEditingController vendorCodeCtrl;
-  late TextEditingController phoneCtrl;
-  late TextEditingController emailCtrl;
-  late TextEditingController npwpCtrl;
-  late TextEditingController provinceCtrl;
-  late TextEditingController cityCtrl;
-  late TextEditingController postalCtrl;
-  late TextEditingController addressCtrl;
-  late TextEditingController picNameCtrl;
-  late TextEditingController picPhoneCtrl;
-  late TextEditingController picEmailCtrl;
-  late TextEditingController bankNameCtrl;
-  late TextEditingController bankAccountNameCtrl;
-  late TextEditingController bankNumberCtrl;
+  final VendorApiService _apiService = VendorApiService();
+  bool _isLoading = true;
+  bool _isSubmitting = false;
 
-  // Dropdowns
-  int? selectedCountry;
-  int? selectedCurrency;
-
+  // --- Controllers & Dropdown State ---
+  late TextEditingController vendorNameCtrl, vendorCodeCtrl, npwpCtrl, provinceCtrl, cityCtrl, postalCtrl, addressCtrl, bankNameCtrl, bankAccountNameCtrl, bankNumberCtrl;
+  int? selectedCountry, selectedCurrency;
   List<CountryModel> countries = [];
   List<CurrencyModel> currencies = [];
+  
+  // Controller yang tidak ada di step 2 (Location Info)
+  // Anda bisa menghapusnya jika tidak ada di step lain
+  late TextEditingController phoneCtrl, emailCtrl, picNameCtrl, picPhoneCtrl, picEmailCtrl;
 
-  bool isLoadingCountry = true;
-  bool isLoadingCurrency = true;
-  bool isLoadingVendor = true;
-  int? _vendorCountryFromApi;
-  int? _vendorCurrencyFromApi;
+
+  // --- UI Styles ---
+  final softGreen = const Color(0xFF679436);
+  final lightGreen = const Color(0xFFC8E6C9);
+  final borderRadius = BorderRadius.circular(16.0);
+  final stepDetails = [
+    {'title': 'General & Business Info', 'guide': 'Informasi dasar vendor dan NPWP.'},
+    {'title': 'Location Info', 'guide': 'Detail alamat dan lokasi vendor.'}, // Disesuaikan
+    {'title': 'Financial Details', 'guide': 'Informasi bank dan mata uang.'},
+  ];
 
   @override
   void initState() {
     super.initState();
-    // init kosong dulu
-    vendorNameCtrl = TextEditingController();
-    vendorCodeCtrl = TextEditingController();
-    phoneCtrl = TextEditingController();
-    emailCtrl = TextEditingController();
-    npwpCtrl = TextEditingController();
-    provinceCtrl = TextEditingController();
-    cityCtrl = TextEditingController();
-    postalCtrl = TextEditingController();
-    addressCtrl = TextEditingController();
-    picNameCtrl = TextEditingController();
-    picPhoneCtrl = TextEditingController();
-    picEmailCtrl = TextEditingController();
-    bankNameCtrl = TextEditingController();
-    bankAccountNameCtrl = TextEditingController();
-    bankNumberCtrl = TextEditingController();
-
-    // load options first (so selected value can match existing items),
-    // but fetch vendor detail in parallel — we remember vendor ids and apply after lists loaded.
-    _fetchCountries();
-    _fetchCurrencies();
-    _fetchVendorDetail();
+    _initializeControllers();
+    _loadInitialData();
   }
 
-  @override
-  void dispose() {
-    vendorNameCtrl.dispose();
-    vendorCodeCtrl.dispose();
-    phoneCtrl.dispose();
-    emailCtrl.dispose();
-    npwpCtrl.dispose();
-    provinceCtrl.dispose();
-    cityCtrl.dispose();
-    postalCtrl.dispose();
-    addressCtrl.dispose();
-    picNameCtrl.dispose();
-    picPhoneCtrl.dispose();
-    picEmailCtrl.dispose();
-    bankNameCtrl.dispose();
-    bankAccountNameCtrl.dispose();
-    bankNumberCtrl.dispose();
-    super.dispose();
+  void _initializeControllers() {
+    vendorNameCtrl = TextEditingController(); vendorCodeCtrl = TextEditingController(); npwpCtrl = TextEditingController(); provinceCtrl = TextEditingController(); cityCtrl = TextEditingController(); postalCtrl = TextEditingController(); addressCtrl = TextEditingController(); bankNameCtrl = TextEditingController(); bankAccountNameCtrl = TextEditingController(); bankNumberCtrl = TextEditingController();
+    // Inisialisasi controller tambahan
+    phoneCtrl = TextEditingController(); emailCtrl = TextEditingController(); picNameCtrl = TextEditingController(); picPhoneCtrl = TextEditingController(); picEmailCtrl = TextEditingController();
   }
 
-  Future<void> _fetchVendorDetail() async {
-    final token = await storage.read(key: "token");
-
+  Future<void> _loadInitialData() async {
     try {
-      final response = await http.get(
-        Uri.parse("${ApiBase.baseUrl}/purchase/vendor/${widget.vendorId}"),
-        headers: {
-          "Authorization": token != null && token.isNotEmpty ? "Bearer $token" : "",
-          "Accept": "application/json",
-        },
-      );
+      final results = await Future.wait([
+        _apiService.fetchVendorDetail(widget.vendorId),
+        _apiService.fetchCountries(),
+        _apiService.fetchCurrencies(),
+      ]);
 
-      debugPrint("Vendor Detail Response: ${response.body}");
+      final vendorData = results[0] as Map<String, dynamic>;
+      final fetchedCountries = results[1] as List<CountryModel>;
+      final fetchedCurrencies = results[2] as List<CurrencyModel>;
 
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body);
-        // tolerate wrappers: body may be map with data or be the data directly
-        final payload = (body is Map && body['data'] != null) ? body['data'] : body;
-
-        // try to extract fields without crashing if names differ
-        final vendorMap = payload is Map ? payload : {};
+      if (mounted) {
         setState(() {
-          vendorNameCtrl.text = (vendorMap['vendor_name'] ?? vendorMap['vendorName'] ?? '').toString();
-          vendorCodeCtrl.text = (vendorMap['vendor_code'] ?? vendorMap['vendorCode'] ?? '').toString();
-          phoneCtrl.text = (vendorMap['phone_no'] ?? vendorMap['phoneNo'] ?? '').toString();
-          emailCtrl.text = (vendorMap['email'] ?? '').toString();
-          npwpCtrl.text = (vendorMap['npwp_number'] ?? vendorMap['npwpNumber'] ?? '').toString();
-          provinceCtrl.text = (vendorMap['province'] ?? '').toString();
-          cityCtrl.text = (vendorMap['city'] ?? '').toString();
-          postalCtrl.text = (vendorMap['postal_code'] ?? vendorMap['postalCode'] ?? '').toString();
-          addressCtrl.text = (vendorMap['address'] ?? '').toString();
-          picNameCtrl.text = (vendorMap['contact_person_name'] ?? vendorMap['contactPersonName'] ?? '').toString();
-          picPhoneCtrl.text = (vendorMap['contact_person_phone'] ?? vendorMap['contactPersonPhone'] ?? '').toString();
-          picEmailCtrl.text = (vendorMap['contact_person_email'] ?? vendorMap['contactPersonEmail'] ?? '').toString();
-          bankNameCtrl.text = (vendorMap['bank_name'] ?? '').toString();
-          bankAccountNameCtrl.text = (vendorMap['bank_account_name'] ?? vendorMap['bankAccountName'] ?? '').toString();
-          bankNumberCtrl.text = (vendorMap['bank_account_number'] ?? vendorMap['bankAccountNumber'] ?? '').toString();
-
-          // store vendor country/currency and apply after lists loaded
-          _vendorCountryFromApi = vendorMap['id_country'] is int
-              ? vendorMap['id_country']
-              : int.tryParse(vendorMap['id_country']?.toString() ?? '') ?? int.tryParse(vendorMap['country']?.toString() ?? '');
-          _vendorCurrencyFromApi = vendorMap['id_currency'] is int
-              ? vendorMap['id_currency']
-              : int.tryParse(vendorMap['id_currency']?.toString() ?? '') ?? int.tryParse(vendorMap['currency']?.toString() ?? '');
-          // if countries/currencies already loaded, apply immediately
-          if (countries.isNotEmpty) selectedCountry = _vendorCountryFromApi;
-          if (currencies.isNotEmpty) selectedCurrency = _vendorCurrencyFromApi;
+          _populateControllers(vendorData);
+          countries = fetchedCountries;
+          currencies = fetchedCurrencies;
+          selectedCountry = int.tryParse(vendorData['country']?.toString() ?? '');
+          selectedCurrency = int.tryParse(vendorData['currency']?.toString() ?? '');
+          _isLoading = false;
         });
       }
     } catch (e) {
-      debugPrint("Fetch vendor detail error: $e");
-    } finally {
-      setState(() => isLoadingVendor = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error memuat data: $e")));
+        setState(() => _isLoading = false);
+      }
     }
   }
 
-  Future<void> _fetchCountries() async {
-    final token = await storage.read(key: "token");
+  void _populateControllers(Map<String, dynamic> payload) {
+    String safe(dynamic v) => (v ?? '').toString();
+    vendorNameCtrl.text = safe(payload['vendor_name']); vendorCodeCtrl.text = safe(payload['vendor_code']); npwpCtrl.text = safe(payload['npwp_number']); provinceCtrl.text = safe(payload['province']); cityCtrl.text = safe(payload['city']); postalCtrl.text = safe(payload['postal_code']); addressCtrl.text = safe(payload['address']); bankNameCtrl.text = safe(payload['bank_name']); bankAccountNameCtrl.text = safe(payload['bank_account_name']); bankNumberCtrl.text = safe(payload['bank_account_number']);
+    // Populate controller tambahan
+    phoneCtrl.text = safe(payload['phone_no']); emailCtrl.text = safe(payload['email']); picNameCtrl.text = safe(payload['contact_person_name']); picPhoneCtrl.text = safe(payload['contact_person_phone']); picEmailCtrl.text = safe(payload['contact_person_email']);
+  }
 
-    try {
-      final response = await http.get(
-        Uri.parse("${ApiBase.baseUrl}/master/countries/"),
-        headers: {
-          "Authorization": token != null && token.isNotEmpty ? "Bearer $token" : "",
-          "Accept": "application/json",
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body);
-        final list = (body is Map && body['data'] is List) ? body['data'] : (body is List ? body : []);
-        setState(() {
-          countries = (list as List).map((e) => CountryModel.fromJson(e)).toList();
-          // apply vendor country if previously fetched
-          if (_vendorCountryFromApi != null) selectedCountry = _vendorCountryFromApi;
-        });
-      }
-    } catch (e) {
-      debugPrint("Fetch countries error: $e");
-    } finally {
-      setState(() => isLoadingCountry = false);
+  void _nextStep() {
+    if (!_formKeys[_currentStep].currentState!.validate()) return;
+    if (_currentStep < _totalSteps - 1) {
+      setState(() => _currentStep++);
+      _pageController.animateToPage(_currentStep, duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
+    } else {
+      _updateVendor();
     }
   }
 
-  Future<void> _fetchCurrencies() async {
-    final token = await storage.read(key: "token");
-
-    try {
-      final response = await http.get(
-        Uri.parse("${ApiBase.baseUrl}/master/currency/"),
-        headers: {
-          "Authorization": token != null && token.isNotEmpty ? "Bearer $token" : "",
-          "Accept": "application/json",
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body);
-        final list = (body is Map && body['data'] is List) ? body['data'] : (body is List ? body : []);
-        setState(() {
-          currencies = (list as List).map((e) => CurrencyModel.fromJson(e)).toList();
-          // apply vendor currency if previously fetched
-          if (_vendorCurrencyFromApi != null) selectedCurrency = _vendorCurrencyFromApi;
-        });
-      }
-    } catch (e) {
-      debugPrint("Fetch currencies error: $e");
-    } finally {
-      setState(() => isLoadingCurrency = false);
+  void _previousStep() {
+    if (_currentStep > 0) {
+      setState(() => _currentStep--);
+      _pageController.animateToPage(_currentStep, duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
     }
   }
 
   Future<void> _updateVendor() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    final token = await storage.read(key: "token");
-
+    setState(() => _isSubmitting = true);
     final requestBody = {
-      "vendor_name": vendorNameCtrl.text,
-      "vendor_code": vendorCodeCtrl.text,
-      "phone_no": phoneCtrl.text,
-      "email": emailCtrl.text,
-      "npwp_number": npwpCtrl.text,
-      "province": provinceCtrl.text,
-      "city": cityCtrl.text,
-      "postal_code": postalCtrl.text,
-      "address": addressCtrl.text,
-      "contact_person_name": picNameCtrl.text,
-      "contact_person_phone": picPhoneCtrl.text,
-      "contact_person_email": picEmailCtrl.text,
-      "bank_name": bankNameCtrl.text,
-      "bank_account_name": bankAccountNameCtrl.text,
-      "bank_account_number": bankNumberCtrl.text,
-      "id_country": selectedCountry,
-      "id_currency": selectedCurrency,
+      "vendor_name": vendorNameCtrl.text, "vendor_code": vendorCodeCtrl.text, "npwp_number": npwpCtrl.text, "province": provinceCtrl.text, "city": cityCtrl.text, "postal_code": postalCtrl.text, "address": addressCtrl.text, "bank_name": bankNameCtrl.text, "bank_account_name": bankAccountNameCtrl.text, "bank_account_number": bankNumberCtrl.text, "country": selectedCountry, "currency": selectedCurrency,
+      // Tambahkan data yang controllernya dihapus dari step 2
+      "phone_no": phoneCtrl.text, "email": emailCtrl.text, "contact_person_name": picNameCtrl.text, "contact_person_phone": picPhoneCtrl.text, "contact_person_email": picEmailCtrl.text,
     };
 
-    debugPrint("Update Body: ${jsonEncode(requestBody)}");
-
     try {
-      final response = await http.put(
-        Uri.parse("${ApiBase.baseUrl}/purchase/vendor/${widget.vendorId}"),
-        headers: {
-          "Authorization": "Bearer $token",
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode(requestBody),
-      );
-
-      debugPrint("Update Response Code: ${response.statusCode}");
-      debugPrint("Update Response Body: ${response.body}");
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Vendor berhasil diupdate")),
-        );
+      final success = await _apiService.updateVendor(vendorId: widget.vendorId, data: requestBody);
+      if (!mounted) return;
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Vendor berhasil diupdate")));
         Navigator.pop(context, true);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Gagal update vendor: ${response.body}")),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Gagal update vendor.")));
       }
     } catch (e) {
-      debugPrint("Update vendor error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
     }
+  }
+
+  InputDecoration _getInputDecoration(String label) {
+    return InputDecoration( labelText: label, labelStyle: GoogleFonts.poppins(color: Colors.grey.shade600), filled: true, fillColor: lightGreen.withOpacity(0.3), border: OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide.none), enabledBorder: OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide(color: softGreen.withOpacity(0.5), width: 1.0)), focusedBorder: OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide(color: softGreen, width: 2.0)),);
+  }
+
+  Widget _buildTitleSection(String title) {
+    return Padding(padding: const EdgeInsets.only(top: 24, bottom: 12), child: Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 18, color: softGreen)));
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoadingVendor) {
+    if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Form(
-        key: _formKey,
-        child: Column(
+    return Column(
+      children: [
+        Padding(padding: const EdgeInsets.all(16.0), child: _buildStepperHeader()),
+        Expanded(
+          child: PageView(
+            controller: _pageController,
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              GeneralInfoStep(formKey: _formKeys[0], nameController: vendorNameCtrl, codeController: vendorCodeCtrl, npwpController: npwpCtrl, inputDecoration: _getInputDecoration, titleSection: _buildTitleSection),
+              LocationInfoStep(formKey: _formKeys[1], provinceCtrl: provinceCtrl, cityCtrl: cityCtrl, postalCtrl: postalCtrl, addressCtrl: addressCtrl, selectedCountry: selectedCountry, countries: countries, onCountryChanged: (val) => setState(() => selectedCountry = val), inputDecoration: _getInputDecoration, titleSection: _buildTitleSection),
+              FinancialStep(formKey: _formKeys[2], bankNameCtrl: bankNameCtrl, bankAccountNameCtrl: bankAccountNameCtrl, bankNumberCtrl: bankNumberCtrl, selectedCurrency: selectedCurrency, currencies: currencies, onCurrencyChanged: (val) => setState(() => selectedCurrency = val), inputDecoration: _getInputDecoration, titleSection: _buildTitleSection)
+            ],
+          ),
+        ),
+        _buildNavigationButtons(),
+      ],
+    );
+  }
+
+  Widget _buildStepperHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LinearProgressIndicator(value: (_currentStep + 1) / _totalSteps, backgroundColor: Colors.grey.shade200, color: softGreen, minHeight: 8, borderRadius: BorderRadius.circular(4)),
+        const SizedBox(height: 12),
+        Row(
           children: [
-            TextFormField(
-              controller: vendorNameCtrl,
-              decoration: const InputDecoration(labelText: "Vendor Name"),
-              validator: (v) => v == null || v.isEmpty ? "Required" : null,
-            ),
-            TextFormField(
-              controller: vendorCodeCtrl,
-              decoration: const InputDecoration(labelText: "Vendor Code"),
-            ),
-            TextFormField(
-              controller: phoneCtrl,
-              decoration: const InputDecoration(labelText: "Phone No"),
-            ),
-            TextFormField(
-              controller: emailCtrl,
-              decoration: const InputDecoration(labelText: "Email"),
-            ),
-            TextFormField(
-              controller: npwpCtrl,
-              decoration: const InputDecoration(labelText: "NPWP Number"),
-            ),
-
-            const SizedBox(height: 10),
-            isLoadingCountry
-                ? const CircularProgressIndicator()
-                : DropdownButtonFormField<int>(
-                    value: selectedCountry,
-                    items: countries
-                        .map((c) => DropdownMenuItem(
-                            value: c.id, child: Text(c.name)))
-                        .toList(),
-                    onChanged: (val) => setState(() => selectedCountry = val),
-                    decoration: const InputDecoration(labelText: "Country"),
-                  ),
-
-            TextFormField(
-              controller: provinceCtrl,
-              decoration: const InputDecoration(labelText: "Province"),
-            ),
-            TextFormField(
-              controller: cityCtrl,
-              decoration: const InputDecoration(labelText: "City"),
-            ),
-            TextFormField(
-              controller: postalCtrl,
-              decoration: const InputDecoration(labelText: "Postal Code"),
-            ),
-            TextFormField(
-              controller: addressCtrl,
-              decoration: const InputDecoration(labelText: "Address"),
-              maxLines: 2,
-            ),
-
-            const Divider(),
-            TextFormField(
-              controller: picNameCtrl,
-              decoration: const InputDecoration(labelText: "PIC Name"),
-            ),
-            TextFormField(
-              controller: picPhoneCtrl,
-              decoration: const InputDecoration(labelText: "PIC Phone"),
-            ),
-            TextFormField(
-              controller: picEmailCtrl,
-              decoration: const InputDecoration(labelText: "PIC Email"),
-            ),
-
-            const Divider(),
-            TextFormField(
-              controller: bankNameCtrl,
-              decoration: const InputDecoration(labelText: "Bank Name"),
-            ),
-
-            isLoadingCurrency
-                ? const CircularProgressIndicator()
-                : DropdownButtonFormField<int>(
-                    value: selectedCurrency,
-                    items: currencies
-                        .map((c) => DropdownMenuItem(
-                            value: c.id, child: Text(c.name)))
-                        .toList(),
-                    onChanged: (val) => setState(() => selectedCurrency = val),
-                    decoration: const InputDecoration(labelText: "Currency"),
-                  ),
-
-            TextFormField(
-              controller: bankAccountNameCtrl,
-              decoration: const InputDecoration(labelText: "Bank Account Name"),
-            ),
-            TextFormField(
-              controller: bankNumberCtrl,
-              decoration: const InputDecoration(labelText: "Bank Number"),
-            ),
-
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _updateVendor,
-              child: const Text("Update Vendor"),
-            ),
+            Text('STEP ${_currentStep + 1}: ', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: softGreen)),
+            Expanded(child: Text(stepDetails[_currentStep]['title']!, style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87), overflow: TextOverflow.ellipsis)),
           ],
         ),
+        const SizedBox(height: 4),
+        Text(stepDetails[_currentStep]['guide']!, style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade600)),
+      ],
+    );
+  }
+
+  Widget _buildNavigationButtons() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      child: Row(
+        children: [
+          if (_currentStep > 0) Expanded(child: OutlinedButton(onPressed: _previousStep, style: OutlinedButton.styleFrom(minimumSize: const Size(0, 52), side: BorderSide(color: Colors.grey.shade300), shape: RoundedRectangleBorder(borderRadius: borderRadius)), child: Text("Kembali", style: GoogleFonts.poppins(color: Colors.grey.shade700, fontWeight: FontWeight.w600)))),
+          if (_currentStep > 0) const SizedBox(width: 16),
+          Expanded(child: Container(decoration: BoxDecoration(borderRadius: borderRadius, boxShadow: [BoxShadow(color: softGreen.withOpacity(0.4), blurRadius: 18, spreadRadius: 1, offset: const Offset(0, 6))]), child: ElevatedButton(onPressed: _isSubmitting ? null : _nextStep, style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 52), backgroundColor: softGreen, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: borderRadius), elevation: 0), child: _isSubmitting ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2) : Text(_currentStep == _totalSteps - 1 ? "Simpan Perubahan" : "Lanjut", style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600))))),
+        ],
       ),
     );
   }

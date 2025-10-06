@@ -1,25 +1,41 @@
+// update_location_models.dart
+
+// Helper function untuk parsing yang aman
+int _parseInt(dynamic value, {int defaultValue = 0}) {
+  if (value == null) return defaultValue;
+  if (value is int) return value;
+  if (value is double) return value.toInt();
+  if (value is String) return int.tryParse(value) ?? defaultValue;
+  return defaultValue;
+}
+
+String _parseString(dynamic value, {String defaultValue = ''}) {
+  return value?.toString() ?? defaultValue;
+}
+
+
 class LocationUpdateModel {
   final int idLocation;
   final String locationName;
   final String locationCode;
   final String warehouseName;
-  final int idWarehouse;
+  final int warehouse; // Diubah dari idWarehouse
   final String parentLocationName;
-  final int? parentLocationId;
+  final int? parentLocation; // Diubah dari parentLocationIdb
   final int height;
   final int length;
   final int width;
-  final String volume;
+  final int volume;
   final String description;
 
   LocationUpdateModel({
     required this.idLocation,
     required this.locationName,
     required this.locationCode,
-    required this.parentLocationId,
     required this.warehouseName,
-    required this.idWarehouse,
+    required this.warehouse, // Diubah
     required this.parentLocationName,
+    this.parentLocation, // Diubah
     required this.height,
     required this.length,
     required this.width,
@@ -29,22 +45,18 @@ class LocationUpdateModel {
 
   factory LocationUpdateModel.fromJson(Map<String, dynamic> json) {
     return LocationUpdateModel(
-      idLocation: json['id_location'],
-      locationName: json['location_name'],
-      locationCode: json['location_code'],
-      warehouseName: json['warehouse_name'] ?? '',
-      idWarehouse: json['id_warehouse'] != null
-          ? int.parse(json['id_warehouse'].toString())
-          : 0,
-      parentLocationName: json['parent_location_name'] ?? '',
-      parentLocationId: json['parent_location_id'] != null
-          ? int.parse(json['parent_location_id'].toString())
-          : null,
-      height: json['height'] != null ? int.parse(json['height'].toString()) : 0,
-      length: json['length'] != null ? int.parse(json['length'].toString()) : 0,
-      width: json['width'] != null ? int.parse(json['width'].toString()) : 0,
-      volume: json['volume']?.toString() ?? '',
-      description: json['description'] ?? '',
+      idLocation: _parseInt(json['id_location']),
+      locationName: _parseString(json['location_name']),
+      locationCode: _parseString(json['location_code']),
+      warehouseName: _parseString(json['warehouse_name']),
+      warehouse: _parseInt(json['warehouse']), // Diubah dari 'id_warehouse'
+      parentLocationName: _parseString(json['parent_location_name']),
+      parentLocation: json['parent_location'] == null ? null : _parseInt(json['parent_location']), // Diubah dari 'parent_location_id'
+      height: _parseInt(json['height']),
+      length: _parseInt(json['length']),
+      width: _parseInt(json['width']),
+      volume: _parseInt(json['volume']),
+      description: _parseString(json['description']),
     );
   }
 
@@ -54,9 +66,9 @@ class LocationUpdateModel {
       'location_name': locationName,
       'location_code': locationCode,
       'warehouse_name': warehouseName,
-      'id_warehouse': idWarehouse,
+      'warehouse': warehouse, // Diubah
       'parent_location_name': parentLocationName,
-      'parent_location_id': parentLocationId,
+      'parent_location': parentLocation, // Diubah
       'height': height,
       'length': length,
       'width': width,
@@ -77,8 +89,8 @@ class WarehouseDropdownModel {
 
   factory WarehouseDropdownModel.fromJson(Map<String, dynamic> json) {
     return WarehouseDropdownModel(
-      idWarehouse: json['id_warehouse'],
-      warehouseName: json['warehouse_name'],
+      idWarehouse: _parseInt(json['id_warehouse']),
+      warehouseName: _parseString(json['warehouse_name']),
     );
   }
 
@@ -88,6 +100,16 @@ class WarehouseDropdownModel {
 
   @override
   String toString() => warehouseName;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WarehouseDropdownModel &&
+          runtimeType == other.runtimeType &&
+          idWarehouse == other.idWarehouse;
+
+  @override
+  int get hashCode => idWarehouse.hashCode;
 }
 
 class LocationDropdownModel {
@@ -98,8 +120,8 @@ class LocationDropdownModel {
 
   factory LocationDropdownModel.fromJson(Map<String, dynamic> json) {
     return LocationDropdownModel(
-      idLocation: json['id_location'],
-      locationName: json['location_name'],
+      idLocation: _parseInt(json['id_location']),
+      locationName: _parseString(json['location_name']),
     );
   }
 
@@ -109,4 +131,14 @@ class LocationDropdownModel {
 
   @override
   String toString() => locationName;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LocationDropdownModel &&
+          runtimeType == other.runtimeType &&
+          idLocation == other.idLocation;
+
+  @override
+  int get hashCode => idLocation.hashCode;
 }
