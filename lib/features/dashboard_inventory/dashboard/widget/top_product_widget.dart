@@ -11,7 +11,7 @@ class TopProductList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (topProducts.isEmpty) {
-      return const Text('Tidak ada data produk');
+      return const Text('No Products Available ');
     }
 
     // .take(5) tidak lagi diperlukan jika API sudah memberikannya

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_fonts/google_fonts.dart'; // Pastikan Anda sudah menambahkan google_fonts di pubspec.yaml
 import '../../../../../../../../services/api_base.dart';
 import '../models/create_models_vendor.dart';
 
@@ -13,10 +14,19 @@ class VendorCreateWidget extends StatefulWidget {
 }
 
 class _VendorCreateWidgetState extends State<VendorCreateWidget> {
-  final _formKey = GlobalKey<FormState>();
+  // --- State Management untuk Stepper Kustom ---
+  final PageController _pageController = PageController();
+  int _currentStep = 0;
+  final int _totalSteps = 3;
+  final List<GlobalKey<FormState>> _formKeys = [
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>()
+  ];
+
   final storage = const FlutterSecureStorage();
 
-  // Controllers
+  // --- Controllers ---
   final TextEditingController vendorNameCtrl = TextEditingController();
   final TextEditingController vendorCodeCtrl = TextEditingController();
   final TextEditingController phoneCtrl = TextEditingController();
@@ -33,15 +43,26 @@ class _VendorCreateWidgetState extends State<VendorCreateWidget> {
   final TextEditingController bankAccountNameCtrl = TextEditingController();
   final TextEditingController bankNumberCtrl = TextEditingController();
 
-  // Dropdowns
+  // --- Dropdowns & State Lainnya ---
   int? selectedCountry;
   int? selectedCurrency;
-
   List<CountryModel> countries = [];
   List<CurrencyModel> currencies = [];
-
   bool isLoadingCountry = true;
   bool isLoadingCurrency = true;
+  bool isSubmitting = false;
+
+  // --- Warna dan Style ---
+  final softGreen = const Color(0xFF679436);
+  final lightGreen = const Color(0xFFC8E6C9);
+  final borderRadius = BorderRadius.circular(16.0);
+
+  // --- Detail Langkah (Sama seperti Update) ---
+  final stepDetails = [
+    {'title': 'General & Business Info', 'guide': 'Informasi dasar vendor dan NPWP.'},
+    {'title': 'Contact & Location', 'guide': 'Detail alamat dan kontak person (PIC).'},
+    {'title': 'Financial Details', 'guide': 'Informasi bank dan mata uang.'},
+  ];
 
   @override
   void initState() {
@@ -50,292 +71,278 @@ class _VendorCreateWidgetState extends State<VendorCreateWidget> {
     _fetchCurrencies();
   }
 
-Future<void> _fetchCountries() async {
-  final token = await storage.read(key: "token");
-
-  try {
-    final response = await http.get(
-      Uri.parse("${ApiBase.baseUrl}/master/countries/"),
-      headers: {"Authorization": "Bearer $token"},
-    );
-
-    if (response.statusCode == 200) {
-      final body = jsonDecode(response.body);
-
-      if (body["status"] == true && body["data"] != null) {
-        final List data = body["data"];
-
-        setState(() {
-          countries = data.map((e) => CountryModel.fromJson(e)).toList();
-        });
-      } else {
-        debugPrint("Response error: status false or data null");
-      }
-    } else {
-      debugPrint("HTTP error: ${response.statusCode}");
-    }
-  } catch (e) {
-    debugPrint("Exception: $e");
-  } finally {
-    setState(() {
-      isLoadingCountry = false;
-    });
+  @override
+  void dispose() {
+    _pageController.dispose();
+    vendorNameCtrl.dispose();
+    vendorCodeCtrl.dispose();
+    phoneCtrl.dispose();
+    emailCtrl.dispose();
+    npwpCtrl.dispose();
+    provinceCtrl.dispose();
+    cityCtrl.dispose();
+    postalCtrl.dispose();
+    addressCtrl.dispose();
+    picNameCtrl.dispose();
+    picPhoneCtrl.dispose();
+    picEmailCtrl.dispose();
+    bankNameCtrl.dispose();
+    bankAccountNameCtrl.dispose();
+    bankNumberCtrl.dispose();
+    super.dispose();
   }
-}
-
-
-
-Future<void> _fetchCurrencies() async {
-  final token = await storage.read(key: "token");
-
-  try {
-    final response = await http.get(
-      Uri.parse("${ApiBase.baseUrl}/master/currency/"),
-      headers: {"Authorization": "Bearer $token"},
-    );
-
-    if (response.statusCode == 200) {
-      final body = jsonDecode(response.body);
-
-      if (body["status"] == true && body["data"] != null) {
-        final List data = body["data"];
-
-        setState(() {
-          currencies = data.map((e) => CurrencyModel.fromJson(e)).toList();
-        });
-
-        debugPrint("Currencies loaded: ${currencies.length}");
-      } else {
-        debugPrint("Response error: status false or data null");
+  
+  // --- Logika Fetch Data ---
+  Future<void> _fetchCountries() async {
+    final token = await storage.read(key: "token");
+    try {
+      final response = await http.get(
+        Uri.parse("${ApiBase.baseUrl}/master/countries/"),
+        headers: {"Authorization": "Bearer $token"},
+      );
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body);
+        if (body["status"] == true && body["data"] != null) {
+          final List data = body["data"];
+          if (mounted) {
+            setState(() {
+              countries = data.map((e) => CountryModel.fromJson(e)).toList();
+            });
+          }
+        }
       }
-    } else {
-      debugPrint("Failed to load currencies: ${response.statusCode}");
+    } catch (e) {
+      debugPrint("Exception fetching countries: $e");
+    } finally {
+      if (mounted) setState(() => isLoadingCountry = false);
     }
-  } catch (e) {
-    debugPrint("Error fetching currencies: $e");
-  } finally {
-    // ✅ supaya spinner berhenti apapun hasilnya
-    setState(() => isLoadingCurrency = false);
   }
-}
+
+  Future<void> _fetchCurrencies() async {
+    final token = await storage.read(key: "token");
+    try {
+      final response = await http.get(
+        Uri.parse("${ApiBase.baseUrl}/master/currency/"),
+        headers: {"Authorization": "Bearer $token"},
+      );
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body);
+        if (body["status"] == true && body["data"] != null) {
+          final List data = body["data"];
+          if (mounted) {
+            setState(() {
+              currencies = data.map((e) => CurrencyModel.fromJson(e)).toList();
+            });
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching currencies: $e");
+    } finally {
+      if (mounted) setState(() => isLoadingCurrency = false);
+    }
+  }
+
+  // --- Logika Navigasi & Submit ---
+  void _nextStep() {
+    if (!_formKeys[_currentStep].currentState!.validate()) return;
+
+    if (_currentStep < _totalSteps - 1) {
+      setState(() => _currentStep++);
+      _pageController.animateToPage(_currentStep, duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
+    } else if (_currentStep == _totalSteps - 1) {
+      _submitVendor();
+    }
+  }
+
+  void _previousStep() {
+    if (_currentStep > 0) {
+      setState(() => _currentStep--);
+      _pageController.animateToPage(_currentStep, duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
+    }
+  }
 
   Future<void> _submitVendor() async {
-    if (!_formKey.currentState!.validate()) return;
-
+    setState(() => isSubmitting = true);
     final token = await storage.read(key: "token");
-
-    if (selectedCountry == null || selectedCurrency == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Country & Currency wajib dipilih")),
-      );
-      return;
-    }
-
     final requestBody = {
-      "vendor_name": vendorNameCtrl.text,
-      "vendor_code": vendorCodeCtrl.text,
-      "phone_no": phoneCtrl.text,
-      "email": emailCtrl.text,
-      "npwp_number": npwpCtrl.text,
-      "province": provinceCtrl.text,
-      "city": cityCtrl.text,
-      "postal_code": postalCtrl.text,
-      "address": addressCtrl.text,
-      "contact_person_name": picNameCtrl.text,
-      "contact_person_phone": picPhoneCtrl.text,
-      "contact_person_email": picEmailCtrl.text,
-      "bank_name": bankNameCtrl.text,
-      "bank_account_name": bankAccountNameCtrl.text,
-      "bank_account_number": bankNumberCtrl.text,
-      // gunakan key yang lebih mungkin diterima backend
-      "id_country": selectedCountry,
-      "id_currency": selectedCurrency,
+      "vendor_name": vendorNameCtrl.text, "vendor_code": vendorCodeCtrl.text,
+      "phone_no": phoneCtrl.text, "email": emailCtrl.text, "npwp_number": npwpCtrl.text,
+      "province": provinceCtrl.text, "city": cityCtrl.text, "postal_code": postalCtrl.text,
+      "address": addressCtrl.text, "contact_person_name": picNameCtrl.text,
+      "contact_person_phone": picPhoneCtrl.text, "contact_person_email": picEmailCtrl.text,
+      "bank_name": bankNameCtrl.text, "bank_account_name": bankAccountNameCtrl.text,
+      "bank_account_number": bankNumberCtrl.text, "id_country": selectedCountry, "id_currency": selectedCurrency,
     };
 
-    debugPrint("Request Body: ${jsonEncode(requestBody)}");
-
-    final response = await http.post(
-      Uri.parse("${ApiBase.baseUrl}/inventory/vendor"),
-      headers: {
-        "Authorization": token != null && token.isNotEmpty ? "Bearer $token" : "",
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-      },
-      body: jsonEncode(requestBody),
-    );
-
-    debugPrint("Response Code: ${response.statusCode}");
-    debugPrint("Response Body: ${response.body}");
-
-    // parsing yang aman dan toleran terhadap wrapper
     try {
-      final body = jsonDecode(response.body);
-
-      // normalisasi payload: prefer body['data'] jika ada
-      final payload = (body is Map && body['data'] != null) ? body['data'] : body;
-
-      // cek pesan sukses di berbagai lokasi
-      final success = (body is Map && (body['status'] == true || body['success'] == true)) ||
-          (response.statusCode == 200 || response.statusCode == 201);
-
-      if (success) {
-        // coba ambil vendor name / id dari payload tanpa memaksa fromJson
-        String? vendorName;
-        int? vendorId;
-        if (payload is Map) {
-          vendorName = payload['vendor_name']?.toString() ?? payload['vendorName']?.toString();
-          vendorId = payload['id_vendor'] is int ? payload['id_vendor'] : (int.tryParse(payload['id_vendor']?.toString() ?? '') ?? null);
-        }
-
-        final message = vendorName != null
-            ? "Vendor $vendorName berhasil dibuat"
-            : (body is Map && body['message'] != null ? body['message'].toString() : 'Vendor berhasil dibuat');
-
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) Navigator.pop(context, true);
-        });
-        return;
-      }
-
-      // jika bukan sukses, ambil message jika ada
-      final errMsg = (body is Map && body['message'] != null)
-          ? body['message'].toString()
-          : response.body;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Gagal membuat vendor: $errMsg")));
-    } catch (e, st) {
-      debugPrint("Parse error: $e\n$st");
-      // tampilkan raw body untuk debug
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error parsing response. See logs. Status: ${response.statusCode}")),
+      final response = await http.post(
+        Uri.parse("${ApiBase.baseUrl}/inventory/vendor"),
+        headers: {"Authorization": "Bearer $token", "Content-Type": "application/json", "Accept": "application/json"},
+        body: jsonEncode(requestBody),
       );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Vendor created successfully!"), backgroundColor: Colors.green));
+        Navigator.pop(context, true);
+      } else {
+        final body = jsonDecode(response.body);
+        final errMsg = body['message'] ?? "Failed to create vendor.";
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errMsg), backgroundColor: Colors.red));
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("An error occurred: $e"), backgroundColor: Colors.red));
+    } finally {
+      if (mounted) setState(() => isSubmitting = false);
     }
   }
-// ...existing code...
 
+  // --- Helper Widgets untuk UI ---
+  InputDecoration _getInputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: GoogleFonts.poppins(color: Colors.grey.shade600),
+      filled: true,
+      fillColor: lightGreen.withOpacity(0.3),
+      border: OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide.none),
+      enabledBorder: OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide(color: softGreen.withOpacity(0.5), width: 1.0)),
+      focusedBorder: OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide(color: softGreen, width: 2.0)),
+    );
+  }
+
+  Widget _buildTitleSection(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24, bottom: 12),
+      child: Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 18, color: softGreen)),
+    );
+  }
+
+  // --- Widget untuk Setiap Langkah ---
+  Widget _buildStep1() {
+    return Form(
+      key: _formKeys[0],
+      child: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        children: [
+          _buildTitleSection(stepDetails[0]['title']!),
+          TextFormField(controller: vendorNameCtrl, decoration: _getInputDecoration("Vendor Name"), validator: (v) => v == null || v.isEmpty ? "Required" : null, style: GoogleFonts.poppins()),
+          const SizedBox(height: 16),
+          TextFormField(controller: vendorCodeCtrl, decoration: _getInputDecoration("Vendor Code"), style: GoogleFonts.poppins()),
+          const SizedBox(height: 16),
+          TextFormField(controller: npwpCtrl, decoration: _getInputDecoration("NPWP Number"), keyboardType: TextInputType.number, style: GoogleFonts.poppins()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep2() {
+    return Form(
+      key: _formKeys[1],
+      child: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        children: [
+          _buildTitleSection("Primary Contact"),
+          TextFormField(controller: phoneCtrl, decoration: _getInputDecoration("Phone No"), keyboardType: TextInputType.phone, style: GoogleFonts.poppins()),
+          const SizedBox(height: 16),
+          TextFormField(controller: emailCtrl, decoration: _getInputDecoration("Email"), keyboardType: TextInputType.emailAddress, style: GoogleFonts.poppins()),
+          _buildTitleSection("Contact Person (PIC)"),
+          TextFormField(controller: picNameCtrl, decoration: _getInputDecoration("PIC Name"), style: GoogleFonts.poppins()),
+          const SizedBox(height: 16),
+          TextFormField(controller: picPhoneCtrl, decoration: _getInputDecoration("PIC Phone"), keyboardType: TextInputType.phone, style: GoogleFonts.poppins()),
+          const SizedBox(height: 16),
+          TextFormField(controller: picEmailCtrl, decoration: _getInputDecoration("PIC Email"), keyboardType: TextInputType.emailAddress, style: GoogleFonts.poppins()),
+          _buildTitleSection("Address"),
+          DropdownButtonFormField<int>(value: selectedCountry, items: countries.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name, style: GoogleFonts.poppins()))).toList(), onChanged: (val) => setState(() => selectedCountry = val), decoration: _getInputDecoration("Country"), validator: (v) => v == null ? "Required" : null),
+          const SizedBox(height: 16),
+          TextFormField(controller: provinceCtrl, decoration: _getInputDecoration("Province"), style: GoogleFonts.poppins()),
+          const SizedBox(height: 16),
+          TextFormField(controller: cityCtrl, decoration: _getInputDecoration("City"), style: GoogleFonts.poppins()),
+          const SizedBox(height: 16),
+          TextFormField(controller: postalCtrl, decoration: _getInputDecoration("Postal Code"), keyboardType: TextInputType.number, style: GoogleFonts.poppins()),
+          const SizedBox(height: 16),
+          TextFormField(controller: addressCtrl, decoration: _getInputDecoration("Address"), maxLines: 3, style: GoogleFonts.poppins()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep3() {
+    return Form(
+      key: _formKeys[2],
+      child: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        children: [
+          _buildTitleSection(stepDetails[2]['title']!),
+          DropdownButtonFormField<int>(value: selectedCurrency, items: currencies.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name, style: GoogleFonts.poppins()))).toList(), onChanged: (val) => setState(() => selectedCurrency = val), decoration: _getInputDecoration("Currency"), validator: (v) => v == null ? "Required" : null),
+          const SizedBox(height: 16),
+          TextFormField(controller: bankNameCtrl, decoration: _getInputDecoration("Bank Name"), style: GoogleFonts.poppins()),
+          const SizedBox(height: 16),
+          TextFormField(controller: bankAccountNameCtrl, decoration: _getInputDecoration("Bank Account Name"), style: GoogleFonts.poppins()),
+          const SizedBox(height: 16),
+          TextFormField(controller: bankNumberCtrl, decoration: _getInputDecoration("Bank Account Number"), keyboardType: TextInputType.number, style: GoogleFonts.poppins()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavigationButtons() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      child: Row(
+        children: [
+          if (_currentStep > 0) Expanded(child: OutlinedButton(onPressed: _previousStep, style: OutlinedButton.styleFrom(minimumSize: const Size(0, 52), side: BorderSide(color: Colors.grey.shade300), shape: RoundedRectangleBorder(borderRadius: borderRadius)), child: Text("Kembali", style: GoogleFonts.poppins(color: Colors.grey.shade700, fontWeight: FontWeight.w600)))),
+          if (_currentStep > 0) const SizedBox(width: 16),
+          Expanded(child: Container(decoration: BoxDecoration(borderRadius: borderRadius, boxShadow: [BoxShadow(color: softGreen.withOpacity(0.4), blurRadius: 18, spreadRadius: 1, offset: const Offset(0, 6))]), child: ElevatedButton(onPressed: isSubmitting ? null : _nextStep, style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 52), backgroundColor: softGreen, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: borderRadius), elevation: 0), child: isSubmitting ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2) : Text(_currentStep == _totalSteps - 1 ? "Simpan Vendor" : "Lanjut", style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600))))),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepperHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LinearProgressIndicator(value: (_currentStep + 1) / _totalSteps, backgroundColor: Colors.grey.shade200, color: softGreen, minHeight: 8, borderRadius: BorderRadius.circular(4)),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Text('STEP ${_currentStep + 1}: ', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: softGreen)),
+            Expanded(child: Text(stepDetails[_currentStep]['title']!, style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87), overflow: TextOverflow.ellipsis)),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(stepDetails[_currentStep]['guide']!, style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade600)),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Form(
-        key: _formKey,
-        child: Column(
+    if (isLoadingCountry || isLoadingCurrency) {
+      return Scaffold(appBar: AppBar(title: const Text("Create New Vendor")), body: const Center(child: CircularProgressIndicator()));
+    }
+
+    final themeWithCustomCursor = Theme.of(context).copyWith(textSelectionTheme: TextSelectionThemeData(cursorColor: softGreen, selectionColor: softGreen.withOpacity(0.4), selectionHandleColor: softGreen));
+
+    return Theme(
+      data: themeWithCustomCursor,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(title: const Text("Create New Vendor"), backgroundColor: Colors.white, elevation: 1, foregroundColor: Colors.black87),
+        body: Column(
           children: [
-            // Vendor Info
-            TextFormField(
-              controller: vendorNameCtrl,
-              decoration: const InputDecoration(labelText: "Vendor Name"),
-              validator: (v) => v!.isEmpty ? "required" : null,
+            Padding(padding: const EdgeInsets.all(16.0), child: _buildStepperHeader()),
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [_buildStep1(), _buildStep2(), _buildStep3()],
+              ),
             ),
-            TextFormField(
-              controller: vendorCodeCtrl,
-              decoration: const InputDecoration(labelText: "Vendor Code"),
-            ),
-            TextFormField(
-              controller: phoneCtrl,
-              decoration: const InputDecoration(labelText: "Phone No"),
-            ),
-            TextFormField(
-              controller: emailCtrl,
-              decoration: const InputDecoration(labelText: "Email"),
-            ),
-            TextFormField(
-              controller: npwpCtrl,
-              decoration: const InputDecoration(labelText: "NPWP Number"),
-            ),
-
-            // Country Dropdown
-            isLoadingCountry
-                ? const CircularProgressIndicator()
-                : DropdownButtonFormField<int>(
-                    value: selectedCountry,
-                    items: countries
-                        .map((c) =>
-                            DropdownMenuItem(value: c.id, child: Text(c.name)))
-                        .toList(),
-                    onChanged: (val) =>
-                        setState(() => selectedCountry = val),
-                    decoration: const InputDecoration(labelText: "Country"),
-                    validator: (v) =>
-                        v == null ? "required" : null,
-                  ),
-
-            TextFormField(
-              controller: provinceCtrl,
-              decoration: const InputDecoration(labelText: "Province"),
-            ),
-            TextFormField(
-              controller: cityCtrl,
-              decoration: const InputDecoration(labelText: "City"),
-            ),
-            TextFormField(
-              controller: postalCtrl,
-              decoration: const InputDecoration(labelText: "Postal Code"),
-            ),
-            TextFormField(
-              controller: addressCtrl,
-              decoration: const InputDecoration(labelText: "Address"),
-              maxLines: 2,
-            ),
-
-            const Divider(),
-
-            // PIC
-            TextFormField(
-              controller: picNameCtrl,
-              decoration: const InputDecoration(labelText: "PIC Name"),
-            ),
-            TextFormField(
-              controller: picPhoneCtrl,
-              decoration: const InputDecoration(labelText: "PIC Phone"),
-            ),
-            TextFormField(
-              controller: picEmailCtrl,
-              decoration: const InputDecoration(labelText: "PIC Email"),
-            ),
-
-            const Divider(),
-
-            // Bank Info
-            TextFormField(
-              controller: bankNameCtrl,
-              decoration: const InputDecoration(labelText: "Bank Name"),
-            ),
-
-            // Currency Dropdown
-            isLoadingCurrency
-                ? const CircularProgressIndicator()
-                : DropdownButtonFormField<int>(
-                    value: selectedCurrency,
-                    items: currencies
-                        .map((c) =>
-                            DropdownMenuItem(value: c.id, child: Text(c.name)))
-                        .toList(),
-                    onChanged: (val) =>
-                        setState(() => selectedCurrency = val),
-                    decoration: const InputDecoration(labelText: "Currency"),
-                    validator: (v) =>
-                        v == null ? "required" : null,
-                  ),
-
-            TextFormField(
-              controller: bankAccountNameCtrl,
-              decoration:
-                  const InputDecoration(labelText: "Bank Account Name"),
-            ),
-            TextFormField(
-              controller: bankNumberCtrl,
-              decoration: const InputDecoration(labelText: "Bank Number"),
-            ),
-
-            const SizedBox(height: 20),
-
-            ElevatedButton(
-              onPressed: _submitVendor,
-              child: const Text("Create Vendor"),
-            ),
+            _buildNavigationButtons(),
           ],
         ),
       ),

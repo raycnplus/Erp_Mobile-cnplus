@@ -19,83 +19,92 @@ class LocationShowScreen extends StatefulWidget {
 
 class _LocationShowScreenState extends State<LocationShowScreen> {
   final storage = const FlutterSecureStorage();
-  Key _childKey = UniqueKey(); // ganti key utk force rebuild
+  Key _childKey = UniqueKey();
+  bool _hasBeenUpdated = false;
 
+  // ▼▼▼ FUNGSI INI TELAH DIPERBAIKI ▼▼▼
   Future<LocationUpdateModel> _fetchUpdateModel() async {
     final token = await storage.read(key: 'token');
+    if (token == null) {
+      throw Exception('Authentication token not found.');
+    }
+    
     final resp = await http.get(
       Uri.parse('${ApiBase.baseUrl}/inventory/location/${widget.idLocation}'),
-      headers: {"Authorization": "Bearer $token"},
+      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
     );
 
-    if (resp.statusCode != 200) {
-      throw Exception('Failed to fetch detail for edit: ${resp.body}');
+    if (resp.statusCode == 200) {
+      // PERBAIKAN: Langsung parse dari body, karena respons API tidak di-nest dalam key 'data'
+      final decoded = jsonDecode(resp.body);
+      return LocationUpdateModel.fromJson(decoded as Map<String, dynamic>);
+    } else {
+      throw Exception('Failed to fetch details: Status ${resp.statusCode}');
     }
-
-    final data = jsonDecode(resp.body) as Map<String, dynamic>;
-    return LocationUpdateModel(
-      idLocation: data['id_location'] as int,
-      idWarehouse: data['id_warehouse'] is int
-          ? data['id_warehouse']
-          : int.tryParse('${data['id_warehouse']}') ?? 0,
-      locationName: (data['location_name'] ?? '') as String,
-      locationCode: (data['location_code'] ?? '') as String,
-      warehouseName: (data['warehouse_name'] ?? '') as String,
-      parentLocationName: (data['parent_location_name'] ?? '') as String,
-      parentLocationId: data['parent_location_id'] as int?, // boleh null
-      height: (data['height'] ?? 0) is int
-          ? data['height']
-          : int.tryParse('${data['height']}') ?? 0,
-      length: (data['length'] ?? 0) is int
-          ? data['length']
-          : int.tryParse('${data['length']}') ?? 0,
-      width: (data['width'] ?? 0) is int
-          ? data['width']
-          : int.tryParse('${data['width']}') ?? 0,
-      volume: (data['volume'] ?? '0').toString(),
-      description: (data['description'] ?? '') as String,
-    );
   }
 
   Future<void> _onEdit() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+    
     try {
       final model = await _fetchUpdateModel();
       if (!mounted) return;
-      final updated = await Navigator.push(
+      Navigator.pop(context); // Tutup dialog loading
+
+      final updated = await Navigator.push<bool>(
         context,
         MaterialPageRoute(
           builder: (_) => LocationUpdateScreen(location: model),
         ),
       );
+
       if (updated == true && mounted) {
         setState(() {
-          _childKey = UniqueKey(); // paksa LocationShowWidget re-init & refetch
+          _hasBeenUpdated = true;
+          _childKey = UniqueKey(); // Paksa child widget untuk refresh datanya
         });
       }
     } catch (e) {
       if (!mounted) return;
+      Navigator.pop(context); // Tutup dialog loading
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal membuka editor: $e')),
+        SnackBar(
+            content: Text('Gagal membuka editor: $e'),
+            backgroundColor: Colors.redAccent),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Location Detail"),
-        actions: [
-          IconButton(
-            tooltip: 'Edit',
-            icon: const Icon(Icons.edit),
-            onPressed: _onEdit,
-          )
-        ],
-      ),
-      body: LocationShowWidget(
-        key: _childKey,                
-        idLocation: widget.idLocation,
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pop(context, _hasBeenUpdated);
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new),
+            onPressed: () => Navigator.pop(context, _hasBeenUpdated),
+          ),
+          title: const Text("Location Detail"),
+          actions: [
+            IconButton(
+              tooltip: 'Edit',
+              icon: const Icon(Icons.edit_outlined),
+              onPressed: _onEdit,
+            )
+          ],
+        ),
+        body: LocationShowWidget(
+          key: _childKey,
+          idLocation: widget.idLocation,
+        ),
       ),
     );
   }

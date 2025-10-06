@@ -45,16 +45,27 @@ class LocationListWidgetState extends State<LocationListWidget> {
 
     final response = await http.get(
       Uri.parse('${ApiBase.baseUrl}/inventory/location'),
-      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
+      headers: {
+      "Authorization": "Bearer $token", 
+      "Accept": "application/json",
+      // Headers untuk mencegah caching
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0",
+    },
     );
 
     if (response.statusCode == 200) {
       final List<dynamic> decodedData = jsonDecode(response.body);
       return decodedData
-          .map((json) => LocationIndexModel.fromJson(json as Map<String, dynamic>))
+          .map(
+            (json) => LocationIndexModel.fromJson(json as Map<String, dynamic>),
+          )
           .toList();
     } else {
-      throw Exception('Failed to load locations: Status code ${response.statusCode}');
+      throw Exception(
+        'Failed to load locations: Status code ${response.statusCode}',
+      );
     }
   }
 
@@ -84,10 +95,16 @@ class LocationListWidgetState extends State<LocationListWidget> {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text("Error: ${snapshot.error}", textAlign: TextAlign.center),
+                  child: Text(
+                    "Error: ${snapshot.error}",
+                    textAlign: TextAlign.center,
+                  ),
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(onPressed: reloadData, child: const Text("Try Again"))
+                ElevatedButton(
+                  onPressed: reloadData,
+                  child: const Text("Try Again"),
+                ),
               ],
             ),
           );
@@ -101,9 +118,9 @@ class LocationListWidgetState extends State<LocationListWidget> {
         final query = widget.searchQuery.toLowerCase();
         final locations = snapshot.data!.where((loc) {
           return loc.locationName.toLowerCase().contains(query) ||
-                 loc.warehouseName.toLowerCase().contains(query) ||
-                 loc.locationCode.toLowerCase().contains(query) ||
-                 loc.parentLocationName.toLowerCase().contains(query);
+              loc.warehouseName.toLowerCase().contains(query) ||
+              loc.locationCode.toLowerCase().contains(query) ||
+              loc.parentLocationName.toLowerCase().contains(query);
         }).toList();
 
         if (locations.isEmpty) {
@@ -134,7 +151,7 @@ class LocationListWidgetState extends State<LocationListWidget> {
             spreadRadius: 0,
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       child: Dismissible(
@@ -153,7 +170,9 @@ class LocationListWidgetState extends State<LocationListWidget> {
         ),
         confirmDismiss: (direction) async {
           if (direction == DismissDirection.endToStart) {
-            bool? deleteConfirmed = await _showDeleteConfirmationDialog(location);
+            bool? deleteConfirmed = await _showDeleteConfirmationDialog(
+              location,
+            );
             if (deleteConfirmed == true) {
               final success = await _deleteLocation(location.idLocation);
               if (success) {
@@ -174,7 +193,9 @@ class LocationListWidgetState extends State<LocationListWidget> {
             return false;
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Edit feature is not yet available.")),
+              const SnackBar(
+                content: Text("Edit feature is not yet available."),
+              ),
             );
             return false;
           }
@@ -190,18 +211,27 @@ class LocationListWidgetState extends State<LocationListWidget> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(location.locationName,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(
+                      location.locationName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    _buildInfoRow(Icons.warehouse_outlined, location.warehouseName),
+                    _buildInfoRow(
+                      Icons.warehouse_outlined,
+                      location.warehouseName,
+                    ),
                     const SizedBox(height: 4),
                     _buildInfoRow(Icons.qr_code, location.locationCode),
                     if (location.parentLocationName.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       _buildInfoRow(
-                          Icons.call_split, "Parent: ${location.parentLocationName}"),
-                    ]
+                        Icons.call_split,
+                        "Parent: ${location.parentLocationName}",
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -235,7 +265,10 @@ class LocationListWidgetState extends State<LocationListWidget> {
     required Alignment alignment,
   }) {
     return Container(
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 20),
       alignment: alignment,
       child: Row(
@@ -243,12 +276,12 @@ class LocationListWidgetState extends State<LocationListWidget> {
         children: [
           if (alignment == Alignment.centerLeft) ...[
             Icon(icon, color: Colors.white),
-            const SizedBox(width: 8)
+            const SizedBox(width: 8),
           ],
           Text(text, style: const TextStyle(color: Colors.white)),
           if (alignment == Alignment.centerRight) ...[
             const SizedBox(width: 8),
-            Icon(icon, color: Colors.white)
+            Icon(icon, color: Colors.white),
           ],
         ],
       ),
@@ -264,40 +297,59 @@ class LocationListWidgetState extends State<LocationListWidget> {
           filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
           child: Dialog(
             backgroundColor: Colors.white.withAlpha(230),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.0)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24.0),
+            ),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  const Icon(Icons.delete_sweep_rounded,
-                      color: Color(0xFFF35D5D), size: 50.0),
+                  const Icon(
+                    Icons.delete_sweep_rounded,
+                    color: Color(0xFFF35D5D),
+                    size: 50.0,
+                  ),
                   const SizedBox(height: 28),
-                  Text("Are you sure you want to delete ${location.locationName}?",
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF333333))),
+                  Text(
+                    "Are you sure you want to delete ${location.locationName}?",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF333333),
+                    ),
+                  ),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF35D5D),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30.0)),
-                        minimumSize: const Size(double.infinity, 48)),
+                      backgroundColor: const Color(0xFFF35D5D),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      minimumSize: const Size(double.infinity, 48),
+                    ),
                     onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text("Yes, Delete",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16)),
+                    child: const Text(
+                      "Yes, Delete",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text("Keep It",
-                          style: TextStyle(
-                              color: Colors.grey, fontWeight: FontWeight.bold))),
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text(
+                      "Keep It",
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

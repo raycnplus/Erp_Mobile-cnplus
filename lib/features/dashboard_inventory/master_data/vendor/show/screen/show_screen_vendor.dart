@@ -14,19 +14,30 @@ class VendorShowScreen extends StatefulWidget {
 class _VendorShowScreenState extends State<VendorShowScreen> {
   bool refreshTrigger = false;
 
+  // Warna Aksen
+  static const Color accentColor = Color(0xFF2D6A4F); 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Vendor Show")),
-
-      body: VendorDetailWidget(
-        vendorId: widget.vendorId,
-        key: ValueKey(refreshTrigger),
+      appBar: AppBar(
+        title: const Text("Vendor Details"),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black87),
       ),
 
+      // Widget Detail sekarang menjadi body utama
+      body: VendorDetailWidget(
+        vendorId: widget.vendorId,
+        key: ValueKey(refreshTrigger), // Digunakan untuk memaksa refresh
+      ),
+
+      // Floating Action Button untuk Edit
       floatingActionButton: FloatingActionButton(
         tooltip: "Edit Vendor",
-        child: const Icon(Icons.edit),
+        backgroundColor: accentColor,
+        child: const Icon(Icons.edit, color: Colors.white),
         onPressed: () async {
           final result = await Navigator.push(
             context,

@@ -1,3 +1,5 @@
+// costumer_create_widget.dart
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -114,13 +116,11 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
       final body = {
         "customer_name": _nameController.text,
         "customer_code": _codeController.text,
-        "customer_type": _selectedType?.type,
+        "customer_type": _selectedType?.value, // Menggunakan .value
         "customer_category": _selectedCategory?.idCategory,
         "phone_no": _phoneController.text,
         "email": _emailController.text,
         "address": _addressController.text,
-
-        // tambahan
         "province": _provinceController.text,
         "city": _cityController.text,
         "postal_code": _postalCodeController.text,
@@ -211,7 +211,7 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
             DropdownButtonFormField<CustomerTypeDropdownModel>(
               value: _selectedType,
               items: CustomerTypeDropdownModel.types
-                  .map((t) => DropdownMenuItem(value: t, child: Text(t.type)))
+                  .map((t) => DropdownMenuItem(value: t, child: Text(t.displayName))) // Menggunakan .displayName
                   .toList(),
               onChanged: (val) => setState(() => _selectedType = val),
               decoration: inputDecorationTheme.copyWith(labelText: "Customer Type"),
@@ -271,7 +271,6 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
               decoration: inputDecorationTheme.copyWith(labelText: "Address"),
               maxLines: 3,
             ),
-
             const SizedBox(height: 16),
             TextFormField(
               controller: _provinceController,
@@ -294,7 +293,7 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
               decoration: inputDecorationTheme.copyWith(labelText: "Website"),
               keyboardType: TextInputType.url,
             ),
-
+            
             const SizedBox(height: 24),
             Text("PIC Information",
                 style: GoogleFonts.poppins(
@@ -332,7 +331,7 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
                         color: Colors.white, strokeWidth: 2)
                     : Text("Create Customer",
                         style: GoogleFonts.poppins(
-                            fontSize: 18, fontWeight: FontWeight.w600)),
+                            fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white)),
               ),
             ),
           ],

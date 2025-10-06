@@ -3,8 +3,8 @@
 class LocationCreateModel {
   final String locationName;
   final String locationCode;
-  final int warehouseId;
-  final int? parentLocationId;
+  final int warehouse;
+  final int? parentLocation; 
   final double? length;
   final double? width;
   final double? height;
@@ -14,8 +14,8 @@ class LocationCreateModel {
   LocationCreateModel({
     required this.locationName,
     required this.locationCode,
-    required this.warehouseId,
-    this.parentLocationId,
+    required this.warehouse,
+    this.parentLocation, 
     this.length,
     this.width,
     this.height,
@@ -23,28 +23,22 @@ class LocationCreateModel {
     this.description,
   });
 
-  // ▼▼▼ FUNGSI INI TELAH DIPERBAIKI LAGI ▼▼▼
   Map<String, dynamic> toJson() {
     return {
       "location_name": locationName,
       "location_code": locationCode,
-      "warehouse_id": warehouseId,
-      "parent_location_id": parentLocationId,
-
-      // PERBAIKAN: Konversi ke integer untuk field dimensi
+      "warehouse": warehouse,
+      "parent_location": parentLocation, 
       "length": length?.toInt(),
       "width": width?.toInt(),
       "height": height?.toInt(),
-
-      // Biarkan volume sebagai string sesuai error sebelumnya
       "volume": volume?.toString(),
-
       "description": description,
     };
   }
 }
 
-// Model for dropdowns (tidak ada perubahan di sini)
+// ... sisa kode model dropdown (WarehouseDropdownModel, LocationDropdownModel) tetap sama ...
 class WarehouseDropdownModel {
   final int idWarehouse;
   final String warehouseName;

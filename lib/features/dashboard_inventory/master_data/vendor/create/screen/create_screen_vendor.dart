@@ -6,9 +6,7 @@ class VendorCreateScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Create Vendor")),
-      body: const VendorCreateWidget(),
-    );
+    // The Scaffold and AppBar are now part of the widget itself
+    return const VendorCreateWidget();
   }
 }
