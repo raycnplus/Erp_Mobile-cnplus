@@ -1,12 +1,12 @@
 import 'package:erp_mobile_cnplus/features/dashboard_inventory/master_data/brand/index/screen/brand_index_screen.dart';
 import 'package:erp_mobile_cnplus/features/dashboard_inventory/master_data/product/product/index/screen/index_product_screen.dart';
-import 'package:erp_mobile_cnplus/features/dashboard_purchase/master_data/product_type/widget/product_type_index_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../master_data/purchase_team/index/screen/purchase_team_screen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../master_data/product_category/screen/product_category_index_screen.dart';
 import '../../master_data/vendor/screen/index_screen_vendor.dart';
+import '../../master_data/product_type/index/screen/product_type_index_screen.dart';
 
 
 class PurchaseDashboardDrawer extends StatefulWidget {
@@ -151,7 +151,7 @@ class _PurchaseDashboardDrawerState extends State<PurchaseDashboardDrawer> {
             title: const Text('Products Type'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const ProductTypeScreen ()));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const ProductTypeIndexScreen ()));
             },
           ),
 

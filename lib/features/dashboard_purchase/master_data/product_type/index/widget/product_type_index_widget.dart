@@ -1,14 +1,20 @@
+// File: product_type_index_widget.dart
+
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
-import '../../../../../../../services/api_base.dart';
-import '../models/product_type_index_models.dart';
 
-import '../widget/product_type_update_widget.dart';
-import '../../product_type/models/product_type_update_models.dart';
+// [1] PERBAIKAN ERROR: Import yang hilang untuk CustomRefreshIndicator
+import '../../../../../../shared/widgets/custom_refresh_indicator.dart'; 
+
+import '../../../../../../../services/api_base.dart';
+import '../models/product_type_index_model.dart';
+
+import '../../update/widget/product_type_update_widget.dart';
+import '../../update/models/product_type_update_models.dart';
 import 'product_type_list_shimmer.dart';
 
 class ProductTypeScreen extends StatefulWidget {
@@ -128,9 +134,7 @@ class ProductTypeScreenState extends State<ProductTypeScreen> {
       content = const Center(child: Text("Tidak ada data product type"));
     } else {
       // 4. State Data Tersedia (atau saat refresh)
-      content = _isLoading
-        ? ProductTypeListShimmer(itemCount: _productTypes.length)
-        : ListView.builder(
+      content = ListView.builder(
             padding: const EdgeInsets.all(16.0),
             itemCount: _productTypes.length,
             itemBuilder: (context, index) {
@@ -140,7 +144,13 @@ class ProductTypeScreenState extends State<ProductTypeScreen> {
           );
     }
 
-    return RefreshIndicator(
+    // Wrap Listview with shimmer if loading after initial load
+    if (_isLoading && _productTypes.isNotEmpty) {
+      content = ProductTypeListShimmer(itemCount: _productTypes.length);
+    }
+
+    // CustomRefreshIndicator sekarang berfungsi karena sudah diimpor
+    return CustomRefreshIndicator( 
       onRefresh: _loadData,
       child: content,
     );
@@ -154,34 +164,37 @@ class ProductTypeScreenState extends State<ProductTypeScreen> {
         borderRadius: cardBorderRadius,
         boxShadow: [BoxShadow(color: Colors.grey.withAlpha(26), spreadRadius: 0, blurRadius: 10, offset: const Offset(0, 4))],
       ),
-      child: Dismissible(
-        key: Key(type.id.toString()),
-        background: _buildSwipeActionContainer(color: Colors.blue, icon: Icons.edit, text: 'Edit', alignment: Alignment.centerLeft),
-        secondaryBackground: _buildSwipeActionContainer(color: Colors.red, icon: Icons.delete, text: 'Delete', alignment: Alignment.centerRight),
-        confirmDismiss: (direction) async {
-          if (direction == DismissDirection.endToStart) {
-            bool? deleteConfirmed = await _showDeleteConfirmationDialog(type);
-            if (deleteConfirmed == true) {
-              final success = await _deleteProductType(type.id);
-              if (!mounted) return false;
-              if (success) {
-                reloadData();
-                widget.onDeleteSuccess?.call(type.name);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal menghapus ${type.name}'), backgroundColor: Colors.redAccent));
+      // [2] PERBAIKAN SUDUT MEMBULAT: Bungkus Dismissible dengan ClipRRect
+      child: ClipRRect( 
+        borderRadius: cardBorderRadius,
+        child: Dismissible(
+          key: Key(type.id.toString()),
+          // Menggunakan _buildSwipeActionContainer yang sudah diubah (tanpa BoxDecoration)
+          background: _buildSwipeActionContainer(color: Colors.blue, icon: Icons.edit, text: 'Edit', alignment: Alignment.centerLeft),
+          secondaryBackground: _buildSwipeActionContainer(color: Colors.red, icon: Icons.delete, text: 'Delete', alignment: Alignment.centerRight),
+          confirmDismiss: (direction) async {
+            if (direction == DismissDirection.endToStart) {
+              bool? deleteConfirmed = await _showDeleteConfirmationDialog(type);
+              if (deleteConfirmed == true) {
+                final success = await _deleteProductType(type.id);
+                if (!mounted) return false;
+                if (success) {
+                  reloadData();
+                  widget.onDeleteSuccess?.call(type.name);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal menghapus ${type.name}'), backgroundColor: Colors.redAccent));
+                }
+                return success;
               }
-              return success;
+              return false;
+            } else {
+              _showUpdateDialog(type);
+              return false;
             }
-            return false;
-          } else {
-            _showUpdateDialog(type);
-            return false;
-          }
-        },
-        child: ClipRRect(
-          borderRadius: cardBorderRadius,
+          },
           child: Material(
             color: Colors.white,
+            // Hapus ClipRRect di sini jika sebelumnya ada
             child: InkWell(
               onTap: () {
                 if (widget.onTap != null) {
@@ -226,7 +239,7 @@ class ProductTypeScreenState extends State<ProductTypeScreen> {
   Future<bool> _deleteProductType(int id) async {
     const storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
-    final url = Uri.parse("${ApiBase.baseUrl}/sales/product-type/$id");
+    final url = Uri.parse("${ApiBase.baseUrl}/purchase/product-type/$id");
     final response = await http.delete(url, headers: {"Authorization": "Bearer $token", "Accept": "application/json"});
     if (response.statusCode == 200) {
       return jsonDecode(response.body)['status'] == true;
@@ -234,9 +247,11 @@ class ProductTypeScreenState extends State<ProductTypeScreen> {
     return false;
   }
 
+  // [3] PERBAIKAN SUDUT MEMBULAT: Hapus BoxDecoration/borderRadius pada container ini
   Container _buildSwipeActionContainer({required Color color, required IconData icon, required String text, required Alignment alignment}) {
     return Container(
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
+      // Hanya berikan warna, ClipRRect di atas akan menangani radius
+      color: color, 
       padding: const EdgeInsets.symmetric(horizontal: 20),
       alignment: alignment,
       child: Row(

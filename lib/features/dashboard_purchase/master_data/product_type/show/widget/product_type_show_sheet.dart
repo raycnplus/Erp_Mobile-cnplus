@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import '../models/product_type_show_models.dart';
+import '../models/product_type_show_model.dart';
 
 class ProductTypeDetailSheet extends StatelessWidget {  
   final ProductTypeShowModel productType;

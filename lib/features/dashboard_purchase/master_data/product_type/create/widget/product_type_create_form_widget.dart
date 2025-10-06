@@ -4,7 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import '../../../../../../../services/api_base.dart';
-import '../models/product_type_create_models.dart';
+import '../models/product_type_create_model.dart';
 
 class ProductTypeCreateWidget extends StatefulWidget {
   const ProductTypeCreateWidget({super.key});
@@ -195,7 +195,7 @@ class _ProductTypeCreateWidgetState extends State<ProductTypeCreateWidget> {
                             strokeWidth: 2,
                           )
                         : Text(
-                            "Save",
+                            "Save type",
                             style: GoogleFonts.poppins(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,

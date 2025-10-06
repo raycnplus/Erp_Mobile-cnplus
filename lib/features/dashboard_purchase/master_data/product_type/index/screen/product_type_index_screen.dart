@@ -7,12 +7,14 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../../../../../services/api_base.dart';
 import '../../../../../../shared/widgets/success_bottom_sheet.dart';
-import '../widget/product_type_create_widget.dart';
+import '../../create/widget/product_type_create_form_widget.dart';
 import '../widget/product_type_index_widget.dart';
 import '../../../../../../shared/widgets/custom_refresh_indicator.dart';
 
-import '../widget/product_type_show_widget.dart';
-import '../models/product_type_show_models.dart';
+// Import widget modal detail yang baru
+import '../../show/widget/product_type_show_sheet.dart';
+// Import model detail
+import '../../show/models/product_type_show_model.dart';
 
 class ProductTypeIndexScreen extends StatefulWidget {
   const ProductTypeIndexScreen({super.key});
@@ -29,7 +31,7 @@ class _ProductTypeIndexScreenState extends State<ProductTypeIndexScreen> {
     _productTypeScreenKey.currentState?.reloadData();
   }
 
-  // Fungsi Fetch Detail 
+  // Fungsi Fetch Detail (dipindahkan ke sini)
   Future<ProductTypeShowModel> fetchProductTypeDetail(int id) async {
     const storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
