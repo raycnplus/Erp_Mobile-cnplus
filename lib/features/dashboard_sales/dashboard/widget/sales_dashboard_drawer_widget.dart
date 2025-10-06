@@ -1,4 +1,5 @@
 import 'package:erp_mobile_cnplus/features/dashboard_inventory/master_data/brand/index/screen/brand_index_screen.dart';
+import 'package:erp_mobile_cnplus/features/dashboard_inventory/master_data/product/product/index/screen/index_product_screen.dart';
 import 'package:erp_mobile_cnplus/features/dashboard_sales/master%20data/costumer_category/screen/costumer_category_index_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -160,7 +161,7 @@ class _SalesDashboardDrawerState extends State<SalesDashboardDrawer> {
                   title: 'Product',
                   onTap: () {
                     Navigator.pop(context);
-                    // Tambahkan navigasi ke Product screen jika ada
+                     Navigator.push(context, MaterialPageRoute(builder: (context) => const ProductIndexScreen()));
                   },
                   isSubItem: true,
                 ),

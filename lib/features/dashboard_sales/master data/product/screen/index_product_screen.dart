@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/index_product_models.dart';
 import '../widget/index_product_widget.dart';
-import '../../create/screen/create_product_screen.dart';
-import '../../show/screen/show_product_screen.dart'; // Import halaman create
+import '../screen/show_product_screen.dart';
+import '../screen/create_product_screen.dart'; // Import halaman create
 
 class ProductIndexScreen extends StatelessWidget {
   const ProductIndexScreen({super.key});
