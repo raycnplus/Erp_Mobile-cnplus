@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
-import '../widget/sales_team_show.dart';
-import '../widget/sales_team_delete.dart';
+import '../widget/sales_team_show_widget.dart';
+import '../widget/sales_team_delete_widget.dart';
 
 class SalesTeamShowScreen extends StatelessWidget {
   final int teamId;

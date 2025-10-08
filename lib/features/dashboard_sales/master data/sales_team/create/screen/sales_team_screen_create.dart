@@ -1,4 +1,4 @@
-import 'package:erp_mobile_cnplus/features/dashboard_sales/master%20data/sales_team/creeate/widget/sales_team_create.dart';
+import 'package:erp_mobile_cnplus/features/dashboard_sales/master%20data/sales_team/create/widget/sales_team_create_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

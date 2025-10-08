@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../models/sales_team_models.dart';
+import '../models/sales_team_index_models.dart';
 import '../../../../../../services/api_base.dart';
 
 class SalesTeamCardList extends StatefulWidget {

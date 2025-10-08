@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import '../widget/sales_team_list_card.dart';
-import '../../creeate/screen/sales_team_screen_create.dart';
+import '../../create/screen/sales_team_screen_create.dart';
 import '../../show/screen/sales_team_show_screen.dart';
 
 class SalesTeamScreen extends StatefulWidget {
