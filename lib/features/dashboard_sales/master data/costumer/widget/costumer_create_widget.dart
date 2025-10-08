@@ -157,7 +157,7 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
         "pic_name": _picNameController.text,
         "pic_phone": _picPhoneController.text,
         "pic_email": _picEmailController.text,
-        "id_country": selectedCountry, // Add this line
+        "country": selectedCountry, // Add this line
       };
 
       final response = await http.post(
