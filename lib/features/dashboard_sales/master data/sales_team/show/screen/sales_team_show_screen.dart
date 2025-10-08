@@ -8,8 +8,6 @@ class SalesTeamShowScreen extends StatelessWidget {
 
   const SalesTeamShowScreen({super.key, required this.teamId});
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -6,13 +6,11 @@ import '../models/sales_team_show_model.dart';
 import '../../../../../../services/api_base.dart';
 
 class SalesTeamShowWidget extends StatelessWidget {
-  // Changed from PurchaseTeamShowWidget
   final int teamId;
 
   const SalesTeamShowWidget({super.key, required this.teamId});
 
   Future<SalesTeamShowModel> fetchSalesTeam(int id) async {
-    // Changed method name
     final storage = const FlutterSecureStorage();
     final token = await storage.read(key: 'token') ?? '';
 
@@ -25,7 +23,7 @@ class SalesTeamShowWidget extends StatelessWidget {
       final data = json.decode(response.body);
       return SalesTeamShowModel.fromJson(data);
     } else {
-      throw Exception("Gagal ambil data sales team"); // Updated error message
+      throw Exception("Gagal ambil data sales team"); 
     }
   }
 

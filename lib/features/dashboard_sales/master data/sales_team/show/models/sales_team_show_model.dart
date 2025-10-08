@@ -1,5 +1,5 @@
 class SalesTeamShowModel {
-  final int idPurchaseTeam;
+  final int idSalesTeam;
   final String teamName;
   final String teamLeaderName;
   final String description;
@@ -8,7 +8,7 @@ class SalesTeamShowModel {
   final List<String> memberNames;
 
  SalesTeamShowModel({
-    required this.idPurchaseTeam,
+    required this.idSalesTeam,
     required this.teamName,
     required this.teamLeaderName,
     required this.description,
@@ -19,7 +19,7 @@ class SalesTeamShowModel {
 
   factory SalesTeamShowModel.fromJson(Map<String, dynamic> json) {
     return SalesTeamShowModel(
-      idPurchaseTeam: json['id_purchase_team'] ?? 0,
+      idSalesTeam: json['id_sales_team'] ?? 0,
       teamName: json['team_name'] ?? '',
       teamLeaderName: json['team_leader']?['nama_lengkap'] ?? '',
       description: json['description'] ?? '',
@@ -34,7 +34,7 @@ class SalesTeamShowModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'id_purchase_team': idPurchaseTeam,
+      'id_sales_team': idSalesTeam,
       'team_name': teamName,
       'team_leader_name': teamLeaderName,
       'description': description,
