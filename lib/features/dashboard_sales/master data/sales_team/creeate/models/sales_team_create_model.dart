@@ -12,8 +12,6 @@ class SalesTeamCreateModel {
   });
 
   Map<String, dynamic> toJson() {
-    // UPDATED: 'team_leader' now directly takes the ID (int)
-    // and 'members' is a list of objects with {'id_karyawan': id}
     return {
       'team_name': teamName, // Changed key from 'purchase_team_name' to 'team_name'
       'team_leader': teamLeaderId,

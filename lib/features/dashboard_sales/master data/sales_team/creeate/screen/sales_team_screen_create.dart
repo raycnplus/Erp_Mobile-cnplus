@@ -14,7 +14,7 @@ class SalesTeamScreenCreate extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          "Create Purchase Team",
+          "Create Sales Team",
           style: GoogleFonts.poppins(
               fontWeight: FontWeight.w600,
               color: Colors.black87,
