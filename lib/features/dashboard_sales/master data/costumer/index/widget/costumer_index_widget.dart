@@ -117,7 +117,8 @@ class CustomerIndexWidgetState extends State<CustomerIndexWidget> {
   }
 
   Widget _buildCustomerCard(CustomerIndexModel customer, BuildContext context) {
-    const primaryColor = Color(0xFF4A69BD);
+    // [DIUBAH] Mengganti warna utama menjadi hijau
+    const primaryColor = Color(0xFF679436);
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -193,24 +194,6 @@ class CustomerIndexWidgetState extends State<CustomerIndexWidget> {
                     _buildInfoChip(Icons.phone_outlined, customer.phoneNo),
                     if(customer.city != null && customer.city!.isNotEmpty)
                       _buildInfoChip(Icons.location_city_outlined, customer.city!),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit_outlined),
-                      color: Colors.grey.shade500,
-                      tooltip: "Edit Customer",
-                      onPressed: () => widget.onEdit(customer),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      color: Colors.red.shade400,
-                      tooltip: "Delete Customer",
-                      onPressed: () => _showDeleteDialog(customer, context),
-                    ),
                   ],
                 ),
               ],

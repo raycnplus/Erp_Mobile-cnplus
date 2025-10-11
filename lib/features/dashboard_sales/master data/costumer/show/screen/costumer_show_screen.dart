@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import '../widget/costumer_show_widget.dart';
-import '../../update/screen/costumer_update_screen.dart'; // Pastikan path ini benar
+import '../../update/screen/costumer_update_screen.dart'; 
 
 class CustomerShowScreen extends StatefulWidget {
   final int id;
@@ -14,13 +14,10 @@ class CustomerShowScreen extends StatefulWidget {
 }
 
 class _CustomerShowScreenState extends State<CustomerShowScreen> {
-  // Key untuk me-refresh child widget setelah update berhasil
   Key _childKey = UniqueKey();
   bool _hasBeenUpdated = false;
 
-  // Fungsi untuk navigasi ke halaman update
   Future<void> _navigateToUpdate() async {
-    // Navigasi ke halaman update dan tunggu hasilnya (true jika berhasil)
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
@@ -28,13 +25,11 @@ class _CustomerShowScreenState extends State<CustomerShowScreen> {
       ),
     );
 
-    // Jika hasilnya 'true' (artinya update berhasil), refresh halaman ini
     if (result == true && mounted) {
       setState(() {
         _hasBeenUpdated = true;
-        _childKey = UniqueKey(); // Mengganti key akan memaksa widget untuk rebuild
+        _childKey = UniqueKey(); 
       });
-      // Tampilkan notifikasi sukses
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Customer updated successfully!"),
@@ -46,31 +41,37 @@ class _CustomerShowScreenState extends State<CustomerShowScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Mengirim status 'updated' kembali ke halaman index saat tombol back ditekan
     return WillPopScope(
       onWillPop: () async {
         Navigator.pop(context, _hasBeenUpdated);
-        return false; // Mencegah pop default agar tidak terjadi dua kali
+        return false;
       },
       child: Scaffold(
+        // ▼▼▼ PERUBAHAN DI SINI ▼▼▼
+        backgroundColor: const Color(0xFFF8F9FA), // Latar belakang abu-abu muda
         appBar: AppBar(
-          // Tombol kembali manual untuk mengirimkan hasil
+          backgroundColor: const Color(0xFFF8F9FA), // Samakan dengan body
+          elevation: 0, // Hapus bayangan agar clean
+          scrolledUnderElevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new),
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black54),
             onPressed: () => Navigator.pop(context, _hasBeenUpdated),
           ),
-          title: const Text("Customer Detail"),
-          // ▼▼▼ TOMBOL EDIT ADA DI BAGIAN INI ▼▼▼
+          title: const Text(
+            "Customer Detail",
+            style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
           actions: [
             IconButton(
               tooltip: 'Edit Customer',
-              icon: const Icon(Icons.edit_outlined),
-              onPressed: _navigateToUpdate, // Panggil fungsi navigasi
+              icon: const Icon(Icons.edit_outlined, color: Colors.black54),
+              onPressed: _navigateToUpdate,
             ),
           ],
         ),
         body: CustomerShowWidget(
-          key: _childKey, // Gunakan key di sini untuk kontrol refresh
+          key: _childKey,
           id: widget.id,
         ),
       ),

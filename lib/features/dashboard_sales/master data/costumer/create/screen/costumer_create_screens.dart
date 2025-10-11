@@ -1,3 +1,5 @@
+// costumer_create_screens.dart
+
 import 'package:flutter/material.dart';
 import '../widget/costumer_create_widget.dart';
 
@@ -6,9 +8,8 @@ class CustomerCreateScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Create Customer")),
-      body: const CustomerCreateWidget(),
-    );
+    // Scaffold dan AppBar sekarang menjadi bagian dari widget itu sendiri
+    // untuk konsistensi desain yang lebih baik.
+    return const CustomerCreateWidget();
   }
 }
