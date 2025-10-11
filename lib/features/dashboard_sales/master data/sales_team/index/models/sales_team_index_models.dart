@@ -1,11 +1,13 @@
+// sales_team_models.dart
+
 class SalesTeamModels {
-  final int idPurchaseTeam;
+  final int idSalesTeam; // <-- Diubah dari idPurchaseTeam
   final String teamName;
   final String teamLeader;
   final String description;
 
   SalesTeamModels({
-    required this.idPurchaseTeam,
+    required this.idSalesTeam, // <-- Diubah
     required this.teamName,
     required this.teamLeader,
     required this.description,
@@ -13,7 +15,7 @@ class SalesTeamModels {
 
   factory SalesTeamModels.fromJson(Map<String, dynamic> json) {
     return SalesTeamModels(
-      idPurchaseTeam: json['id_purchase_team'] ?? 0,
+      idSalesTeam: json['id_sales_team'] ?? 0, // <-- Kunci JSON diperbaiki
       teamName: json['team_name'] ?? '',
       teamLeader: json['team_leader']?['nama_lengkap'] ?? '',
       description: json['description'] ?? '',
@@ -22,7 +24,7 @@ class SalesTeamModels {
 
   Map<String, dynamic> toJson() {
     return {
-      'id_purchase_team': idPurchaseTeam,
+      'id_sales_team': idSalesTeam, // <-- Diubah
       'team_name': teamName,
       'team_leader': teamLeader,
       'description': description,
@@ -47,7 +49,7 @@ class SalesTeamEditModel {
 
   Map<String, dynamic> toUpdateJson() {
     return {
-      'id_purchase_team': id,
+      'id_sales_team': id, // <-- Diubah dari id_purchase_team
       'team_name': teamName,
       'team_leader': teamLeaderId,
       'description': description,

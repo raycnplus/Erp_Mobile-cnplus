@@ -19,9 +19,9 @@ class LocationUpdateModel {
   final String locationName;
   final String locationCode;
   final String warehouseName;
-  final int warehouse; // Diubah dari idWarehouse
+  final int idWarehouse; // <-- Diubah dari 'warehouse'
   final String parentLocationName;
-  final int? parentLocation; // Diubah dari parentLocationIdb
+  final int? idParentLocation; // <-- Diubah dari 'parentLocation'
   final int height;
   final int length;
   final int width;
@@ -33,9 +33,9 @@ class LocationUpdateModel {
     required this.locationName,
     required this.locationCode,
     required this.warehouseName,
-    required this.warehouse, // Diubah
+    required this.idWarehouse, // <-- Diubah
     required this.parentLocationName,
-    this.parentLocation, // Diubah
+    this.idParentLocation, // <-- Diubah
     required this.height,
     required this.length,
     required this.width,
@@ -49,9 +49,9 @@ class LocationUpdateModel {
       locationName: _parseString(json['location_name']),
       locationCode: _parseString(json['location_code']),
       warehouseName: _parseString(json['warehouse_name']),
-      warehouse: _parseInt(json['warehouse']), // Diubah dari 'id_warehouse'
+      idWarehouse: _parseInt(json['id_warehouse']), // <-- Diubah dari 'warehouse'
       parentLocationName: _parseString(json['parent_location_name']),
-      parentLocation: json['parent_location'] == null ? null : _parseInt(json['parent_location']), // Diubah dari 'parent_location_id'
+      idParentLocation: json['id_parent_location'] == null ? null : _parseInt(json['id_parent_location']), // <-- Diubah dari 'parent_location'
       height: _parseInt(json['height']),
       length: _parseInt(json['length']),
       width: _parseInt(json['width']),
@@ -60,22 +60,7 @@ class LocationUpdateModel {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id_location': idLocation,
-      'location_name': locationName,
-      'location_code': locationCode,
-      'warehouse_name': warehouseName,
-      'warehouse': warehouse, // Diubah
-      'parent_location_name': parentLocationName,
-      'parent_location': parentLocation, // Diubah
-      'height': height,
-      'length': length,
-      'width': width,
-      'volume': volume,
-      'description': description,
-    };
-  }
+  // ... sisa class (toJson) tidak perlu diubah karena tidak dipakai di sini ...
 }
 
 class WarehouseDropdownModel {
@@ -88,14 +73,11 @@ class WarehouseDropdownModel {
   });
 
   factory WarehouseDropdownModel.fromJson(Map<String, dynamic> json) {
+    final id = _parseInt(json['id_warehouse'] ?? json['id']);
     return WarehouseDropdownModel(
-      idWarehouse: _parseInt(json['id_warehouse']),
+      idWarehouse: id,
       warehouseName: _parseString(json['warehouse_name']),
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {'id_warehouse': idWarehouse, 'warehouse_name': warehouseName};
   }
 
   @override
@@ -119,14 +101,11 @@ class LocationDropdownModel {
   LocationDropdownModel({required this.idLocation, required this.locationName});
 
   factory LocationDropdownModel.fromJson(Map<String, dynamic> json) {
+    final id = _parseInt(json['id_location'] ?? json['id']);
     return LocationDropdownModel(
-      idLocation: _parseInt(json['id_location']),
+      idLocation: id,
       locationName: _parseString(json['location_name']),
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {'id_location': idLocation, 'location_name': locationName};
   }
 
   @override

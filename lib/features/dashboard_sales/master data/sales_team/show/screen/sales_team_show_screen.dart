@@ -1,3 +1,4 @@
+// sales_team_show_screen.dart
 
 import 'package:flutter/material.dart';
 import '../widget/sales_team_show_widget.dart';
@@ -11,7 +12,9 @@ class SalesTeamShowScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Show Purchase Team")),
+      appBar: AppBar(
+        title: const Text("Show Sales Team"),
+      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

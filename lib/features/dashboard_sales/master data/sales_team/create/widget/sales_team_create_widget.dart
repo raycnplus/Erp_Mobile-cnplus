@@ -22,7 +22,7 @@ class _SalesTeamFormState extends State<SalesTeamForm> {
   // URL BARU untuk mendapatkan data yang diperlukan (termasuk Karyawan) untuk form CREATE
   final String _createDataUrl = "${ApiBase.baseUrl}/master/karyawans";
   // URL untuk membuat team
-  final String _storeSalesTeamUrl = "${ApiBase.baseUrl}/sales/sales-team/";
+  final String _storeSalesTeamUrl = "${ApiBase.baseUrl}/sales/sales-team/store";
 
 
   bool _isLoading = false;

@@ -1,3 +1,5 @@
+// sales_team_list_card.dart
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -7,7 +9,6 @@ import '../models/sales_team_index_models.dart';
 import '../../../../../../services/api_base.dart';
 
 class SalesTeamCardList extends StatefulWidget {
-  // Changed from PurchaseTeamCardList
   final String searchQuery;
   final void Function(int teamId)? onTap;
 
@@ -18,7 +19,6 @@ class SalesTeamCardList extends StatefulWidget {
 }
 
 class _SalesTeamCardListState extends State<SalesTeamCardList> {
-  // Changed from _PurchaseTeamCardListState
   late Future<List<SalesTeamModels>> _fetchTeamsFuture;
 
   @override
@@ -48,7 +48,7 @@ class _SalesTeamCardListState extends State<SalesTeamCardList> {
         throw Exception('Format data dari API tidak sesuai (diharapkan List).');
       }
     } else {
-      String errorMessage = 'Gagal mengambil data tim pembelian.';
+      String errorMessage = 'Gagal mengambil data tim sales.'; // <-- Teks diperbaiki
       try {
         final errorBody = jsonDecode(response.body);
         errorMessage = errorBody['message'] ?? response.body;
@@ -89,7 +89,7 @@ class _SalesTeamCardListState extends State<SalesTeamCardList> {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(
             child: Text('Tidak ada data tim sales'),
-          ); // Changed text
+          );
         }
 
         final teams = snapshot.data!
@@ -125,7 +125,8 @@ class _SalesTeamCardListState extends State<SalesTeamCardList> {
             return InkWell(
               onTap: () {
                 if (widget.onTap != null) {
-                  widget.onTap!(team.idPurchaseTeam);
+                  // ▼▼▼ PERBAIKAN DI SINI ▼▼▼
+                  widget.onTap!(team.idSalesTeam);
                 }
               },
               borderRadius: BorderRadius.circular(12),

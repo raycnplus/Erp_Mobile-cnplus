@@ -7,7 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart'; // <<< DITAMBAHKAN
 import '../../master data/product_category/screen/product_category_index_screen.dart';
 import '../../master data/product_type/screen/product_type_index_screen.dart';
-import '../../master data/costumer/screen/costumer_index_screen.dart';
+import '../../master data/costumer/index/screen/costumer_index_screen.dart';
 
 class SalesDashboardDrawer extends StatefulWidget {
   const SalesDashboardDrawer({super.key});

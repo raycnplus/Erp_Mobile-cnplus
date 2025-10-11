@@ -1,3 +1,5 @@
+// warehouse_index_screen.dart
+
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,6 +8,7 @@ import '../models/warehouse_index_models.dart';
 import '../widget/warehouse_index_widget.dart';
 import '../../show/screen/warehouse_show_screen.dart';
 import '../../create/screen/warehouse_create_screen.dart';
+import '../../update/widget/warehouse_update_widget.dart'; // <-- Tambahkan import ini
 import '../../../../../../../shared/widgets/success_bottom_sheet.dart';
 import '../../../../../../../shared/widgets/custom_refresh_indicator.dart';
 
@@ -17,7 +20,6 @@ class WarehouseIndexScreen extends StatefulWidget {
 }
 
 class _WarehouseIndexScreenState extends State<WarehouseIndexScreen> {
-  // Kunci untuk memanggil fungsi reloadData dari child widget
   final GlobalKey<WarehouseListWidgetState> _warehouseListKey = GlobalKey<WarehouseListWidgetState>();
 
   Future<void> _refreshData() async {
@@ -60,7 +62,6 @@ class _WarehouseIndexScreenState extends State<WarehouseIndexScreen> {
     );
   }
 
-  // --- Fungsi untuk menampilkan Modal/Halaman Create ---
   void _navigateToCreateScreen() async {
     final result = await Navigator.push<bool>(
       context,
@@ -68,10 +69,59 @@ class _WarehouseIndexScreenState extends State<WarehouseIndexScreen> {
         builder: (context) => const WarehouseCreateScreen(),
       ),
     );
-
     if (result == true) {
       _warehouseListKey.currentState?.reloadData();
       _showCreateSuccessMessage();
+    }
+  }
+
+  // FUNGSI BARU UNTUK MENAMPILKAN MODAL EDIT
+  Future<void> _showEditModal(WarehouseIndexModel warehouse) async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        // Backdrop filter untuk efek blur di belakang
+        return BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.85,
+            minChildSize: 0.5,
+            maxChildSize: 0.95,
+            expand: false,
+            builder: (_, controller) {
+              return Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF9F9F9),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(28.0)),
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 5,
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(10)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+                      child: Text("Edit Warehouse", style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold)),
+                    ),
+                    const Divider(height: 1),
+                    Expanded(child: WarehouseEditWidget(warehouse: warehouse)),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+
+    if (result == true) {
+      _warehouseListKey.currentState?.reloadData();
+      _showUpdateSuccessMessage();
     }
   }
 
@@ -98,21 +148,21 @@ class _WarehouseIndexScreenState extends State<WarehouseIndexScreen> {
         onRefresh: _refreshData,
         child: WarehouseListWidget(
           key: _warehouseListKey,
-          onTap: (warehouse) {
-            Navigator.push(
+          onTap: (warehouse) async {
+            final result = await Navigator.push<bool>(
               context,
               MaterialPageRoute(builder: (context) => WarehouseShowScreen(warehouse: warehouse)),
             );
+            if (result == true) {
+              _refreshData();
+            }
           },
-          onUpdateSuccess: () {
-            _showUpdateSuccessMessage();
-          },
+          onEdit: _showEditModal, // <-- Hubungkan fungsi edit
           onDeleteSuccess: (String itemName) {
             _showDeleteSuccessMessage(itemName);
           },
         ),
       ),
-      // --- Floating Action Button yang Konsisten ---
       floatingActionButton: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -125,7 +175,7 @@ class _WarehouseIndexScreenState extends State<WarehouseIndexScreen> {
           tooltip: 'Add Warehouse',
           backgroundColor: const Color(0xFF679436),
           elevation: 0,
-          child: const Icon(Icons.add, color: Color(0xFFF0E68C)),
+          child: const Icon(Icons.add, color: Colors.white),
         ),
       ),
     );

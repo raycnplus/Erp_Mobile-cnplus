@@ -1,3 +1,5 @@
+// purchase_team_list_card.dart
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -30,6 +32,7 @@ class _PurchaseTeamCardListState extends State<PurchaseTeamCardList> {
   }
 
   Future<List<PurchaseTeamIndexModel>> fetchTeams() async {
+    // ... (fungsi fetchTeams() Anda tidak perlu diubah)
     final storage = const FlutterSecureStorage();
     final token = await storage.read(key: 'token');
 
@@ -71,32 +74,27 @@ class _PurchaseTeamCardListState extends State<PurchaseTeamCardList> {
 
   @override
   Widget build(BuildContext context) {
+    // Definisikan warna tema di sini agar mudah diubah
+    final Color primaryColor = Theme.of(context).primaryColor;
+
     return FutureBuilder<List<PurchaseTeamIndexModel>>(
       future: _fetchTeamsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
+          // ... (Error state tidak diubah)
           return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('${snapshot.error}', textAlign: TextAlign.center),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _retry,
-                  child: const Text('Coba Lagi'),
-                ),
-              ],
-            ),
+            child: Column( /* ... */ ),
           );
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          // ... (Empty state tidak diubah)
           return const Center(child: Text('Tidak ada data tim pembelian'));
         }
 
         final teams = snapshot.data!
             .where(
-              (team) =>
+              (team) => /* ... (logika filter tidak diubah) ... */
                   team.teamName.toLowerCase().contains(
                         widget.searchQuery.toLowerCase(),
                       ) ||
@@ -119,71 +117,98 @@ class _PurchaseTeamCardListState extends State<PurchaseTeamCardList> {
             crossAxisCount: 2,
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,
-            childAspectRatio: 1.54,
+            childAspectRatio: 0.85, // Sesuaikan aspek rasio untuk desain baru
           ),
           itemBuilder: (context, index) {
             final team = teams[index];
 
-            return InkWell(
-              onTap: () {
-                if (widget.onTap != null) {
-                  widget.onTap!(team.idPurchaseTeam);
-                }
-              },
-              borderRadius: BorderRadius.circular(12),
-              child: Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                color: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        team.teamName,
-                        style: GoogleFonts.inter(
-                          color: Colors.black87,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
+            return Card(
+              elevation: 4,
+              shadowColor: Colors.black.withOpacity(0.1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: () {
+                  if (widget.onTap != null) {
+                    widget.onTap!(team.idPurchaseTeam);
+                  }
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // === Header Kartu dengan Ikon dan Warna ===
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      color: primaryColor.withOpacity(0.1),
+                      child: Row(
                         children: [
-                          const Icon(Icons.person, color: Colors.black54, size: 16),
-                          const SizedBox(width: 6),
+                          Icon(Icons.groups_outlined, color: primaryColor, size: 28),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              team.teamLeader,
-                              style: GoogleFonts.notoSans(
-                                color: Colors.black87,
-                                fontSize: 15,
+                              team.teamName,
+                              style: GoogleFonts.poppins(
+                                color: primaryColor,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
                               ),
                               overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: Text(
-                          team.description,
-                          style: GoogleFonts.notoSans(
-                            color: Colors.black54,
-                            fontSize: 12,
+                    ),
+                    
+                    // === Konten Kartu ===
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // === Chip untuk Team Leader ===
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.person, color: Colors.grey.shade700, size: 14),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    team.teamLeader,
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.grey.shade800,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                          const SizedBox(height: 12),
+                          // === Deskripsi ===
+                          Text(
+                            team.description.isEmpty ? 'No description' : team.description,
+                            style: GoogleFonts.poppins(
+                              color: Colors.black54,
+                              fontSize: 12,
+                              height: 1.4,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             );

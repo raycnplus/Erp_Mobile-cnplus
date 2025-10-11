@@ -1,3 +1,5 @@
+// update_location_screen.dart
+
 import 'package:flutter/material.dart';
 import '../models/update_location_models.dart';
 import '../widget/update_location_widget.dart';
@@ -9,11 +11,6 @@ class LocationUpdateScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Update Location"),
-      ),
-      body: LocationUpdateWidget(location: location),
-    );
+    return LocationUpdateWidget(location: location);
   }
 }

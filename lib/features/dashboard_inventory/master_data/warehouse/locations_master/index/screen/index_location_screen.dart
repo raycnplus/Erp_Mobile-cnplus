@@ -1,9 +1,13 @@
+// index_location_screen.dart
+
+import 'dart:async'; // Import untuk Timer (Debouncing)
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widget/index_location_widget.dart';
 import '../../show/screen/show_location_screen.dart';
 import '../../create/screen/create_location_screen.dart';
 import '../models/index_location_models.dart';
+import '../../../../../../../shared/widgets/success_bottom_sheet.dart';
 
 class LocationIndexScreen extends StatefulWidget {
   const LocationIndexScreen({super.key});
@@ -16,29 +20,64 @@ class _LocationIndexScreenState extends State<LocationIndexScreen> {
   final GlobalKey<LocationListWidgetState> _listKey = GlobalKey<LocationListWidgetState>();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
+  Timer? _debounce; // Variabel Timer untuk debouncing
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _debounce?.cancel(); // Batalkan timer saat widget dihancurkan
+    super.dispose();
+  }
+
+  // Fungsi Debouncing: Menunggu user berhenti mengetik sebelum mencari
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        _searchQuery = query;
+      });
+    });
+  }
 
   Future<void> _refreshData() async {
     _listKey.currentState?.reloadData();
   }
 
+  // --- Fungsi Notifikasi ---
   void _showCreateSuccessMessage() {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text("New location has been successfully created."),
-        backgroundColor: const Color(0xFF679436),
-        behavior: SnackBarBehavior.floating,
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const SuccessBottomSheet(
+        title: "Successfully Created!",
+        message: "New location has been added to the list.",
+      ),
+    );
+  }
+
+  void _showUpdateSuccessMessage() {
+    if (!mounted) return;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const SuccessBottomSheet(
+        title: "Successfully Updated!",
+        message: "The location has been updated.",
+        themeColor: Color(0xFF4A90E2),
       ),
     );
   }
 
   void _showDeleteSuccessMessage(String locationName) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("'$locationName' has been successfully removed."),
-        backgroundColor: Colors.redAccent,
-        behavior: SnackBarBehavior.floating,
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => SuccessBottomSheet(
+        title: "Successfully Deleted!",
+        message: "'$locationName' has been removed.",
+        themeColor: const Color(0xFFF35D5D),
       ),
     );
   }
@@ -46,6 +85,7 @@ class _LocationIndexScreenState extends State<LocationIndexScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // ▼▼▼ APPBAR DIKEMBALIKAN KE VERSI SEBELUMNYA ▼▼▼
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
@@ -76,16 +116,14 @@ class _LocationIndexScreenState extends State<LocationIndexScreen> {
           ),
         ),
       ),
+      // ▼▼▼ BODY DIKEMBALIKAN KE VERSI SEBELUMNYA (DENGAN SEARCH BAR DI DALAMNYA) ▼▼▼
       body: Column(
         children: [
-          // 🔎 Search Bar
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: TextField(
               controller: _searchController,
-              onChanged: (value) {
-                setState(() => _searchQuery = value);
-              },
+              onChanged: _onSearchChanged, // Tetap menggunakan debouncing
               decoration: InputDecoration(
                 hintText: "Search locations...",
                 prefixIcon: const Icon(Icons.search),
@@ -94,7 +132,8 @@ class _LocationIndexScreenState extends State<LocationIndexScreen> {
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
-                          setState(() => _searchQuery = "");
+                          // Perbaikan kecil: langsung panggil _onSearchChanged
+                          _onSearchChanged("");
                         },
                       )
                     : null,
@@ -113,15 +152,19 @@ class _LocationIndexScreenState extends State<LocationIndexScreen> {
               onRefresh: _refreshData,
               child: LocationListWidget(
                 key: _listKey,
-                searchQuery: _searchQuery, // << dikirim ke child
-                onTap: (LocationIndexModel location) {
-                  Navigator.push(
+                searchQuery: _searchQuery,
+                onTap: (LocationIndexModel location) async {
+                  final result = await Navigator.push<bool>(
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
                           LocationShowScreen(idLocation: location.idLocation),
                     ),
                   );
+                  if (result == true) {
+                    _refreshData();
+                    _showUpdateSuccessMessage();
+                  }
                 },
                 onDeleteSuccess: (String locationName) {
                   _showDeleteSuccessMessage(locationName);
@@ -158,7 +201,7 @@ class _LocationIndexScreenState extends State<LocationIndexScreen> {
           tooltip: 'Add Location',
           backgroundColor: const Color(0xFF679436),
           elevation: 0,
-          child: const Icon(Icons.add, color: Color(0xFFF0E68C)),
+          child: const Icon(Icons.add, color: Colors.white),
         ),
       ),
     );

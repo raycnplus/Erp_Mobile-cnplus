@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import '../widget/costumer_show_widget.dart';
-import 'costumer_update_screen.dart'; // Pastikan path ini benar
+import '../../update/screen/costumer_update_screen.dart'; // Pastikan path ini benar
 
 class CustomerShowScreen extends StatefulWidget {
   final int id;

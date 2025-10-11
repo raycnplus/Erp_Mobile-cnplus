@@ -1,3 +1,5 @@
+// warehouse_show_widget.dart
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -21,6 +23,7 @@ class WarehouseShowWidgetInternalState extends State<WarehouseShowWidget> {
   WarehouseShowModel? _warehouse;
   bool _isLoading = true;
   String? _error;
+  bool hasBeenUpdated = false;
 
   @override
   void initState() {
@@ -29,6 +32,7 @@ class WarehouseShowWidgetInternalState extends State<WarehouseShowWidget> {
   }
 
   Future<void> refreshData() async {
+    hasBeenUpdated = true; // Tandai bahwa data telah di-refresh
     if (mounted) setState(() { _isLoading = true; _error = null; });
 
     try {
@@ -40,29 +44,18 @@ class WarehouseShowWidgetInternalState extends State<WarehouseShowWidget> {
         Uri.parse("${ApiBase.baseUrl}/inventory/warehouse/${widget.warehouseId}"),
         headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
       );
-      // DEBUG: Print response body ke console
-      print('Warehouse Detail Response: ' + response.body);
-      final Map<String, dynamic> decoded = jsonDecode(response.body);
-      // Ambil data dari kunci 'warehouse' jika ada
-      dynamic rawData = decoded;
-      if (decoded.containsKey('warehouse')) {
-        rawData = decoded['warehouse'];
-      } else if (decoded.containsKey('data')) {
-        rawData = decoded['data'];
-      }
-      Map<String, dynamic>? warehouseData;
-      if (rawData is List && rawData.isNotEmpty) {
-        warehouseData = rawData.first as Map<String, dynamic>;
-      } else if (rawData is Map<String, dynamic>) {
-        warehouseData = rawData;
-      }
-      if (warehouseData == null) {
-        throw Exception("Format data tidak valid atau kosong.");
-      }
-      if (mounted) {
-        setState(() {
-          _warehouse = WarehouseShowModel.fromJson(warehouseData!);
-        });
+      
+      if (response.statusCode == 200) {
+          final Map<String, dynamic> decoded = jsonDecode(response.body);
+          dynamic rawData = decoded.containsKey('data') ? decoded['data'] : decoded;
+
+          if (mounted) {
+            setState(() {
+              _warehouse = WarehouseShowModel.fromJson(rawData as Map<String, dynamic>);
+            });
+          }
+      } else {
+        throw Exception("Gagal memuat data: Status ${response.statusCode}");
       }
     } catch (e) {
       if (mounted) _error = e.toString().replaceFirst("Exception: ", "");
@@ -81,135 +74,168 @@ class WarehouseShowWidgetInternalState extends State<WarehouseShowWidget> {
     }
   }
 
+  String _safe(dynamic value) {
+    return (value == null || value.toString().isEmpty || value.toString() == 'null') ? '-' : value.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-
     if (_error != null) {
       return Center(
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Text("Error: $_error"),
-          const SizedBox(height: 16),
+          Text("Error: $_error"), const SizedBox(height: 16),
           ElevatedButton(onPressed: refreshData, child: const Text("Coba Lagi")),
         ]),
       );
     }
-
     if (_warehouse == null) {
       return const Center(child: Text("Data tidak ditemukan"));
     }
+
+    final warehouse = _warehouse!;
+    const primaryColor = Color(0xFF4A69BD); // Warna aksen biru yang konsisten
 
     return RefreshIndicator(
       onRefresh: refreshData,
       child: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          _buildDetailCard(
-            context,
-            title: "Warehouse Information",
+          _buildHeaderCard(
+            title: warehouse.warehouseName,
+            subtitle: warehouse.warehouseCode,
             icon: Icons.warehouse_rounded,
+            iconColor: primaryColor,
+          ),
+          const SizedBox(height: 16),
+          _buildDetailCard(
+            title: "General Information",
             children: [
-              _buildDetailRow("Warehouse Name", _warehouse!.warehouseName),
-              _buildDetailRow("Warehouse Code", _warehouse!.warehouseCode),
-              _buildDetailRow("Branch", _warehouse!.branch),
-              _buildDetailRow("Address", _warehouse!.address),
+              _buildDetailRow(icon: Icons.store_mall_directory_outlined, label: "Branch", value: _safe(warehouse.branch)),
+              _buildDetailRow(icon: Icons.location_on_outlined, label: "Address", value: _safe(warehouse.address)),
             ],
           ),
           const SizedBox(height: 16),
           _buildDetailCard(
-            context,
             title: "Dimensions",
-            icon: Icons.straighten_rounded,
             children: [
-              _buildDetailRow("Length", _warehouse!.length?.toString(), unit: "m"),
-              _buildDetailRow("Width", _warehouse!.width?.toString(), unit: "m"),
-              _buildDetailRow("Height", _warehouse!.height?.toString(), unit: "m"),
-              _buildDetailRow("Volume", _warehouse!.volume?.toString(), unit: "m³"),
+              GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                childAspectRatio: 3,
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 16,
+                children: [
+                  _buildGridItem(label: "Length", value: _safe(warehouse.length), unit: "m"),
+                  _buildGridItem(label: "Width", value: _safe(warehouse.width), unit: "m"),
+                  _buildGridItem(label: "Height", value: _safe(warehouse.height), unit: "m"),
+                  _buildGridItem(label: "Volume", value: _safe(warehouse.volume), unit: "m³"),
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 16),
           _buildDetailCard(
-            context,
-            title: "Details",
-            icon: Icons.notes_rounded,
+            title: "Additional Info",
             children: [
-              _buildDetailRow("Description", _warehouse!.description),
-              _buildDetailRow("Created Date", _formatDate(_warehouse!.createdDate)),
-              _buildDetailRow("Created By", _warehouse!.createdBy?.toString()),
+              if (_safe(warehouse.description) != '-') _buildDetailRow(icon: Icons.notes_outlined, label: "Description", value: _safe(warehouse.description)),
+              _buildDetailRow(icon: Icons.person_outline, label: "Created By", value: _safe(warehouse.createdBy)),
+              _buildDetailRow(icon: Icons.calendar_today_outlined, label: "Created Date", value: _formatDate(warehouse.createdDate)),
             ],
           ),
         ],
       ),
     );
   }
-}
 
-Widget _buildDetailCard(BuildContext context, {required String title, String? subtitle, IconData? icon, required List<Widget> children}) {
-  return Card(
-    elevation: 2,
-    shadowColor: Colors.black.withOpacity(0.05),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-    color: Colors.white,
-    child: Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
+  // --- WIDGET HELPER BARU ---
+
+  Widget _buildHeaderCard({required String title, required String subtitle, required IconData icon, required Color iconColor}) {
+    return Card(
+      elevation: 4, shadowColor: iconColor.withOpacity(0.2),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          children: [
+            CircleAvatar(radius: 28, backgroundColor: iconColor.withOpacity(0.1), child: Icon(icon, size: 32, color: iconColor)),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.black87), overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailCard({required String title, required List<Widget> children}) {
+    return Card(
+      elevation: 2, shadowColor: Colors.black.withOpacity(0.05),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87)),
+            const Divider(height: 24),
+            ...children,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow({required IconData icon, required String label, required String value}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              if (icon != null) ...[
-                Icon(icon, color: Theme.of(context).primaryColor, size: 28),
-                const SizedBox(width: 12),
-              ],
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
-                    ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ],
+          Icon(icon, size: 18, color: Colors.grey.shade500),
+          const SizedBox(width: 12),
+          Text(label, style: GoogleFonts.poppins(color: Colors.grey.shade700, fontSize: 14)),
+          const Spacer(),
+          Expanded(
+            flex: 2,
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w500, color: Colors.black87, fontSize: 14),
+            ),
           ),
-          const Divider(height: 32),
-          ...children,
         ],
       ),
-    ),
-  );
-}
+    );
+  }
 
-Widget _buildDetailRow(String label, String? value, {String? unit}) {
-  final displayValue = (value == null || value.isEmpty || value == 'null') ? 'N/A' : value;
-  final displayUnit = (value == null || value.isEmpty || value == 'null') ? '' : (unit ?? '');
-
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    child: Column(
+  Widget _buildGridItem({required String label, required String value, String? unit}) {
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          label,
-          style: GoogleFonts.poppins(color: Colors.grey.shade600, fontSize: 14),
+          unit != null && value != '-' ? '$value $unit' : value,
+          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
-          displayUnit.isNotEmpty ? '$displayValue $displayUnit' : displayValue,
-          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black87),
+          label,
+          style: GoogleFonts.poppins(color: Colors.grey.shade600, fontSize: 12),
         ),
       ],
-    ),
-  );
+    );
+  }
 }

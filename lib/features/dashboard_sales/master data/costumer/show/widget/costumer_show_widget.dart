@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../../../../../services/api_base.dart';
+import '../../../../../../../services/api_base.dart';
 import '../models/costumer_show_models.dart';
 
 class CustomerShowWidget extends StatefulWidget {
