@@ -17,7 +17,7 @@ class TopProduct {
     final List<dynamic> list = raw is List ? raw : raw['data'];
     return list
         .map((e) => TopProduct.fromJson(e))
-        .take(5) // ambil hanya 5 teratas
+        .take(5) 
         .toList();
   }
 }

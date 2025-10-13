@@ -1,4 +1,4 @@
-// warehouse_show_widget.dart
+// lib/features/dashboard_inventory/master_data/warehouse/warehouse_master/show/widget/warehouse_show_widget.dart
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -32,7 +32,7 @@ class WarehouseShowWidgetInternalState extends State<WarehouseShowWidget> {
   }
 
   Future<void> refreshData() async {
-    hasBeenUpdated = true; // Tandai bahwa data telah di-refresh
+    hasBeenUpdated = true;
     if (mounted) setState(() { _isLoading = true; _error = null; });
 
     try {
@@ -47,13 +47,20 @@ class WarehouseShowWidgetInternalState extends State<WarehouseShowWidget> {
       
       if (response.statusCode == 200) {
           final Map<String, dynamic> decoded = jsonDecode(response.body);
-          dynamic rawData = decoded.containsKey('data') ? decoded['data'] : decoded;
-
-          if (mounted) {
-            setState(() {
-              _warehouse = WarehouseShowModel.fromJson(rawData as Map<String, dynamic>);
-            });
+          
+          // [PERBAIKAN] Cek key 'warehouse' sesuai dengan response API
+          if (decoded.containsKey('warehouse') && decoded['warehouse'] is Map<String, dynamic>) {
+            final warehouseData = decoded['warehouse'] as Map<String, dynamic>;
+            if (mounted) {
+              setState(() {
+                _warehouse = WarehouseShowModel.fromJson(warehouseData);
+              });
+            }
+          } else {
+            // Jika struktur tidak sesuai, lempar error
+            throw Exception("Struktur JSON tidak sesuai, key 'warehouse' tidak ditemukan.");
           }
+
       } else {
         throw Exception("Gagal memuat data: Status ${response.statusCode}");
       }
@@ -96,7 +103,7 @@ class WarehouseShowWidgetInternalState extends State<WarehouseShowWidget> {
     }
 
     final warehouse = _warehouse!;
-    const primaryColor = Color(0xFF4A69BD); // Warna aksen biru yang konsisten
+    const primaryColor = const Color(0xFF679436);;
 
     return RefreshIndicator(
       onRefresh: refreshData,
@@ -150,8 +157,6 @@ class WarehouseShowWidgetInternalState extends State<WarehouseShowWidget> {
       ),
     );
   }
-
-  // --- WIDGET HELPER BARU ---
 
   Widget _buildHeaderCard({required String title, required String subtitle, required IconData icon, required Color iconColor}) {
     return Card(

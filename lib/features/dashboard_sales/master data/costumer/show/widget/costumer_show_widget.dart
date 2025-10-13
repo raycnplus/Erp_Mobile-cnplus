@@ -21,10 +21,9 @@ class _CustomerShowWidgetState extends State<CustomerShowWidget> {
   final _storage = const FlutterSecureStorage();
   late Future<CustomerShowModel> _futureCustomer;
 
-  // ▼▼▼ BAGIAN BARU UNTUK DESAIN ▼▼▼
 
   // Palet Warna Utama
-  static const Color primaryColor = Color(0xFF4A69BD);
+  static const Color primaryColor = Color(0xFF679436);
   static const Color accentColor = Color(0xFFF1F4F8);
   static const Color textColor = Color(0xFF333333);
   static const Color subtitleColor = Color(0xFF666666);

@@ -1,6 +1,7 @@
-// purchase_team_screen.dart
+// lib/features/dashboard_sales/master data/sales_team/index/screen/sales_team_index_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../widget/sales_team_list_card.dart';
 import '../../create/screen/sales_team_screen_create.dart';
 import '../../show/screen/sales_team_show_screen.dart';
@@ -14,102 +15,80 @@ class SalesTeamScreen extends StatefulWidget {
 
 class _SalesTeamScreenState extends State<SalesTeamScreen> {
   String searchQuery = '';
-  Key _salesTeamListKey = UniqueKey();
+  // --- Tipe GlobalKey ini sekarang sudah benar ---
+  final GlobalKey<SalesTeamCardListState> _listKey = GlobalKey<SalesTeamCardListState>();
 
   void _refreshSalesTeamList() {
-    setState(() {
-      _salesTeamListKey = UniqueKey(); // Fixed variable name
-    });
+    _listKey.currentState?.refreshData();
   }
 
   @override
   Widget build(BuildContext context) {
+    const primaryGreen = Color(0xFF679436);
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: const Text('Sales Team'), // Changed from Purchase to Sales
-        backgroundColor: Colors.white,
-        elevation: 1,
-        iconTheme: const IconThemeData(color: Colors.black),
-        titleTextStyle: const TextStyle(
-          color: Colors.black,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Sales Team", // Changed from Purchase to Sales
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Search...',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 0,
-                  horizontal: 16,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value;
-                });
-              },
-            ),
-            Expanded(
-              child: SalesTeamCardList(
-                // Changed class name
-                key: _salesTeamListKey,
-                searchQuery: searchQuery,
-                onTap: (teamId) async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => SalesTeamShowScreen(
-                        teamId: teamId,
-                      ), // Changed class name
-                    ),
-                  );
-
-                  if (result == true && mounted) {
-                    _refreshSalesTeamList(); // Fixed method name
-                  }
-                },
-              ),
-            ),
+            Text("Sales Team", style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.black87, fontSize: 20)),
+            Text('Manajemen tim penjualan', style: GoogleFonts.lato(fontWeight: FontWeight.normal, color: Colors.grey.shade600, fontSize: 12)),
           ],
         ),
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        foregroundColor: Colors.black87,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          print(
-            '[DEBUG] FAB SalesTeamScreen ditekan, membuka SalesTeamScreenCreate', // Updated debug message
-          );
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const SalesTeamScreenCreate(),
-            ), // Changed class name
-          );
-          if (result == true && mounted) {
-            print('[DEBUG] Selesai create team, refresh list');
-            _refreshSalesTeamList(); // Fixed method name
-          }
-        },
-        backgroundColor: const Color(0xFF009688),
-        child: const Icon(Icons.add, color: Colors.white),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: SalesTeamCardList(
+          key: _listKey,
+          searchQuery: searchQuery,
+          onTap: (teamId) async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => SalesTeamShowScreen(teamId: teamId),
+              ),
+            );
+            if (result == true && mounted) {
+              _refreshSalesTeamList();
+            }
+          },
+        ),
+      ),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+                color: primaryGreen.withAlpha(100),
+                blurRadius: 15,
+                spreadRadius: 2,
+                offset: const Offset(0, 5)),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const SalesTeamScreenCreate(),
+              ),
+            );
+            if (result == true && mounted) {
+              _refreshSalesTeamList();
+            }
+          },
+          backgroundColor: primaryGreen,
+          elevation: 0,
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
     );
   }

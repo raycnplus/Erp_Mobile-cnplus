@@ -4,11 +4,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
-import '../../../../../../../services/api_base.dart';
+import '../../../../../../../../services/api_base.dart';
 import '../models/product_type_index_models.dart';
 
-import '../widget/product_type_update_widget.dart';
-import '../../product_type/models/product_type_update_models.dart';
+import '../../update/widget/product_type_update_widget.dart';
+import '../../update/models/product_type_update_models.dart';
 import 'product_type_list_shimmer.dart';
 
 class ProductTypeScreen extends StatefulWidget {

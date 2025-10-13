@@ -66,7 +66,7 @@ class _LocationShowWidgetState extends State<LocationShowWidget> {
   @override
   Widget build(BuildContext context) {
     // Skema Warna
-    const primaryColor = Color(0xFF4A69BD);
+    const primaryColor =  Color(0xFF679436);
     const backgroundColor = Color(0xFFF8F9FA);
     const cardColor = Colors.white;
     const textColor = Color(0xFF333333);

@@ -5,14 +5,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../../../../../../services/api_base.dart';
-import '../../../../../../shared/widgets/success_bottom_sheet.dart';
-import '../widget/product_type_create_widget.dart';
+import '../../../../../../../services/api_base.dart';
+import '../../../../../../../shared/widgets/success_bottom_sheet.dart';
+import '../../create/widget/product_type_create_widget.dart';
 import '../widget/product_type_index_widget.dart';
-import '../../../../../../shared/widgets/custom_refresh_indicator.dart';
+import '../../../../../../../shared/widgets/custom_refresh_indicator.dart';
 
-import '../widget/product_type_show_widget.dart';
-import '../models/product_type_show_models.dart';
+import '../../show/widget/product_type_show_widget.dart';
+import '../../show/models/product_type_show_models.dart';
 
 class ProductTypeIndexScreen extends StatefulWidget {
   const ProductTypeIndexScreen({super.key});

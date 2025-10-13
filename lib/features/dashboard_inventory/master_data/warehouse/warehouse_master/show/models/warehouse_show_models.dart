@@ -1,4 +1,3 @@
-// File: warehouse_show_models.dart (Perbaikan Final)
 
 class WarehouseShowModel {
   final int idWarehouse;
@@ -30,7 +29,6 @@ class WarehouseShowModel {
   });
 
   factory WarehouseShowModel.fromJson(Map<String, dynamic> json) {
-    // Fungsi helper untuk parsing integer yang aman
     int? _safeParseInt(dynamic value) {
       if (value == null) return null;
       return int.tryParse(value.toString());
@@ -38,22 +36,16 @@ class WarehouseShowModel {
 
     return WarehouseShowModel(
       idWarehouse: _safeParseInt(json['id_warehouse']) ?? 0,
-
       warehouseName: json['warehouse_name'] as String? ?? '',
       warehouseCode: json['warehouse_code'] as String? ?? '',
-
       branch: json['branch'] as String?,
       address: json['address'] as String?,
-
       length: _safeParseInt(json['length']),
       width: _safeParseInt(json['width']),
       height: _safeParseInt(json['height']),
       volume: _safeParseInt(json['volume']),
-
       description: json['description'] as String?,
       createdDate: json['created_date'] as String?,
-
-      // [PERBAIKAN] Menggunakan int.tryParse untuk keamanan tipe data
       createdBy: _safeParseInt(json['created_by']),
     );
   }

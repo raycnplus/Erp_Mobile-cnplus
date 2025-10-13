@@ -193,7 +193,7 @@ class _LocationShowScreenState extends State<LocationShowScreen> {
           onPressed: _onEdit,
           icon: const Icon(Icons.edit_outlined, color: Colors.white),
           label: Text('Edit Location', style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.white)),
-          backgroundColor: Theme.of(context).primaryColor,
+          backgroundColor: const Color(0xFF679436),
         ),
       ),
     );

@@ -1,5 +1,4 @@
 
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -108,7 +107,6 @@ class _WarehouseShowScreenState extends State<WarehouseShowScreen> {
       },
     );
     if(response.statusCode == 200 || response.statusCode == 204) {
-      // Tandai bahwa ada perubahan (delete)
       setState(() { _hasBeenUpdated = true; });
       return true;
     }
@@ -147,10 +145,10 @@ class _WarehouseShowScreenState extends State<WarehouseShowScreen> {
 
       try {
         final success = await _deleteWarehouse(widget.warehouse.id);
-        if (mounted) Navigator.pop(context); // Tutup loading
+        if (mounted) Navigator.pop(context); 
 
         if (success) {
-          if (mounted) Navigator.pop(context, true); // Kembali ke halaman index
+          if (mounted) Navigator.pop(context, true); 
         } else {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -160,7 +158,7 @@ class _WarehouseShowScreenState extends State<WarehouseShowScreen> {
         }
       } catch (e) {
         if (mounted) {
-          Navigator.pop(context); // Tutup loading
+          Navigator.pop(context); 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("An error occurred: $e"), backgroundColor: Colors.red),
           );
@@ -171,7 +169,6 @@ class _WarehouseShowScreenState extends State<WarehouseShowScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ▼▼▼ PERBAIKAN 1: Mengganti WillPopScope dengan PopScope ▼▼▼
     return PopScope(
       canPop: false,
       onPopInvoked: (bool didPop) {
@@ -219,12 +216,11 @@ class _WarehouseShowScreenState extends State<WarehouseShowScreen> {
           key: _showWidgetKey,
           warehouseId: widget.warehouse.id,
         ),
-        // ▼▼▼ PERBAIKAN 2: Mengganti nama widget yang salah ▼▼▼
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () => _showEditModal(context),
           icon: const Icon(Icons.edit_outlined, color: Colors.white),
           label: Text('Edit Warehouse', style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.white)),
-          backgroundColor: Theme.of(context).primaryColor,
+          backgroundColor: const Color(0xFF679436),
         ),
       ),
     );
