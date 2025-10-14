@@ -5,11 +5,11 @@ import 'dart:ui' as ui;
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../../../../../../../services/api_base.dart';
+import '../../../../../../../../services/api_base.dart';
 import '../models/brand_index_models.dart';
 // IMPORT DIALOG UPDATE YANG BARU
-import '../widget/brand_update_dialog.dart';
-import '../models/brand_update_models.dart';
+import '../../update/widget/brand_update_dialog.dart';
+import '../../update/models/brand_update_models.dart';
 
 // Import shimmer (asumsi sudah ada)
 // import 'brand_list_shimmer.dart'; 

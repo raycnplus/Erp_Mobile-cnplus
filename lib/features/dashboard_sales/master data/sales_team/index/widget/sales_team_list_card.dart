@@ -1,4 +1,3 @@
-// lib/features/dashboard_sales/master data/sales_team/index/widget/sales_team_list_card.dart
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,11 +14,9 @@ class SalesTeamCardList extends StatefulWidget {
   const SalesTeamCardList({super.key, required this.searchQuery, this.onTap});
 
   @override
-  // --- [PERBAIKAN] Mengubah _SalesTeamCardListState menjadi SalesTeamCardListState ---
   State<SalesTeamCardList> createState() => SalesTeamCardListState();
 }
 
-// --- [PERBAIKAN] Nama kelas diubah menjadi publik ---
 class SalesTeamCardListState extends State<SalesTeamCardList> {
   late Future<List<SalesTeamModels>> _fetchTeamsFuture;
 

@@ -37,7 +37,7 @@ class _SalesTeamScreenState extends State<SalesTeamScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Sales Team", style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.black87, fontSize: 20)),
-            Text('Manajemen tim penjualan', style: GoogleFonts.lato(fontWeight: FontWeight.normal, color: Colors.grey.shade600, fontSize: 12)),
+            Text('Sales team management', style: GoogleFonts.lato(fontWeight: FontWeight.normal, color: Colors.grey.shade600, fontSize: 12)),
           ],
         ),
         backgroundColor: Colors.white,

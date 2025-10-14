@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:ui'; // Import untuk ImageFilter (efek blur)
 import '../models/purchase_models.dart';
 import '../widget/purchase_analysis_chart.dart';
 import '../widget/top_list_card.dart';
@@ -101,7 +102,14 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
         elevation: 1,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      drawer: const PurchaseDashboardDrawer(),
+      // --- PERUBAHAN DI SINI ---
+      drawerScrimColor: Colors.black.withOpacity(0.25), // Menambahkan warna overlay
+      drawer: BackdropFilter(
+        // Menambahkan efek blur
+        filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
+        child: const PurchaseDashboardDrawer(),
+      ),
+      // --- BATAS PERUBAHAN ---
       body: FutureBuilder<ApiModel.PurchaseDashboardResponse>(
         future: _dashboardDataFuture,
         builder: (context, snapshot) {
@@ -146,8 +154,6 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
                   crossAxisCount: 4,
                   crossAxisSpacing: 8,
                   mainAxisSpacing: 8,
-                  // --- PERUBAHAN DI SINI ---
-                  // Nilai diubah agar rasio lebih seimbang, misal 0.9
                   childAspectRatio: 0.9,
                   children: [
                     StatCard(

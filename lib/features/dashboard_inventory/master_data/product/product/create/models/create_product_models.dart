@@ -1,69 +1,10 @@
-// ---------------- MAIN CREATE MODEL ----------------
-class ProductCreateModel {
-  final ProductData product;
-  final ProductDetailData productDetail;
-  final InventoryData inventory;
-
-  ProductCreateModel({
-    required this.product,
-    required this.productDetail,
-    required this.inventory,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      "product": product.toJson(),
-      "product_detail": productDetail.toJson(),
-      "inventory": inventory.toJson(),
-    };
-  }
-}
-
-// ---------------- PRODUCT ----------------
-class ProductData {
-  final String productName;
-  final String productCode;
-  final bool sales;
-  final bool purchase;
-  final bool direct;
-  final bool expense;
-
-  ProductData({
-    required this.productName,
-    required this.productCode,
-    this.sales = true,
-    this.purchase = true,
-    this.direct = true,
-    this.expense = true,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      "product_name": productName,
-      "product_code": productCode,
-      "sales": sales,
-      "purchase": purchase,
-      "direct": direct,
-      "expense": expense,
-    };
-  }
-
-  factory ProductData.fromJson(Map<String, dynamic> json) {
-    return ProductData(
-      productName: json["product_name"],
-      productCode: json["product_code"],
-      sales: json["sales"],
-      purchase: json["purchase"],
-      direct: json["direct"],
-      expense: json["expense"],
-    );
-  }
-}
+import 'package:flutter/material.dart';
 
 // ---------------- PRODUCT DETAIL ----------------
 class ProductDetailData {
   final int productType;
   final int productCategory;
+  final int? productBrand; 
   final int unitOfMeasure;
   final double salesPrice;
   final double purchasePrice;
@@ -73,6 +14,7 @@ class ProductDetailData {
   ProductDetailData({
     required this.productType,
     required this.productCategory,
+    this.productBrand,
     required this.unitOfMeasure,
     required this.salesPrice,
     required this.purchasePrice,
@@ -84,6 +26,7 @@ class ProductDetailData {
     return {
       "product_type": productType,
       "product_category": productCategory,
+      "product_brand": productBrand,
       "unit_of_measure": unitOfMeasure,
       "sales_price": salesPrice,
       "purchase_price": purchasePrice,
@@ -96,6 +39,7 @@ class ProductDetailData {
     return ProductDetailData(
       productType: json["product_type"],
       productCategory: json["product_category"],
+      productBrand: json["product_brand"],
       unitOfMeasure: json["unit_of_measure"],
       salesPrice: (json["sales_price"] as num).toDouble(),
       purchasePrice: (json["purchase_price"] as num).toDouble(),
@@ -158,14 +102,12 @@ class InventoryData {
 class ProductCreateResponse {
   final String status;
   final String message;
-  final ProductData product;
   final ProductDetailData productDetail;
   final InventoryData inventory;
 
   ProductCreateResponse({
     required this.status,
     required this.message,
-    required this.product,
     required this.productDetail,
     required this.inventory,
   });
@@ -174,14 +116,29 @@ class ProductCreateResponse {
     return ProductCreateResponse(
       status: json["status"],
       message: json["message"],
-      product: ProductData.fromJson(json["data"]["product"]),
       productDetail: ProductDetailData.fromJson(json["data"]["product_detail"]),
       inventory: InventoryData.fromJson(json["data"]["inventory"]),
     );
   }
 }
 
+
 // ---------------- DROPDOWNS ----------------
+class DropdownProductBrand {
+  final int id;
+  final String name;
+
+  DropdownProductBrand({required this.id, required this.name});
+
+  // Kode ini sudah dikoreksi sesuai JSON response
+  factory DropdownProductBrand.fromJson(Map<String, dynamic> json) {
+    return DropdownProductBrand(
+      id: json["id_brand"],
+      name: json["brand_name"],
+    );
+  }
+}
+
 class DropdownProductType {
   final int id;
   final String name;

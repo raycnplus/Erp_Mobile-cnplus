@@ -1,46 +1,43 @@
-class SalesTeamShowModel {
+// lib/features/dashboard_sales/master data/sales_team/index/models/sales_team_index_models.dart
+
+class SalesTeamModels {
   final int idSalesTeam;
   final String teamName;
+  final String teamLeader;
   final String teamLeaderName;
   final String description;
-  final String createdDate;
-  final int createdBy;
+  final int totalMembers;
   final List<String> memberNames;
+  final String createdDate;
 
- SalesTeamShowModel({
+  SalesTeamModels({
     required this.idSalesTeam,
     required this.teamName,
+    required this.teamLeader,
     required this.teamLeaderName,
     required this.description,
-    required this.createdDate,
-    required this.createdBy,
+    required this.totalMembers,
     required this.memberNames,
+    required this.createdDate,
   });
 
-  factory SalesTeamShowModel.fromJson(Map<String, dynamic> json) {
-    return SalesTeamShowModel(
-      idSalesTeam: json['id_sales_team'] ?? 0,
-      teamName: json['team_name'] ?? '',
-      teamLeaderName: json['team_leader']?['nama_lengkap'] ?? '',
-      description: json['description'] ?? '',
-      createdDate: json['created_date'] ?? '',
-      createdBy: json['created_by'] ?? 0,
-      memberNames: ((json['member'] as List<dynamic>?) ?? [])
-          .map<String>((m) => m['karyawan']?['nama_lengkap']?.toString() ?? '')
-          .where((name) => name.isNotEmpty)
-          .toList(),
-    );
-  }
+  factory SalesTeamModels.fromJson(Map<String, dynamic> json) {
+    // Extract member names from members array
+    final List<dynamic> members = json['members'] ?? [];
+    final List<String> memberNames = members
+        .map((member) => member['nama_lengkap'] as String? ?? '')
+        .where((name) => name.isNotEmpty)
+        .toList();
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id_sales_team': idSalesTeam,
-      'team_name': teamName,
-      'team_leader_name': teamLeaderName,
-      'description': description,
-      'created_date': createdDate,
-      'created_by': createdBy,
-      'member_names': memberNames,
-    };
+    return SalesTeamModels(
+      idSalesTeam: json['id_sales_team'] ?? 0,
+      teamName: json['team_name'] ?? 'No Name',
+      teamLeader: json['team_leader'] ?? 'No Leader',
+      teamLeaderName: json['team_leader'] ?? 'No Leader Name', // team_leader digunakan juga sebagai teamLeaderName
+      description: json['description'] ?? '',
+      totalMembers: members.length,
+      memberNames: memberNames,
+      createdDate: json['created_on'] ?? '-',
+    );
   }
 }

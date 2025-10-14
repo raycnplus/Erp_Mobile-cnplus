@@ -5,14 +5,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../../../../../../services/api_base.dart';
-import '../../../../../../shared/widgets/success_bottom_sheet.dart';
+import '../../../../../../../services/api_base.dart';
+import '../../../../../../../shared/widgets/success_bottom_sheet.dart';
 import '../widget/product_category_index_widget.dart';
 import '../models/product_category_index_models.dart';
 // 
-import '../../product_category/widget/product_category_create_widget.dart';
-import '../../product_category/models/product_category_show_models.dart';
-import '../../product_category/widget/product_category_show_widget.dart';
+import '../../create/widget/product_category_create_widget.dart';
+import '../../show/models/product_category_show_models.dart';
+import '../../show/widget/product_category_show_widget.dart';
 
 class ProductCategoryScreen extends StatefulWidget {
   const ProductCategoryScreen({super.key});
