@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui'; // Digunakan untuk ImageFilter (efek blur)
+import 'dart:ui';
 
 import '../repositories/inventory_repository.dart';
 import '../models/dashboard_data_model.dart';

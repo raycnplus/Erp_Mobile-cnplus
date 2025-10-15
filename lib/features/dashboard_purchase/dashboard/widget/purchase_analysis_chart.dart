@@ -1,39 +1,53 @@
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../models/purchase_models.dart';
+import '../utils/formatters.dart'; // Pastikan Anda mengimpor formatters
 
 class PurchaseAnalysisChart extends StatelessWidget {
   final List<MonthlyPurchaseData> purchaseData;
-  final Color mainColor = const Color(0xFF029379);
+  final Color mainColor = const Color(0xFF029379); // Warna aksen utama
 
   const PurchaseAnalysisChart({super.key, required this.purchaseData});
 
-  String _formatYAxisLabel(double value) {
-    if (value >= 1000000000) return '${(value / 1000000000).toStringAsFixed(0)}B';
-    if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(0)}M';
-    if (value >= 100000) return '${(value / 1000).toStringAsFixed(0)}K';
-    return value.toStringAsFixed(0);
+  // Helper untuk mendapatkan rentang waktu
+  String _getDateRange() {
+    if (purchaseData.isEmpty) {
+      return 'Data not available';
+    }
+    // Asumsi data sudah terurut berdasarkan bulan
+    final firstMonth = DateFormat('MMM yyyy').format(DateTime(2025, purchaseData.first.month));
+    final lastMonth = DateFormat('MMM yyyy').format(DateTime(2025, purchaseData.last.month));
+    return '$firstMonth - $lastMonth';
   }
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4,
-      shadowColor: Colors.black.withOpacity(0.1),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 2, // Shadow lebih halus
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: Colors.white,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+        padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // [DIUBAH] Header/Judul Chart
             Text(
-              'purchase analysis',
-              style: TextStyle(
-                color: mainColor,
+              'Purchase Analysis',
+              style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _getDateRange(), // Rentang waktu dinamis
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: Colors.grey.shade600,
               ),
             ),
             const SizedBox(height: 24),
@@ -44,8 +58,12 @@ class PurchaseAnalysisChart extends StatelessWidget {
                   lineTouchData: _buildLineTouchData(),
                   gridData: _buildGridData(),
                   titlesData: _buildTitlesData(),
-                  borderData: _buildBorderData(),
+                  borderData: FlBorderData(show: false), // Menghilangkan border
                   lineBarsData: [_buildLineBarsData()],
+                  // Menentukan batas sumbu X dan Y secara eksplisit
+                  minX: 1,
+                  maxX: 12,
+                  minY: 0,
                 ),
               ),
             ),
@@ -59,24 +77,26 @@ class PurchaseAnalysisChart extends StatelessWidget {
     return LineTouchData(
       handleBuiltInTouches: true,
       touchTooltipData: LineTouchTooltipData(
-        getTooltipColor: (touchedSpot) => Colors.white,
+        getTooltipColor: (touchedSpot) => mainColor.withOpacity(0.9), // Warna tooltip disamakan
         tooltipBorderRadius: BorderRadius.circular(8),
         getTooltipItems: (touchedSpots) {
           return touchedSpots.map((spot) {
-            final monthYear = '${spot.x.toInt()}-2025';
-            final amount = NumberFormat.compactCurrency(
+            // Format bulan menjadi nama (Contoh: "Jan", "Feb")
+            final monthName = DateFormat('MMM').format(DateTime(0, spot.x.toInt()));
+            // Format angka menjadi format Rupiah lengkap
+            final amount = NumberFormat.currency(
               locale: 'id_ID',
-              symbol: '',
-              decimalDigits: 2,
+              symbol: 'Rp ',
+              decimalDigits: 0,
             ).format(spot.y);
 
             return LineTooltipItem(
-              '$monthYear\n',
-              const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              '$monthName 2025\n',
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
               children: [
                 TextSpan(
-                  text: 'total invoice: $amount',
-                  style: const TextStyle(fontWeight: FontWeight.normal),
+                  text: amount,
+                  style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 12),
                 ),
               ],
             );
@@ -86,15 +106,14 @@ class PurchaseAnalysisChart extends StatelessWidget {
       getTouchedSpotIndicator: (barData, spotIndexes) {
         return spotIndexes.map((index) {
           return TouchedSpotIndicatorData(
-            FlLine(color: Colors.orange, strokeWidth: 2),
+            FlLine(color: mainColor.withOpacity(0.5), strokeWidth: 2),
             FlDotData(
-              getDotPainter: (spot, percent, barData, index) =>
-                  FlDotCirclePainter(
-                    radius: 6,
-                    color: Colors.orange,
-                    strokeWidth: 2,
-                    strokeColor: Colors.white,
-                  ),
+              getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+                radius: 8,
+                color: mainColor,
+                strokeWidth: 4,
+                strokeColor: Colors.white,
+              ),
             ),
           );
         }).toList();
@@ -106,19 +125,19 @@ class PurchaseAnalysisChart extends StatelessWidget {
     return FlTitlesData(
       show: true,
       rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-
       topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       bottomTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
           reservedSize: 30,
-          interval: 1,
-          getTitlesWidget: (value, TitleMeta meta) {
+          interval: 2, // Menampilkan label setiap 2 bulan agar tidak terlalu padat
+          getTitlesWidget: (value, meta) {
+            final monthName = DateFormat('MMM').format(DateTime(0, value.toInt()));
             return SideTitleWidget(
-              meta: meta, // wajib sekarang
+              meta: meta,
               space: 8,
               child: Text(
-                '${value.toInt()}-2025',
+                monthName,
                 style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
               ),
             );
@@ -128,9 +147,17 @@ class PurchaseAnalysisChart extends StatelessWidget {
       leftTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
-          reservedSize: 40,
+          reservedSize: 45, // Sedikit lebih lebar untuk format
           getTitlesWidget: (value, meta) {
-            return Text(_formatYAxisLabel(value), style: TextStyle(color: Colors.grey.shade700, fontSize: 12), textAlign: TextAlign.left);
+            if (value == meta.max || value == meta.min) {
+              return const SizedBox(); // Sembunyikan label teratas dan terbawah
+            }
+            // [DIUBAH] Menggunakan formatCurrency dari formatters.dart agar konsisten
+            return Text(
+              formatCurrency(value),
+              style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+              textAlign: TextAlign.left,
+            );
           },
         ),
       ),
@@ -140,21 +167,10 @@ class PurchaseAnalysisChart extends StatelessWidget {
   FlGridData _buildGridData() {
     return FlGridData(
       show: true,
-      drawVerticalLine: false,
+      drawVerticalLine: false, // Garis vertikal disembunyikan agar lebih bersih
       getDrawingHorizontalLine: (value) => FlLine(
         color: Colors.grey.shade200,
         strokeWidth: 1,
-        dashArray: [8, 4],
-      ),
-    );
-  }
-
-  FlBorderData _buildBorderData() {
-    return FlBorderData(
-      show: true,
-      border: Border(
-        bottom: BorderSide(color: Colors.grey.shade200),
-        left: const BorderSide(color: Colors.transparent),
       ),
     );
   }
@@ -164,21 +180,20 @@ class PurchaseAnalysisChart extends StatelessWidget {
       spots: purchaseData.map((data) => FlSpot(data.month.toDouble(), data.amount)).toList(),
       isCurved: true,
       color: mainColor,
-      barWidth: 3,
+      barWidth: 4, // Garis sedikit lebih tebal
       isStrokeCapRound: true,
-      dotData: const FlDotData(show: false),
+      dotData: const FlDotData(show: false), // Titik pada data disembunyikan
       belowBarData: BarAreaData(
         show: true,
         gradient: LinearGradient(
-          colors: [mainColor.withOpacity(0.3), mainColor.withOpacity(0.0)],
+          colors: [
+            mainColor.withOpacity(0.4),
+            mainColor.withOpacity(0),
+          ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
       ),
     );
   }
-}
-
-extension on TitleMeta {
-  get side => null;
 }

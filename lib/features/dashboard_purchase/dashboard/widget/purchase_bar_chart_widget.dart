@@ -1,6 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/purchase_chart_data_model.dart';
+import '../utils/formatters.dart';
 
 const Color kDefaultBarColor = Color(0xFF029379);
 
@@ -12,6 +14,8 @@ class PurchaseBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -51,7 +55,7 @@ class PurchaseBarChart extends StatelessWidget {
                     touchTooltipData: BarTouchTooltipData(
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         return BarTooltipItem(
-                          '${data[groupIndex].label}\n',
+                          '${data[groupIndex].label}\n', // Tooltip tetap menampilkan nama lengkap
                           const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -59,7 +63,7 @@ class PurchaseBarChart extends StatelessWidget {
                           ),
                           children: <TextSpan>[
                             TextSpan(
-                              text: 'Rp${rod.toY.round().toString()}',
+                              text: currencyFormatter.format(rod.toY),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -83,6 +87,7 @@ class PurchaseBarChart extends StatelessWidget {
                       sideTitles: SideTitles(
                         showTitles: true,
                         getTitlesWidget: _getBottomTitles,
+                        // [DIUBAH] Mengembalikan reservedSize ke nilai yang lebih kecil
                         reservedSize: 38,
                       ),
                     ),
@@ -144,58 +149,64 @@ class PurchaseBarChart extends StatelessWidget {
     );
   }
 
+  // [DIUBAH] Menambahkan logika pemotongan teks
   Widget _getBottomTitles(double value, TitleMeta meta) {
     final style = TextStyle(
       color: Colors.grey.shade600,
-      fontSize: 14,
+      fontSize: 12,
       fontWeight: FontWeight.w500,
     );
 
-    String text = data.length > value.toInt() ? data[value.toInt()].label : '';
+    String originalText = data.length > value.toInt() ? data[value.toInt()].label : '';
+    
+    // Logika untuk memotong teks jika lebih dari 2 kata
+    final words = originalText.split(' ');
+    String finalText;
+    if (words.length > 2) {
+      finalText = '${words[0]} ${words[1]}...';
+    } else {
+      finalText = originalText;
+    }
 
     return SideTitleWidget(
       meta: meta,
-      space: 8.0,
+      space: 8.0, 
       child: Text(
-        text,
+        finalText,
         style: style,
-        overflow: TextOverflow.ellipsis,
-        maxLines: 1,
+        textAlign: TextAlign.center,
       ),
     );
   }
 
   Widget _getLeftTitles(double value, TitleMeta meta) {
     final style = TextStyle(color: Colors.grey.shade600, fontSize: 12);
-
-    if (value % _calculateInterval() != 0 && value != _calculateMaxY()) {
+    if (value == 0) {
       return const SizedBox();
     }
-
     return SideTitleWidget(
       meta: meta,
       space: 4,
       child: Text(
-        value == 0 ? '' : 'Rp${value.toInt().toString()}',
+        formatCurrency(value),
         style: style,
+        textAlign: TextAlign.left,
       ),
     );
   }
 
   double _calculateMaxY() {
     double maxVal = 0;
+    if (data.isEmpty) return 100;
     for (var d in data) {
       if (d.value > maxVal) maxVal = d.value;
     }
-    return (maxVal / 5).ceil() * 5.0 + 5;
+    return maxVal * 1.2;
   }
 
   double _calculateInterval() {
-    double maxVal = 0;
-    for (var d in data) {
-      if (d.value > maxVal) maxVal = d.value;
-    }
-    final interval = (maxVal / 5).ceilToDouble();
-    return interval > 0 ? interval : 1;
+    final maxY = _calculateMaxY();
+    if (maxY == 0) return 20;
+    return maxY / 5;
   }
 }
