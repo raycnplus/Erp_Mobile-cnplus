@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widget/show_product_widget.dart';
-import '../../create/screen/create_product_screen.dart'; // pastikan path-nya sesuai dengan project kamu
+import '../../update/screen/update_product_screen.dart'; // pastikan path-nya sesuai dengan project kamu
 
 class ProductShowScreen extends StatelessWidget {
   final int productId;
@@ -15,16 +15,16 @@ class ProductShowScreen extends StatelessWidget {
       // Tambahkan FloatingActionButton
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navigasi ke halaman create product
+          // Navigasi ke halaman update product
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const ProductCreateScreen(),
+              builder: (context) => ProductUpdateScreen(productId: productId),
             ),
           );
         },
         backgroundColor: Colors.blue,
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.edit),
       ),
     );
   }

@@ -5,8 +5,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../../../../services/api_base.dart';
 
 class ProductUpdateWidget extends StatefulWidget {
-  final int id;
-  const ProductUpdateWidget({super.key, required this.id});
+  final int productId;
+  const ProductUpdateWidget({super.key, required this.productId});
 
   @override
   State<ProductUpdateWidget> createState() => _ProductUpdateWidgetState();
@@ -49,7 +49,7 @@ class _ProductUpdateWidgetState extends State<ProductUpdateWidget> {
 
   Future<void> fetchProductDetail() async {
     final token = await storage.read(key: 'token');
-    final url = Uri.parse('${ApiBase.baseUrl}/inventory/products/${widget.id}');
+    final url = Uri.parse('${ApiBase.baseUrl}/inventory/products/${widget.productId}');
     final response = await http.get(url, headers: {
       'Authorization': 'Bearer $token',
       'Accept': 'application/json',
@@ -92,7 +92,7 @@ class _ProductUpdateWidgetState extends State<ProductUpdateWidget> {
   Future<void> updateProduct() async {
     setState(() => loading = true);
     final token = await storage.read(key: 'token');
-    final url = Uri.parse('${ApiBase.baseUrl}/inventory/products/${widget.id}');
+    final url = Uri.parse('${ApiBase.baseUrl}/inventory/products/${widget.productId}');
 
     final body = {
       "product_name": nameCtrl.text.trim(),
