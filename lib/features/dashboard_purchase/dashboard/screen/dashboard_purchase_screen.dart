@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui'; // Import untuk ImageFilter (efek blur)
 import '../models/purchase_models.dart';
@@ -35,47 +34,117 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
     _dashboardDataFuture = _purchaseService.fetchDashboardData();
   }
 
-  List<PurchaseChartData> _transformToProductChartData(
-      List<ApiModel.TopProduct> products) {
-    return products
-        .map((p) => PurchaseChartData(
-            label: p.productName, value: p.totalSpent, color: Colors.pinkAccent))
-        .toList();
+  // --- [BARU] Helper widget untuk membuat toggle buttons yang modern ---
+  Widget _buildChartToggleButtons() {
+    // Definisi warna agar sama persis dengan di halaman Inventory
+    const Color selectedColor = Color(0xFF2D6A4F);
+    const Color unselectedColor = Colors.white;
+    const Color selectedTextColor = Colors.white;
+    const Color unselectedTextColor = Colors.black54;
+
+    return Container(
+      height: 45,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          // Tombol "Top 5 Product"
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedChart = 0; // Menggunakan state _selectedChart
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: _selectedChart == 0 ? selectedColor : unselectedColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: _selectedChart == 0
+                      ? [
+                          BoxShadow(
+                            color: selectedColor.withOpacity(0.3),
+                            blurRadius: 8,
+                            spreadRadius: 2,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Text(
+                  "Top 5 Product", // Label untuk tombol pertama
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    color: _selectedChart == 0 ? selectedTextColor : unselectedTextColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Tombol "Top 5 Vendor"
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedChart = 1; // Menggunakan state _selectedChart
+                });
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: _selectedChart == 1 ? selectedColor : unselectedColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: _selectedChart == 1
+                      ? [
+                          BoxShadow(
+                            color: selectedColor.withOpacity(0.3),
+                            blurRadius: 8,
+                            spreadRadius: 2,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Text(
+                  "Top 5 Vendor", // Label untuk tombol kedua
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    color: _selectedChart == 1 ? selectedTextColor : unselectedTextColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
-  List<PurchaseChartData> _transformToVendorChartData(
-      List<ApiModel.TopVendor> vendors) {
-    return vendors
-        .map((v) => PurchaseChartData(
-            label: v.vendorName, value: v.totalSpent, color: Colors.cyan))
-        .toList();
+  // --- Sisa method lainnya tidak berubah ---
+  List<PurchaseChartData> _transformToProductChartData(List<ApiModel.TopProduct> products) {
+    return products.map((p) => PurchaseChartData(label: p.productName, value: p.totalSpent, color: Colors.pinkAccent)).toList();
   }
-
-  List<MonthlyPurchaseData> _transformToAnalysisData(
-      ApiModel.SpendingByMonth spending) {
+  List<PurchaseChartData> _transformToVendorChartData(List<ApiModel.TopVendor> vendors) {
+    return vendors.map((v) => PurchaseChartData(label: v.vendorName, value: v.totalSpent, color: Colors.cyan)).toList();
+  }
+  List<MonthlyPurchaseData> _transformToAnalysisData(ApiModel.SpendingByMonth spending) {
     List<MonthlyPurchaseData> chartData = [];
     for (int i = 0; i < spending.labels.length; i++) {
       final month = int.tryParse(spending.labels[i].split('-')[0]) ?? (i + 1);
-      chartData.add(
-          MonthlyPurchaseData(month: month, amount: spending.data[i]));
+      chartData.add(MonthlyPurchaseData(month: month, amount: spending.data[i]));
     }
     return chartData;
   }
-
-  List<TopListData> _transformToCategoryList(
-      List<ApiModel.TopCategory> categories) {
-    return categories
-        .map((c) => TopListData(
-            title: c.productCategoryName, value: formatCurrency(c.totalAmount)))
-        .toList();
+  List<TopListData> _transformToCategoryList(List<ApiModel.TopCategory> categories) {
+    return categories.map((c) => TopListData(title: c.productCategoryName, value: formatCurrency(c.totalAmount))).toList();
   }
-
-  List<TopListData> _transformToPurchaseOrderList(
-      List<ApiModel.TopPurchaseOrder> orders) {
-    return orders
-        .map((o) => TopListData(
-            title: o.reference, value: formatCurrency(o.totalAmount)))
-        .toList();
+  List<TopListData> _transformToPurchaseOrderList(List<ApiModel.TopPurchaseOrder> orders) {
+    return orders.map((o) => TopListData(title: o.reference, value: formatCurrency(o.totalAmount))).toList();
   }
 
   @override
@@ -84,62 +153,39 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: GestureDetector(
-          onTap: () {
-            Navigator.pushNamed(context, AppRoutes.modul);
-          },
-          child: Text(
-            'Purchase',
-            style: GoogleFonts.montserrat(
-              color: const Color(0xFF2D6A4F),
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              height: 4,
-            ),
-          ),
+          onTap: () => Navigator.pushNamed(context, AppRoutes.modul),
+          child: Text('Purchase', style: GoogleFonts.montserrat(color: const Color(0xFF2D6A4F), fontSize: 24, fontWeight: FontWeight.w700, height: 4)),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 1,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      // --- PERUBAHAN DI SINI ---
-      drawerScrimColor: Colors.black.withOpacity(0.25), // Menambahkan warna overlay
+      drawerScrimColor: Colors.black.withOpacity(0.25),
       drawer: BackdropFilter(
-        // Menambahkan efek blur
         filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
         child: const PurchaseDashboardDrawer(),
       ),
-      // --- BATAS PERUBAHAN ---
       body: FutureBuilder<ApiModel.PurchaseDashboardResponse>(
         future: _dashboardDataFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-
           if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text('Error: ${snapshot.error}'),
-              ),
-            );
+            return Center(child: Padding(padding: const EdgeInsets.all(16.0), child: Text('Error: ${snapshot.error}')));
           }
-
           if (!snapshot.hasData) {
             return const Center(child: Text('No data available.'));
           }
 
           final data = snapshot.data!;
           final summary = data.summary;
-
           final top5ProductData = _transformToProductChartData(data.topProducts);
           final top5VendorData = _transformToVendorChartData(data.topVendors);
-          final purchaseAnalysisData =
-              _transformToAnalysisData(data.charts.spendingByMonth);
+          final purchaseAnalysisData = _transformToAnalysisData(data.charts.spendingByMonth);
           final topCategoryData = _transformToCategoryList(data.topCategories);
-          final topPurchaseOrderData =
-              _transformToPurchaseOrderList(data.topPurchaseOrders);
+          final topPurchaseOrderData = _transformToPurchaseOrderList(data.topPurchaseOrders);
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
@@ -156,77 +202,30 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
                   mainAxisSpacing: 8,
                   childAspectRatio: 0.9,
                   children: [
-                    StatCard(
-                      title: "Purchase Request",
-                      value: summary.purchaseRequest.toString(),
-                    ),
-                    StatCard(
-                      title: "Request For Quotation",
-                      value: summary.rfq.toString(),
-                    ),
-                    StatCard(
-                      title: "Purchase Order",
-                      value: summary.purchaseOrder.toString(),
-                    ),
-                    StatCard(
-                      title: "Direct Purchase",
-                      value: summary.directPurchase.toString(),
-                    ),
+                    StatCard(title: "Purchase Request", value: summary.purchaseRequest.toString()),
+                    StatCard(title: "Request For Quotation", value: summary.rfq.toString()),
+                    StatCard(title: "Purchase Order", value: summary.purchaseOrder.toString()),
+                    StatCard(title: "Direct Purchase", value: summary.directPurchase.toString()),
                   ],
                 ),
                 const SizedBox(height: 24),
 
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    return ToggleButtons(
-                      isSelected: [_selectedChart == 0, _selectedChart == 1],
-                      onPressed: (index) {
-                        setState(() {
-                          _selectedChart = index;
-                        });
-                      },
-                      borderRadius: BorderRadius.circular(8),
-                      selectedColor: Colors.white,
-                      fillColor: Colors.teal,
-                      color: Colors.teal,
-                      constraints: BoxConstraints.expand(
-                        width: constraints.maxWidth / 2 - 2,
-                        height: 40,
-                      ),
-                      children: const [
-                        Text("Top 5 Product"),
-                        Text("Top 5 Vendor"),
-                      ],
-                    );
-                  },
-                ),
+                // [DIUBAH] Mengganti ToggleButtons lama dengan widget baru yang konsisten
+                _buildChartToggleButtons(),
+
                 const SizedBox(height: 16),
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   child: _selectedChart == 0
-                      ? PurchaseBarChart(
-                          key: const ValueKey('top5product'),
-                          data: top5ProductData,
-                          title: "Top 5 Product",
-                        )
-                      : PurchaseBarChart(
-                          key: const ValueKey('top5vendor'),
-                          data: top5VendorData,
-                          title: "Top 5 Vendor",
-                        ),
+                      ? PurchaseBarChart(key: const ValueKey('top5product'), data: top5ProductData, title: "Top 5 Product")
+                      : PurchaseBarChart(key: const ValueKey('top5vendor'), data: top5VendorData, title: "Top 5 Vendor"),
                 ),
                 const SizedBox(height: 24),
                 PurchaseAnalysisChart(purchaseData: purchaseAnalysisData),
                 const SizedBox(height: 24),
-                TopListCard(
-                  title: 'Top 5 Category Product',
-                  items: topCategoryData,
-                ),
+                TopListCard(title: 'Top 5 Category Product', items: topCategoryData),
                 const SizedBox(height: 24),
-                TopListCard(
-                  title: 'Top 5 Purchase Order',
-                  items: topPurchaseOrderData,
-                ),
+                TopListCard(title: 'Top 5 Purchase Order', items: topPurchaseOrderData),
               ],
             ),
           );
