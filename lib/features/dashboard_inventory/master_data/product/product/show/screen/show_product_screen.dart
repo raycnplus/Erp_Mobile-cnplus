@@ -1,6 +1,6 @@
+import 'package:erp_mobile_cnplus/features/dashboard_inventory/master_data/product/product/update/screen/update_product_screen.dart';
 import 'package:flutter/material.dart';
 import '../widget/show_product_widget.dart';
-import '../../update/screen/update_product_screen.dart'; // pastikan path-nya sesuai dengan project kamu
 
 class ProductShowScreen extends StatelessWidget {
   final int productId;
@@ -15,16 +15,16 @@ class ProductShowScreen extends StatelessWidget {
       // Tambahkan FloatingActionButton
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navigasi ke halaman update product
+          // Navigasi ke halaman create product
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ProductUpdateScreen(productId: productId),
+              builder: (context) => ProductUpdateScreen(id: productId),
             ),
           );
         },
         backgroundColor: Colors.blue,
-        child: const Icon(Icons.edit),
+        child: const Icon(Icons.add),
       ),
     );
   }

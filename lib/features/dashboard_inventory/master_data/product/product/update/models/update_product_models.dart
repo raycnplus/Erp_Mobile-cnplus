@@ -180,20 +180,6 @@ class ProductUpdateResponse {
 }
 
 // ---------------- DROPDOWNS ----------------
-class DropdownProductBrand {
-  final int id;
-  final String name;
-
-  DropdownProductBrand({required this.id, required this.name});
-
-  factory DropdownProductBrand.fromJson(Map<String, dynamic> json) {
-    return DropdownProductBrand(
-      id: json["id_brand"],
-      name: json["brand_name"],
-    );
-  }
-}
-
 class DropdownProductType {
   final int id;
   final String name;
@@ -202,8 +188,8 @@ class DropdownProductType {
 
   factory DropdownProductType.fromJson(Map<String, dynamic> json) {
     return DropdownProductType(
-      id: json["id_product_type"],
-      name: json["product_type_name"],
+      id: json['id_product_type'],
+      name: json['product_type_name'],
     );
   }
 }
@@ -232,6 +218,20 @@ class DropdownUnitOfMeasure {
     return DropdownUnitOfMeasure(
       id: json['id_unit_of_measure'],
       name: json['unit_of_measure_name'],
+    );
+  }
+}
+
+class DropdownProductBrand {
+  final int id;
+  final String name;
+
+  DropdownProductBrand({required this.id, required this.name});
+
+  factory DropdownProductBrand.fromJson(Map<String, dynamic> json) {
+    return DropdownProductBrand(
+      id: json['id_brand'],
+      name: json['brand_name'],
     );
   }
 }
