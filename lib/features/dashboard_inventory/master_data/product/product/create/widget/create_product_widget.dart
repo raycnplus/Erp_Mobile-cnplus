@@ -53,7 +53,7 @@ class _ProductCreateWidgetState extends State<ProductCreateWidget> {
   final List<Map<String, String>> trackingMethods = [
     {'value': 'lots', 'display': 'By Lots'},
     {'value': 'serial_number', 'display': 'By Serial Number'},
-  ];
+  ]; 
 
   bool isLoading = true;
 
