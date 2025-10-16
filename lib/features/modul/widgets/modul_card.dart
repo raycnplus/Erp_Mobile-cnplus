@@ -1,8 +1,13 @@
+// Ganti seluruh isi file: modul_card.dart
+
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ModulCard extends StatelessWidget {
   final String label;
   final String imagePath;
+  final Color iconBackgroundColor;
+  final Color iconColor; // ✅ Tambahkan parameter ini
   final VoidCallback? onTap;
 
   const ModulCard({
@@ -10,6 +15,8 @@ class ModulCard extends StatelessWidget {
     required this.label,
     required this.imagePath,
     this.onTap,
+    this.iconBackgroundColor = const Color(0xFFE0F2F1),
+    required this.iconColor, // ✅ Jadikan wajib diisi
   });
 
   @override
@@ -17,61 +24,52 @@ class ModulCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 32),
-        child: Stack(
-          alignment: Alignment.center,
+        width: double.infinity,
+        margin: const EdgeInsets.symmetric(vertical: 10.0),
+        padding: const EdgeInsets.all(20.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.08),
+              spreadRadius: 2,
+              blurRadius: 20,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
           children: [
             Container(
-              width: double.infinity,
-              height: 100,
+              padding: const EdgeInsets.all(12.0),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(
-                      0xff409c9c,
-                    ), // kiri: terang (sama dengan button login)
-                    Color(
-                      0xff2b6e6e,
-                    ), // kanan: gelap (sama dengan button login)
-                  ],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(
-                      0.15,
-                    ), // Sedikit lebih gelap
-                    blurRadius: 20, // Ditingkatkan agar sangat halus
-                    offset: const Offset(
-                      0,
-                      8,
-                    ), // Jarak ke bawah ditambah agar 'terangkat'
-                    spreadRadius: 1, // Sedikit menyebar agar lebih berisi
-                  ),
-                ],
+                color: iconBackgroundColor,
+                shape: BoxShape.circle,
               ),
-            ),
-            Positioned(
-              left: 24,
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            Positioned(
-              right: 24,
               child: Image.asset(
                 imagePath,
-                width: 60,
-                height: 60,
+                width: 32,
+                height: 32,
                 fit: BoxFit.contain,
+                color: iconColor, // ✅ Terapkan warna pada ikon di sini
               ),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Text(
+                label,
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF333333),
+                ),
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.grey,
+              size: 16,
             ),
           ],
         ),

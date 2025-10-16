@@ -1,57 +1,35 @@
+// Ganti seluruh isi file: lib/.../purchase_team/models/purchase_team_models.dart
+
 class PurchaseTeamIndexModel {
   final int idPurchaseTeam;
   final String teamName;
   final String teamLeader;
   final String description;
+  final int totalMembers; // ✅ Tambahkan properti ini
 
   PurchaseTeamIndexModel({
     required this.idPurchaseTeam,
     required this.teamName,
     required this.teamLeader,
     required this.description,
+    required this.totalMembers, // ✅ Tambahkan properti ini
   });
 
   factory PurchaseTeamIndexModel.fromJson(Map<String, dynamic> json) {
+    // Hitung jumlah anggota dari list 'member' atau 'members'
+    int memberCount = 0;
+    if (json['member'] is List) {
+      memberCount = (json['member'] as List).length;
+    } else if (json['members'] is List) {
+      memberCount = (json['members'] as List).length;
+    }
+
     return PurchaseTeamIndexModel(
       idPurchaseTeam: json['id_purchase_team'] ?? 0,
-      teamName: json['team_name'] ?? '',
-      teamLeader: json['team_leader']?['nama_lengkap'] ?? '',
+      teamName: json['team_name'] ?? 'No Name',
+      teamLeader: json['team_leader']?['nama_lengkap'] ?? 'No Leader',
       description: json['description'] ?? '',
+      totalMembers: memberCount, // ✅ Set nilainya di sini
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id_purchase_team': idPurchaseTeam,
-      'team_name': teamName,
-      'team_leader': teamLeader,
-      'description': description,
-    };
-  }
-}
-
-class PurchaseTeamEditModel {
-  final int id;
-  String teamName;
-  int teamLeaderId;
-  String description;
-  List<int> memberIds;
-
-  PurchaseTeamEditModel({
-    required this.id,
-    required this.teamName,
-    required this.teamLeaderId,
-    required this.description,
-    required this.memberIds,
-  });
-
-  Map<String, dynamic> toUpdateJson() {
-    return {
-      'id_purchase_team': id,
-      'team_name': teamName,
-      'team_leader': teamLeaderId,
-      'description': description,
-      'member': memberIds.map((id) => {'id_karyawan': id}).toList(),
-    };
   }
 }

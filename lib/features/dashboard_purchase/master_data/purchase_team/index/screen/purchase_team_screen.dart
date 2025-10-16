@@ -1,7 +1,7 @@
-// purchase_team_screen.dart
+// Ganti seluruh isi file: lib/.../purchase_team/screen/purchase_team_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../widget/purchase_team_list_card.dart';
 import '../../creeate/screen/purchase_team_screen_create.dart';
 import '../../show/screen/purchase_team_show_screen.dart';
@@ -14,101 +14,79 @@ class PurchaseTeamScreen extends StatefulWidget {
 }
 
 class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
-  String searchQuery = '';
-  Key _purchaseTeamListKey = UniqueKey();
+  // ✅ Variabel searchQuery sudah dihapus
+  final GlobalKey<PurchaseTeamCardListState> _listKey = GlobalKey<PurchaseTeamCardListState>();
 
   void _refreshPurchaseTeamList() {
-    setState(() {
-      _purchaseTeamListKey = UniqueKey();
-    });
+    _listKey.currentState?.refreshData();
   }
 
   @override
   Widget build(BuildContext context) {
+    const primaryColor = Colors.blueAccent;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: const Text('Purchase Team'),
-        backgroundColor: Colors.white,
-        elevation: 1,
-        iconTheme: const IconThemeData(color: Colors.black),
-        titleTextStyle: const TextStyle(
-          color: Colors.black,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Purchase Team",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Search...',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 0,
-                  horizontal: 16,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value;
-                });
-              },
-            ),
-            Expanded(
-              child: PurchaseTeamCardList(
-                key: _purchaseTeamListKey,
-                searchQuery: searchQuery,
-                onTap: (teamId) async {
-                  final result = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PurchaseTeamShowScreen(teamId: teamId),
-                    ),
-                  );
-
-                  if (result == true && mounted) {
-                    _refreshPurchaseTeamList();
-                  }
-                },
-              ),
-            ),
+            Text("Purchase Team", style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.black87, fontSize: 20)),
+            Text('Purchase team management', style: GoogleFonts.lato(fontWeight: FontWeight.normal, color: Colors.grey.shade600, fontSize: 12)),
           ],
         ),
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        foregroundColor: Colors.black87,
       ),
-      // ...existing code...
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          print(
-            '[DEBUG] FAB PurchaseTeamScreen ditekan, membuka PurchaseTeamScreenCreate',
-          );
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const PurchaseTeamScreenCreate()),
-          );
-          if (result == true && mounted) {
-            print('[DEBUG] Selesai create team, refresh list');
-            _refreshPurchaseTeamList();
-          }
-        },
-        backgroundColor: const Color(0xFF009688),
-        child: const Icon(Icons.add, color: Colors.white),
+      // ✅ Body diubah, Column dan TextField dihapus
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: PurchaseTeamCardList(
+          key: _listKey,
+          onTap: (teamId) async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PurchaseTeamShowScreen(teamId: teamId),
+              ),
+            );
+            if (result == true && mounted) {
+              _refreshPurchaseTeamList();
+            }
+          },
+        ),
       ),
-      // ...existing code...
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+                color: primaryColor.withAlpha(100),
+                blurRadius: 15,
+                spreadRadius: 2,
+                offset: const Offset(0, 5)),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const PurchaseTeamScreenCreate()),
+            );
+            if (result == true && mounted) {
+              _refreshPurchaseTeamList();
+            }
+          },
+          backgroundColor: primaryColor,
+          elevation: 0,
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
+      ),
     );
   }
 }
