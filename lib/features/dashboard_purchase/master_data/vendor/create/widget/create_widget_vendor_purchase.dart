@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../../../../../../services/api_base.dart';
-import '../models/create_models_vendor.dart';
+import '../../../../../../../../services/api_base.dart';
+import '../models/create_models_vendor_purchase.dart';
 
 class VendorCreateWidget extends StatefulWidget {
   const VendorCreateWidget({super.key});

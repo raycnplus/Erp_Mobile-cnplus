@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widget/update_widget_vendor.dart';
+import '../widget/update_widget_vendor_purchase.dart';
 
 class VendorUpdateScreen extends StatelessWidget {
   final String vendorId;

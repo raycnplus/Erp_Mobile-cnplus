@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../widget/show_widget_vendor.dart';
-import '../screen/update_screen_vendor.dart'; // pastikan path sesuai
+import '../widget/show_widget_vendor_purchase.dart';
+import '../../update/screen/update_screen_vendor_purchase.dart'; // pastikan path sesuai
 
 class VendorShowScreen extends StatefulWidget {
   final String vendorId;

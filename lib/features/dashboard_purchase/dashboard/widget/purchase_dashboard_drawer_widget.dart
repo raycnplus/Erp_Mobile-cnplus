@@ -8,7 +8,7 @@ import 'package:erp_mobile_cnplus/features/dashboard_inventory/master_data/produ
 import '../../master_data/product_type/index/screen/product_type_index_screen.dart';
 import '../../master_data/product_category/index/screen/product_category_index_screen.dart';
 import 'package:erp_mobile_cnplus/features/dashboard_inventory/master_data/brand/index/screen/brand_index_screen.dart';
-import '../../master_data/vendor/screen/index_screen_vendor.dart';
+import '../../master_data/vendor/index/screen/index_screen_vendor_purchase.dart';
 
 
 class PurchaseDashboardDrawer extends StatefulWidget {

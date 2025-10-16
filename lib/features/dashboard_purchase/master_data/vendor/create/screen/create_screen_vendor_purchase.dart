@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widget/create_widget_vendor.dart';
+import '../widget/create_widget_vendor_purchase.dart';
 
 class VendorCreateScreen extends StatelessWidget {
   const VendorCreateScreen({super.key});
