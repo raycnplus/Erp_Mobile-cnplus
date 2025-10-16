@@ -9,6 +9,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../../../../../services/api_base.dart';
 import '../widget/sales_team_show_widget.dart';
+import '../../update/screen/sales_team_update_screen.dart';
 
 class SalesTeamShowScreen extends StatefulWidget {
   final int teamId;
@@ -21,22 +22,23 @@ class SalesTeamShowScreen extends StatefulWidget {
 
 class _SalesTeamShowScreenState extends State<SalesTeamShowScreen> {
   Key _childKey = UniqueKey();
-  bool _hasBeenModified = false; // Flag untuk refresh halaman index
+  bool _hasBeenModified = false;
 
-  // TODO: Hubungkan ke halaman update sales team
+  // ✅ Navigasi ke halaman update
   Future<void> _navigateToUpdate() async {
-    // Logika untuk menampilkan bottom sheet atau halaman update bisa ditambahkan di sini.
-    // final result = await Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (_) => SalesTeamUpdateScreen(teamId: widget.teamId)),
-    // );
-    //
-    // if (result == true) {
-    //   setState(() {
-    //     _hasBeenModified = true;
-    //     _childKey = UniqueKey(); // Refresh detail widget
-    //   });
-    // }
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SalesTeamScreenUpdate(id: widget.teamId),
+      ),
+    );
+
+    if (result == true) {
+      setState(() {
+        _hasBeenModified = true;
+        _childKey = UniqueKey(); // refresh widget detail setelah update
+      });
+    }
   }
 
   Future<void> _confirmAndDelete() async {
@@ -59,7 +61,11 @@ class _SalesTeamShowScreenState extends State<SalesTeamShowScreen> {
                   Text(
                     "Anda yakin ingin menghapus tim ini?",
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: const Color(0xFF333333)),
+                    style: GoogleFonts.poppins(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF333333),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -76,12 +82,18 @@ class _SalesTeamShowScreenState extends State<SalesTeamShowScreen> {
                       minimumSize: const Size(double.infinity, 48),
                     ),
                     onPressed: () => Navigator.of(context).pop(true),
-                    child: Text("Ya, Hapus", style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16)),
+                    child: Text(
+                      "Ya, Hapus",
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(false),
-                    child: Text("Batalkan", style: GoogleFonts.poppins(color: Colors.grey.shade700, fontWeight: FontWeight.w600)),
+                    child: Text(
+                      "Batalkan",
+                      style: GoogleFonts.poppins(color: Colors.grey.shade700, fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ],
               ),
@@ -100,21 +112,25 @@ class _SalesTeamShowScreenState extends State<SalesTeamShowScreen> {
   Future<void> _deleteTeam() async {
     final storage = const FlutterSecureStorage();
     final token = await storage.read(key: 'token');
-    
-    showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
 
     try {
       final response = await http.delete(
         Uri.parse("${ApiBase.baseUrl}/sales/sales-team/${widget.teamId}"),
         headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
       );
-      
-      Navigator.pop(context); // Tutup loading dialog
+
+      Navigator.pop(context); // tutup loading
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         if (mounted) {
           setState(() => _hasBeenModified = true);
-          Navigator.pop(context, _hasBeenModified); // Kembali ke halaman index dengan status true
+          Navigator.pop(context, _hasBeenModified);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Tim berhasil dihapus"), backgroundColor: Colors.green),
           );
@@ -125,10 +141,13 @@ class _SalesTeamShowScreenState extends State<SalesTeamShowScreen> {
       }
     } catch (e) {
       if (mounted) {
-         Navigator.pop(context); // Tutup loading jika error
-         ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text(e.toString().replaceFirst("Exception: ", "")), backgroundColor: Colors.red),
-         );
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceFirst("Exception: ", "")),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -177,7 +196,13 @@ class _SalesTeamShowScreenState extends State<SalesTeamShowScreen> {
           },
           child: FloatingActionButton.extended(
             onPressed: _navigateToUpdate,
-            label: Text('Edit Team', style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.white)),
+            label: Text(
+              'Edit Team',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
             icon: const Icon(Icons.edit_outlined, color: Colors.white),
             backgroundColor: const Color(0xFF679436),
           ),
