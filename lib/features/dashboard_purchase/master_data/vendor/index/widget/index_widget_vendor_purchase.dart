@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../../../../../services/api_base.dart';
-import '../models/index_models_vendor.dart';
-import '../screen/show_screen_vendor.dart';
-import '../screen/create_screen_vendor.dart'; // Import VendorCreateScreen
+import '../../../../../../../services/api_base.dart';
+import '../models/index_models_vendor_purchase.dart';
+import '../../show/screen/show_screen_vendor_purchase.dart';
+import '../../create/screen/create_screen_vendor_purchase.dart'; // Import VendorCreateScreen
 
 class VendorIndexWidget extends StatefulWidget {
   const VendorIndexWidget({super.key});
