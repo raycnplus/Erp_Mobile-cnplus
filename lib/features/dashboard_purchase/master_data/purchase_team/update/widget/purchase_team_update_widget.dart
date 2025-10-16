@@ -6,8 +6,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../services/api_base.dart';
-import '../models/purchase_team_update_model.dart';
+
+// [PERBAIKAN] Pastikan hanya impor model dari direktori yang benar
+import '../models/purchase_team_update_model.dart'; 
 import '../models/karyawan_dropdown_model.dart';
+
 
 class PurchaseTeamUpdateForm extends StatefulWidget {
   final int id;
@@ -67,7 +70,11 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
       final body = json.decode(response.body);
       if (body['status'] == true && body['data'] is List) {
         final List data = body['data'];
-        final result = data.map((e) => KaryawanDropdownModel.fromJson(e)).toList();
+        
+        final result = data
+            .map((e) => KaryawanDropdownModel.fromJson(e))
+            .where((k) => k.id != 0 && k.fullName.isNotEmpty)
+            .toList();
         
         if (mounted) {
           setState(() {
@@ -91,7 +98,6 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
     );
 
     if (response.statusCode == 200) {
-      // [PERBAIKAN 1] Langsung decode sebagai Map dan hapus pengecekan .first
       final Map<String, dynamic> teamJson = json.decode(response.body);
       final teamData = PurchaseTeamUpdateModel.fromJson(teamJson);
 
@@ -184,7 +190,6 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
             const SizedBox(height: 16),
 
             Text("Team Leader", style: GoogleFonts.poppins(fontSize: 16)),
-            // [PERBAIKAN 2] Peringatan 'value' deprecated dihilangkan
             DropdownButtonFormField<KaryawanDropdownModel>(
               value: _selectedLeader,
               items: _karyawanList
