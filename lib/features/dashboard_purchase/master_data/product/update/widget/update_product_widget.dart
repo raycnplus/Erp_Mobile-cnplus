@@ -1,344 +1,281 @@
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+// Ganti seluruh isi file: lib/.../product/update/widget/update_product_widget.dart
+
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import '../../../../../../../services/api_base.dart';
+import '../models/update_product_models.dart';
 
-import 'package:erp_mobile_cnplus/features/dashboard_purchase/master_data/product/create/models/create_product_models.dart';
-import 'package:erp_mobile_cnplus/features/dashboard_purchase/master_data/product/show/models/show_product_models.dart';
-
-class UpdateProductWidget extends StatefulWidget {
-  final ShowProductModel product;
-  final List<Category> categories;
-  final List<Brand> brands;
-  final List<ProductType> productTypes;
-  final List<Uom> uoms;
-
-  const UpdateProductWidget({
-    super.key,
-    required this.product,
-    required this.categories,
-    required this.brands,
-    required this.productTypes,
-    required this.uoms,
-  });
+class ProductUpdateWidget extends StatefulWidget {
+  final int id;
+  const ProductUpdateWidget({super.key, required this.id});
 
   @override
-  State<UpdateProductWidget> createState() => _UpdateProductWidgetState();
+  State<ProductUpdateWidget> createState() => _ProductUpdateWidgetState();
 }
 
-class _UpdateProductWidgetState extends State<UpdateProductWidget> {
+class _ProductUpdateWidgetState extends State<ProductUpdateWidget> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _productNameController;
-  late TextEditingController _salesPriceController;
-  late TextEditingController _costPriceController;
-  late TextEditingController _barcodeController;
-  late TextEditingController _internalNotesController;
+  final storage = const FlutterSecureStorage();
+  
+  // Controllers
+  final nameCtrl = TextEditingController();
+  final codeCtrl = TextEditingController();
+  final salesPriceCtrl = TextEditingController();
+  final costPriceCtrl = TextEditingController();
+  final purchasePriceCtrl = TextEditingController();
+  final barcodeCtrl = TextEditingController();
+  final noteDetailCtrl = TextEditingController();
+  final weightCtrl = TextEditingController();
+  final lengthCtrl = TextEditingController();
+  final widthCtrl = TextEditingController();
+  final heightCtrl = TextEditingController();
+  final volumeCtrl = TextEditingController();
+  final noteInventoryCtrl = TextEditingController();
 
-  // Variabel untuk menampung nilai dropdown yang dipilih
-  int? _selectedProductType;
-  int? _selectedProductCategory;
-  int? _selectedBrand;
-  int? _selectedUom;
-
-  bool _canBeSold = false;
-  bool _canBePurchased = false;
+  // Switches
+  bool isSales = false;
+  bool isPurchase = false;
+  bool isPOS = false;
+  bool isDirect = false;
+  bool isExpense = false;
+  bool tracking = false;
+  
+  // Dropdowns
+  DropdownProductType? selectedType;
+  DropdownProductCategory? selectedCategory;
+  DropdownUnitOfMeasure? selectedUom;
+  DropdownProductBrand? selectedBrand;
+  String? selectedTrackingMethod;
+  
+  List<DropdownProductType> productTypes = [];
+  List<DropdownProductCategory> categories = [];
+  List<DropdownUnitOfMeasure> uoms = [];
+  List<DropdownProductBrand> brands = [];
+  
+  final trackingMethods = [
+    {'value': 'lots', 'display': 'By Lots'},
+    {'value': 'serial_number', 'display': 'By Serial Number'},
+  ];
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    final productData = widget.product.data;
-
-    // Inisialisasi semua controller dengan data yang sudah ada
-    _productNameController =
-        TextEditingController(text: productData.product.productName);
-    _salesPriceController = TextEditingController(
-        text: productData.productDetail?.salesPrice.toString() ?? '0');
-    _costPriceController = TextEditingController(
-        text: productData.productDetail?.purchasePrice.toString() ?? '0');
-    _barcodeController =
-        TextEditingController(text: productData.productDetail?.barcode ?? '');
-    _internalNotesController =
-        TextEditingController(text: productData.productDetail?.noteDetail ?? '');
-
-    // Inisialisasi nilai awal untuk checkbox
-    _canBeSold = productData.product.sales == 1;
-    _canBePurchased = productData.product.purchase == 1;
-
-    // =======================================================================
-    // == BAGIAN PERBAIKAN ==
-    // Inisialisasi nilai awal untuk dropdown dari data produk yang ada
-    // =======================================================================
-    _selectedProductType = productData.productDetail?.productType;
-    _selectedProductCategory = productData.productDetail?.productCategory;
-    _selectedBrand = productData.productDetail?.productBrand;
-    _selectedUom = productData.productDetail?.unitOfMeasure;
+    _fetchAllData();
   }
 
-  @override
-  void dispose() {
-    // Pastikan untuk melepaskan controller saat widget tidak lagi digunakan
-    _productNameController.dispose();
-    _salesPriceController.dispose();
-    _costPriceController.dispose();
-    _barcodeController.dispose();
-    _internalNotesController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _updateProduct() async {
-    if (_formKey.currentState!.validate()) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('token');
-
-      final url = Uri.parse(
-          'https://erp-api.gitavagroup.id/api/v1/purchase/products/${widget.product.data.product.idProduct}');
-      final headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      };
-      final body = json.encode({
-        'product_name': _productNameController.text,
-        'sales_price': _salesPriceController.text,
-        'cost_price': _costPriceController.text,
-        'product_type': _selectedProductType,
-        'product_category': _selectedProductCategory,
-        'product_brand': _selectedBrand,
-        'unit_of_measure': _selectedUom,
-        'barcode': _barcodeController.text,
-        'internal_notes': _internalNotesController.text,
-        'can_be_sold': _canBeSold,
-        'can_be_purchased': _canBePurchased,
-      });
-
-      try {
-        final response = await http.put(url, headers: headers, body: body);
-
-        if (response.statusCode == 200) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Product updated successfully')),
-          );
-          // Kembali ke halaman sebelumnya dan kirim sinyal sukses
-          Navigator.of(context).pop(true);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text('Failed to update product: ${response.body}')),
-          );
-        }
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('An error occurred: $e')),
-        );
+  Future<void> _fetchAllData() async {
+    try {
+      await _fetchDropdownData();
+      if (mounted) {
+        await _fetchProductDetail();
+      }
+    } catch (e) {
+      debugPrint("Error during initial data fetch: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
       }
     }
   }
 
+  Future<void> _fetchDropdownData() async {
+    final token = await storage.read(key: "token");
+    final endpoint = "${ApiBase.baseUrl}/inventory/products/create";
+
+    final res = await http.get(Uri.parse(endpoint), headers: {"Authorization": "Bearer $token"});
+
+    if (res.statusCode == 200) {
+      final data = jsonDecode(res.body)['data'];
+      if (mounted) {
+        setState(() {
+          productTypes = (data['product_types'] as List).map((e) => DropdownProductType.fromJson(e)).toList();
+          categories = (data['categories'] as List).map((e) => DropdownProductCategory.fromJson(e)).toList();
+          uoms = (data['uoms'] as List).map((e) => DropdownUnitOfMeasure.fromJson(e)).toList();
+          brands = (data['brands'] as List).map((e) => DropdownProductBrand.fromJson(e)).toList();
+        });
+      }
+    } else {
+      throw Exception('Failed to load dropdown data');
+    }
+  }
+  
+  // ✅ [PERBAIKAN UTAMA] Logika disesuaikan dengan respons API yang Anda berikan
+  Future<void> _fetchProductDetail() async {
+    final token = await storage.read(key: "token");
+    final endpoint = "${ApiBase.baseUrl}/inventory/products/${widget.id}";
+
+    final res = await http.get(Uri.parse(endpoint), headers: {"Authorization": "Bearer $token"});
+
+    if (res.statusCode == 200) {
+      final data = jsonDecode(res.body)['data'];
+      // Kita gunakan model untuk parsing yang aman
+      final product = ProductData.fromJson(data['product']);
+      final detail = ProductDetailData.fromJson(data['product_detail']);
+      final inv = InventoryData.fromJson(data['inventory']);
+
+      if (mounted) {
+        setState(() {
+          // --- Mengisi Text Fields ---
+          nameCtrl.text = product.productName;
+          codeCtrl.text = product.productCode;
+          barcodeCtrl.text = detail.barcode ?? '';
+          noteDetailCtrl.text = detail.noteDetail ?? '';
+          noteInventoryCtrl.text = inv.noteInventory ?? '';
+          salesPriceCtrl.text = (detail.salesPrice ?? 0).toString();
+          purchasePriceCtrl.text = (detail.purchasePrice ?? 0).toString();
+          costPriceCtrl.text = (detail.costPrice ?? 0).toString();
+          weightCtrl.text = (inv.weight ?? 0).toString();
+          lengthCtrl.text = (inv.length ?? 0).toString();
+          widthCtrl.text = (inv.width ?? 0).toString();
+          heightCtrl.text = (inv.height ?? 0).toString();
+          volumeCtrl.text = (inv.volume ?? 0).toString();
+          
+          // --- Mengisi Switches ---
+          isSales = product.sales;
+          isPurchase = product.purchase;
+          isPOS = data['product']['pos'] == 1; // API mengirim 0/1
+          isDirect = product.directPurchase;
+          isExpense = product.expense;
+          tracking = inv.tracking ?? false;
+          selectedTrackingMethod = inv.trackingMethod;
+          
+          // --- Mengisi Dropdowns dengan aman ---
+          try {
+            if (detail.productType != null) {
+              selectedType = productTypes.firstWhere((t) => t.id == detail.productType);
+            }
+            if (detail.productCategory != null) {
+              selectedCategory = categories.firstWhere((c) => c.id == detail.productCategory);
+            }
+            if (detail.unitOfMeasure != null) {
+              selectedUom = uoms.firstWhere((u) => u.id == detail.unitOfMeasure);
+            }
+            if (detail.productBrand != null) {
+              selectedBrand = brands.firstWhere((b) => b.id == detail.productBrand);
+            }
+          } catch (e) {
+            debugPrint("Could not find a matching dropdown value, leaving it null. Error: $e");
+          }
+        });
+      }
+    } else {
+      throw Exception('Failed to load product details');
+    }
+  }
+
+  Future<void> _updateProduct() async {
+    if (!_formKey.currentState!.validate()) return;
+    final token = await storage.read(key: "token");
+
+    final body = {
+      "product_name": nameCtrl.text.trim(),
+      "product_code": codeCtrl.text.trim(),
+      "sales": isSales,
+      "purchase": isPurchase,
+      "point_of_sale": isPOS,
+      "direct_purchase": isDirect,
+      "expense": isExpense,
+      "product_detail": {
+        "product_type": selectedType?.id,
+        "product_category": selectedCategory?.id,
+        "product_brand": selectedBrand?.id,
+        "unit_of_measure": selectedUom?.id,
+        "sales_price": double.tryParse(salesPriceCtrl.text) ?? 0,
+        "purchase_price": double.tryParse(purchasePriceCtrl.text) ?? 0,
+        "cost_price": double.tryParse(costPriceCtrl.text) ?? 0,
+        "barcode": barcodeCtrl.text.trim(),
+        "note_detail": noteDetailCtrl.text.trim(),
+      },
+      "inventory": {
+        "weight": double.tryParse(weightCtrl.text) ?? 0,
+        "length": double.tryParse(lengthCtrl.text) ?? 0,
+        "width": double.tryParse(widthCtrl.text) ?? 0,
+        "height": double.tryParse(heightCtrl.text) ?? 0,
+        "volume": double.tryParse(volumeCtrl.text) ?? 0,
+        "note_inventory": noteInventoryCtrl.text.trim(),
+        "tracking": tracking,
+        "tracking_method": tracking ? selectedTrackingMethod : null,
+      },
+    };
+
+    try {
+      final res = await http.put(
+        Uri.parse("${ApiBase.baseUrl}/inventory/products/${widget.id}"),
+        headers: {"Authorization": "Bearer $token", "Content-Type": "application/json", "Accept": "application/json"},
+        body: jsonEncode(body),
+      );
+
+      final json = jsonDecode(res.body);
+      if (res.statusCode == 200 && (json['status'] == 'success' || json['status'] == true)) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(json['message'])));
+        Navigator.pop(context, true);
+      } else {
+        throw Exception(json['message'] ?? 'Unknown error occurred');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+    }
+  }
+
+  Widget _buildSwitch(String title, bool value, ValueChanged<bool> onChanged) {
+    return Column(children: [Text(title, style: const TextStyle(fontSize: 12)), Switch(value: value, onChanged: onChanged)]);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          // Product Name
-          TextFormField(
-            controller: _productNameController,
-            decoration: const InputDecoration(
-              labelText: 'Product Name',
-              border: OutlineInputBorder(),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter a product name';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-
-          // Checkboxes
-          Row(
-            children: [
-              Checkbox(
-                value: _canBeSold,
-                onChanged: (value) {
-                  setState(() {
-                    _canBeSold = value!;
-                  });
-                },
-              ),
-              const Text('Can Be Sold'),
-              const SizedBox(width: 16),
-              Checkbox(
-                value: _canBePurchased,
-                onChanged: (value) {
-                  setState(() {
-                    _canBePurchased = value!;
-                  });
-                },
-              ),
-              const Text('Can Be Purchased'),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Sales Price
-          TextFormField(
-            controller: _salesPriceController,
-            decoration: const InputDecoration(
-              labelText: 'Sales Price',
-              border: OutlineInputBorder(),
-              prefixText: 'Rp ',
-            ),
-            keyboardType: TextInputType.number,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter a sales price';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-
-          // Cost Price
-          TextFormField(
-            controller: _costPriceController,
-            decoration: const InputDecoration(
-              labelText: 'Cost Price',
-              border: OutlineInputBorder(),
-              prefixText: 'Rp ',
-            ),
-            keyboardType: TextInputType.number,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter a cost price';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 16),
-
-          // Product Type Dropdown
-          DropdownButtonFormField<int>(
-            value: _selectedProductType,
-            items: widget.productTypes.map((ProductType productType) {
-              return DropdownMenuItem<int>(
-                value: productType.idProductType,
-                child: Text(productType.productTypeName),
-              );
-            }).toList(),
-            decoration: const InputDecoration(
-              labelText: 'Product Type',
-              border: OutlineInputBorder(),
-            ),
-            onChanged: (value) {
-              setState(() {
-                _selectedProductType = value;
-              });
-            },
-            validator: (value) =>
-                value == null ? 'Please select a product type' : null,
-          ),
-          const SizedBox(height: 16),
-
-          // Product Category Dropdown
-          DropdownButtonFormField<int>(
-            value: _selectedProductCategory,
-            items: widget.categories.map((Category category) {
-              return DropdownMenuItem<int>(
-                value: category.idProductCategory,
-                child: Text(category.productCategoryName),
-              );
-            }).toList(),
-            decoration: const InputDecoration(
-              labelText: 'Product Category',
-              border: OutlineInputBorder(),
-            ),
-            onChanged: (value) {
-              setState(() {
-                _selectedProductCategory = value;
-              });
-            },
-            validator: (value) =>
-                value == null ? 'Please select a category' : null,
-          ),
-          const SizedBox(height: 16),
-
-          // Brand Dropdown
-          DropdownButtonFormField<int>(
-            value: _selectedBrand,
-            items: widget.brands.map((Brand brand) {
-              return DropdownMenuItem<int>(
-                value: brand.idBrand,
-                child: Text(brand.brandName),
-              );
-            }).toList(),
-            decoration: const InputDecoration(
-              labelText: 'Brand',
-              border: OutlineInputBorder(),
-            ),
-            onChanged: (value) {
-              setState(() {
-                _selectedBrand = value;
-              });
-            },
-            // Brand tidak wajib, jadi tidak ada validator
-          ),
-          const SizedBox(height: 16),
-
-          // Unit of Measure (UoM) Dropdown
-          DropdownButtonFormField<int>(
-            value: _selectedUom,
-            items: widget.uoms.map((Uom uom) {
-              return DropdownMenuItem<int>(
-                value: uom.idUnitOfMeasure,
-                child: Text(uom.unitOfMeasureName),
-              );
-            }).toList(),
-            decoration: const InputDecoration(
-              labelText: 'Unit of Measure',
-              border: OutlineInputBorder(),
-            ),
-            onChanged: (value) {
-              setState(() {
-                _selectedUom = value;
-              });
-            },
-            validator: (value) =>
-                value == null ? 'Please select a unit of measure' : null,
-          ),
-          const SizedBox(height: 16),
-
-          // Barcode
-          TextFormField(
-            controller: _barcodeController,
-            decoration: const InputDecoration(
-              labelText: 'Barcode',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Internal Notes
-          TextFormField(
-            controller: _internalNotesController,
-            decoration: const InputDecoration(
-              labelText: 'Internal Notes',
-              border: OutlineInputBorder(),
-            ),
-            maxLines: 3,
-          ),
-          const SizedBox(height: 24),
-
-          // Update Button
-          ElevatedButton(
-            onPressed: _updateProduct,
-            child: const Text('Update Product'),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-            ),
-          ),
-        ],
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(controller: nameCtrl, decoration: const InputDecoration(labelText: "Product Name"), validator: (v) => v!.isEmpty ? "Wajib diisi" : null),
+            const SizedBox(height: 12),
+            TextFormField(controller: codeCtrl, decoration: const InputDecoration(labelText: "Product Code")),
+            const SizedBox(height: 12),
+            Wrap(alignment: WrapAlignment.spaceAround, children: [
+              _buildSwitch("Sales", isSales, (v) => setState(() => isSales = v)),
+              _buildSwitch("Purchase", isPurchase, (v) => setState(() => isPurchase = v)),
+              _buildSwitch("POS", isPOS, (v) => setState(() => isPOS = v)),
+              _buildSwitch("Direct", isDirect, (v) => setState(() => isDirect = v)),
+              _buildSwitch("Expense", isExpense, (v) => setState(() => isExpense = v)),
+            ]),
+            const Divider(),
+            DropdownButtonFormField<DropdownProductType>(value: selectedType, items: productTypes.map((t) => DropdownMenuItem(value: t, child: Text(t.name))).toList(), onChanged: (val) => setState(() => selectedType = val), decoration: const InputDecoration(labelText: "Product Type")),
+            DropdownButtonFormField<DropdownProductCategory>(value: selectedCategory, items: categories.map((c) => DropdownMenuItem(value: c, child: Text(c.name))).toList(), onChanged: (val) => setState(() => selectedCategory = val), decoration: const InputDecoration(labelText: "Category")),
+            DropdownButtonFormField<DropdownProductBrand>(value: selectedBrand, items: brands.map((b) => DropdownMenuItem(value: b, child: Text(b.name))).toList(), onChanged: (val) => setState(() => selectedBrand = val), decoration: const InputDecoration(labelText: "Brand")),
+            DropdownButtonFormField<DropdownUnitOfMeasure>(value: selectedUom, items: uoms.map((u) => DropdownMenuItem(value: u, child: Text(u.name))).toList(), onChanged: (val) => setState(() => selectedUom = val), decoration: const InputDecoration(labelText: "UOM")),
+            TextFormField(controller: salesPriceCtrl, decoration: const InputDecoration(labelText: "Sales Price"), keyboardType: TextInputType.number),
+            TextFormField(controller: purchasePriceCtrl, decoration: const InputDecoration(labelText: "Purchase Price"), keyboardType: TextInputType.number),
+            TextFormField(controller: costPriceCtrl, decoration: const InputDecoration(labelText: "Cost Price"), keyboardType: TextInputType.number),
+            TextFormField(controller: barcodeCtrl, decoration: const InputDecoration(labelText: "Barcode")),
+            TextFormField(controller: noteDetailCtrl, decoration: const InputDecoration(labelText: "General Notes"), maxLines: 2),
+            const Divider(),
+            SwitchListTile(title: const Text("Tracking"), value: tracking, onChanged: (v) => setState(() { tracking = v; if (!v) selectedTrackingMethod = null; })),
+            if (tracking)
+              DropdownButtonFormField<String>(value: selectedTrackingMethod, items: trackingMethods.map((m) => DropdownMenuItem(value: m['value'], child: Text(m['display']!))).toList(), onChanged: (v) => setState(() => selectedTrackingMethod = v), decoration: const InputDecoration(labelText: "Tracking Method")),
+            TextFormField(controller: weightCtrl, decoration: const InputDecoration(labelText: "Weight (kg)"), keyboardType: TextInputType.number),
+            TextFormField(controller: lengthCtrl, decoration: const InputDecoration(labelText: "Length (cm)"), keyboardType: TextInputType.number),
+            TextFormField(controller: widthCtrl, decoration: const InputDecoration(labelText: "Width (cm)"), keyboardType: TextInputType.number),
+            TextFormField(controller: heightCtrl, decoration: const InputDecoration(labelText: "Height (cm)"), keyboardType: TextInputType.number),
+            TextFormField(controller: volumeCtrl, decoration: const InputDecoration(labelText: "Volume (cm³)"), keyboardType: TextInputType.number),
+            TextFormField(controller: noteInventoryCtrl, decoration: const InputDecoration(labelText: "Inventory Notes")),
+            const SizedBox(height: 24),
+            ElevatedButton(onPressed: _updateProduct, child: const Text("Update Product")),
+          ],
+        ),
       ),
     );
   }
