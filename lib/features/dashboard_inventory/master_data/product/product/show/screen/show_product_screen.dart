@@ -1,4 +1,4 @@
-import 'package:erp_mobile_cnplus/features/dashboard_inventory/master_data/product/product/update/screen/update_product_screen.dart';
+import 'package:erp_mobile_cnplus/features/dashboard_inventory/master_data/product/product/update/screen/update_product_screen_inv.dart';
 import 'package:flutter/material.dart';
 import '../widget/show_product_widget.dart';
 

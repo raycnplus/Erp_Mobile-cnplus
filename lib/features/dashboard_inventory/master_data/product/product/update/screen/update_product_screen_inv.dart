@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widget/update_product_widget.dart';
+import '../widget/update_product_widget_inv.dart';
 
 class ProductUpdateScreen extends StatelessWidget {
   final int id;
