@@ -56,9 +56,10 @@ class _ProductUpdateWidgetState extends State<ProductUpdateWidget> {
   List<DropdownUnitOfMeasure> uoms = [];
   List<DropdownProductBrand> brands = [];
   
+  // <-- PERBAIKAN: Sesuaikan nilai 'value' agar cocok dengan JSON baru
   final trackingMethods = [
     {'value': 'lots', 'display': 'By Lots'},
-    {'value': 'serial_number', 'display': 'By Serial Number'},
+    {'value': 'serial_number', 'display': 'By Serial Number'}, 
   ];
 
   bool isLoading = true;
@@ -119,11 +120,6 @@ class _ProductUpdateWidgetState extends State<ProductUpdateWidget> {
     try {
       debugPrint("📥 Step 1: Fetching dropdown data...");
       await _fetchDropdownData();
-      
-      // ⚠️ PERBAIKAN: Pastikan dropdown data sudah terisi sebelum fetch detail
-      if (productTypes.isEmpty || categories.isEmpty || uoms.isEmpty) {
-        throw Exception("Dropdown data is incomplete");
-      }
       
       debugPrint("📥 Step 2: Fetching product detail...");
       if (mounted) {
@@ -215,81 +211,15 @@ class _ProductUpdateWidgetState extends State<ProductUpdateWidget> {
         final responseBody = jsonDecode(res.body);
         final data = responseBody['data'];
         
-        // ================== MULAI DEBUGGING ==================
-        debugPrint("\n🔍 ==== STARTING DEBUG FOR PRODUCT ID: ${widget.id} ====");
-
-        // 1. Cek data mentah dari API
-        debugPrint("📦 RAW PRODUCT DATA:");
-        debugPrint(jsonEncode(data['product']));
-        debugPrint("\n📦 RAW DETAIL DATA:");
-        debugPrint(jsonEncode(data['product_detail']));
-        debugPrint("\n📦 RAW INVENTORY DATA:");
-        debugPrint(jsonEncode(data['inventory']));
-        
-        // 2. Parse data ke dalam model
         final product = ProductData.fromJson(data['product']);
         final detail = ProductDetailData.fromJson(data['product_detail']);
         final inv = InventoryData.fromJson(data['inventory']);
 
-        // 3. Cek hasil parsing untuk Switch
-        debugPrint("\n🎚️  SWITCH VALUES:");
-        debugPrint("  ├─ sales: ${product.sales}");
-        debugPrint("  ├─ purchase: ${product.purchase}");
-        debugPrint("  ├─ direct: ${product.directPurchase}");
-        debugPrint("  ├─ expense: ${product.expense}");
-        debugPrint("  └─ tracking: ${inv.tracking}");
+        final foundType = _findDropdownItemById(productTypes, detail.productType, (e) => e.id);
+        final foundCategory = _findDropdownItemById(categories, detail.productCategory, (e) => e.id);
+        final foundBrand = _findDropdownItemById(brands, detail.productBrand, (e) => e.id);
+        final foundUom = _findDropdownItemById(uoms, detail.unitOfMeasure, (e) => e.id);
         
-        // 4. Cek hasil parsing untuk Dropdown IDs
-        debugPrint("\n🔢 DROPDOWN IDs FROM API:");
-        debugPrint("  ├─ product_type: ${detail.productType}");
-        debugPrint("  ├─ product_category: ${detail.productCategory}");
-        debugPrint("  ├─ product_brand: ${detail.productBrand}");
-        debugPrint("  └─ unit_of_measure: ${detail.unitOfMeasure}");
-        
-        // 5. Cek list dropdown yang tersedia
-        debugPrint("\n📋 AVAILABLE DROPDOWN DATA:");
-        debugPrint("  ├─ Product Types: ${productTypes.length} items");
-        productTypes.take(3).forEach((e) => debugPrint("     - $e"));
-        debugPrint("  ├─ Categories: ${categories.length} items");
-        categories.take(3).forEach((e) => debugPrint("     - $e"));
-        debugPrint("  ├─ Brands: ${brands.length} items");
-        brands.take(3).forEach((e) => debugPrint("     - $e"));
-        debugPrint("  └─ UOMs: ${uoms.length} items");
-        uoms.take(3).forEach((e) => debugPrint("     - $e"));
-        
-        // 6. Cek hasil pencarian
-        debugPrint("\n🔍 SEARCHING FOR MATCHES:");
-        final foundType = _findDropdownItemById(
-          productTypes, 
-          detail.productType, 
-          (e) => e.id
-        );
-        final foundCategory = _findDropdownItemById(
-          categories, 
-          detail.productCategory, 
-          (e) => e.id
-        );
-        final foundBrand = _findDropdownItemById(
-          brands, 
-          detail.productBrand, 
-          (e) => e.id
-        );
-        final foundUom = _findDropdownItemById(
-          uoms, 
-          detail.unitOfMeasure, 
-          (e) => e.id
-        );
-
-        debugPrint("\n✅ SEARCH RESULTS:");
-        debugPrint("  ├─ Product Type: ${foundType?.name ?? 'NOT FOUND'}");
-        debugPrint("  ├─ Category: ${foundCategory?.name ?? 'NOT FOUND'}");
-        debugPrint("  ├─ Brand: ${foundBrand?.name ?? 'NOT FOUND (NULL is OK)'}");
-        debugPrint("  └─ UOM: ${foundUom?.name ?? 'NOT FOUND'}");
-        
-        debugPrint("\n✅ ==== DEBUG FINISHED ====\n");
-        // ================== AKHIR DEBUGGING ==================
-
-        // Mengisi semua controller dan state
         if (mounted) {
           setState(() {
             nameCtrl.text = product.productName;
@@ -311,10 +241,7 @@ class _ProductUpdateWidgetState extends State<ProductUpdateWidget> {
             isPurchase = product.purchase;
             isDirect = product.directPurchase;
             isExpense = product.expense;
-            // ⚠️ PERBAIKAN: Parsing POS dari data mentah
-            isPOS = (data['product']['pos'] == 1 || 
-                     data['product']['pos'] == true || 
-                     data['product']['pos'] == '1');
+            isPOS = product.pos; 
             tracking = inv.tracking ?? false;
             
             // Mengisi state untuk Dropdown

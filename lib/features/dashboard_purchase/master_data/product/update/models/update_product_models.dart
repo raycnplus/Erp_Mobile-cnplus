@@ -2,6 +2,16 @@
 
 import 'package:equatable/equatable.dart';
 
+// --- FUNGSI HELPER GLOBAL UNTUK PARSING BOOLEAN ---
+// Fungsi ini akan mengubah nilai 1 menjadi true, dan nilai lainnya menjadi false.
+bool parseBool(dynamic value) {
+  if (value == null) return false;
+  if (value is bool) return value;
+  if (value is int) return value == 1;
+  if (value is String) return value.toLowerCase() == 'true' || value == '1';
+  return false;
+}
+
 // --- BAGIAN DATA UTAMA (UNTUK PARSING API) ---
 
 class ProductData {
@@ -12,6 +22,7 @@ class ProductData {
   final bool purchase;
   final bool directPurchase;
   final bool expense;
+  final bool pos;
 
   ProductData({
     required this.idProduct,
@@ -21,27 +32,19 @@ class ProductData {
     required this.purchase,
     required this.directPurchase,
     required this.expense,
+    required this.pos,
   });
 
   factory ProductData.fromJson(Map<String, dynamic> json) {
-    // Helper function untuk konversi boolean
-    bool toBool(dynamic value) {
-      if (value == null) return false;
-      if (value is bool) return value;
-      if (value is int) return value == 1;
-      if (value is String) return value.toLowerCase() == 'true' || value == '1';
-      return false;
-    }
-
     return ProductData(
       idProduct: json["id_product"] ?? 0,
       productName: json["product_name"] ?? '',
       productCode: json["product_code"] ?? '',
-      sales: toBool(json["sales"]),
-      purchase: toBool(json["purchase"]),
-      // ⚠️ PERBAIKAN: Backend mengirim "direct", bukan "direct_purchase"
-      directPurchase: toBool(json["direct"] ?? json["direct_purchase"]),
-      expense: toBool(json["expense"]),
+      sales: parseBool(json["sales"]),
+      purchase: parseBool(json["purchase"]),
+      directPurchase: parseBool(json["direct"] ?? json["direct_purchase"]),
+      expense: parseBool(json["expense"]),
+      pos: parseBool(json["pos"] ?? json["point_of_sale"]),
     );
   }
 }
@@ -70,7 +73,6 @@ class ProductDetailData {
   });
 
   factory ProductDetailData.fromJson(Map<String, dynamic> json) {
-    // Helper untuk konversi int yang aman
     int? toInt(dynamic value) {
       if (value == null) return null;
       if (value is int) return value;
@@ -78,7 +80,6 @@ class ProductDetailData {
       return null;
     }
 
-    // Helper untuk konversi double yang aman
     double? toDouble(dynamic value) {
       if (value == null) return null;
       if (value is double) return value;
@@ -90,7 +91,7 @@ class ProductDetailData {
     return ProductDetailData(
       productType: toInt(json["product_type"]),
       productCategory: toInt(json["product_category"]),
-      productBrand: toInt(json["product_brand"]),  // ⚠️ PERBAIKAN: Ini INT, bukan String
+      productBrand: toInt(json["product_brand"]),
       unitOfMeasure: toInt(json["unit_of_measure"]),
       salesPrice: toDouble(json["sales_price"]),
       costPrice: toDouble(json["cost_price"]),
@@ -134,21 +135,13 @@ class InventoryData {
       return null;
     }
 
-    bool toBool(dynamic value) {
-      if (value == null) return false;
-      if (value is bool) return value;
-      if (value is int) return value == 1;
-      if (value is String) return value.toLowerCase() == 'true' || value == '1';
-      return false;
-    }
-
     return InventoryData(
       weight: toSafeDouble(json["weight"]),
       length: toSafeDouble(json["length"]),
       width: toSafeDouble(json["width"]),
       height: toSafeDouble(json["height"]),
       volume: toSafeDouble(json["volume"]),
-      tracking: toBool(json["tracking"]),
+      tracking: parseBool(json["tracking"]),
       trackingMethod: json["tracking_method"]?.toString(),
       noteInventory: json["note_inventory"]?.toString(),
     );
