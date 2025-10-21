@@ -12,6 +12,7 @@ import '../widget/pie_chart_widget.dart';
 import '../widget/stat_card_widget.dart';
 import '../widget/inventory_drawer_widget.dart';
 import '../widget/top_product_widget.dart';
+import '../widget/dashboard_skeleton_widget.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../shared/widgets/personalized_header.dart';
 
@@ -168,7 +169,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
         future: _dashboardFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const DashboardSkeleton();
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData) {

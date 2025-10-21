@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -10,7 +11,7 @@ import 'location_list_shimmer.dart';
 class LocationListWidget extends StatefulWidget {
   final Function(LocationIndexModel) onTap;
   final Function(String name)? onDeleteSuccess;
-  final String searchQuery; // << Tambahan untuk filter
+  final String searchQuery;
 
   const LocationListWidget({
     super.key,
@@ -24,49 +25,109 @@ class LocationListWidget extends StatefulWidget {
 }
 
 class LocationListWidgetState extends State<LocationListWidget> {
-  Future<List<LocationIndexModel>>? _locationsFuture;
+  final List<LocationIndexModel> _locations = [];
+  final ScrollController _scrollController = ScrollController();
+  
+  bool _isLoading = false;
+  bool _hasMoreData = true;
+  int _currentPage = 1;
+  final int _limit = 15;
 
   @override
   void initState() {
     super.initState();
-    _locationsFuture = _fetchLocations();
+    _loadInitialData();
+    _scrollController.addListener(_onScroll);
   }
 
-  void reloadData() {
+  @override
+  void didUpdateWidget(LocationListWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.searchQuery != oldWidget.searchQuery) {
+      reloadData();
+    }
+  }
+
+  Future<void> _loadInitialData() async {
     setState(() {
-      _locationsFuture = _fetchLocations();
+      _isLoading = true;
+    });
+    await _fetchLocations(isInitialLoad: true);
+    setState(() {
+      _isLoading = false;
     });
   }
 
-  Future<List<LocationIndexModel>> _fetchLocations() async {
+  Future<void> _fetchLocations({bool isInitialLoad = false}) async {
+    if (isInitialLoad) {
+      _currentPage = 1;
+      _locations.clear();
+      _hasMoreData = true;
+    }
+    
     const storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     if (token == null) throw Exception("Token not found");
 
-    final response = await http.get(
-      Uri.parse('${ApiBase.baseUrl}/inventory/location'),
-      headers: {
+    final uri = Uri.parse('${ApiBase.baseUrl}/inventory/location').replace(
+      queryParameters: {
+        'page': _currentPage.toString(),
+        'limit': _limit.toString(),
+        if (widget.searchQuery.isNotEmpty) 'search': widget.searchQuery,
+      },
+    );
+
+    final response = await http.get(uri, headers: {
       "Authorization": "Bearer $token", 
       "Accept": "application/json",
-      // Headers untuk mencegah caching
       "Cache-Control": "no-cache, no-store, must-revalidate",
-      "Pragma": "no-cache",
-      "Expires": "0",
-    },
-    );
+    });
 
     if (response.statusCode == 200) {
       final List<dynamic> decodedData = jsonDecode(response.body);
-      return decodedData
-          .map(
-            (json) => LocationIndexModel.fromJson(json as Map<String, dynamic>),
-          )
+      final List<LocationIndexModel> newLocations = decodedData
+          .map((json) => LocationIndexModel.fromJson(json as Map<String, dynamic>))
           .toList();
+
+      if (!mounted) return;
+      setState(() {
+        if (newLocations.length < _limit) {
+          _hasMoreData = false;
+        }
+        _locations.addAll(newLocations);
+        _currentPage++;
+      });
     } else {
-      throw Exception(
-        'Failed to load locations: Status code ${response.statusCode}',
-      );
+      throw Exception('Failed to load locations: ${response.statusCode}');
     }
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoading && _hasMoreData) {
+      _loadMoreData();
+    }
+  }
+
+  Future<void> _loadMoreData() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await _fetchLocations();
+    setState(() {
+      _isLoading = false;
+    });
+  }
+  
+  void reloadData() {
+    _loadInitialData();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<bool> _deleteLocation(int id) async {
@@ -81,60 +142,27 @@ class LocationListWidgetState extends State<LocationListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<LocationIndexModel>>(
-      future: _locationsFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const LocationListShimmer();
-        }
-
-        if (snapshot.hasError) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text(
-                    "Error: ${snapshot.error}",
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: reloadData,
-                  child: const Text("Try Again"),
-                ),
-              ],
-            ),
+    if (_locations.isEmpty && _isLoading) {
+      return const LocationListShimmer();
+    }
+    
+    if (_locations.isEmpty && !_isLoading) {
+      return Center(child: Text(widget.searchQuery.isNotEmpty ? "No results found." : "No locations available."));
+    }
+    
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.all(16.0),
+      itemCount: _locations.length + (_isLoading && _hasMoreData ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == _locations.length) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.0),
+            child: Center(child: CircularProgressIndicator()),
           );
         }
-
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text("No locations available."));
-        }
-
-        // 🔎 Filter hasil berdasarkan search query
-        final query = widget.searchQuery.toLowerCase();
-        final locations = snapshot.data!.where((loc) {
-          return loc.locationName.toLowerCase().contains(query) ||
-              loc.warehouseName.toLowerCase().contains(query) ||
-              loc.locationCode.toLowerCase().contains(query) ||
-              loc.parentLocationName.toLowerCase().contains(query);
-        }).toList();
-
-        if (locations.isEmpty) {
-          return const Center(child: Text("No results found."));
-        }
-
-        return ListView.builder(
-          padding: const EdgeInsets.all(16.0),
-          itemCount: locations.length,
-          itemBuilder: (context, index) {
-            final location = locations[index];
-            return _buildLocationCard(location);
-          },
-        );
+        final location = _locations[index];
+        return _buildLocationCard(location);
       },
     );
   }
@@ -176,8 +204,8 @@ class LocationListWidgetState extends State<LocationListWidget> {
             if (deleteConfirmed == true) {
               final success = await _deleteLocation(location.idLocation);
               if (success) {
-                reloadData();
                 widget.onDeleteSuccess?.call(location.locationName);
+                reloadData(); 
               } else {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(

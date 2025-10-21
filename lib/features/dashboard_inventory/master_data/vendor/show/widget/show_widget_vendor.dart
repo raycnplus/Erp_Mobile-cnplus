@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:google_fonts/google_fonts.dart'; // Tambahkan Google Fonts
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../../../../../services/api_base.dart';
 import '../models/show_models_vendor.dart';
+import 'vendor_detail_shimmer.dart';
 
 class VendorDetailWidget extends StatefulWidget {
   final String vendorId;
@@ -23,13 +25,13 @@ class _VendorDetailWidgetState extends State<VendorDetailWidget> with SingleTick
   
   late TabController _tabController;
 
-  // Warna Aksen
-  static const Color accentColor = Color(0xFF2D6A4F); // Hijau Tua
+  static const Color accentColor = Color(0xFF2D6A4F);
+  static const Color lightGreyColor = Color(0xFFF7F9FC);
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this); // 3 Tab
+    _tabController = TabController(length: 3, vsync: this);
     fetchVendor();
   }
   
@@ -39,15 +41,14 @@ class _VendorDetailWidgetState extends State<VendorDetailWidget> with SingleTick
     super.dispose();
   }
 
-  // --- LOGIKA FETCH DATA ---
   Future<void> fetchVendor() async {
     try {
       final token = await storage.read(key: "token");
       if (token == null) {
-        if(mounted) setState(() { errorMessage = "Token tidak ditemukan"; isLoading = false; });
+        if(mounted) setState(() { errorMessage = "Token not found. Please log in again."; isLoading = false; });
         return;
       }
-
+      
       final response = await http.get(
         Uri.parse("${ApiBase.baseUrl}/inventory/vendor/${widget.vendorId}"),
         headers: {
@@ -65,20 +66,20 @@ class _VendorDetailWidgetState extends State<VendorDetailWidget> with SingleTick
           });
         }
       } else {
-        if(mounted) setState(() {
-          errorMessage = "Gagal memuat data: ${response.statusCode}";
+         if(mounted) setState(() {
+          final errorBody = jsonDecode(response.body);
+          errorMessage = "Failed to load data: ${errorBody['message'] ?? response.statusCode}";
           isLoading = false;
         });
       }
     } catch (e) {
       if(mounted) setState(() {
-        errorMessage = "Error: $e";
+        errorMessage = "An error occurred: ${e.toString()}";
         isLoading = false;
       });
     }
   }
   
-  // Helper untuk menampilkan nilai yang aman
   String safe(dynamic value) {
     if (value == null || value.toString().isEmpty || value.toString() == "null") return "-";
     return value.toString();
@@ -87,115 +88,101 @@ class _VendorDetailWidgetState extends State<VendorDetailWidget> with SingleTick
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const VendorDetailShimmer();
     }
+    
     if (errorMessage != null) {
-      return Center(child: Text("Error: $errorMessage"));
+      return Center(child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(errorMessage!, textAlign: TextAlign.center, style: GoogleFonts.poppins(color: Colors.red.shade700)),
+      ));
     }
     if (vendor == null) {
-      return const Center(child: Text("Data tidak ditemukan"));
+      return const Center(child: Text("Data not found"));
     }
 
-    // Ambil vendor data setelah loading selesai
     final v = vendor!;
 
-    return Column(
-      children: [
-        // 1. HEADER VENDOR (Nama & Kode)
-        _buildVendorHeader(v),
-        
-        // 2. TAB BAR
-        TabBar(
-          controller: _tabController,
-          indicatorColor: accentColor,
-          labelColor: accentColor,
-          unselectedLabelColor: Colors.grey.shade600,
-          indicatorSize: TabBarIndicatorSize.tab,
-          labelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 13),
-          tabs: const [
-            Tab(text: "General"),
-            Tab(text: "Contact & Addr"),
-            Tab(text: "Financial"),
-          ],
-        ),
-        
-        // 3. TAB VIEW (Konten)
-        Expanded(
-          child: TabBarView(
+    return Container(
+      color: lightGreyColor,
+      child: Column(
+        children: [
+          _buildVendorHeader(v),
+          CustomTabBar(
             controller: _tabController,
-            children: [
-              _buildGeneralInfoTab(v),
-              _buildContactAddressTab(v),
-              _buildFinancialTab(v),
+            activeColor: accentColor,
+            inactiveColor: Colors.grey.shade600,
+            backgroundColor: Colors.white,
+            tabs: const [
+              Tab(text: "General"),
+              Tab(text: "Contact"),
+              Tab(text: "Financial"),
             ],
           ),
-        ),
-      ],
-    );
-  }
-
-  // --- WIDGET BUILDERS ---
-  
-  Widget _buildVendorHeader(VendorShowModel vendor) {
-    // Tentukan warna status
-    Color statusColor = vendor.status?.toLowerCase() == 'active' ? accentColor : Colors.red.shade700;
-    
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      color: Colors.white,
-      width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Nama Vendor
-          Text(
-            safe(vendor.vendorName),
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w800,
-              fontSize: 22,
-              color: Colors.black87,
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildGeneralInfoTab(v),
+                _buildContactAddressTab(v),
+                _buildFinancialTab(v),
+              ],
             ),
           ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Kode Vendor
-              Row(
-                children: [
-                  Icon(Icons.badge, size: 16, color: Colors.grey.shade600),
-                  const SizedBox(width: 6),
-                  Text(
-                    safe(vendor.vendorCode),
-                    style: GoogleFonts.roboto(
-                      color: Colors.grey.shade600,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildVendorHeader(VendorShowModel vendor) {
+    Color statusColor = vendor.status?.toLowerCase() == 'active' ? accentColor : Colors.red.shade700;
+    
+    return Material(
+      color: Colors.white,
+      elevation: 1,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              safe(vendor.vendorName),
+              style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.black87),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.qr_code_2, size: 16, color: accentColor.withOpacity(0.8)),
+                    const SizedBox(width: 6),
+                    Text(
+                      safe(vendor.vendorCode),
+                      style: GoogleFonts.robotoMono(color: accentColor, fontSize: 14, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    safe(vendor.status).toUpperCase(),
+                    style: GoogleFonts.poppins(
+                      color: statusColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 11,
+                      letterSpacing: 0.5,
                     ),
                   ),
-                ],
-              ),
-              // Status Chip
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: statusColor, width: 1),
                 ),
-                child: Text(
-                  safe(vendor.status),
-                  style: TextStyle(
-                    color: statusColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 11,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const Divider(height: 16, thickness: 0.5),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -204,17 +191,24 @@ class _VendorDetailWidgetState extends State<VendorDetailWidget> with SingleTick
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _buildField("Category", safe(vendor.categoryVendor)),
-        _buildField("Product Type", safe(vendor.productType)),
-        _buildField("Status", safe(vendor.status)),
-        
-        const Divider(height: 30),
-        _buildTitleSection("Audit Log"),
-        _buildField("Created By", safe(vendor.createdBy)),
-        _buildField("Created Date", safe(vendor.createdDate)),
-        _buildField("Updated By", safe(vendor.updatedBy)),
-        _buildField("Updated Date", safe(vendor.updatedDate)),
-        _buildField("Deleted Status", safe(vendor.isDelete)),
+        _buildInfoCard(
+          title: "General Information",
+          children: [
+            _buildInfoTile(Icons.category_outlined, "Category", safe(vendor.categoryVendor)),
+            _buildInfoTile(Icons.inventory_2_outlined, "Product Type", safe(vendor.productType)),
+            _buildInfoTile(Icons.toggle_on_outlined, "Status", safe(vendor.status)),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildInfoCard(
+          title: "Audit Log",
+          children: [
+            _buildInfoTile(Icons.person_outline, "Created By", safe(vendor.createdBy)),
+            _buildInfoTile(Icons.calendar_today_outlined, "Created Date", safe(vendor.createdDate)),
+            _buildInfoTile(Icons.edit_outlined, "Updated By", safe(vendor.updatedBy)),
+            _buildInfoTile(Icons.history_outlined, "Updated Date", safe(vendor.updatedDate)),
+          ],
+        ),
       ],
     );
   }
@@ -223,23 +217,25 @@ class _VendorDetailWidgetState extends State<VendorDetailWidget> with SingleTick
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _buildTitleSection("Primary Contact"),
-        _buildField("Phone", safe(vendor.phoneNo)),
-        _buildField("Email", safe(vendor.email)),
-
-        const Divider(height: 30),
-        _buildTitleSection("Contact Person (PIC)"),
-        _buildField("PIC Name", safe(vendor.contactPersonName)),
-        _buildField("PIC Phone", safe(vendor.contactPersonPhone)),
-        _buildField("PIC Email", safe(vendor.contactPersonEmail)),
-        
-        const Divider(height: 30),
-        _buildTitleSection("Address"),
-        _buildField("Address Line", safe(vendor.address)),
-        _buildField("City", safe(vendor.city)),
-        _buildField("Province", safe(vendor.province)),
-        _buildField("Postal Code", safe(vendor.postalCode)),
-        _buildField("Country", safe(vendor.country)),
+        _buildInfoCard(
+          title: "Contact Person (PIC)",
+          children: [
+            _buildInfoTile(Icons.person_pin_outlined, "PIC Name", safe(vendor.contactPersonName)),
+            _buildInfoTile(Icons.phone_outlined, "PIC Phone", safe(vendor.contactPersonPhone)),
+            _buildInfoTile(Icons.email_outlined, "PIC Email", safe(vendor.contactPersonEmail)),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildInfoCard(
+          title: "Company Address",
+          children: [
+            _buildInfoTile(Icons.location_on_outlined, "Address Line", safe(vendor.address)),
+            _buildInfoTile(Icons.location_city_outlined, "City", safe(vendor.city)),
+            _buildInfoTile(Icons.map_outlined, "Province", safe(vendor.province)),
+            _buildInfoTile(Icons.markunread_mailbox_outlined, "Postal Code", safe(vendor.postalCode)),
+            _buildInfoTile(Icons.public_outlined, "Country", safe(vendor.country)),
+          ],
+        ),
       ],
     );
   }
@@ -248,69 +244,135 @@ class _VendorDetailWidgetState extends State<VendorDetailWidget> with SingleTick
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _buildTitleSection("Tax & Currency"),
-        _buildField("NPWP Number", safe(vendor.npwpNumber)),
-        _buildField("Currency", safe(vendor.currency)),
-        _buildField("Support Document", safe(vendor.supportDocument)),
-
-        const Divider(height: 30),
-        _buildTitleSection("Bank Account Details"),
-        _buildField("Bank Name", safe(vendor.bankName)),
-        _buildField("Account Name", safe(vendor.bankAccountName)),
-        _buildField("Account Number", safe(vendor.bankAccountNumber)),
+        _buildInfoCard(
+          title: "Tax & Currency",
+          children: [
+            _buildInfoTile(Icons.receipt_long_outlined, "NPWP Number", safe(vendor.npwpNumber)),
+            _buildInfoTile(Icons.attach_money_outlined, "Currency", safe(vendor.currency)),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildInfoCard(
+          title: "Bank Account",
+          children: [
+            _buildInfoTile(Icons.account_balance_outlined, "Bank Name", safe(vendor.bankName)),
+            _buildInfoTile(Icons.person_search_outlined, "Account Name", safe(vendor.bankAccountName)),
+            _buildInfoTile(Icons.credit_card_outlined, "Account Number", safe(vendor.bankAccountNumber)),
+          ],
+        ),
       ],
     );
   }
 
-  // Widget untuk Title Section di dalam Tab
-  Widget _buildTitleSection(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12, top: 8),
-      child: Text(
-        title,
-        style: GoogleFonts.poppins(
-          fontWeight: FontWeight.w700,
-          fontSize: 16,
-          color: accentColor,
-        ),
-      ),
-    );
-  }
-
-  // Widget Field Detail yang konsisten
-  Widget _buildField(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+  Widget _buildInfoCard({required String title, required List<Widget> children}) {
+    return Card(
+      elevation: 2,
+      shadowColor: Colors.black.withOpacity(0.05),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: Colors.white,
+      margin: const EdgeInsets.only(bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              fontSize: 12,
-              color: Colors.grey.shade500,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            width: double.infinity,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Text(
-              value,
-              style: GoogleFonts.roboto(
-                fontSize: 15,
-                color: Colors.black87,
-                fontWeight: FontWeight.w500,
+              title,
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w700,
+                fontSize: 16,
+                color: accentColor,
               ),
             ),
           ),
+          const Divider(height: 1, indent: 16, endIndent: 16),
+          ...children,
         ],
       ),
     );
   }
+
+  Widget _buildInfoTile(IconData icon, String label, String value) {
+    return ListTile(
+      leading: Icon(icon, color: accentColor, size: 24),
+      title: Text(
+        label,
+        style: GoogleFonts.poppins(
+          fontSize: 12,
+          color: Colors.grey.shade600,
+        ),
+      ),
+      subtitle: Text(
+        value,
+        style: GoogleFonts.poppins(
+          fontSize: 15,
+          color: Colors.black87,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+// Widget kustom untuk TabBar dengan desain "Pill" atau "Toggle Button"
+class CustomTabBar extends StatelessWidget implements PreferredSizeWidget {
+  final TabController controller;
+  final List<Tab> tabs;
+  final Color backgroundColor;
+  final Color activeColor;
+  final Color inactiveColor;
+
+  const CustomTabBar({
+    super.key,
+    required this.controller,
+    required this.tabs,
+    required this.backgroundColor,
+    required this.activeColor,
+    required this.inactiveColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(25.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            spreadRadius: 1,
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: TabBar(
+        controller: controller,
+        tabs: tabs,
+        indicator: BoxDecoration(
+          borderRadius: BorderRadius.circular(25.0),
+          color: activeColor,
+          boxShadow: [
+            BoxShadow(
+              color: activeColor.withOpacity(0.4), 
+              spreadRadius: 2,                     
+              blurRadius: 8,                      
+              offset: const Offset(0, 4),         
+            ),
+          ],
+        ),
+        labelColor: Colors.white,
+        unselectedLabelColor: inactiveColor,
+        labelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+        unselectedLabelStyle: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+        indicatorSize: TabBarIndicatorSize.tab,
+        dividerColor: Colors.transparent,
+      ),
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

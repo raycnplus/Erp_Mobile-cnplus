@@ -1,4 +1,4 @@
-// Lokasi: lib/.../product/models/product_models.dart
+// Lokasi: lib/.../product/models/update_product_models.dart
 
 import 'package:equatable/equatable.dart';
 
@@ -24,14 +24,24 @@ class ProductData {
   });
 
   factory ProductData.fromJson(Map<String, dynamic> json) {
+    // Helper function untuk konversi boolean
+    bool toBool(dynamic value) {
+      if (value == null) return false;
+      if (value is bool) return value;
+      if (value is int) return value == 1;
+      if (value is String) return value.toLowerCase() == 'true' || value == '1';
+      return false;
+    }
+
     return ProductData(
-      idProduct: json["id_product"],
-      productName: json["product_name"],
-      productCode: json["product_code"],
-      sales: json["sales"] == 1 || json["sales"] == true,
-      purchase: json["purchase"] == 1 || json["purchase"] == true,
-      directPurchase: json["direct"] == 1 || json["direct_purchase"] == true,
-      expense: json["expense"] == 1 || json["expense"] == true,
+      idProduct: json["id_product"] ?? 0,
+      productName: json["product_name"] ?? '',
+      productCode: json["product_code"] ?? '',
+      sales: toBool(json["sales"]),
+      purchase: toBool(json["purchase"]),
+      // ⚠️ PERBAIKAN: Backend mengirim "direct", bukan "direct_purchase"
+      directPurchase: toBool(json["direct"] ?? json["direct_purchase"]),
+      expense: toBool(json["expense"]),
     );
   }
 }
@@ -60,16 +70,33 @@ class ProductDetailData {
   });
 
   factory ProductDetailData.fromJson(Map<String, dynamic> json) {
+    // Helper untuk konversi int yang aman
+    int? toInt(dynamic value) {
+      if (value == null) return null;
+      if (value is int) return value;
+      if (value is String) return int.tryParse(value);
+      return null;
+    }
+
+    // Helper untuk konversi double yang aman
+    double? toDouble(dynamic value) {
+      if (value == null) return null;
+      if (value is double) return value;
+      if (value is int) return value.toDouble();
+      if (value is String) return double.tryParse(value);
+      return null;
+    }
+
     return ProductDetailData(
-      productType: json["product_type"],
-      productCategory: json["product_category"],
-      productBrand: json["product_brand"],
-      unitOfMeasure: json["unit_of_measure"],
-      salesPrice: (json["sales_price"] ?? 0).toDouble(),
-      costPrice: (json["cost_price"] ?? 0).toDouble(),
-      purchasePrice: (json["purchase_price"] ?? 0).toDouble(),
-      barcode: json["barcode"],
-      noteDetail: json["note_detail"],
+      productType: toInt(json["product_type"]),
+      productCategory: toInt(json["product_category"]),
+      productBrand: toInt(json["product_brand"]),  // ⚠️ PERBAIKAN: Ini INT, bukan String
+      unitOfMeasure: toInt(json["unit_of_measure"]),
+      salesPrice: toDouble(json["sales_price"]),
+      costPrice: toDouble(json["cost_price"]),
+      purchasePrice: toDouble(json["purchase_price"]),
+      barcode: json["barcode"]?.toString(),
+      noteDetail: json["note_detail"]?.toString(),
     );
   }
 }
@@ -97,11 +124,22 @@ class InventoryData {
 
   factory InventoryData.fromJson(Map<String, dynamic> json) {
     double? toSafeDouble(dynamic value) {
-      if (value == null) return 0.0;
+      if (value == null) return null;
       if (value is double) return value;
       if (value is int) return value.toDouble();
-      if (value is String) return double.tryParse(value) ?? 0.0;
-      return 0.0;
+      if (value is String) {
+        final parsed = double.tryParse(value);
+        return parsed;
+      }
+      return null;
+    }
+
+    bool toBool(dynamic value) {
+      if (value == null) return false;
+      if (value is bool) return value;
+      if (value is int) return value == 1;
+      if (value is String) return value.toLowerCase() == 'true' || value == '1';
+      return false;
     }
 
     return InventoryData(
@@ -110,9 +148,9 @@ class InventoryData {
       width: toSafeDouble(json["width"]),
       height: toSafeDouble(json["height"]),
       volume: toSafeDouble(json["volume"]),
-      tracking: json["tracking"] == 1 || json["tracking"] == true,
-      trackingMethod: json["tracking_method"],
-      noteInventory: json["note_inventory"],
+      tracking: toBool(json["tracking"]),
+      trackingMethod: json["tracking_method"]?.toString(),
+      noteInventory: json["note_inventory"]?.toString(),
     );
   }
 }
@@ -171,42 +209,74 @@ class DropdownProductType extends Equatable {
   final int id;
   final String name;
   const DropdownProductType({required this.id, required this.name});
+  
   factory DropdownProductType.fromJson(Map<String, dynamic> json) {
-    return DropdownProductType(id: json['id_product_type'], name: json['product_type_name']);
+    return DropdownProductType(
+      id: json['id_product_type'] ?? 0, 
+      name: json['product_type_name'] ?? 'Unknown'
+    );
   }
+  
   @override
   List<Object?> get props => [id];
+  
+  @override
+  String toString() => 'ProductType(id: $id, name: $name)';
 }
 
 class DropdownProductCategory extends Equatable {
   final int id;
   final String name;
   const DropdownProductCategory({required this.id, required this.name});
+  
   factory DropdownProductCategory.fromJson(Map<String, dynamic> json) {
-    return DropdownProductCategory(id: json['id_product_category'], name: json['product_category_name']);
+    return DropdownProductCategory(
+      id: json['id_product_category'] ?? 0, 
+      name: json['product_category_name'] ?? 'Unknown'
+    );
   }
+  
   @override
   List<Object?> get props => [id];
+  
+  @override
+  String toString() => 'Category(id: $id, name: $name)';
 }
 
 class DropdownUnitOfMeasure extends Equatable {
   final int id;
   final String name;
   const DropdownUnitOfMeasure({required this.id, required this.name});
+  
   factory DropdownUnitOfMeasure.fromJson(Map<String, dynamic> json) {
-    return DropdownUnitOfMeasure(id: json['id_unit_of_measure'], name: json['unit_of_measure_name']);
+    return DropdownUnitOfMeasure(
+      id: json['id_unit_of_measure'] ?? 0, 
+      name: json['unit_of_measure_name'] ?? 'Unknown'
+    );
   }
+  
   @override
   List<Object?> get props => [id];
+  
+  @override
+  String toString() => 'UOM(id: $id, name: $name)';
 }
 
 class DropdownProductBrand extends Equatable {
   final int id;
   final String name;
   const DropdownProductBrand({required this.id, required this.name});
+  
   factory DropdownProductBrand.fromJson(Map<String, dynamic> json) {
-    return DropdownProductBrand(id: json['id_brand'], name: json['brand_name']);
+    return DropdownProductBrand(
+      id: json['id_brand'] ?? 0, 
+      name: json['brand_name'] ?? 'Unknown'
+    );
   }
+  
   @override
   List<Object?> get props => [id];
+  
+  @override
+  String toString() => 'Brand(id: $id, name: $name)';
 }

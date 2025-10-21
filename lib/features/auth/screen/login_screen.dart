@@ -1,11 +1,15 @@
-import 'package:erp_mobile_cnplus/features/modul/screen/modul_screen.dart';
+// login_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+// Sesuaikan path jika perlu
+import '../../../shared/widgets/fade_in_up.dart';
 import '../widgets/login_form.dart';
 import '../models/login_request.dart';
 import '../services/auth_service.dart';
+import '../../modul/screen/modul_screen.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -22,8 +26,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isLoading = false;
 
   Future<void> handleLogin() async {
+    // ... (Fungsi handleLogin tidak ada perubahan)
     setState(() => isLoading = true);
-
 
     final connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
@@ -47,7 +51,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final result = await AuthService.login(loginReq);
 
-      // ✅ Logika disederhanakan. AuthService sudah menyimpan semua data.
       if (result['success'] == true) {
         if (mounted) {
           Navigator.pushReplacement(
@@ -90,29 +93,26 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFE0F2F1), // Versi SANGAT TERANG dari #409c9c
-              Color(0xFFFFFCFB), // Warna background asli
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: [0.0, 0.8], // Diubah dari 0.7 ke 0.8 agar lebih luas
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 40),
-                Image.asset('assets/logo.png', height: 65),
-                const SizedBox(height: 20),
-                const SizedBox(height: 40),
-                LoginForm(
+      backgroundColor: const Color(0xFFF8F9FA),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Animasi pada logo
+              FadeInUp(
+                delay: const Duration(milliseconds: 200),
+                child: Image.asset('assets/logo.png', height: 65),
+              ),
+              const SizedBox(height: 40),
+
+              // ❌ Teks sapaan dihapus dari sini
+
+              // Bungkus LoginForm dengan animasi
+              FadeInUp(
+                delay: const Duration(milliseconds: 300), // Delay disesuaikan
+                child: LoginForm(
                   emailController: usernameController,
                   passwordController: passwordController,
                   databaseController: databaseController,
@@ -120,8 +120,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   isLoading: isLoading,
                   databaseOptions: databaseOptions,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

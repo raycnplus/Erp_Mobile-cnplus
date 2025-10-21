@@ -1,12 +1,10 @@
-// show_screen_vendor.dart
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http; // Tambahkan import
-import 'dart:convert'; // Tambahkan import
-import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Tambahkan import
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../../../../../../../services/api_base.dart'; // Pastikan path sesuai
+import '../../../../../../../services/api_base.dart';
 import '../widget/show_widget_vendor.dart';
 import '../../update/screen/update_screen_vendor.dart';
 
@@ -20,18 +18,17 @@ class VendorShowScreen extends StatefulWidget {
 }
 
 class _VendorShowScreenState extends State<VendorShowScreen> {
-  // refreshTrigger digunakan untuk me-refresh widget detail setelah update
   bool refreshTrigger = false;
-  // hasChanged digunakan untuk memberitahu halaman index agar refresh setelah delete/update
   bool hasChanged = false;
 
   static const Color accentColor = Color(0xFF2D6A4F);
-
-  // --- LOGIKA BARU UNTUK DELETE ---
+  static const Color lightGreyColor = Color(0xFFF7F9FC);
 
   Future<bool> _deleteVendor() async {
     final storage = const FlutterSecureStorage();
     final token = await storage.read(key: 'token');
+    if (token == null) return false;
+
     final response = await http.delete(
       Uri.parse('${ApiBase.baseUrl}/inventory/vendor/${widget.vendorId}'),
       headers: {
@@ -64,38 +61,40 @@ class _VendorShowScreenState extends State<VendorShowScreen> {
       },
     );
 
-    if (confirmed == true) {
-      if (!mounted) return;
+    if (confirmed != true) return;
+
+    if (mounted) {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()),
+        builder: (context) => const Center(child: CircularProgressIndicator(color: accentColor)),
       );
+    }
 
-      try {
-        final success = await _deleteVendor();
-        if (mounted) Navigator.pop(context); // Tutup loading
+    try {
+      final success = await _deleteVendor();
+      if (mounted) Navigator.pop(context); // Tutup loading
 
-        if (success) {
-          setState(() { hasChanged = true; });
-          if (mounted) Navigator.pop(context, true); // Kembali ke halaman index & trigger refresh
-        } else {
-          throw Exception("Failed to delete vendor.");
-        }
-      } catch (e) {
+      if (success) {
         if (mounted) {
-          Navigator.pop(context); // Tutup loading
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("An error occurred: $e"), backgroundColor: Colors.red),
-          );
+          // Kirim 'true' ke halaman index setelah delete
+          Navigator.pop(context, true); 
         }
+      } else {
+        throw Exception("Failed to delete vendor.");
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Tutup loading
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("An error occurred: ${e.toString()}"), backgroundColor: Colors.red),
+        );
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Mengganti WillPopScope dengan PopScope yang lebih modern
     return PopScope(
       canPop: false,
       onPopInvoked: (bool didPop) {
@@ -103,6 +102,7 @@ class _VendorShowScreenState extends State<VendorShowScreen> {
         Navigator.pop(context, hasChanged);
       },
       child: Scaffold(
+        backgroundColor: lightGreyColor,
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new),
@@ -111,10 +111,9 @@ class _VendorShowScreenState extends State<VendorShowScreen> {
           title: const Text("Vendor Details"),
           backgroundColor: Colors.white,
           elevation: 1,
-          iconTheme: const IconThemeData(color: Colors.black87),
+          iconTheme: const IconThemeData(color: accentColor),
           titleTextStyle: GoogleFonts.poppins(color: Colors.black87, fontWeight: FontWeight.w600, fontSize: 18),
           actions: [
-            // --- TOMBOL DELETE DITAMBAHKAN DI SINI ---
             PopupMenuButton<String>(
               onSelected: (value) {
                 if (value == 'delete') {
@@ -143,9 +142,10 @@ class _VendorShowScreenState extends State<VendorShowScreen> {
         floatingActionButton: FloatingActionButton(
           tooltip: "Edit Vendor",
           backgroundColor: accentColor,
-          child: const Icon(Icons.edit, color: Colors.white),
+          foregroundColor: Colors.white,
+          child: const Icon(Icons.edit),
           onPressed: () async {
-            final result = await Navigator.push(
+            final resultFromUpdate = await Navigator.push<bool>(
               context,
               MaterialPageRoute(
                 builder: (context) => VendorUpdateScreen(
@@ -154,18 +154,16 @@ class _VendorShowScreenState extends State<VendorShowScreen> {
               ),
             );
 
-            if (result == true) {
+            // JIKA UPDATE SUKSES, LANGSUNG KEMBALI KE INDEX
+            if (resultFromUpdate == true && mounted) {
+              // 'true' akan ditangkap oleh halaman index untuk refresh & show bottom sheet
+              Navigator.pop(context, true);
+            } else {
+              // Jika update tidak terjadi atau dibatalkan, muat ulang data detail
+              // untuk memastikan data tetap fresh jika ada perubahan kecil.
               setState(() {
                 refreshTrigger = !refreshTrigger;
-                hasChanged = true;
               });
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Vendor updated successfully"),
-                  backgroundColor: Colors.green,
-                ),
-              );
             }
           },
         ),

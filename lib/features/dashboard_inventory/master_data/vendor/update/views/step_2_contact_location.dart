@@ -39,10 +39,16 @@ class LocationInfoStep extends StatelessWidget {
           titleSection("Location Info"),
           DropdownButtonFormField<int>(
             value: selectedCountry,
+            isExpanded: true, // Tambahkan properti ini
             items: countries
                 .map((c) => DropdownMenuItem(
                       value: c.id,
-                      child: Text(c.name, style: GoogleFonts.poppins()),
+                      // HAPUS WIDGET EXPANDED DARI SINI
+                      child: Text(
+                        c.name, 
+                        style: GoogleFonts.poppins(),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ))
                 .toList(),
             onChanged: onCountryChanged,

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/modul_card.dart';
 import '../../../core/routes/app_routes.dart';
-import '../widgets/fade_in_up.dart'; 
+import '../../../shared/widgets/fade_in_up.dart'; 
 
 class ModulScreen extends StatelessWidget {
   const ModulScreen({super.key});
