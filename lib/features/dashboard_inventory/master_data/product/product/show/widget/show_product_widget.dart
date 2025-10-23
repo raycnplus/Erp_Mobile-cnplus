@@ -31,7 +31,7 @@ class _ProductShowWidgetState extends State<ProductShowWidget>
 
   Future<ProductShowResponse> fetchProductDetail(int id) async {
     final token = await storage.read(key: 'token');
-    final url = Uri.parse("${ApiBase.baseUrl}/inventory/products/$id");
+    final url = Uri.parse("${ApiBase.baseUrl}/inventory/products/show/$id");
 
     final response = await http.get(
       url,
