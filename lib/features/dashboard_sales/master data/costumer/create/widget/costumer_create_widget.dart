@@ -203,7 +203,7 @@ class _CustomerCreateWidgetState extends State<CustomerCreateWidget> {
     required String Function(T) itemToString 
   }) {
     return DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       items: items.map((item) => DropdownMenuItem(
         value: item,
         child: Text(itemToString(item), style: GoogleFonts.poppins()),

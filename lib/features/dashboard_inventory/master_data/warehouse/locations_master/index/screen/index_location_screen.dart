@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widget/index_location_widget.dart';
 import '../../show/screen/show_location_screen.dart';
-import '../../create/screen/create_location_screen.dart';
 import '../models/index_location_models.dart';
 import '../../../../../../../shared/widgets/success_bottom_sheet.dart';
 

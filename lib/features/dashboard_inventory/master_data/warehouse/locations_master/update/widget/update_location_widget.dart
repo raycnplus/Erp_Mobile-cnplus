@@ -190,7 +190,7 @@ class _LocationUpdateWidgetState extends State<LocationUpdateWidget> {
     required String label, required IconData icon, required T? value, required List<T> items, required void Function(T?)? onChanged, required String Function(T) itemToString, String? Function(T?)? validator,
   }) {
     return DropdownButtonFormField<T>(
-      value: value, items: items.map((item) => DropdownMenuItem<T>(value: item, child: Text(itemToString(item), style: GoogleFonts.poppins()))).toList(), onChanged: onChanged, decoration: _getInputDecoration(label, prefixIcon: icon), validator: validator, isExpanded: true, icon: Icon(Icons.arrow_drop_down, color: softGreen),
+      initialValue: value, items: items.map((item) => DropdownMenuItem<T>(value: item, child: Text(itemToString(item), style: GoogleFonts.poppins()))).toList(), onChanged: onChanged, decoration: _getInputDecoration(label, prefixIcon: icon), validator: validator, isExpanded: true, icon: Icon(Icons.arrow_drop_down, color: softGreen),
     );
   }
   

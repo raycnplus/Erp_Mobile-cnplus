@@ -1,5 +1,4 @@
 
-import 'package:intl/intl.dart';
 
 String formatCurrency(double value) {
   if (value >= 1000000000) {

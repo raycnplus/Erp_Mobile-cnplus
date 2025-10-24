@@ -391,7 +391,7 @@ class _ProductUpdateWidgetState extends State<ProductUpdateWidget> {
                     ),
                     const Divider(),
                     DropdownButtonFormField<DropdownProductType>(
-                      value: selectedType,
+                      initialValue: selectedType,
                       items: productTypes.map((t) => DropdownMenuItem(
                         value: t,
                         child: Text(t.name)
@@ -400,7 +400,7 @@ class _ProductUpdateWidgetState extends State<ProductUpdateWidget> {
                       decoration: const InputDecoration(labelText: "Product Type")
                     ),
                     DropdownButtonFormField<DropdownProductCategory>(
-                      value: selectedCategory,
+                      initialValue: selectedCategory,
                       items: categories.map((c) => DropdownMenuItem(
                         value: c,
                         child: Text(c.name)
@@ -409,7 +409,7 @@ class _ProductUpdateWidgetState extends State<ProductUpdateWidget> {
                       decoration: const InputDecoration(labelText: "Category")
                     ),
                     DropdownButtonFormField<DropdownProductBrand>(
-                      value: selectedBrand,
+                      initialValue: selectedBrand,
                       items: brands.map((b) => DropdownMenuItem(
                         value: b,
                         child: Text(b.name)
@@ -418,7 +418,7 @@ class _ProductUpdateWidgetState extends State<ProductUpdateWidget> {
                       decoration: const InputDecoration(labelText: "Brand")
                     ),
                     DropdownButtonFormField<DropdownUnitOfMeasure>(
-                      value: selectedUom,
+                      initialValue: selectedUom,
                       items: uoms.map((u) => DropdownMenuItem(
                         value: u,
                         child: Text(u.name)
@@ -461,7 +461,7 @@ class _ProductUpdateWidgetState extends State<ProductUpdateWidget> {
                     ),
                     if (tracking)
                       DropdownButtonFormField<String>(
-                        value: selectedTrackingMethod,
+                        initialValue: selectedTrackingMethod,
                         items: trackingMethods.map((m) => DropdownMenuItem(
                           value: m['value'],
                           child: Text(m['display']!)

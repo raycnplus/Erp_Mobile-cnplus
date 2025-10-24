@@ -86,7 +86,7 @@ class PurchaseBarChart extends StatelessWidget {
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        getTitlesWidget: _getBottomTitles,
+                        getTitlesWidget: _getBottomTitles, // INI YANG KITA PERBAIKI
                         // [DIUBAH] Mengembalikan reservedSize ke nilai yang lebih kecil
                         reservedSize: 38,
                       ),
@@ -149,7 +149,7 @@ class PurchaseBarChart extends StatelessWidget {
     );
   }
 
-  // [DIUBAH] Menambahkan logika pemotongan teks
+  // [PERBAIKAN] Logika pemotongan teks diubah berdasarkan panjang karakter
   Widget _getBottomTitles(double value, TitleMeta meta) {
     final style = TextStyle(
       color: Colors.grey.shade600,
@@ -159,12 +159,16 @@ class PurchaseBarChart extends StatelessWidget {
 
     String originalText = data.length > value.toInt() ? data[value.toInt()].label : '';
     
-    // Logika untuk memotong teks jika lebih dari 2 kata
-    final words = originalText.split(' ');
+    // Tentukan total panjang maksimal (termasuk "...")
+    // [NILAI DIUBAH] Dari 13 menjadi 10 agar tidak tumpang tindih
+    const int maxLength = 10; 
     String finalText;
-    if (words.length > 2) {
-      finalText = '${words[0]} ${words[1]}...';
+
+    if (originalText.length > maxLength) {
+      // Potong teks dan tambahkan "..."
+      finalText = '${originalText.substring(0, maxLength - 3)}...';
     } else {
+      // Jika tidak, tampilkan teks asli
       finalText = originalText;
     }
 

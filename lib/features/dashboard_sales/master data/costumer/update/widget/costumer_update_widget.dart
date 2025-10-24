@@ -237,7 +237,7 @@ class _CustomerUpdateWidgetState extends State<CustomerUpdateWidget> {
   
   Widget _buildDropdownField<T>({ required String label, required IconData icon, T? value, required List<T> items, void Function(T?)? onChanged, required String Function(T) itemToString, String? Function(T?)? validator }) {
     return DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       items: items.map((item) => DropdownMenuItem<T>(value: item, child: Text(itemToString(item), style: GoogleFonts.poppins()))).toList(),
       onChanged: onChanged,
       decoration: _getInputDecoration(label, prefixIcon: icon),

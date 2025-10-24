@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../models/sales_chart_data_model.dart';
 import '../helpers/currency_helper.dart';
 
-// FUNGSI BARU DITAMBAHKAN DI SINI
 String formatShortNumber(double num) {
   if (num > 999999) {
     return '${(num / 1000000).toStringAsFixed(1)}M';
@@ -42,7 +41,7 @@ class SalesBarChart extends StatelessWidget {
     final maxVal = _maxDataValue;
     final interval = _calculateInterval();
     if (maxVal <= 0) return 50;
-    // Memberi sedikit ruang di atas bar tertinggi
+    // ruang di atas bar tertinggi
     return (maxVal / interval).ceil() * interval;
   }
 
@@ -121,7 +120,7 @@ class SalesBarChart extends StatelessWidget {
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        getTitlesWidget: _getBottomTitles,
+                        getTitlesWidget: _getBottomTitles, // INI YANG DIUBAH
                         reservedSize: 38,
                       ),
                     ),
@@ -176,19 +175,33 @@ class SalesBarChart extends StatelessWidget {
     );
   }
 
+  // [PERBAIKAN] Menerapkan logika pemotongan teks yang sama
   Widget _getBottomTitles(double value, TitleMeta meta) {
     final style = TextStyle(
       color: Colors.grey.shade600,
-      fontSize: 12, // Disesuaikan agar tidak terlalu besar
+      fontSize: 12, 
       fontWeight: FontWeight.w500,
     );
 
-    String text = data.length > value.toInt() ? data[value.toInt()].label : '';
+    String originalText = data.length > value.toInt() ? data[value.toInt()].label : '';
+
+    // Tentukan total panjang maksimal (termasuk "...")
+    // Kita gunakan 13 agar konsisten dengan chart sebelumnya
+    const int maxLength = 13; 
+    String finalText;
+
+    if (originalText.length > maxLength) {
+      // Potong teks dan tambahkan "..."
+      finalText = '${originalText.substring(0, maxLength - 3)}...';
+    } else {
+      // Jika tidak, tampilkan teks asli
+      finalText = originalText;
+    }
 
     return SideTitleWidget(
       meta: meta,
       space: 8.0,
-      child: Text(text, style: style),
+      child: Text(finalText, style: style),
     );
   }
 

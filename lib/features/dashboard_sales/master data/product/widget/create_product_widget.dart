@@ -136,7 +136,7 @@ class _ProductCreateWidgetState extends State<ProductCreateWidget> {
       String label, List<T> items, T? selected, Function(T?) onChanged) {
     return DropdownButtonFormField<T>(
       decoration: InputDecoration(labelText: label),
-      value: selected,
+      initialValue: selected,
       items: items.map((item) {
         String name = "";
         if (item is DropdownProductType) name = item.name;

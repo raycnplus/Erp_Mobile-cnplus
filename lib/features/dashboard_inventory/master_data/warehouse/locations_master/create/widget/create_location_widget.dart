@@ -208,7 +208,7 @@ class _LocationCreateWidgetState extends State<LocationCreateWidget> {
     String? Function(T?)? validator,
   }) {
     return DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       items: items.map((item) {
         return DropdownMenuItem<T>(
           value: item,

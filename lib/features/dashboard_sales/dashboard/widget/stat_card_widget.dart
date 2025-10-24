@@ -28,7 +28,7 @@ class StatCard extends StatelessWidget {
     final finalTitleStyle =
         titleStyle ?? const TextStyle(fontSize: 10, color: Colors.grey);
 
-    return Container(
+    return SizedBox(
       width: width,
       child: Card(
         elevation: 2,

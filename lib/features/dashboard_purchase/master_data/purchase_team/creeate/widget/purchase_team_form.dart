@@ -30,7 +30,7 @@ class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
 
   List<KaryawanDropdownModel> _karyawanList = [];
   KaryawanDropdownModel? _selectedLeader;
-  List<KaryawanDropdownModel> _selectedMembers = [];
+  final List<KaryawanDropdownModel> _selectedMembers = [];
 
   @override
   void initState() {
@@ -263,7 +263,7 @@ class _PurchaseTeamFormState extends State<PurchaseTeamForm> {
                 labelText: "Team Leader",
                 prefixIcon: Icon(Icons.star_outline),
               ),
-              value: _selectedLeader,
+              initialValue: _selectedLeader,
               items: _karyawanList.map((k) {
                 return DropdownMenuItem(
                   value: k,

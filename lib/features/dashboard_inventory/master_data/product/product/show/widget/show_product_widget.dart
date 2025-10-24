@@ -385,7 +385,7 @@ class _ProductShowWidgetState extends State<ProductShowWidget>
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

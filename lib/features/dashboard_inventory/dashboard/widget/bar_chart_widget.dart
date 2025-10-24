@@ -103,7 +103,7 @@ class ProductBarChart extends StatelessWidget {
                       sideTitles: SideTitles(
                         showTitles: true,
                         getTitlesWidget: _getBottomTitles,
-                        reservedSize: 38,
+                        reservedSize: 38, // Ukuran 38 cukup untuk 1 baris
                       ),
                     ),
                     leftTitles: AxisTitles(
@@ -160,20 +160,38 @@ class ProductBarChart extends StatelessWidget {
   Widget _getBottomTitles(double value, TitleMeta meta) {
     final style = TextStyle(
       color: Colors.grey.shade600,
-      fontSize: 14,
+      fontSize: 12, // Ukuran 12
       fontWeight: FontWeight.w500,
     );
 
-    String text = data.length > value.toInt() ? data[value.toInt()].label : '';
+    String finalLabel = ''; // Teks default
+
+    // Pastikan data ada sebelum diakses
+    if (data.length > value.toInt()) {
+      final String originalLabel = data[value.toInt()].label;
+
+      if (originalLabel.isNotEmpty) {
+        final words = originalLabel.split(' '); // Pisahkan berdasarkan spasi
+        final firstWord = words[0]; // Ambil kata pertama
+
+        if (words.length > 1) {
+          // Jika ada lebih dari 1 kata, tambahkan "..."
+          finalLabel = '$firstWord...';
+        } else {
+          // Jika hanya 1 kata, tampilkan apa adanya
+          finalLabel = firstWord;
+        }
+      }
+    }
 
     return SideTitleWidget(
-      meta: meta, // DIPERBAIKI
+      meta: meta,
       space: 8.0,
       child: Text(
-        text,
+        finalLabel,
         style: style,
-        overflow: TextOverflow.ellipsis,
-        maxLines: 1,
+        maxLines: 1, // WAJIB 1 baris
+        overflow: TextOverflow.ellipsis, // Jaga-jaga jika 1 kata + ... masih terlalu panjang
       ),
     );
   }

@@ -1,6 +1,5 @@
 // features/dashboard_purchase/models/purchase_dashboard_model.dart
 
-import 'package:flutter/material.dart';
 
 // Helper function to safely parse string to double
 double safeParseDouble(dynamic value) {

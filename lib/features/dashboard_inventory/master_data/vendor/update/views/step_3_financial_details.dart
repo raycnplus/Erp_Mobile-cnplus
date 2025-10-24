@@ -36,7 +36,7 @@ class FinancialStep extends StatelessWidget {
         children: [
           titleSection("Financial Details"),
           DropdownButtonFormField<int>(
-            value: selectedCurrency,
+            initialValue: selectedCurrency,
             isExpanded: true, // Properti ini sudah cukup untuk mengatasi overflow
             items: currencies
                 .map((c) => DropdownMenuItem(

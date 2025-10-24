@@ -259,7 +259,7 @@ class _ProductCreateWidgetState extends State<ProductCreateWidget> {
             const Divider(height: 24),
 
             DropdownButtonFormField<DropdownProductType>(
-              value: selectedType,
+              initialValue: selectedType,
               items: productTypes.map((t) => DropdownMenuItem(value: t, child: Text(t.name))).toList(),
               onChanged: (val) => setState(() => selectedType = val),
               decoration: const InputDecoration(labelText: "Product Type"),
@@ -267,7 +267,7 @@ class _ProductCreateWidgetState extends State<ProductCreateWidget> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<DropdownProductCategory>(
-              value: selectedCategory,
+              initialValue: selectedCategory,
               items: categories.map((c) => DropdownMenuItem(value: c, child: Text(c.name))).toList(),
               onChanged: (val) => setState(() => selectedCategory = val),
               decoration: const InputDecoration(labelText: "Category"),
@@ -275,14 +275,14 @@ class _ProductCreateWidgetState extends State<ProductCreateWidget> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<DropdownProductBrand>(
-              value: selectedBrand,
+              initialValue: selectedBrand,
               items: brands.map((b) => DropdownMenuItem(value: b, child: Text(b.name))).toList(),
               onChanged: (val) => setState(() => selectedBrand = val),
               decoration: const InputDecoration(labelText: "Product Brand"),
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<DropdownUnitOfMeasure>(
-              value: selectedUom,
+              initialValue: selectedUom,
               items: uoms.map((u) => DropdownMenuItem(value: u, child: Text(u.name))).toList(),
               onChanged: (val) => setState(() => selectedUom = val),
               decoration: const InputDecoration(labelText: "Unit of Measure"),
@@ -330,7 +330,7 @@ class _ProductCreateWidgetState extends State<ProductCreateWidget> {
               Padding(
                 padding: const EdgeInsets.only(top: 8.0, bottom: 12.0),
                 child: DropdownButtonFormField<String>(
-                  value: selectedTrackingMethod,
+                  initialValue: selectedTrackingMethod,
                   items: trackingMethods.map((method) => DropdownMenuItem(
                         value: method['value'],
                         child: Text(method['display']!),
@@ -378,8 +378,8 @@ class _ProductCreateWidgetState extends State<ProductCreateWidget> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _submitProduct,
-              child: const Text("Create Product"),
               style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+              child: const Text("Create Product"),
             ),
           ],
         ),

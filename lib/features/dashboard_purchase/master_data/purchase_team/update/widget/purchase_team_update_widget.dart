@@ -191,7 +191,7 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
 
             Text("Team Leader", style: GoogleFonts.poppins(fontSize: 16)),
             DropdownButtonFormField<KaryawanDropdownModel>(
-              value: _selectedLeader,
+              initialValue: _selectedLeader,
               items: _karyawanList
                   .map((k) => DropdownMenuItem<KaryawanDropdownModel>(
                         value: k,

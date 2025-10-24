@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../../../../services/api_base.dart';
 import '../models/warehouse_index_models.dart';
+import 'warehouse_list_shimmer.dart'; //
 
 class WarehouseListWidget extends StatefulWidget {
   final void Function(WarehouseIndexModel warehouse)? onTap;
@@ -39,15 +40,27 @@ class WarehouseListWidgetState extends State<WarehouseListWidget> {
 
   Future<void> _loadData() async {
     if (mounted && !_isLoading) {
-      setState(() { _isLoading = true; });
+      setState(() {
+        _isLoading = true;
+      });
     }
     try {
       final data = await fetchWarehouses();
-      if (mounted) setState(() { _warehouses = data; _error = null; });
+      if (mounted)
+        setState(() {
+          _warehouses = data;
+          _error = null;
+        });
     } catch (e) {
-      if (mounted) setState(() { _error = e.toString().replaceFirst("Exception: ", ""); });
+      if (mounted)
+        setState(() {
+          _error = e.toString().replaceFirst("Exception: ", "");
+        });
     } finally {
-      if (mounted) setState(() { _isLoading = false; });
+      if (mounted)
+        setState(() {
+          _isLoading = false;
+        });
     }
   }
 
@@ -61,16 +74,23 @@ class WarehouseListWidgetState extends State<WarehouseListWidget> {
     if (token == null) throw Exception("Token tidak ditemukan.");
 
     final url = Uri.parse("${ApiBase.baseUrl}/inventory/warehouse/");
-    final response = await http.get(url, headers: {"Authorization": "Bearer $token", "Accept": "application/json"});
+    final response = await http.get(
+      url,
+      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
+    );
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> decoded = jsonDecode(response.body);
 
       if (decoded['data'] is List) {
         final List<dynamic> dataList = decoded['data'];
-        return dataList.map((item) => WarehouseIndexModel.fromJson(item)).toList();
+        return dataList
+            .map((item) => WarehouseIndexModel.fromJson(item))
+            .toList();
       } else {
-        throw Exception("Kunci 'data' tidak ditemukan atau bukan sebuah list di dalam JSON.");
+        throw Exception(
+          "Kunci 'data' tidak ditemukan atau bukan sebuah list di dalam JSON.",
+        );
       }
     } else {
       throw Exception("Gagal memuat data: Status ${response.statusCode}");
@@ -81,9 +101,13 @@ class WarehouseListWidgetState extends State<WarehouseListWidget> {
     const storage = FlutterSecureStorage();
     final token = await storage.read(key: 'token');
     final url = Uri.parse("${ApiBase.baseUrl}/inventory/warehouse/$id");
-    final response = await http.delete(url, headers: {"Authorization": "Bearer $token", "Accept": "application/json"});
+    final response = await http.delete(
+      url,
+      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
+    );
     if (response.statusCode == 200 || response.statusCode == 204) {
-      if(response.body.isNotEmpty) return jsonDecode(response.body)['status'] == true;
+      if (response.body.isNotEmpty)
+        return jsonDecode(response.body)['status'] == true;
       return true;
     }
     return false;
@@ -92,18 +116,24 @@ class WarehouseListWidgetState extends State<WarehouseListWidget> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading && _warehouses.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const WarehouseListShimmer();
     }
     if (_error != null) {
       return Center(
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text("Error: $_error", textAlign: TextAlign.center),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(onPressed: reloadData, child: const Text("Coba Lagi")),
-        ]),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text("Error: $_error", textAlign: TextAlign.center),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: reloadData,
+              child: const Text("Coba Lagi"),
+            ),
+          ],
+        ),
       );
     }
     if (_warehouses.isEmpty) {
@@ -125,13 +155,30 @@ class WarehouseListWidgetState extends State<WarehouseListWidget> {
       margin: const EdgeInsets.only(bottom: 12.0),
       decoration: BoxDecoration(
         borderRadius: cardBorderRadius,
-        boxShadow: [BoxShadow(color: Colors.grey.withAlpha(26), spreadRadius: 0, blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withAlpha(26),
+            spreadRadius: 0,
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Dismissible(
         key: Key(warehouse.id.toString()),
-        background: _buildSwipeActionContainer(color: const Color(0xFF4A90E2), icon: Icons.edit, text: 'Edit', alignment: Alignment.centerLeft),
-        secondaryBackground: _buildSwipeActionContainer(color: Colors.redAccent, icon: Icons.delete, text: 'Delete', alignment: Alignment.centerRight),
-        
+        background: _buildSwipeActionContainer(
+          color: const Color(0xFF4A90E2),
+          icon: Icons.edit,
+          text: 'Edit',
+          alignment: Alignment.centerLeft,
+        ),
+        secondaryBackground: _buildSwipeActionContainer(
+          color: Colors.redAccent,
+          icon: Icons.delete,
+          text: 'Delete',
+          alignment: Alignment.centerRight,
+        ),
+
         confirmDismiss: (direction) async {
           if (direction == DismissDirection.startToEnd) {
             widget.onEdit(warehouse);
@@ -144,22 +191,34 @@ class WarehouseListWidgetState extends State<WarehouseListWidget> {
           if (direction == DismissDirection.endToStart) {
             try {
               final success = await _deleteWarehouse(warehouse.id);
-              if(mounted) {
+              if (mounted) {
                 if (success) {
                   widget.onDeleteSuccess?.call(warehouse.warehouseName);
                   setState(() {
                     _warehouses.remove(warehouse);
                   });
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal menghapus ${warehouse.warehouseName}'), backgroundColor: Colors.redAccent));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Gagal menghapus ${warehouse.warehouseName}',
+                      ),
+                      backgroundColor: Colors.redAccent,
+                    ),
+                  );
                   reloadData();
                 }
               }
             } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString()), backgroundColor: Colors.red));
-                  reloadData();
-                }
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(e.toString()),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                reloadData();
+              }
             }
           }
         },
@@ -174,11 +233,29 @@ class WarehouseListWidgetState extends State<WarehouseListWidget> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(warehouse.warehouseName, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(
+                      warehouse.warehouseName,
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                     const SizedBox(height: 6),
-                    Text("Code: ${warehouse.warehouseCode}", style: GoogleFonts.poppins(color: Colors.grey[700], fontSize: 13)),
+                    Text(
+                      "Code: ${warehouse.warehouseCode}",
+                      style: GoogleFonts.poppins(
+                        color: Colors.grey[700],
+                        fontSize: 13,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text("Branch: ${warehouse.branch ?? '-'}", style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 12)),
+                    Text(
+                      "Branch: ${warehouse.branch ?? '-'}",
+                      style: GoogleFonts.poppins(
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -189,17 +266,37 @@ class WarehouseListWidgetState extends State<WarehouseListWidget> {
     );
   }
 
-  Container _buildSwipeActionContainer({required Color color, required IconData icon, required String text, required Alignment alignment}) {
+  Container _buildSwipeActionContainer({
+    required Color color,
+    required IconData icon,
+    required String text,
+    required Alignment alignment,
+  }) {
     return Container(
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 20),
       alignment: alignment,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (alignment == Alignment.centerLeft) ...[Icon(icon, color: Colors.white), const SizedBox(width: 8)],
-          Text(text, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          if (alignment == Alignment.centerRight) ...[const SizedBox(width: 8), Icon(icon, color: Colors.white)],
+          if (alignment == Alignment.centerLeft) ...[
+            Icon(icon, color: Colors.white),
+            const SizedBox(width: 8),
+          ],
+          Text(
+            text,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          if (alignment == Alignment.centerRight) ...[
+            const SizedBox(width: 8),
+            Icon(icon, color: Colors.white),
+          ],
         ],
       ),
     );
@@ -214,29 +311,58 @@ class WarehouseListWidgetState extends State<WarehouseListWidget> {
           filter: ui.ImageFilter.blur(sigmaX: 5, sigmaY: 5),
           child: Dialog(
             backgroundColor: Colors.white.withAlpha(230),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.0)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24.0),
+            ),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  const Icon(Icons.warning_amber_rounded, color: Color(0xFFF35D5D), size: 50.0),
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    color: Color(0xFFF35D5D),
+                    size: 50.0,
+                  ),
                   const SizedBox(height: 28),
-                  Text("Are you sure you want to delete ${warehouse.warehouseName}?", textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 17, fontWeight: FontWeight.bold, color: const Color(0xFF333333))),
+                  Text(
+                    "Are you sure you want to delete ${warehouse.warehouseName}?",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF333333),
+                    ),
+                  ),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF35D5D), foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+                      backgroundColor: const Color(0xFFF35D5D),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
                       minimumSize: const Size(double.infinity, 48),
                     ),
                     onPressed: () => Navigator.of(context).pop(true),
-                    child: Text("Yes, Delete", style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16)),
+                    child: Text(
+                      "Yes, Delete",
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(false),
-                    child: Text("Keep It", style: GoogleFonts.poppins(color: Colors.grey, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      "Keep It",
+                      style: GoogleFonts.poppins(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),

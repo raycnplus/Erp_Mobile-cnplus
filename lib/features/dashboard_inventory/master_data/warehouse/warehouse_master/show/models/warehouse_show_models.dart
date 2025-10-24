@@ -29,24 +29,24 @@ class WarehouseShowModel {
   });
 
   factory WarehouseShowModel.fromJson(Map<String, dynamic> json) {
-    int? _safeParseInt(dynamic value) {
+    int? safeParseInt(dynamic value) {
       if (value == null) return null;
       return int.tryParse(value.toString());
     }
 
     return WarehouseShowModel(
-      idWarehouse: _safeParseInt(json['id_warehouse']) ?? 0,
+      idWarehouse: safeParseInt(json['id_warehouse']) ?? 0,
       warehouseName: json['warehouse_name'] as String? ?? '',
       warehouseCode: json['warehouse_code'] as String? ?? '',
       branch: json['branch'] as String?,
       address: json['address'] as String?,
-      length: _safeParseInt(json['length']),
-      width: _safeParseInt(json['width']),
-      height: _safeParseInt(json['height']),
-      volume: _safeParseInt(json['volume']),
+      length: safeParseInt(json['length']),
+      width: safeParseInt(json['width']),
+      height: safeParseInt(json['height']),
+      volume: safeParseInt(json['volume']),
       description: json['description'] as String?,
       createdDate: json['created_date'] as String?,
-      createdBy: _safeParseInt(json['created_by']),
+      createdBy: safeParseInt(json['created_by']),
     );
   }
 

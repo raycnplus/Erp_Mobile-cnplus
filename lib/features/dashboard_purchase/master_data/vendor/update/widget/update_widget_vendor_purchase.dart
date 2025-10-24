@@ -304,7 +304,7 @@ class _VendorUpdateWidgetState extends State<VendorUpdateWidget> {
             isLoadingCountry
                 ? const CircularProgressIndicator()
                 : DropdownButtonFormField<int>(
-                    value: selectedCountry,
+                    initialValue: selectedCountry,
                     items: countries
                         .map((c) => DropdownMenuItem(
                             value: c.id, child: Text(c.name)))
@@ -354,7 +354,7 @@ class _VendorUpdateWidgetState extends State<VendorUpdateWidget> {
             isLoadingCurrency
                 ? const CircularProgressIndicator()
                 : DropdownButtonFormField<int>(
-                    value: selectedCurrency,
+                    initialValue: selectedCurrency,
                     items: currencies
                         .map((c) => DropdownMenuItem(
                             value: c.id, child: Text(c.name)))

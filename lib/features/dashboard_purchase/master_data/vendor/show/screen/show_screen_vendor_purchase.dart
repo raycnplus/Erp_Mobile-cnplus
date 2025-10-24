@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../widget/show_widget_vendor_purchase.dart';
-import '../../update/screen/update_screen_vendor_purchase.dart'; 
 import 'package:erp_mobile_cnplus/features/dashboard_inventory/master_data/vendor/update/screen/update_screen_vendor.dart';
 
 class VendorShowScreen extends StatefulWidget {

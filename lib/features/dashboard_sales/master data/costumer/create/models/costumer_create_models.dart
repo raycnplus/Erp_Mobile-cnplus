@@ -1,5 +1,4 @@
 // costumer_create_models.dart
-import 'package:flutter/material.dart';
 
 class CustomerCreateModel {
   final int idCustomer;

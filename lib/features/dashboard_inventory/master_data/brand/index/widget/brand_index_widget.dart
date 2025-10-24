@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'dart:ui' as ui;
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../../../../services/api_base.dart';
 import '../models/brand_index_models.dart';

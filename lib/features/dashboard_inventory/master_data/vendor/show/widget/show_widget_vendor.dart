@@ -66,17 +66,21 @@ class _VendorDetailWidgetState extends State<VendorDetailWidget> with SingleTick
           });
         }
       } else {
-         if(mounted) setState(() {
+         if(mounted) {
+           setState(() {
           final errorBody = jsonDecode(response.body);
           errorMessage = "Failed to load data: ${errorBody['message'] ?? response.statusCode}";
           isLoading = false;
         });
+         }
       }
     } catch (e) {
-      if(mounted) setState(() {
+      if(mounted) {
+        setState(() {
         errorMessage = "An error occurred: ${e.toString()}";
         isLoading = false;
       });
+      }
     }
   }
   

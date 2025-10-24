@@ -103,7 +103,7 @@ class WarehouseShowWidgetInternalState extends State<WarehouseShowWidget> {
     }
 
     final warehouse = _warehouse!;
-    const primaryColor = const Color(0xFF679436);;
+    const primaryColor = Color(0xFF679436);
 
     return RefreshIndicator(
       onRefresh: refreshData,

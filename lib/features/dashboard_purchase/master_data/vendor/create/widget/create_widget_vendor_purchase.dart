@@ -260,7 +260,7 @@ class _VendorCreateWidgetState extends State<VendorCreateWidget> {
           const SizedBox(height: 16),
           TextFormField(controller: picEmailCtrl, decoration: _getInputDecoration("PIC Email"), keyboardType: TextInputType.emailAddress, style: GoogleFonts.poppins()),
           _buildTitleSection("Address"),
-          DropdownButtonFormField<int>(value: selectedCountry, items: countries.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name, style: GoogleFonts.poppins()))).toList(), onChanged: (val) => setState(() => selectedCountry = val), decoration: _getInputDecoration("Country"), validator: (v) => v == null ? "Required" : null),
+          DropdownButtonFormField<int>(initialValue: selectedCountry, items: countries.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name, style: GoogleFonts.poppins()))).toList(), onChanged: (val) => setState(() => selectedCountry = val), decoration: _getInputDecoration("Country"), validator: (v) => v == null ? "Required" : null),
           const SizedBox(height: 16),
           TextFormField(controller: provinceCtrl, decoration: _getInputDecoration("Province"), style: GoogleFonts.poppins()),
           const SizedBox(height: 16),
@@ -281,7 +281,7 @@ class _VendorCreateWidgetState extends State<VendorCreateWidget> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: [
           _buildTitleSection(stepDetails[2]['title']!),
-          DropdownButtonFormField<int>(value: selectedCurrency, items: currencies.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name, style: GoogleFonts.poppins()))).toList(), onChanged: (val) => setState(() => selectedCurrency = val), decoration: _getInputDecoration("Currency"), validator: (v) => v == null ? "Required" : null),
+          DropdownButtonFormField<int>(initialValue: selectedCurrency, items: currencies.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name, style: GoogleFonts.poppins()))).toList(), onChanged: (val) => setState(() => selectedCurrency = val), decoration: _getInputDecoration("Currency"), validator: (v) => v == null ? "Required" : null),
           const SizedBox(height: 16),
           TextFormField(controller: bankNameCtrl, decoration: _getInputDecoration("Bank Name"), style: GoogleFonts.poppins()),
           const SizedBox(height: 16),

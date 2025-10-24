@@ -11,7 +11,7 @@ class StatCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const StatCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.value,
     this.valueColor = Colors.black,
@@ -19,7 +19,7 @@ class StatCard extends StatelessWidget {
     this.titleStyle,
     this.width,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
