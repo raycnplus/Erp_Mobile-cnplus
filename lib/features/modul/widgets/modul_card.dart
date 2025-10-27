@@ -5,18 +5,20 @@ import 'package:google_fonts/google_fonts.dart';
 
 class ModulCard extends StatelessWidget {
   final String label;
+  final String description; // ✅ Tambahkan parameter deskripsi
   final String imagePath;
   final Color iconBackgroundColor;
-  final Color iconColor; // ✅ Tambahkan parameter ini
+  final Color iconColor;
   final VoidCallback? onTap;
 
   const ModulCard({
     super.key,
     required this.label,
+    required this.description, // ✅ Jadikan wajib diisi
     required this.imagePath,
     this.onTap,
     this.iconBackgroundColor = const Color(0xFFE0F2F1),
-    required this.iconColor, // ✅ Jadikan wajib diisi
+    required this.iconColor,
   });
 
   @override
@@ -52,18 +54,35 @@ class ModulCard extends StatelessWidget {
                 width: 32,
                 height: 32,
                 fit: BoxFit.contain,
-                color: iconColor, // ✅ Terapkan warna pada ikon di sini
+                color: iconColor,
               ),
             ),
             const SizedBox(width: 20),
             Expanded(
-              child: Text(
-                label,
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF333333),
-                ),
+              // [DIUBAH] Menggunakan Column untuk menampung judul dan deskripsi
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Ini adalah Judul Modul (Label)
+                  Text(
+                    label,
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600, // Poppins Semi-Bold
+                      color: const Color(0xFF333333),
+                    ),
+                  ),
+                  const SizedBox(height: 4), // Jarak kecil
+                  // [BARU] Ini adalah Deskripsi
+                  Text(
+                    description,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12, // Font kecil
+                      fontWeight: FontWeight.w400, // Poppins Regular (lebih tipis)
+                      color: Colors.grey.shade600, // Font halus (abu-abu)
+                    ),
+                  ),
+                ],
               ),
             ),
             const Icon(

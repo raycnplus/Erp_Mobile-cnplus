@@ -9,25 +9,22 @@ import '../../../../../../../services/api_base.dart';
 import '../models/index_models_vendor_purchase.dart';
 import '../../show/screen/show_screen_vendor_purchase.dart';
 
-class VendorIndexWidget extends StatefulWidget {
-  // [UBAH] Callback untuk memberitahu parent bahwa update berhasil
-  final VoidCallback? onUpdateSuccess;
+import 'vendor_index_shimmer.dart'; 
 
+class VendorIndexWidget extends StatefulWidget {
+  final VoidCallback? onUpdateSuccess;
   const VendorIndexWidget({super.key, this.onUpdateSuccess});
 
   @override
-  // [UBAH]: Nama state diubah menjadi public agar bisa diakses parent
   State<VendorIndexWidget> createState() => VendorIndexWidgetState();
 }
 
-// [UBAH]: Nama class state diubah menjadi public (tanpa underscore)
 class VendorIndexWidgetState extends State<VendorIndexWidget> {
   final storage = const FlutterSecureStorage();
   List<VendorIndexModel> vendors = [];
   bool isLoading = true;
   String? errorMessage;
 
-  // [UBAH] Menggunakan warna yang konsisten dengan referensi
   static const Color primaryAccent = Color(0xFF2D6A4F);
 
   @override
@@ -36,7 +33,6 @@ class VendorIndexWidgetState extends State<VendorIndexWidget> {
     fetchVendors();
   }
 
-  // [UBAH] Fungsi ini sekarang bisa dipanggil dari parent via GlobalKey
   Future<void> reloadData() async {
     setState(() {
       isLoading = true;
@@ -47,7 +43,6 @@ class VendorIndexWidgetState extends State<VendorIndexWidget> {
   Future<void> fetchVendors() async {
     try {
       String? token = await storage.read(key: 'token');
-      // [UBAH] Pastikan endpoint sudah benar
       final response = await http.get(
         Uri.parse("${ApiBase.baseUrl}/purchase/vendor/"),
         headers: {
@@ -71,7 +66,6 @@ class VendorIndexWidgetState extends State<VendorIndexWidget> {
     } catch (e) {
       debugPrint("Error: $e");
       if (mounted) {
-        // [UBAH] Error handling yang lebih baik
         setState(() {
           errorMessage = e.toString();
           isLoading = false;
@@ -80,7 +74,6 @@ class VendorIndexWidgetState extends State<VendorIndexWidget> {
     }
   }
 
-  // [UBAH] Fungsi onTap sekarang async untuk menunggu hasil dari halaman show/update
   void _navigateToDetail(String vendorId) async {
     final result = await Navigator.push<bool>(
       context,
@@ -91,7 +84,6 @@ class VendorIndexWidgetState extends State<VendorIndexWidget> {
       ),
     );
 
-    // Jika hasil dari show/update screen adalah true (sukses), panggil callback
     if (result == true) {
       widget.onUpdateSuccess?.call();
     }
@@ -99,9 +91,8 @@ class VendorIndexWidgetState extends State<VendorIndexWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // [UBAH] UI State Handling seperti referensi
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const VendorIndexShimmer();
     }
 
     if (errorMessage != null) {
@@ -117,7 +108,6 @@ class VendorIndexWidgetState extends State<VendorIndexWidget> {
       );
     }
 
-    // [UBAH] Menggunakan RefreshIndicator dan desain Card dari referensi
     return RefreshIndicator(
       onRefresh: fetchVendors,
       child: ListView.builder(
@@ -193,7 +183,6 @@ class VendorIndexWidgetState extends State<VendorIndexWidget> {
     );
   }
 
-  // [UBAH] Menambahkan helper widget dari referensi
   Widget _buildDetailRow(IconData icon, String label, String value,
       {Color? color}) {
     String safeValue = value.isNotEmpty && value != '-' ? value : "-";

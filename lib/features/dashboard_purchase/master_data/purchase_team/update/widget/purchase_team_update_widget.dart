@@ -7,10 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../services/api_base.dart';
 
-// [PERBAIKAN] Pastikan hanya impor model dari direktori yang benar
 import '../models/purchase_team_update_model.dart'; 
 import '../models/karyawan_dropdown_model.dart';
-
 
 class PurchaseTeamUpdateForm extends StatefulWidget {
   final int id;
@@ -37,12 +35,55 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
   List<KaryawanDropdownModel> _karyawanList = [];
   Map<int, KaryawanDropdownModel> _karyawanMap = {};
 
+  // --- [BARU] Definisi Warna & Style Modern ---
+  static const Color accentColor = Color(0xFF2D6A4F); // Hijau tua konsisten
+  static final Color accentBgColor = accentColor.withOpacity(0.08); // Latar belakang
+  static final Color softGrey = Colors.grey.shade100; // Latar belakang input
+
   @override
   void initState() {
     super.initState();
     _fetchInitialData();
   }
 
+  // --- [BARU] Helper untuk Judul Bagian ---
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0, top: 16.0),
+      child: Text(
+        title,
+        style: GoogleFonts.poppins(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87,
+        ),
+      ),
+    );
+  }
+
+  // --- [BARU] Helper untuk Dekorasi Input Modern ---
+  InputDecoration _buildInputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: GoogleFonts.poppins(color: Colors.grey.shade600),
+      fillColor: softGrey, // Warna latar belakang field
+      filled: true,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none, // Hilangkan border default
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: accentColor, width: 2), // Border saat fokus
+      ),
+    );
+  }
+
+  // --- Logika Fetch Data (Tidak Berubah) ---
   Future<void> _fetchInitialData() async {
     try {
       await _fetchKaryawan();
@@ -167,59 +208,83 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
       }
     }
   }
+  
+  @override
+  void dispose() {
+    _teamNameController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: accentColor));
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Team Name", style: GoogleFonts.poppins(fontSize: 16)),
-            TextFormField(
-              controller: _teamNameController,
-              decoration: const InputDecoration(hintText: "Enter team name", border: OutlineInputBorder()),
-              validator: (val) => val!.isEmpty ? "Team name cannot be empty" : null,
-            ),
-            const SizedBox(height: 16),
-
-            Text("Team Leader", style: GoogleFonts.poppins(fontSize: 16)),
-            DropdownButtonFormField<KaryawanDropdownModel>(
-              initialValue: _selectedLeader,
-              items: _karyawanList
-                  .map((k) => DropdownMenuItem<KaryawanDropdownModel>(
-                        value: k,
-                        child: Text(k.fullName),
-                      ))
-                  .toList(),
-              onChanged: (val) => setState(() => _selectedLeader = val),
-              decoration: const InputDecoration(border: OutlineInputBorder()),
-              validator: (val) => val == null ? "Please select a team leader" : null,
-            ),
-            const SizedBox(height: 24),
-
-            Text("Members", style: GoogleFonts.poppins(fontSize: 16)),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade400),
-                borderRadius: BorderRadius.circular(8)
+    // [BARU] Mengatur warna kursor agar sesuai tema
+    return Theme(
+      data: Theme.of(context).copyWith(
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: accentColor,
+          selectionColor: accentBgColor,
+          selectionHandleColor: accentColor,
+        ),
+      ),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0), // Beri padding lebih
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // --- Bagian 1: Detail Tim ---
+              _buildSectionTitle("Team Details"),
+              TextFormField(
+                controller: _teamNameController,
+                decoration: _buildInputDecoration("Team Name"),
+                validator: (val) => val!.isEmpty ? "Team name cannot be empty" : null,
+                style: GoogleFonts.poppins(),
               ),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: _karyawanList
-                    .where((k) => k.id != _selectedLeader?.id)
-                    .map((k) => FilterChip(
-                          label: Text(k.fullName),
-                          selected: _selectedMembers.any((m) => m.id == k.id),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<KaryawanDropdownModel>(
+                value: _selectedLeader,
+                items: _karyawanList
+                    .map((k) => DropdownMenuItem<KaryawanDropdownModel>(
+                          value: k,
+                          child: Text(k.fullName, style: GoogleFonts.poppins()),
+                        ))
+                    .toList(),
+                onChanged: (val) => setState(() => _selectedLeader = val),
+                decoration: _buildInputDecoration("Team Leader"),
+                validator: (val) => val == null ? "Please select a team leader" : null,
+                style: GoogleFonts.poppins(),
+              ),
+
+              // --- Bagian 2: Anggota Tim ---
+              _buildSectionTitle("Members"),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: softGrey, // Latar belakang abu-abu
+                  borderRadius: BorderRadius.circular(12)
+                ),
+                child: Wrap(
+                  spacing: 10,
+                  runSpacing: 8,
+                  children: _karyawanList
+                      .where((k) => k.id != _selectedLeader?.id)
+                      .map((k) {
+                        final bool isSelected = _selectedMembers.any((m) => m.id == k.id);
+                        return FilterChip(
+                          label: Text(
+                            k.fullName,
+                            style: GoogleFonts.poppins(
+                              color: isSelected ? Colors.white : Colors.black87,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          selected: isSelected,
                           onSelected: (selected) {
                             setState(() {
                               if (selected) {
@@ -229,38 +294,75 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
                               }
                             });
                           },
-                        ))
-                    .toList(),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            Text("Description", style: GoogleFonts.poppins(fontSize: 16)),
-            TextFormField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(hintText: "Enter team description", border: OutlineInputBorder()),
-              maxLines: 3,
-            ),
-            const SizedBox(height: 24),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isSubmitting ? null : _updateTeam,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  backgroundColor: Colors.blueAccent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          // [STYLE BARU] Style chip yang modern
+                          selectedColor: accentColor,
+                          backgroundColor: Colors.white,
+                          checkmarkColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            side: BorderSide(
+                              color: isSelected ? accentColor : Colors.grey.shade300,
+                            ),
+                          ),
+                        );
+                      })
+                      .toList(),
                 ),
-                child: _isSubmitting 
-                  ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3,))
-                  : Text(
-                      "Update Purchase Team",
-                      style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
-                    ),
               ),
-            )
-          ],
+              const SizedBox(height: 16),
+
+              // --- Bagian 3: Deskripsi ---
+              _buildSectionTitle("Description"),
+              TextFormField(
+                controller: _descriptionController,
+                decoration: _buildInputDecoration("Enter team description..."),
+                maxLines: 4,
+                style: GoogleFonts.poppins(),
+              ),
+              const SizedBox(height: 32),
+
+              // --- [BARU] Tombol Submit dengan Efek Shadow ---
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: accentColor.withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: _isSubmitting ? null : _updateTeam,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: accentColor, // Warna hijau
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    minimumSize: const Size(double.infinity, 54),
+                  ),
+                  // [BARU] Animasi loading yang halus
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: _isSubmitting 
+                      ? const SizedBox(
+                          key: ValueKey('loader'),
+                          height: 24, 
+                          width: 24, 
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3,)
+                        )
+                      : Text(
+                          key: const ValueKey('text'),
+                          "Update Purchase Team",
+                          style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
+                        ),
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

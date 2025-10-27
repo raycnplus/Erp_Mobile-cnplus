@@ -2,7 +2,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:google_fonts/google_fonts.dart'; // Import Google Fonts
+import 'package:google_fonts/google_fonts.dart'; 
+
+// [BARU] Import file-file UI yang sudah dipecah
+import 'step_1_general_info.dart';
+import 'step_2_contact_location.dart';
+import 'step_3_financial_details.dart';
+import 'vendor_form_styles.dart'; // Helper untuk style
+
 import '../../../../../../../../services/api_base.dart';
 import '../models/create_models_vendor_purchase.dart';
 
@@ -21,12 +28,13 @@ class _VendorCreateWidgetState extends State<VendorCreateWidget> {
   final List<GlobalKey<FormState>> _formKeys = [
     GlobalKey<FormState>(),
     GlobalKey<FormState>(),
-    GlobalKey<FormState>()
+    GlobalKey<FormState>(),
   ];
 
   final storage = const FlutterSecureStorage();
 
   // --- Controllers ---
+  // (Semua controller tetap di sini sebagai state)
   final TextEditingController vendorNameCtrl = TextEditingController();
   final TextEditingController vendorCodeCtrl = TextEditingController();
   final TextEditingController phoneCtrl = TextEditingController();
@@ -52,11 +60,6 @@ class _VendorCreateWidgetState extends State<VendorCreateWidget> {
   bool isLoadingCurrency = true;
   bool isSubmitting = false;
 
-  // --- Warna dan Style (Diadopsi dari referensi) ---
-  final softGreen = const Color(0xFF679436);
-  final lightGreen = const Color(0xFFC8E6C9);
-  final borderRadius = BorderRadius.circular(16.0);
-
   // --- Detail Langkah ---
   final stepDetails = [
     {'title': 'General & Business Info', 'guide': 'Informasi dasar vendor dan NPWP.'},
@@ -73,6 +76,7 @@ class _VendorCreateWidgetState extends State<VendorCreateWidget> {
 
   @override
   void dispose() {
+    // (Semua dispose controller tetap di sini)
     _pageController.dispose();
     vendorNameCtrl.dispose();
     vendorCodeCtrl.dispose();
@@ -91,8 +95,8 @@ class _VendorCreateWidgetState extends State<VendorCreateWidget> {
     bankNumberCtrl.dispose();
     super.dispose();
   }
-  
-  // --- Logika Fetch Data (Sama seperti referensi) ---
+
+  // --- Logika Fetch Data (Tidak berubah) ---
   Future<void> _fetchCountries() async {
     final token = await storage.read(key: "token");
     try {
@@ -139,12 +143,16 @@ class _VendorCreateWidgetState extends State<VendorCreateWidget> {
     }
   }
 
-  // --- Logika Navigasi & Submit (Diadopsi dari referensi) ---
+  // --- Logika Navigasi & Submit (Tidak berubah) ---
   void _nextStep() {
     if (!_formKeys[_currentStep].currentState!.validate()) return;
     if (_currentStep < _totalSteps - 1) {
       setState(() => _currentStep++);
-      _pageController.animateToPage(_currentStep, duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
+      _pageController.animateToPage(
+        _currentStep,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeIn,
+      );
     } else {
       _submitVendor();
     }
@@ -153,15 +161,23 @@ class _VendorCreateWidgetState extends State<VendorCreateWidget> {
   void _previousStep() {
     if (_currentStep > 0) {
       setState(() => _currentStep--);
-      _pageController.animateToPage(_currentStep, duration: const Duration(milliseconds: 300), curve: Curves.easeIn);
+      _pageController.animateToPage(
+        _currentStep,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeIn,
+      );
     }
   }
 
   Future<void> _submitVendor() async {
-    // Validasi semua form sebelum submit
     for (var formKey in _formKeys) {
       if (!formKey.currentState!.validate()) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please complete all required fields in every step."), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Please complete all required fields in every step."),
+            backgroundColor: Colors.red,
+          ),
+        );
         return;
       }
     }
@@ -169,138 +185,125 @@ class _VendorCreateWidgetState extends State<VendorCreateWidget> {
     setState(() => isSubmitting = true);
     final token = await storage.read(key: "token");
     final requestBody = {
-      "vendor_name": vendorNameCtrl.text, "vendor_code": vendorCodeCtrl.text,
-      "phone_no": phoneCtrl.text, "email": emailCtrl.text, "npwp_number": npwpCtrl.text,
-      "province": provinceCtrl.text, "city": cityCtrl.text, "postal_code": postalCtrl.text,
-      "address": addressCtrl.text, "contact_person_name": picNameCtrl.text,
-      "contact_person_phone": picPhoneCtrl.text, "contact_person_email": picEmailCtrl.text,
-      "bank_name": bankNameCtrl.text, "bank_account_name": bankAccountNameCtrl.text,
-      "bank_account_number": bankNumberCtrl.text, "id_country": selectedCountry, "id_currency": selectedCurrency,
+      "vendor_name": vendorNameCtrl.text,
+      "vendor_code": vendorCodeCtrl.text,
+      "phone_no": phoneCtrl.text,
+      "email": emailCtrl.text,
+      "npwp_number": npwpCtrl.text,
+      "province": provinceCtrl.text,
+      "city": cityCtrl.text,
+      "postal_code": postalCtrl.text,
+      "address": addressCtrl.text,
+      "contact_person_name": picNameCtrl.text,
+      "contact_person_phone": picPhoneCtrl.text,
+      "contact_person_email": picEmailCtrl.text,
+      "bank_name": bankNameCtrl.text,
+      "bank_account_name": bankAccountNameCtrl.text,
+      "bank_account_number": bankNumberCtrl.text,
+      "id_country": selectedCountry,
+      "id_currency": selectedCurrency,
     };
 
     try {
-      // Menggunakan endpoint yang benar untuk modul Purchase
       final response = await http.post(
-        Uri.parse("${ApiBase.baseUrl}/purchase/vendor"), 
-        headers: {"Authorization": "Bearer $token", "Content-Type": "application/json", "Accept": "application/json"},
+        Uri.parse("${ApiBase.baseUrl}/purchase/vendor"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
         body: jsonEncode(requestBody),
       );
 
       if (!mounted) return;
-
       final body = jsonDecode(response.body);
       if (response.statusCode == 200 || response.statusCode == 201) {
         final message = body['message'] ?? "Vendor created successfully!";
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: Colors.green),
+        );
         Navigator.pop(context, true);
       } else {
         final errMsg = body['message'] ?? "Failed to create vendor.";
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errMsg), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errMsg), backgroundColor: Colors.red),
+        );
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("An error occurred: $e"), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred: $e"), backgroundColor: Colors.red),
+      );
     } finally {
       if (mounted) setState(() => isSubmitting = false);
     }
   }
 
-  // --- Helper Widgets untuk UI (Diadopsi dari referensi) ---
-  InputDecoration _getInputDecoration(String label) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: GoogleFonts.poppins(color: Colors.grey.shade600),
-      filled: true,
-      fillColor: lightGreen.withOpacity(0.3),
-      border: OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide.none),
-      enabledBorder: OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide(color: softGreen.withOpacity(0.5), width: 1.0)),
-      focusedBorder: OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide(color: softGreen, width: 2.0)),
-    );
-  }
+  // --- Helper Widgets untuk UI (dipindahkan ke vendor_form_styles.dart) ---
+  // [DIHAPUS] _getInputDecoration()
+  // [DIHAPUS] _buildTitleSection()
 
-  Widget _buildTitleSection(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 24, bottom: 12),
-      child: Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 18, color: softGreen)),
-    );
-  }
+  // --- Widget untuk Setiap Langkah (dipindahkan ke file terpisah) ---
+  // [DIHAPUS] _buildStep1()
+  // [DIHAPUS] _buildStep2()
+  // [DIHAPUS] _buildStep3()
 
-  // --- Widget untuk Setiap Langkah ---
-  Widget _buildStep1() {
-    return Form(
-      key: _formKeys[0],
-      child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          _buildTitleSection(stepDetails[0]['title']!),
-          TextFormField(controller: vendorNameCtrl, decoration: _getInputDecoration("Vendor Name"), validator: (v) => v == null || v.isEmpty ? "Required" : null, style: GoogleFonts.poppins()),
-          const SizedBox(height: 16),
-          TextFormField(controller: vendorCodeCtrl, decoration: _getInputDecoration("Vendor Code"), style: GoogleFonts.poppins()),
-          const SizedBox(height: 16),
-          TextFormField(controller: npwpCtrl, decoration: _getInputDecoration("NPWP Number"), keyboardType: TextInputType.number, style: GoogleFonts.poppins()),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStep2() {
-    return Form(
-      key: _formKeys[1],
-      child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          _buildTitleSection("Primary Contact"),
-          TextFormField(controller: phoneCtrl, decoration: _getInputDecoration("Phone No"), keyboardType: TextInputType.phone, style: GoogleFonts.poppins()),
-          const SizedBox(height: 16),
-          TextFormField(controller: emailCtrl, decoration: _getInputDecoration("Email"), keyboardType: TextInputType.emailAddress, style: GoogleFonts.poppins()),
-          _buildTitleSection("Contact Person (PIC)"),
-          TextFormField(controller: picNameCtrl, decoration: _getInputDecoration("PIC Name"), style: GoogleFonts.poppins()),
-          const SizedBox(height: 16),
-          TextFormField(controller: picPhoneCtrl, decoration: _getInputDecoration("PIC Phone"), keyboardType: TextInputType.phone, style: GoogleFonts.poppins()),
-          const SizedBox(height: 16),
-          TextFormField(controller: picEmailCtrl, decoration: _getInputDecoration("PIC Email"), keyboardType: TextInputType.emailAddress, style: GoogleFonts.poppins()),
-          _buildTitleSection("Address"),
-          DropdownButtonFormField<int>(initialValue: selectedCountry, items: countries.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name, style: GoogleFonts.poppins()))).toList(), onChanged: (val) => setState(() => selectedCountry = val), decoration: _getInputDecoration("Country"), validator: (v) => v == null ? "Required" : null),
-          const SizedBox(height: 16),
-          TextFormField(controller: provinceCtrl, decoration: _getInputDecoration("Province"), style: GoogleFonts.poppins()),
-          const SizedBox(height: 16),
-          TextFormField(controller: cityCtrl, decoration: _getInputDecoration("City"), style: GoogleFonts.poppins()),
-          const SizedBox(height: 16),
-          TextFormField(controller: postalCtrl, decoration: _getInputDecoration("Postal Code"), keyboardType: TextInputType.number, style: GoogleFonts.poppins()),
-          const SizedBox(height: 16),
-          TextFormField(controller: addressCtrl, decoration: _getInputDecoration("Address"), maxLines: 3, style: GoogleFonts.poppins()),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStep3() {
-    return Form(
-      key: _formKeys[2],
-      child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          _buildTitleSection(stepDetails[2]['title']!),
-          DropdownButtonFormField<int>(initialValue: selectedCurrency, items: currencies.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name, style: GoogleFonts.poppins()))).toList(), onChanged: (val) => setState(() => selectedCurrency = val), decoration: _getInputDecoration("Currency"), validator: (v) => v == null ? "Required" : null),
-          const SizedBox(height: 16),
-          TextFormField(controller: bankNameCtrl, decoration: _getInputDecoration("Bank Name"), style: GoogleFonts.poppins()),
-          const SizedBox(height: 16),
-          TextFormField(controller: bankAccountNameCtrl, decoration: _getInputDecoration("Bank Account Name"), style: GoogleFonts.poppins()),
-          const SizedBox(height: 16),
-          TextFormField(controller: bankNumberCtrl, decoration: _getInputDecoration("Bank Account Number"), keyboardType: TextInputType.number, style: GoogleFonts.poppins()),
-        ],
-      ),
-    );
-  }
-
+  // --- Widget Navigasi & Header (Tetap di sini) ---
   Widget _buildNavigationButtons() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: Row(
         children: [
-          if (_currentStep > 0) Expanded(child: OutlinedButton(onPressed: _previousStep, style: OutlinedButton.styleFrom(minimumSize: const Size(0, 52), side: BorderSide(color: Colors.grey.shade300), shape: RoundedRectangleBorder(borderRadius: borderRadius)), child: Text("Kembali", style: GoogleFonts.poppins(color: Colors.grey.shade700, fontWeight: FontWeight.w600)))),
+          if (_currentStep > 0)
+            Expanded(
+              child: OutlinedButton(
+                onPressed: _previousStep,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, 52),
+                  side: BorderSide(color: Colors.grey.shade300),
+                  shape: RoundedRectangleBorder(borderRadius: borderRadius),
+                ),
+                child: Text(
+                  "Kembali",
+                  style: GoogleFonts.poppins(
+                    color: Colors.grey.shade700,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
           if (_currentStep > 0) const SizedBox(width: 16),
-          Expanded(child: Container(decoration: BoxDecoration(borderRadius: borderRadius, boxShadow: [BoxShadow(color: softGreen.withOpacity(0.4), blurRadius: 18, spreadRadius: 1, offset: const Offset(0, 6))]), child: ElevatedButton(onPressed: isSubmitting ? null : _nextStep, style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 52), backgroundColor: softGreen, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: borderRadius), elevation: 0), child: isSubmitting ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2) : Text(_currentStep == _totalSteps - 1 ? "Simpan Vendor" : "Lanjut", style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600))))),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: borderRadius,
+                boxShadow: [
+                  BoxShadow(
+                    color: softGreen.withOpacity(0.4),
+                    blurRadius: 18,
+                    spreadRadius: 1,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: ElevatedButton(
+                onPressed: isSubmitting ? null : _nextStep,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 52),
+                  backgroundColor: softGreen,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: borderRadius),
+                  elevation: 0,
+                ),
+                child: isSubmitting
+                    ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                    : Text(
+                        _currentStep == _totalSteps - 1 ? "Simpan Vendor" : "Lanjut",
+                        style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600),
+                      ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -310,16 +313,42 @@ class _VendorCreateWidgetState extends State<VendorCreateWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        LinearProgressIndicator(value: (_currentStep + 1) / _totalSteps, backgroundColor: Colors.grey.shade200, color: softGreen, minHeight: 8, borderRadius: BorderRadius.circular(4)),
+        LinearProgressIndicator(
+          value: (_currentStep + 1) / _totalSteps,
+          backgroundColor: Colors.grey.shade200,
+          color: softGreen,
+          minHeight: 8,
+          borderRadius: BorderRadius.circular(4),
+        ),
         const SizedBox(height: 12),
         Row(
           children: [
-            Text('STEP ${_currentStep + 1}: ', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700, color: softGreen)),
-            Expanded(child: Text(stepDetails[_currentStep]['title']!, style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87), overflow: TextOverflow.ellipsis)),
+            Text(
+              'STEP ${_currentStep + 1}: ',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: softGreen,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                stepDetails[_currentStep]['title']!,
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 4),
-        Text(stepDetails[_currentStep]['guide']!, style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade600)),
+        Text(
+          stepDetails[_currentStep]['guide']!,
+          style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade600),
+        ),
       ],
     );
   }
@@ -327,24 +356,70 @@ class _VendorCreateWidgetState extends State<VendorCreateWidget> {
   @override
   Widget build(BuildContext context) {
     if (isLoadingCountry || isLoadingCurrency) {
-      return Scaffold(appBar: AppBar(title: const Text("Create New Vendor")), body: const Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        body: const Center(child: CircularProgressIndicator()),
+      );
     }
-    
-    final themeWithCustomCursor = Theme.of(context).copyWith(textSelectionTheme: TextSelectionThemeData(cursorColor: softGreen, selectionColor: softGreen.withOpacity(0.4), selectionHandleColor: softGreen));
+
+    final themeWithCustomCursor = Theme.of(context).copyWith(
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: softGreen,
+        selectionColor: softGreen.withOpacity(0.4),
+        selectionHandleColor: softGreen,
+      ),
+    );
 
     return Theme(
       data: themeWithCustomCursor,
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(title: const Text("Create New Vendor"), backgroundColor: Colors.white, elevation: 1, foregroundColor: Colors.black87),
         body: Column(
           children: [
-            Padding(padding: const EdgeInsets.all(16.0), child: _buildStepperHeader()),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: _buildStepperHeader(),
+            ),
             Expanded(
+              // [DIUBAH] PageView sekarang memanggil widget-widget baru
               child: PageView(
                 controller: _pageController,
                 physics: const NeverScrollableScrollPhysics(),
-                children: [_buildStep1(), _buildStep2(), _buildStep3()],
+                children: [
+                  Step1GeneralInfo(
+                    formKey: _formKeys[0],
+                    vendorNameCtrl: vendorNameCtrl,
+                    vendorCodeCtrl: vendorCodeCtrl,
+                    npwpCtrl: npwpCtrl,
+                  ),
+                  Step2ContactLocation(
+                    formKey: _formKeys[1],
+                    phoneCtrl: phoneCtrl,
+                    emailCtrl: emailCtrl,
+                    picNameCtrl: picNameCtrl,
+                    picPhoneCtrl: picPhoneCtrl,
+                    picEmailCtrl: picEmailCtrl,
+                    provinceCtrl: provinceCtrl,
+                    cityCtrl: cityCtrl,
+                    postalCtrl: postalCtrl,
+                    addressCtrl: addressCtrl,
+                    countries: countries,
+                    selectedCountry: selectedCountry,
+                    onCountryChanged: (val) {
+                      setState(() => selectedCountry = val);
+                    },
+                  ),
+                  Step3FinancialDetails(
+                    formKey: _formKeys[2],
+                    bankNameCtrl: bankNameCtrl,
+                    bankAccountNameCtrl: bankAccountNameCtrl,
+                    bankNumberCtrl: bankNumberCtrl,
+                    currencies: currencies,
+                    selectedCurrency: selectedCurrency,
+                    onCurrencyChanged: (val) {
+                      setState(() => selectedCurrency = val);
+                    },
+                  ),
+                ],
               ),
             ),
             _buildNavigationButtons(),

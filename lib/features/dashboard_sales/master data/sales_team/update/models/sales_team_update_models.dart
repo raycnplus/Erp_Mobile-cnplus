@@ -3,23 +3,21 @@
 class SalesTeamUpdateModel {
   final int idSalesTeam;
   final String teamName;
-  final String teamLeaderName; // <-- DIUBAH: Sekarang menyimpan nama leader
+  final String teamLeaderName; 
   final String? description;
   final List<int> memberIds;
 
   SalesTeamUpdateModel({
     required this.idSalesTeam,
     required this.teamName,
-    required this.teamLeaderName, // <-- DIUBAH
+    required this.teamLeaderName,
     this.description,
     required this.memberIds,
   });
 
-  // [PERBAIKAN] Logika parsing disesuaikan 100% dengan response API Anda
   factory SalesTeamUpdateModel.fromJson(Map<String, dynamic> json) {
-    // Ekstrak member IDs dari list 'members' (dengan 's')
     final List<int> members = (json['members'] as List<dynamic>?)
-            ?.map<int?>((item) => item is Map ? item['id_karyawan'] as int? : null)
+            ?.map<int?>((item) => item is Map ? item['id_user'] as int? : null)
             .whereType<int>()
             .toList() ??
         [];

@@ -9,7 +9,8 @@ class KaryawanDropdownModel {
 
   factory KaryawanDropdownModel.fromJson(Map<String, dynamic> json) {
     return KaryawanDropdownModel(
-      id: json['id_karyawan'] ?? json['id'] ?? 0,
+      id: json['id_user'] ?? json['id'] ?? 0,
+      // -------------------------
       fullName: json['nama_lengkap'] ?? json['fullName'] ?? '',
     );
   }

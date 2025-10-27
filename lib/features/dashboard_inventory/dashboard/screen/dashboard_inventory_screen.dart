@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
+import 'dart:ui'; 
 
 import '../repositories/inventory_repository.dart';
 import '../models/dashboard_data_model.dart';
@@ -13,8 +13,10 @@ import '../widget/stat_card_widget.dart';
 import '../widget/inventory_drawer_widget.dart';
 import '../widget/top_product_widget.dart';
 import '../widget/dashboard_skeleton_widget.dart';
-import '../../../../core/routes/app_routes.dart';
 import '../../../../shared/widgets/personalized_header.dart';
+
+// [BARU] Impor file widget yang sudah dipecah
+import '../widget/inventory_widgets.dart';
 
 class DashboardInventoryScreen extends StatefulWidget {
   const DashboardInventoryScreen({super.key});
@@ -30,11 +32,37 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
 
   final InventoryRepository _repository = InventoryRepository();
   late Future<DashboardData> _dashboardFuture;
+  late ScrollController _scrollController;
+
+  // --- ANIMASI ---
+  final Alignment _initialTitleAlignment = const Alignment(-0.6, 0.0);
+  final Alignment _scrolledTitleAlignment = const Alignment(-1.20, 0.0);
+  final TextStyle _initialTitleStyle = GoogleFonts.poppins(
+    color: Colors.black87,
+    fontSize: 20,
+    fontWeight: FontWeight.w600,
+  );
+  final TextStyle _scrolledTitleStyle = GoogleFonts.poppins(
+    color: Colors.black87,
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+  );
+  final double _initialIconSize = 28.0;
+  final double _scrolledIconSize = 24.0;
+  final double _scrollThreshold = 50.0;
+  // --- END ANIMASI ---
 
   @override
   void initState() {
     super.initState();
     _dashboardFuture = _fetchData();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<DashboardData> _fetchData() async {
@@ -44,32 +72,19 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
     return DashboardData.fromJson(rawData);
   }
 
-  void _showDetailDialog(BuildContext context, String title) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text('Detail information for $title.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  List<ChartData> _processPieData(List<ChartData> originalData, {double thresholdPercent = 3.0}) {
+  List<ChartData> _processPieData(
+    List<ChartData> originalData, {
+    double thresholdPercent = 3.0,
+  }) {
+    // ... (Fungsi ini adalah logika data, jadi Boleh tetap di sini)
     if (originalData.isEmpty) return [];
-
-    // Hitung total nilai untuk mendapatkan persentase
-    final double totalValue = originalData.fold(0, (sum, item) => sum + item.value);
+    final double totalValue = originalData.fold(
+      0,
+      (sum, item) => sum + item.value,
+    );
     if (totalValue == 0) return [];
-
     List<ChartData> mainSlices = [];
     List<ChartData> otherSlices = [];
-
     for (var item in originalData) {
       final percentage = (item.value / totalValue) * 100;
       if (percentage < thresholdPercent) {
@@ -78,93 +93,128 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
         mainSlices.add(item);
       }
     }
-
-    // Jika ada slice kecil, gabungkan menjadi "Lainnya"
     if (otherSlices.isNotEmpty) {
-      final double otherValue = otherSlices.fold(0, (sum, item) => sum + item.value);
+      final double otherValue = otherSlices.fold(
+        0,
+        (sum, item) => sum + item.value,
+      );
       mainSlices.add(
         ChartData(
           label: 'Lainnya',
           value: otherValue,
-          color: Colors.grey.shade400, // Warna khusus untuk "Lainnya"
+          color: Colors.grey.shade400,
         ),
       );
     }
-
-    // Urutkan dari terbesar ke terkecil agar tampilan lebih rapi
     mainSlices.sort((a, b) => b.value.compareTo(a.value));
-
     return mainSlices;
   }
 
   @override
   Widget build(BuildContext context) {
-    // Definisi warna aksen utama
-    const Color accentColor = Color(0xFF2D6A4F);
-
-    // Warna Khaki untuk Shadow
-    const Color khakiShadow = Color(0xFFF0E68C);
-
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: GestureDetector(
-          onTap: () {
-            Navigator.pushNamed(context, AppRoutes.modul);
+        automaticallyImplyLeading: false,
+        // --- Bagian AppBar (leading, title, actions) tidak berubah ---
+        leading: AnimatedBuilder(
+          animation: _scrollController,
+          builder: (context, child) {
+            double progress = 0.0;
+            if (_scrollController.hasClients && _scrollController.offset > 0) {
+              progress = (_scrollController.offset / _scrollThreshold).clamp(
+                0.0,
+                1.0,
+              );
+            }
+            final double currentIconSize = lerpDouble(
+              _initialIconSize,
+              _scrolledIconSize,
+              progress,
+            )!;
+            return IconButton(
+              icon: Icon(
+                Icons.menu,
+                color: Colors.black,
+                size: currentIconSize,
+              ),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            );
           },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: accentColor,
-              border: Border.all(color: accentColor.withOpacity(0.5), width: 1),
-              boxShadow: [
-                BoxShadow(
-                  // Menggunakan warna Khaki dengan sedikit transparansi untuk kelembutan
-                  color: khakiShadow.withOpacity(0.4),
-                  blurRadius: 2, // Blur yang cukup besar
-                  spreadRadius: 2,
-                  offset: const Offset(0, 2), // Shadow di bawah
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.arrow_back_ios_new,
-                  size: 14,
-                  color: Colors.white,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Inventory',
-                  style: GoogleFonts.montserrat(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    height: 1.0,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
-        centerTitle: true,
+        title: AnimatedBuilder(
+          animation: _scrollController,
+          builder: (context, child) {
+            double progress = 0.0;
+            if (_scrollController.hasClients && _scrollController.offset > 0) {
+              progress = (_scrollController.offset / _scrollThreshold).clamp(
+                0.0,
+                1.0,
+              );
+            }
+            final Alignment currentAlignment = Alignment.lerp(
+              _initialTitleAlignment,
+              _scrolledTitleAlignment,
+              progress,
+            )!;
+            final TextStyle currentTitleStyle = TextStyle.lerp(
+              _initialTitleStyle,
+              _scrolledTitleStyle,
+              progress,
+            )!;
+            return Container(
+              width: double.infinity,
+              child: Align(
+                alignment: currentAlignment,
+                child: Text(
+                  'Dashboard Inventory',
+                  style: currentTitleStyle,
+                ),
+              ),
+            );
+          },
+        ),
+        actions: [
+          AnimatedBuilder(
+            animation: _scrollController,
+            builder: (context, child) {
+              double progress = 0.0;
+              if (_scrollController.hasClients &&
+                  _scrollController.offset > 0) {
+                progress = (_scrollController.offset / _scrollThreshold).clamp(
+                  0.0,
+                  1.0,
+                );
+              }
+              final double currentIconSize = lerpDouble(
+                _initialIconSize,
+                _scrolledIconSize,
+                progress,
+              )!;
+              return IconButton(
+                icon: Icon(
+                  Icons.person_outline,
+                  color: Colors.black,
+                  size: currentIconSize,
+                ),
+                onPressed: () {
+                  // TODO: Tambahkan navigasi ke halaman profil
+                  print('Profile icon tapped');
+                },
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
         backgroundColor: Colors.white,
         elevation: 1,
-        iconTheme: const IconThemeData(color: Colors.black),
       ),
-
-
-      drawerScrimColor: Colors.black.withOpacity(0.25), // Opasitas lebih rendah
+      drawerScrimColor: Colors.black.withOpacity(0.25),
       drawer: BackdropFilter(
-        // Sigma yang lebih kecil untuk blur yang lebih halus
         filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
         child: const DashboardDrawer(),
       ),
       // =========================================================
-
       body: FutureBuilder<DashboardData>(
         future: _dashboardFuture,
         builder: (context, snapshot) {
@@ -177,10 +227,15 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
           }
 
           final dashboardData = snapshot.data!;
-          final processedWarehouseData = _processPieData(dashboardData.charts.stockByWarehouse);
-          final processedLocationData = _processPieData(dashboardData.charts.stockByLocation);
+          final processedWarehouseData = _processPieData(
+            dashboardData.charts.stockByWarehouse,
+          );
+          final processedLocationData = _processPieData(
+            dashboardData.charts.stockByLocation,
+          );
 
           return SingleChildScrollView(
+            controller: _scrollController,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -192,7 +247,6 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                     crossAxisCount: 4,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
-
                     childAspectRatio: 0.9,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -200,24 +254,18 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                       StatCard(
                         title: "Receipt Note",
                         value: dashboardData.summary.receiptNote,
-                        onTap: () => _showDetailDialog(context, 'Receipt Note'),
                       ),
                       StatCard(
                         title: "Delivery Note",
                         value: dashboardData.summary.deliveryNote,
-                        onTap: () =>
-                            _showDetailDialog(context, 'Delivery Note'),
                       ),
                       StatCard(
                         title: "Internal Transfer",
                         value: dashboardData.summary.internalTransfer,
-                        onTap: () =>
-                            _showDetailDialog(context, 'Internal Transfer'),
                       ),
                       StatCard(
                         title: "Stock count",
                         value: dashboardData.summary.stockCount,
-                        onTap: () => _showDetailDialog(context, 'Stock count'),
                       ),
                     ],
                   ),
@@ -238,9 +286,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                           value: dashboardData.summary.onHandStock,
                           valueColor: const Color(0xFF2D6A4F),
                           width: 150,
-                          titleStyle: GoogleFonts.poppins(
-                            fontSize: 11,
-                          ),
+                          titleStyle: GoogleFonts.poppins(fontSize: 11),
                         ),
                         const SizedBox(width: 10),
                         StatCard(
@@ -260,23 +306,33 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  _buildSectionTitle("Stock"),
+
+                  // [DIUBAH] Menggunakan Widget baru
+                  const SectionTitle(title: "Stock"),
                   const SizedBox(height: 16),
-                  _buildStockToggleButtons(),
+                  
+                  // [DIUBAH] Menggunakan Widget baru
+                  StockToggleButtons(
+                    selectedIndex: _selectedStockView,
+                    onTap: (index) {
+                      setState(() => _selectedStockView = index);
+                    },
+                  ),
+                  
                   const SizedBox(height: 16),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: _selectedStockView == 0
                         ? StockPieChart(
-                      key: const ValueKey('warehouse'),
-                      data: processedWarehouseData,
-                      title: "Stok By warehouse",
-                    )
+                            key: const ValueKey('warehouse'),
+                            data: processedWarehouseData,
+                            title: "Stok By warehouse",
+                          )
                         : StockPieChart(
-                      key: const ValueKey('location'),
-                      data: processedLocationData,
-                      title: "Stok By location",
-                    ),
+                            key: const ValueKey('location'),
+                            data: processedLocationData,
+                            title: "Stok By location",
+                          ),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -288,18 +344,24 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                       fontStyle: FontStyle.italic,
                     ),
                   ),
-                  _buildLegend(
-                    _selectedStockView == 0
+                  
+                  // [DIUBAH] Menggunakan Widget baru
+                  StockLegend(
+                    data: _selectedStockView == 0
                         ? processedWarehouseData
                         : processedLocationData,
                   ),
+                  
                   const SizedBox(height: 24),
-                  _buildSectionTitle("Top 5 Hand Stock"),
+                  
+                  // [DIUBAH] Menggunakan Widget baru
+                  const SectionTitle(title: "Top 5 Hand Stock"),
                   const SizedBox(height: 8),
                   TopProductList(topProducts: dashboardData.topProducts),
                   const SizedBox(height: 24),
-
-                  _buildSectionTitle("Product Category"),
+                  
+                  // [DIUBAH] Menggunakan Widget baru
+                  const SectionTitle(title: "Product Category"),
                   const SizedBox(height: 4),
                   Text(
                     "Tap a bar for more details",
@@ -314,10 +376,11 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                     data: dashboardData.charts.productsByCategory,
                   ),
                   const SizedBox(height: 24),
-
-                  _buildSectionTitle("Stock Moves"),
-                  const SizedBox(height: 4), // Spasi setelah judul
-                  Text( // Teks petunjuk baru
+                  
+                  // [DIUBAH] Menggunakan Widget baru
+                  const SectionTitle(title: "Stock Moves"),
+                  const SizedBox(height: 4),
+                  Text(
                     "Tap a bar for more details",
                     style: TextStyle(
                       fontSize: 12,
@@ -325,22 +388,30 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                       color: Colors.grey.shade600,
                     ),
                   ),
-                  const SizedBox(height: 12), // Spasi sebelum tombol
-                  _buildStockMovesToggleButtons(), // Tombol dengan gaya baru
+                  const SizedBox(height: 12),
+                  
+                  // [DIUBAH] Menggunakan Widget baru
+                  StockMovesToggleButtons(
+                    selectedIndex: _selectedStockMovesView,
+                    onTap: (index) {
+                      setState(() => _selectedStockMovesView = index);
+                    },
+                  ),
+                  
                   const SizedBox(height: 16),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: _selectedStockMovesView == 0
                         ? ProductBarChart(
-                      key: const ValueKey('moves_product'),
-                      data: dashboardData.charts.stockMovesByProduct,
-                      barColor: Colors.green,
-                    )
+                            key: const ValueKey('moves_product'),
+                            data: dashboardData.charts.stockMovesByProduct,
+                            barColor: Colors.green,
+                          )
                         : ProductBarChart(
-                      key: const ValueKey('moves_location'),
-                      data: dashboardData.charts.stockMovesByLocation,
-                      barColor: const Color.fromARGB(255, 74, 227, 214),
-                    ),
+                            key: const ValueKey('moves_location'),
+                            data: dashboardData.charts.stockMovesByLocation,
+                            barColor: const Color.fromARGB(255, 74, 227, 214),
+                          ),
                   ),
                 ],
               ),
@@ -351,240 +422,4 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-    );
-  }
-
-  Widget _buildStockToggleButtons() {
-    // Definisi warna agar mudah diubah
-    const Color selectedColor = Color(0xFF2D6A4F); // Warna hijau tua yang solid
-    const Color unselectedColor = Colors.white;
-    const Color selectedTextColor = Colors.white;
-    const Color unselectedTextColor = Colors.black54;
-
-    return Container(
-      height: 45,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          // Tombol "By Warehouse"
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedStockView = 0;
-                });
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: _selectedStockView == 0 ? selectedColor : unselectedColor,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: _selectedStockView == 0
-                      ? [
-                    BoxShadow(
-                      color: selectedColor.withOpacity(0.3),
-                      blurRadius: 8,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                      : null,
-                ),
-                child: Text(
-                  "By Warehouse",
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w600,
-                    color: _selectedStockView == 0 ? selectedTextColor : unselectedTextColor,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // Tombol "Per Location"
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedStockView = 1;
-                });
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: _selectedStockView == 1 ? selectedColor : unselectedColor,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: _selectedStockView == 1
-                      ? [
-                    BoxShadow(
-                      color: selectedColor.withOpacity(0.3),
-                      blurRadius: 8,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                      : null,
-                ),
-                child: Text(
-                  "By Location",
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w600,
-                    color: _selectedStockView == 1 ? selectedTextColor : unselectedTextColor,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStockMovesToggleButtons() {
-    const Color selectedColor = Color(0xFF2D6A4F); // Warna biru sebagai pembeda
-    const Color unselectedColor = Colors.white;
-    const Color selectedTextColor = Colors.white;
-    const Color unselectedTextColor = Colors.black54;
-
-    return Container(
-      height: 45,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          // Tombol "By Product"
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedStockMovesView = 0;
-                });
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: _selectedStockMovesView == 0 ? selectedColor : unselectedColor,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: _selectedStockMovesView == 0
-                      ? [
-                    BoxShadow(
-                      color: selectedColor.withOpacity(0.3),
-                      blurRadius: 8,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                      : null,
-                ),
-                child: Text(
-                  "By Product",
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w600,
-                    color: _selectedStockMovesView == 0 ? selectedTextColor : unselectedTextColor,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // Tombol "By Location"
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedStockMovesView = 1;
-                });
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: _selectedStockMovesView == 1 ? selectedColor : unselectedColor,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: _selectedStockMovesView == 1
-                      ? [
-                    BoxShadow(
-                      color: selectedColor.withOpacity(0.3),
-                      blurRadius: 8,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                      : null,
-                ),
-                child: Text(
-                  "By Location",
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w600,
-                    color: _selectedStockMovesView == 1 ? selectedTextColor : unselectedTextColor,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLegend(List<ChartData> data) {
-    final double totalValue = data.fold(
-      0,
-          (previousValue, element) => previousValue + element.value,
-    );
-
-    if (data.isEmpty || totalValue == 0) {
-      return const SizedBox.shrink();
-    }
-
-    return Card(
-      color: Colors.white,
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: data.map((d) {
-            final percentage = (d.value / totalValue) * 100;
-
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
-              child: Row(
-                children: [
-                  Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: d.color,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(d.label, style: const TextStyle(fontSize: 14)),
-                  const Spacer(),
-                  Text(
-                    '${percentage.toStringAsFixed(1)}%',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
 }

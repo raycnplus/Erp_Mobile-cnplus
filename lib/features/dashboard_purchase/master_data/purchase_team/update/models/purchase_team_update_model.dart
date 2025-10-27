@@ -19,12 +19,14 @@ class PurchaseTeamUpdateModel {
     List<int> members = [];
     if (json['member'] is List) {
       members = (json['member'] as List<dynamic>)
-          .map<int?>((m) => m?['karyawan']?['id_karyawan'] as int?)
+          // [PERUBAHAN]
+          .map<int?>((m) => m?['karyawan']?['id_user'] as int?) 
           .whereType<int>()
           .toList();
-    } else if (json['members'] is List) { // Fallback jika kuncinya 'members'
+    } else if (json['members'] is List) { 
       members = (json['members'] as List<dynamic>)
-          .map<int?>((m) => m?['id_karyawan'] as int?)
+          // [PERUBAHAN]
+          .map<int?>((m) => m?['id_user'] as int?)
           .whereType<int>()
           .toList();
     }
@@ -32,11 +34,10 @@ class PurchaseTeamUpdateModel {
     return PurchaseTeamUpdateModel(
       idPurchaseTeam: json['id_purchase_team'] as int? ?? 0,
       teamName: json['team_name'] as String? ?? '',
-      teamLeaderId: json['team_leader']?['id_karyawan'] as int?,
+      // [PERUBAHAN]
+      teamLeaderId: json['team_leader']?['id_user'] as int?,
       description: json['description'] as String?,
       memberIds: members,
     );
   }
 }
-
-// CLASS KARYAWAN DROPDOWN MODEL YANG DUPLIKAT SUDAH DIHAPUS DARI SINI

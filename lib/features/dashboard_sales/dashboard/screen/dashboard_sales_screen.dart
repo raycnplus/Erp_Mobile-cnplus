@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
-import 'package:shimmer/shimmer.dart'; 
+import 'dart:ui'; // Untuk lerpDouble
+import 'package:shimmer/shimmer.dart';
 import '../models/sales_dashboard_model.dart';
 import '../widget/stat_card_widget.dart';
 import '../widget/sales_bar_chart_widget.dart';
@@ -21,17 +21,53 @@ class DashboardSalesScreen extends StatefulWidget {
 
 class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
   late Future<SalesDashboardResponse> _dashboardFuture;
+  late ScrollController _scrollController;
+
+  // --- ANIMASI ---
+
+  // 1. Definisikan nilai AWAL dan AKHIR
+  
+  // Posisi
+  final Alignment _initialTitleAlignment = const Alignment(-0.6, 0.0);
+  final Alignment _scrolledTitleAlignment = const Alignment(-1.20, 0.0);
+
+  // Gaya Teks
+  final TextStyle _initialTitleStyle = GoogleFonts.poppins(
+    color: Colors.black87,
+    fontSize: 20, 
+    fontWeight: FontWeight.w600,
+  );
+  final TextStyle _scrolledTitleStyle = GoogleFonts.poppins(
+    color: Colors.black87,
+    fontSize: 18, // Ukuran KECIL
+    fontWeight: FontWeight.w600,
+  );
+
+  // Ukuran Ikon
+  final double _initialIconSize = 28.0; 
+  final double _scrolledIconSize = 24.0;
+
+  // Jarak scroll untuk menyelesaikan animasi
+  final double _scrollThreshold = 50.0;
+
+  // --- END MODIFIKASI ANIMASI ---
 
   @override
   void initState() {
     super.initState();
     _dashboardFuture = SalesDashboardService.fetchDashboardData();
+    _scrollController = ScrollController();
+  }
+
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const Color accentColor = Color(0xFF2D6A4F);
-
     return Scaffold(
       drawerScrimColor: Colors.black.withOpacity(0.25),
       drawer: BackdropFilter(
@@ -40,52 +76,97 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
       ),
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: GestureDetector(
-          onTap: () {
-            Navigator.pushNamed(context, AppRoutes.modul);
+        automaticallyImplyLeading: false, 
+        
+        // [MODIFIKASI] Gunakan AnimatedBuilder untuk Ikon
+        leading: AnimatedBuilder(
+          animation: _scrollController,
+          builder: (context, child) {
+            
+            double progress = 0.0;
+            if (_scrollController.hasClients && _scrollController.offset > 0) {
+              progress = (_scrollController.offset / _scrollThreshold).clamp(0.0, 1.0);
+            }
+
+            final double currentIconSize = lerpDouble(_initialIconSize, _scrolledIconSize, progress)!;
+
+            return IconButton(
+              icon: Icon(
+                Icons.menu, 
+                color: Colors.black,
+                size: currentIconSize, 
+              ),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            );
           },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: accentColor,
-              border: Border.all(color: accentColor.withOpacity(0.5), width: 1),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.arrow_back_ios_new,
-                  size: 14,
-                  color: Colors.white,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'Sales',
-                  style: GoogleFonts.montserrat(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    height: 1.0,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
-        centerTitle: true,
+
+        // [MODIFIKASI] Gunakan AnimatedBuilder untuk Title
+        title: AnimatedBuilder(
+          animation: _scrollController,
+          builder: (context, child) {
+
+            double progress = 0.0;
+            if (_scrollController.hasClients && _scrollController.offset > 0) {
+              progress = (_scrollController.offset / _scrollThreshold).clamp(0.0, 1.0);
+            }
+
+            final Alignment currentAlignment = Alignment.lerp(_initialTitleAlignment, _scrolledTitleAlignment, progress)!;
+            final TextStyle currentTitleStyle = TextStyle.lerp(_initialTitleStyle, _scrolledTitleStyle, progress)!;
+
+            return Container(
+              width: double.infinity,
+              child: Align(
+                alignment: currentAlignment, 
+                child: Text(
+                  'Dashboard Sales',
+                  style: currentTitleStyle,
+                ),
+              ),
+            );
+          },
+        ),
+
+        // [BARU] Menambahkan ikon profil di sebelah kanan
+        actions: [
+          AnimatedBuilder(
+            animation: _scrollController,
+            builder: (context, child) {
+              
+              double progress = 0.0;
+              if (_scrollController.hasClients && _scrollController.offset > 0) {
+                progress = (_scrollController.offset / _scrollThreshold).clamp(0.0, 1.0);
+              }
+
+              // Gunakan variabel ukuran ikon yang SAMA dengan yang di 'leading'
+              final double currentIconSize = lerpDouble(_initialIconSize, _scrolledIconSize, progress)!;
+
+              return IconButton(
+                icon: Icon(
+                  Icons.person_outline, // Ikon person
+                  color: Colors.black,
+                  size: currentIconSize, 
+                ),
+                onPressed: () {
+                  // TODO: Tambahkan navigasi ke halaman profil
+                  print('Profile icon tapped'); 
+                },
+              );
+            },
+          ),
+          const SizedBox(width: 8), // Padding di kanan
+        ],
+
         backgroundColor: Colors.white,
         elevation: 1,
-        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: FutureBuilder<SalesDashboardResponse>(
         future: _dashboardFuture,
         builder: (context, snapshot) {
-          
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const _DashboardSalesShimmer(); // Tampilkan shimmer
           }
-          
+
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
@@ -96,6 +177,7 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
 
           // Tampilan data asli jika sudah selesai loading
           return SingleChildScrollView(
+            controller: _scrollController, // Controller tetap dipasang di sini
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
@@ -161,8 +243,6 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
                 ),
                 const SizedBox(height: 24),
                 SalesBarChart(data: data.revenuePerDay, title: "Daily Revenue"),
-                
-                // --- [DIUBAH] Menambahkan teks petunjuk ---
                 const SizedBox(height: 8),
                 Text(
                   "Tap a bar for more details",
@@ -173,15 +253,11 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
                     fontStyle: FontStyle.italic,
                   ),
                 ),
-                // --- Akhir Perubahan ---
-
                 const SizedBox(height: 24),
                 SalesBarChart(
                   data: data.quantityPerDay,
                   title: "Quantity Sold",
                 ),
-
-                // --- [DIUBAH] Menambahkan teks petunjuk ---
                 const SizedBox(height: 8),
                 Text(
                   "Tap a bar for more details",
@@ -192,8 +268,6 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
                     fontStyle: FontStyle.italic,
                   ),
                 ),
-                // --- Akhir Perubahan ---
-
                 const SizedBox(height: 24),
                 TopListCard(
                   title: "Top 5 Customers",
@@ -230,9 +304,9 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
 }
 
 // =======================================================================
-// >>> WIDGET BARU: Shimmer Layout untuk Sales Dashboard <<<
+//  Shimmer Layout untuk Sales Dashboard <<<
 // =======================================================================
-
+// (Widget shimmer tidak ada perubahan)
 class _DashboardSalesShimmer extends StatelessWidget {
   const _DashboardSalesShimmer();
 

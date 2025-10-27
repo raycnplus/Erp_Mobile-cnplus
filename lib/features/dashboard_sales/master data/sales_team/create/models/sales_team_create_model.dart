@@ -1,3 +1,5 @@
+// Ganti isi file sales_team_create_model.dart
+
 class SalesTeamCreateModel {
   final String teamName;
   final int teamLeaderId;
@@ -13,11 +15,10 @@ class SalesTeamCreateModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'team_name': teamName, // Changed key from 'purchase_team_name' to 'team_name'
+      'team_name': teamName, 
       'team_leader': teamLeaderId,
       'description': description,
-      // The member list structure matches the example JSON
-      'members': memberIds.map((id) => {'id_karyawan': id}).toList(),
+      'members': memberIds.map((id) => {'id_user': id}).toList(),
     };
   }
 }

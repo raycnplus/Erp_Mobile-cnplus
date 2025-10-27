@@ -22,7 +22,6 @@ class ModulScreen extends StatelessWidget {
               children: [
                 const SizedBox(height: 32),
                 
-                // ✅ Teks diubah ke Bahasa Inggris dan dibuat lebih deskriptif
                 FadeInUp(
                   delay: const Duration(milliseconds: 200),
                   child: Text(
@@ -50,6 +49,7 @@ class ModulScreen extends StatelessWidget {
                   delay: const Duration(milliseconds: 400),
                   child: ModulCard(
                     label: "Inventory",
+                    description: "Manage products and stock levels.", // ✅ Deskripsi ditambahkan
                     imagePath: "assets/products.png",
                     iconBackgroundColor: const Color(0xFFE0F7FA), // Light Cyan
                     iconColor: const Color(0xFF00838F), // Dark Cyan
@@ -62,6 +62,7 @@ class ModulScreen extends StatelessWidget {
                   delay: const Duration(milliseconds: 500),
                   child: ModulCard(
                     label: "Sales",
+                    description: "Track sales orders and revenue.", // ✅ Deskripsi ditambahkan
                     imagePath: "assets/sales.png",
                     iconBackgroundColor: const Color(0xFFFFF3E0), // Light Orange
                     iconColor: const Color(0xFFEF6C00), // Dark Orange
@@ -74,6 +75,7 @@ class ModulScreen extends StatelessWidget {
                   delay: const Duration(milliseconds: 600),
                   child: ModulCard(
                     label: "Purchase",
+                    description: "Create purchase orders and manage vendors.", // ✅ Deskripsi ditambahkan
                     imagePath: "assets/purchase.png",
                     iconBackgroundColor: const Color(0xFFE8EAF6), // Light Indigo
                     iconColor: const Color(0xFF303F9F), // Dark Indigo

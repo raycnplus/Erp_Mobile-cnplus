@@ -107,19 +107,17 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 40),
 
-              // ❌ Teks sapaan dihapus dari sini
+              // [DIUBAH] Widget FadeInUp dihapus dari sini
 
-              // Bungkus LoginForm dengan animasi
-              FadeInUp(
-                delay: const Duration(milliseconds: 300), // Delay disesuaikan
-                child: LoginForm(
-                  emailController: usernameController,
-                  passwordController: passwordController,
-                  databaseController: databaseController,
-                  onLogin: handleLogin,
-                  isLoading: isLoading,
-                  databaseOptions: databaseOptions,
-                ),
+              LoginForm(
+                emailController: usernameController,
+                passwordController: passwordController,
+                databaseController: databaseController,
+                onLogin: handleLogin,
+                isLoading: isLoading,
+                databaseOptions: databaseOptions,
+                // [BARU] Tambahkan delay awal untuk field pertama
+                animationDelay: const Duration(milliseconds: 300),
               ),
             ],
           ),

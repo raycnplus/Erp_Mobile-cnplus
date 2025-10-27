@@ -28,6 +28,7 @@ dependencies:
   internet_connection_checker: ^1.0.0+1
   provider: ^6.1.5+1
   url_launcher: ^6.3.2
+  flutter_staggered_animations: ^1.1.1
 
 
 dev_dependencies:

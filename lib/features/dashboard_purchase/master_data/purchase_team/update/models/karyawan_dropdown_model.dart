@@ -9,10 +9,9 @@ class KaryawanDropdownModel {
     required this.fullName,
   });
 
-  // [PERBAIKAN] Disederhanakan agar sesuai dengan format API yang pasti
   factory KaryawanDropdownModel.fromJson(Map<String, dynamic> json) {
     return KaryawanDropdownModel(
-      id: json['id_karyawan'] as int,
+      id: json['id_user'] as int,
       fullName: json['nama_lengkap'] as String,
     );
   }

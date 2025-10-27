@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-// Diperlukan untuk lerpDouble
+
+// [BARU] Import widget animasi
+import '../../../../shared/widgets/fade_in_up.dart';
 
 class LoginForm extends StatefulWidget {
   final TextEditingController emailController;
@@ -9,6 +11,7 @@ class LoginForm extends StatefulWidget {
   final VoidCallback onLogin;
   final bool isLoading;
   final List<String> databaseOptions;
+  final Duration animationDelay; // [BARU] Tambahkan properti ini
 
   const LoginForm({
     super.key,
@@ -18,6 +21,7 @@ class LoginForm extends StatefulWidget {
     required this.onLogin,
     required this.isLoading,
     required this.databaseOptions,
+    required this.animationDelay, // [BARU] Tambahkan di constructor
   });
 
   @override
@@ -109,7 +113,6 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4.0),
                         child: Material(
-                          // ✅ FIX: Deprecated withOpacity
                           color: isSelected ? themeColor.withAlpha(26) : Colors.transparent,
                           borderRadius: BorderRadius.circular(16),
                           child: InkWell(
@@ -118,7 +121,6 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
                                 widget.databaseController.text = db;
                               });
                               Future.delayed(const Duration(milliseconds: 200), () {
-                                // ✅ FIX: use_build_context_synchronously
                                 if (context.mounted) {
                                   Navigator.pop(context);
                                 }
@@ -160,7 +162,6 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28.0),
-        // ✅ FIX: Deprecated withOpacity
         boxShadow: [BoxShadow(color: Colors.grey.withAlpha(20), spreadRadius: 2, blurRadius: 20, offset: const Offset(0, 5))],
       ),
       child: Padding(
@@ -168,99 +169,115 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextFormField(
-              focusNode: _databaseFocusNode,
-              controller: widget.databaseController,
-              readOnly: true,
-              style: inputTextStyle,
-              decoration: InputDecoration(
-                labelText: 'Database',
-                labelStyle: labelStyle,
-                floatingLabelStyle: floatingLabelFocusStyle,
-                prefixIcon: const Icon(Icons.storage),
-                suffixIcon: const Icon(Icons.expand_more, color: Colors.grey),
-                enabledBorder: const _ExpandingUnderlineInputBorder(),
-                focusedBorder: const _ExpandingUnderlineInputBorder(
-                  borderSide: BorderSide(color: themeColor, width: 2.5),
+            // [ANIMASI 1]
+            FadeInUp(
+              delay: widget.animationDelay, // Delay dari login_screen
+              child: TextFormField(
+                focusNode: _databaseFocusNode,
+                controller: widget.databaseController,
+                readOnly: true,
+                style: inputTextStyle,
+                decoration: InputDecoration(
+                  labelText: 'Database',
+                  labelStyle: labelStyle,
+                  floatingLabelStyle: floatingLabelFocusStyle,
+                  prefixIcon: const Icon(Icons.storage),
+                  suffixIcon: const Icon(Icons.expand_more, color: Colors.grey),
+                  enabledBorder: const _ExpandingUnderlineInputBorder(),
+                  focusedBorder: const _ExpandingUnderlineInputBorder(
+                    borderSide: BorderSide(color: themeColor, width: 2.5),
+                  ),
+                  prefixIconColor: WidgetStateColor.resolveWith((states) =>
+                      states.contains(WidgetState.focused) ? themeColor : Colors.grey.shade600),
                 ),
-                // ✅ FIX: Deprecated MaterialStateColor
-                prefixIconColor: WidgetStateColor.resolveWith((states) =>
-                    states.contains(WidgetState.focused) ? themeColor : Colors.grey.shade600),
-              ),
-              onTap: () => _showDatabaseSelectionSheet(context),
-            ),
-            const SizedBox(height: 18),
-            TextFormField(
-              focusNode: _usernameFocusNode,
-              cursorColor: themeColor,
-              controller: widget.emailController,
-              style: inputTextStyle,
-              decoration: InputDecoration(
-                labelText: 'Username',
-                labelStyle: labelStyle,
-                floatingLabelStyle: floatingLabelFocusStyle,
-                prefixIcon: const Icon(Icons.person),
-                enabledBorder: const _ExpandingUnderlineInputBorder(),
-                focusedBorder: const _ExpandingUnderlineInputBorder(
-                  borderSide: BorderSide(color: themeColor, width: 2.5),
-                ),
-                prefixIconColor: WidgetStateColor.resolveWith((states) =>
-                    states.contains(WidgetState.focused) ? themeColor : Colors.grey.shade600),
+                onTap: () => _showDatabaseSelectionSheet(context),
               ),
             ),
             const SizedBox(height: 18),
-            TextFormField(
-              focusNode: _passwordFocusNode,
-              cursorColor: themeColor,
-              controller: widget.passwordController,
-              obscureText: _obscurePassword,
-              style: inputTextStyle,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                labelStyle: labelStyle,
-                floatingLabelStyle: floatingLabelFocusStyle,
-                prefixIcon: const Icon(Icons.lock),
-                suffixIcon: IconButton(
-                  icon: Icon(_obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: themeColor),
-                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+
+            // [ANIMASI 2]
+            FadeInUp(
+              delay: widget.animationDelay + const Duration(milliseconds: 100), // Delay bertingkat
+              child: TextFormField(
+                focusNode: _usernameFocusNode,
+                cursorColor: themeColor,
+                controller: widget.emailController,
+                style: inputTextStyle,
+                decoration: InputDecoration(
+                  labelText: 'Username',
+                  labelStyle: labelStyle,
+                  floatingLabelStyle: floatingLabelFocusStyle,
+                  prefixIcon: const Icon(Icons.person),
+                  enabledBorder: const _ExpandingUnderlineInputBorder(),
+                  focusedBorder: const _ExpandingUnderlineInputBorder(
+                    borderSide: BorderSide(color: themeColor, width: 2.5),
+                  ),
+                  prefixIconColor: WidgetStateColor.resolveWith((states) =>
+                      states.contains(WidgetState.focused) ? themeColor : Colors.grey.shade600),
                 ),
-                enabledBorder: const _ExpandingUnderlineInputBorder(),
-                focusedBorder: const _ExpandingUnderlineInputBorder(
-                  borderSide: BorderSide(color: themeColor, width: 2.5),
+              ),
+            ),
+            const SizedBox(height: 18),
+
+            // [ANIMASI 3]
+            FadeInUp(
+              delay: widget.animationDelay + const Duration(milliseconds: 200), // Delay bertingkat
+              child: TextFormField(
+                focusNode: _passwordFocusNode,
+                cursorColor: themeColor,
+                controller: widget.passwordController,
+                obscureText: _obscurePassword,
+                style: inputTextStyle,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  labelStyle: labelStyle,
+                  floatingLabelStyle: floatingLabelFocusStyle,
+                  prefixIcon: const Icon(Icons.lock),
+                  suffixIcon: IconButton(
+                    icon: Icon(_obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: themeColor),
+                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  ),
+                  enabledBorder: const _ExpandingUnderlineInputBorder(),
+                  focusedBorder: const _ExpandingUnderlineInputBorder(
+                    borderSide: BorderSide(color: themeColor, width: 2.5),
+                  ),
+                  prefixIconColor: WidgetStateColor.resolveWith((states) =>
+                      states.contains(WidgetState.focused) ? themeColor : Colors.grey.shade600),
                 ),
-                prefixIconColor: WidgetStateColor.resolveWith((states) =>
-                    states.contains(WidgetState.focused) ? themeColor : Colors.grey.shade600),
               ),
             ),
             const SizedBox(height: 32),
-            ScaleTransition(
-              scale: _scaleAnimation,
-              child: Material(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(26),
-                child: InkWell(
-                  onTap: widget.isLoading ? null : () {},
-                  onTapDown: _onTapDown,
-                  onTapUp: _onTapUp,
-                  onTapCancel: _onTapCancel,
+
+            // [ANIMASI 4]
+            FadeInUp(
+              delay: widget.animationDelay + const Duration(milliseconds: 300), // Delay bertingkat
+              child: ScaleTransition(
+                scale: _scaleAnimation,
+                child: Material(
+                  color: Colors.transparent,
                   borderRadius: BorderRadius.circular(26),
-                  // ✅ FIX: Deprecated withOpacity
-                  splashColor: Colors.white.withAlpha(77),
-                  highlightColor: Colors.transparent,
-                  child: Container(
-                    width: double.infinity,
-                    height: 52,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      gradient: widget.isLoading ? null : const LinearGradient(colors: [themeColor, Color(0xff2b6e6e)], begin: Alignment.centerLeft, end: Alignment.centerRight),
-                      color: widget.isLoading ? Colors.grey.shade400 : null,
-                      borderRadius: BorderRadius.circular(26),
-                      // ✅ FIX: Deprecated withOpacity
-                      boxShadow: widget.isLoading ? null : [BoxShadow(color: themeColor.withAlpha(102), blurRadius: 10, offset: const Offset(0, 4))],
+                  child: InkWell(
+                    onTap: widget.isLoading ? null : () {}, // onTap kosong karena aksi ada di onTapUp
+                    onTapDown: _onTapDown,
+                    onTapUp: _onTapUp,
+                    onTapCancel: _onTapCancel,
+                    borderRadius: BorderRadius.circular(26),
+                    splashColor: Colors.white.withAlpha(77),
+                    highlightColor: Colors.transparent,
+                    child: Container(
+                      width: double.infinity,
+                      height: 52,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        gradient: widget.isLoading ? null : const LinearGradient(colors: [themeColor, Color(0xff2b6e6e)], begin: Alignment.centerLeft, end: Alignment.centerRight),
+                        color: widget.isLoading ? Colors.grey.shade400 : null,
+                        borderRadius: BorderRadius.circular(26),
+                        boxShadow: widget.isLoading ? null : [BoxShadow(color: themeColor.withAlpha(102), blurRadius: 10, offset: const Offset(0, 4))],
+                      ),
+                      child: widget.isLoading
+                          ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
+                          : const Text('Login', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
                     ),
-                    child: widget.isLoading
-                        ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                        : const Text('Login', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
                   ),
                 ),
               ),
@@ -273,14 +290,12 @@ class _LoginFormState extends State<LoginForm> with TickerProviderStateMixin {
   }
 }
 
-// ✅ KELAS BARU UNTUK BORDER DENGAN ANIMASI MELEBAR DARI TENGAH (SUDAH DIPERBAIKI)
+// Custom Border Class (Tidak ada perubahan)
 class _ExpandingUnderlineInputBorder extends UnderlineInputBorder {
   const _ExpandingUnderlineInputBorder({
     super.borderSide = const BorderSide(color: Color(0xFFE0E0E0), width: 1.5),
   });
 
-  // ✅ FIX: invalid_override
-  // Parameter harus sama persis dengan parent class
   @override
   _ExpandingUnderlineInputBorder copyWith({BorderSide? borderSide, BorderRadius? borderRadius}) {
     return _ExpandingUnderlineInputBorder(
@@ -296,20 +311,14 @@ class _ExpandingUnderlineInputBorder extends UnderlineInputBorder {
     double gapExtent = 0.0,
     double gapPercentage = 0.0,
     TextDirection? textDirection,
-    // ✅ Tambahkan parameter borderRadius untuk menyamakan dengan parent
     BorderRadius borderRadius = BorderRadius.zero,
   }) {
-    // Gambar garis abu-abu statis
     final Paint greyPaint = Paint()
       ..color = const Color(0xFFE0E0E0)
       ..strokeWidth = 1.5;
     canvas.drawLine(rect.bottomLeft, rect.bottomRight, greyPaint);
 
-    // Dapatkan faktor ekspansi dari borderSide.width
-    // Ini adalah cara Flutter menganimasikan border.
-    // Saat fokus, Flutter akan menganimasikan `width` dari 1.5 (unfocused) ke 2.5 (focused).
-    // Kita "mencuri" nilai animasi ini untuk mengontrol lebar garis.
-    final double expansionFactor = borderSide.width / 2.5; // Angka 2.5 dari focusedBorderSide
+    final double expansionFactor = borderSide.width / 2.5; 
     if (expansionFactor <= 0) return;
 
     final double animatedWidth = rect.width * expansionFactor;

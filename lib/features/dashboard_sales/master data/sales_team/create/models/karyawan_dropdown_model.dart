@@ -1,3 +1,5 @@
+// Ganti isi file karyawan_dropdown_model.dart
+
 class KaryawanDropdownModel {
   final int id;
   final String fullName;
@@ -9,7 +11,7 @@ class KaryawanDropdownModel {
 
   factory KaryawanDropdownModel.fromJson(Map<String, dynamic> json) {
     return KaryawanDropdownModel(
-      id: json['id_karyawan'] ?? json['id'] ?? 0,
+      id: json['id_user'] ?? json['id'] ?? 0,
       fullName: json['nama_lengkap'] ?? json['fullName'] ?? '',
     );
   }
