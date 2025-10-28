@@ -110,6 +110,33 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
     return mainSlices;
   }
 
+  // [BARU] Helper widget untuk animasi transisi "pop" (fade + scale)
+  Widget _buildTransition(Widget child, Animation<double> animation) {
+    final scaleAnimation = Tween<double>(
+      begin: 0.9, 
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: animation, 
+      curve: Curves.easeOutCubic,
+    ));
+    
+    final fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: animation,
+      curve: const Interval(0.5, 1.0), // Mulai fade in di pertengahan scale
+    ));
+
+    return FadeTransition(
+      opacity: fadeAnimation,
+      child: ScaleTransition(
+        scale: scaleAnimation,
+        child: child,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -322,6 +349,10 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                   const SizedBox(height: 16),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
+                    
+                    // [PERUBAHAN TERBARU] Menggunakan helper animasi
+                    transitionBuilder: _buildTransition,
+
                     child: _selectedStockView == 0
                         ? StockPieChart(
                             key: const ValueKey('warehouse'),
@@ -401,6 +432,10 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                   const SizedBox(height: 16),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
+
+                    // [PERUBAHAN TERBARU] Menggunakan helper animasi yang sama
+                    transitionBuilder: _buildTransition,
+
                     child: _selectedStockMovesView == 0
                         ? ProductBarChart(
                             key: const ValueKey('moves_product'),
@@ -413,6 +448,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                             barColor: const Color.fromARGB(255, 74, 227, 214),
                           ),
                   ),
+                  const SizedBox(height: 24), // [FIX] Tambahan spasi di akhir
                 ],
               ),
             ),
@@ -421,5 +457,4 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
       ),
     );
   }
-
 }

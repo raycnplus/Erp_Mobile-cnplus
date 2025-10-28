@@ -1,14 +1,15 @@
+import 'package:erp_mobile_cnplus/features/dashboard_sales/master%20data/product_category/index/widget/product_category_skeleton.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:ui' as ui;
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../../../../../../services/api_base.dart';
+import '../../../../../../../../services/api_base.dart';
 import '../models/product_category_index_models.dart';
 
-import '../../../../dashboard_inventory/master_data/product_category/update/widget/product_category_update_dialog.dart';
-import '../../../../dashboard_inventory/master_data/product_category/update/models/product_category_update_models.dart';
+import '../../../../../dashboard_inventory/master_data/product_category/update/widget/product_category_update_dialog.dart';
+import '../../../../../dashboard_inventory/master_data/product_category/update/models/product_category_update_models.dart';
 
 List<ProductCategory> _parseProductCategories(String responseBody) {
   final decoded = jsonDecode(responseBody);
@@ -25,13 +26,13 @@ List<ProductCategory> _parseProductCategories(String responseBody) {
 class ProductCategoryListWidget extends StatefulWidget {
   final ValueChanged<ProductCategory> onTap;
   final Function(String name)? onDeleteSuccess;
-  final VoidCallback? onUpdateSuccess; // TAMBAHKAN: Callback untuk sukses update
+  final VoidCallback? onUpdateSuccess; 
 
   const ProductCategoryListWidget({
     super.key,
     required this.onTap,
     this.onDeleteSuccess,
-    this.onUpdateSuccess, // TAMBAHKAN: Parameter di constructor
+    this.onUpdateSuccess, 
   });
 
   @override
@@ -102,6 +103,7 @@ class ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
                     minimumSize: const Size(double.infinity, 48),
                   ),
                   onPressed: () => Navigator.of(context).pop(true),
+                  // [PERBAIKAN] Mengganti 'Bóld' (typo) menjadi 'FontWeight.bold'
                   child: const Text("Yes, Delete", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 ),
                 const SizedBox(height: 8),
@@ -123,7 +125,7 @@ class ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
       future: futureCategories,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator()); // TODO: Ganti dengan Shimmer
+          return const ProductCategorySkeleton();
         } else if (snapshot.hasError) {
           return Center(
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -149,7 +151,7 @@ class ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
                 margin: const EdgeInsets.only(bottom: 12.0),
                 decoration: BoxDecoration(
                   borderRadius: cardBorderRadius,
-                  boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.1), spreadRadius: 0, blurRadius: 10, offset: const Offset(0, 4))],
+                  boxShadow: [BoxShadow(color: const Color.fromARGB(26, 158, 158, 158), spreadRadius: 0, blurRadius: 10, offset: const Offset(0, 4))],
                 ),
                 child: Dismissible(
                   key: Key(category.id.toString()),
@@ -165,30 +167,38 @@ class ProductCategoryListWidgetState extends State<ProductCategoryListWidget> {
                     alignment: Alignment.centerRight,
                     child: const Row(mainAxisAlignment: MainAxisAlignment.end, children: [Text('Delete', style: TextStyle(color: Colors.white)), SizedBox(width: 8), Icon(Icons.delete, color: Colors.white)]),
                   ),
+
+                  // [PERBAIKAN] Memperbaiki penggunaan BuildContext di async gap
                   confirmDismiss: (direction) async {
+                    // Ambil ScaffoldMessenger sebelum await
+                    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
                     if (direction == DismissDirection.endToStart) {
                       final confirmed = await _showDeleteConfirmationDialog(category);
                       if (confirmed == true) {
                         final success = await _deleteCategory(category.id);
-                        if (!mounted) return false;
+                        if (!mounted) return false; // Guard
                         if (success) {
                           reloadData();
                           widget.onDeleteSuccess?.call(category.name);
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal menghapus ${category.name}'), backgroundColor: Colors.redAccent));
+                          // Gunakan scaffoldMessenger yang sudah diambil
+                          scaffoldMessenger.showSnackBar(SnackBar(content: Text('Gagal menghapus ${category.name}'), backgroundColor: Colors.redAccent));
                         }
                         return success;
                       }
                       return false;
                     } else {
-                     final result = await showUpdateProductCategoryDialog(
-                        context,
+                      // Tambahkan guard 'mounted' sebelum menggunakan context lagi
+                      if (!mounted) return false;
+                      
+                      final result = await showUpdateProductCategoryDialog(
+                        context, // Context ini sekarang aman
                         id: category.id,
                         initialData: ProductCategoryUpdateModel(productCategoryName: category.name),
                       );
                       if (result == true) {
                         reloadData();
-                        // Panggil callback update sukses
                         widget.onUpdateSuccess?.call();
                       }
                       return false;

@@ -5,14 +5,15 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../../../../../../services/api_base.dart';
-import '../../../../../../shared/widgets/success_bottom_sheet.dart';
+import '../../../../../../../services/api_base.dart';
+import '../../../../../../../shared/widgets/success_bottom_sheet.dart';
 import '../widget/product_category_index_widget.dart';
 import '../models/product_category_index_models.dart';
-// 
-import '../../product_category/widget/product_category_create_widget.dart';
-import '../../product_category/models/product_category_show_models.dart';
-import '../../product_category/widget/product_category_show_widget.dart';
+import '../../create/widget/product_category_create_widget.dart';
+import '../../show/models/product_category_show_models.dart';
+import '../../show/widget/product_category_show_widget.dart';
+// [DIHAPUS] Import skeleton tidak lagi diperlukan di file ini
+// import '../widget/product_category_skeleton.dart';
 
 class ProductCategoryScreen extends StatefulWidget {
   const ProductCategoryScreen({super.key});
@@ -24,10 +25,17 @@ class ProductCategoryScreen extends StatefulWidget {
 class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
   final GlobalKey<ProductCategoryListWidgetState> _listKey =
       GlobalKey<ProductCategoryListWidgetState>();
-      
-  // ## PERUBAHAN UTAMA ADA DI SINI ##
-  // sistem create diubah menjadi modal bottom sheet -> design konsisten dengan yang type : ahmad 29/09/2025 update 
-  // Fungsi _navigateToCreate diubah menjadi _showCreateModal
+  
+  // [DIHAPUS] bool _isLoading = true;
+
+  // [DIHAPUS] initState() dan _loadData()
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _loadData();
+  // }
+  // Future<void> _loadData() async { ... }
+
   Future<void> _showCreateModal() async {
     final result = await showModalBottomSheet<bool>(
       context: context,
@@ -37,7 +45,7 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
         padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: BackdropFilter(
           filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: const ProductCategoryCreateWidget(), // Gunakan widget form yang baru
+          child: const ProductCategoryCreateWidget(),
         ),
       ),
     );
@@ -55,7 +63,10 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
       throw Exception("Token tidak ditemukan.");
     }
     final url = Uri.parse("${ApiBase.baseUrl}/sales/product-category/$id");
-    final response = await http.get(url, headers: {"Authorization": "Bearer $token", "Accept": "application/json"});
+    final response = await http.get(
+      url, 
+      headers: {"Authorization": "Bearer $token", "Accept": "application/json"}
+    );
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> decoded = jsonDecode(response.body);
@@ -70,15 +81,8 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
   }
 
   Future<void> _showDetailModal(int categoryId) async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
-
     try {
       final categoryDetail = await fetchProductCategoryDetail(categoryId);
-      if (mounted) Navigator.pop(context);
 
       if (mounted) {
         showModalBottomSheet(
@@ -89,10 +93,12 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
         );
       }
     } catch (e) {
-      if (mounted) Navigator.pop(context);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: ${e.toString()}"), backgroundColor: Colors.redAccent),
+          SnackBar(
+            content: Text("Error: ${e.toString()}"), 
+            backgroundColor: Colors.redAccent
+          ),
         );
       }
     }
@@ -142,32 +148,49 @@ class _ProductCategoryScreenState extends State<ProductCategoryScreen> {
           icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Product Category", style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.black87, fontSize: 20)),
-            Text('Swipe an item for actions', style: GoogleFonts.poppins(fontWeight: FontWeight.normal, color: Colors.grey.shade600, fontSize: 12)),
+            Text(
+              "Product Category", 
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600, 
+                color: Colors.black87, 
+                fontSize: 20
+              )
+            ),
+            Text(
+              'Swipe an item for actions', 
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.normal,
+                color: Colors.grey.shade600,
+                fontSize: 12
+              )
+            ),
           ],
         ),
         elevation: 0.5,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
       ),
+      
+      // [DIUBAH] Hapus logic _isLoading dan langsung tampilkan list
       body: ProductCategoryListWidget(
-        key: _listKey,
-        onTap: (ProductCategory category) {
-          _showDetailModal(category.id);
-        },
-        onUpdateSuccess: () {
-          _showUpdateSuccessMessage();
-        },
-        onDeleteSuccess: (String categoryName) {
-          _showDeleteSuccessMessage(categoryName);
-        },
-      ),
+              key: _listKey,
+              onTap: (ProductCategory category) {
+                _showDetailModal(category.id);
+              },
+              onUpdateSuccess: () {
+                _showUpdateSuccessMessage();
+              },
+              onDeleteSuccess: (String categoryName) {
+                _showDeleteSuccessMessage(categoryName);
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF679436),
-        onPressed: _showCreateModal, // Panggil fungsi modal
+        onPressed: _showCreateModal,
         elevation: 0,
         tooltip: 'Add Product Category',
         child: const Icon(Icons.add, color: Color(0xFFF0E68C)),

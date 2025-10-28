@@ -53,37 +53,54 @@ class _StockPieChartState extends State<StockPieChart> {
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
           ),
-        AspectRatio(
-          aspectRatio: widget.aspectRatio,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              PieChart(
-                PieChartData(
-                  pieTouchData: PieTouchData(
-                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                      setState(() {
-                        if (!event.isInterestedForInteractions ||
-                            pieTouchResponse == null ||
-                            pieTouchResponse.touchedSection == null) {
-                          touchedIndex = -1;
-                          return;
-                        }
-                        touchedIndex = pieTouchResponse
-                            .touchedSection!
-                            .touchedSectionIndex;
-                      });
-                    },
-                  ),
-                  borderData: FlBorderData(show: false),
-                  sectionsSpace: 2,
-                  // Center Radius yang sudah dikecilkan
-                  centerSpaceRadius: 45,
-                  sections: showingSections(totalValue),
-                ),
+        
+        // [BARU] Wrapper untuk bayangan modern (efek "floating")
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                // [DIGANTI] Menggunakan Color.fromARGB untuk memperbaiki warning
+                color: const Color.fromARGB(20, 0, 0, 0), // (was Colors.black.withOpacity(0.08))
+                blurRadius: 20,
+                spreadRadius: -5,
+                offset: const Offset(0, 10),
               ),
-              _buildCenterText(totalValue),
             ],
+          ),
+          child: AspectRatio(
+            aspectRatio: widget.aspectRatio,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                PieChart(
+                  PieChartData(
+                    pieTouchData: PieTouchData(
+                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                        setState(() {
+                          if (!event.isInterestedForInteractions ||
+                              pieTouchResponse == null ||
+                              pieTouchResponse.touchedSection == null) {
+                            touchedIndex = -1;
+                            return;
+                          }
+                          touchedIndex = pieTouchResponse
+                              .touchedSection!
+                              .touchedSectionIndex;
+                        });
+                      },
+                    ),
+                    borderData: FlBorderData(show: false),
+                    // [DIUBAH] Beri sedikit jarak antar irisan
+                    sectionsSpace: 1.5,
+                    // Center Radius yang sudah dikecilkan
+                    centerSpaceRadius: 45,
+                    sections: showingSections(totalValue),
+                  ),
+                ),
+                _buildCenterText(totalValue),
+              ],
+            ),
           ),
         ),
       ],
@@ -91,6 +108,7 @@ class _StockPieChartState extends State<StockPieChart> {
   }
 
   // === FUNGSI INI TELAH DIOPTIMALKAN FONTNYA ===
+  // [PERUBAHAN TERBARU] Warna teks ditukar agar selalu terbaca
   Widget _buildCenterText(double totalValue) {
     if (touchedIndex == -1) {
       // Tampilan Default (Total Stok)
@@ -127,8 +145,8 @@ class _StockPieChartState extends State<StockPieChart> {
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: touchedData.color,
+            style: const TextStyle( // [DIGANTI] style
+              color: Colors.black87, // [DIGANTI] Warna label selalu hitam
               fontSize: 13,
               fontWeight: FontWeight.bold,
             ),
@@ -136,8 +154,8 @@ class _StockPieChartState extends State<StockPieChart> {
           const SizedBox(height: 2),
           Text(
             _formatNumber(touchedData.value),
-            style: const TextStyle(
-              color: Colors.black87,
+            style: TextStyle( // [DIGANTI] style (const dihapus)
+              color: touchedData.color, // [DIGANTI] Warna value = warna slice
               fontSize: 15,
               fontWeight: FontWeight.w600,
             ),
@@ -151,23 +169,55 @@ class _StockPieChartState extends State<StockPieChart> {
     return List.generate(widget.data.length, (i) {
       final isTouched = i == touchedIndex;
       final fontSize = isTouched ? 14.0 : 10.0;
-
-      final radius = isTouched ? 65.0 : 55.0;
-
+      // [DIUBAH] Efek "explode" radiusnya sedikit dikurangi agar lebih halus
+      final radius = isTouched ? 60.0 : 55.0; 
       final data = widget.data[i];
+
+      // [BARU] Logika untuk membuat gradien
+      final hslColor = HSLColor.fromColor(data.color);
+      // Buat warna sedikit lebih terang untuk bagian atas gradien
+      final lightColor = hslColor
+          .withLightness((hslColor.lightness + 0.1).clamp(0.0, 1.0))
+          .toColor();
+
+      // [DIHAPUS] Logika bayangan dinamis yang menyebabkan error
+      // final shadow = isTouched ? [ ... ] : <BoxShadow>[];
+
+      // [BARU] Logika untuk warna teks persentase (kontras otomatis)
+      // Cek apakah warna slice terang atau gelap
+      final textColor =
+          data.color.computeLuminance() > 0.5 ? Colors.black87 : Colors.white;
 
       final percentage = totalValue > 0 ? (data.value / totalValue) * 100 : 0;
 
       return PieChartSectionData(
-        color: data.color,
+        // [DIUBAH] Gunakan transparan & pindahkan warna ke gradien
+        color: Colors.transparent, 
+        gradient: LinearGradient(
+          colors: [lightColor, data.color], // Gradien dari terang ke gelap
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+
+        // [DIHAPUS] Parameter 'shadows' yang tidak valid
+        // shadows: shadow,
+
+        // [BARU] Tambahkan border putih tipis antar slice
+        // [DIGANTI] Menggunakan Color.fromARGB untuk memperbaiki warning
+        borderSide: BorderSide(
+          color: const Color.fromARGB(204, 255, 255, 255), // (was Colors.white.withOpacity(0.8))
+          width: 1.5,
+        ),
+
         value: data.value,
         title: percentage > 5 ? '${percentage.toStringAsFixed(0)}%' : '',
         radius: radius,
         titleStyle: TextStyle(
           fontSize: fontSize,
           fontWeight: FontWeight.bold,
-          color: Colors.white,
-          shadows: [const Shadow(color: Colors.black54, blurRadius: 3)],
+          // [DIUBAH] Gunakan warna kontras & hapus bayangan "PPT"
+          color: textColor,
+          shadows: const [], // Hapus bayangan (shadows) lama
         ),
       );
     });

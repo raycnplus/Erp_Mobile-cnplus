@@ -9,7 +9,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 // [BARU] Menambahkan import untuk AppRoutes
 import '../../../../core/routes/app_routes.dart'; 
 
-import '../../master data/product_category/screen/product_category_index_screen.dart';
+import '../../master data/product_category/index/screens/product_category_index_screen.dart';
 import '../../master data/product_type/index/screen/product_type_index_screen.dart';
 import '../../master data/costumer/index/screen/costumer_index_screen.dart';
 

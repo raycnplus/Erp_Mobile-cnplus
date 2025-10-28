@@ -1,8 +1,11 @@
+// Ganti seluruh isi file index_widget_vendor.dart
+
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shimmer/shimmer.dart'; // <-- [BARU] Tambahkan import shimmer
 import '../../../../../../../services/api_base.dart';
 import '../models/index_models_vendor.dart';
 import '../../show/screen/show_screen_vendor.dart';
@@ -42,6 +45,9 @@ class VendorIndexWidgetState extends State<VendorIndexWidget> {
   }
 
   Future<void> fetchVendors() async {
+    // [Simulasi Loading] Tambahkan delay agar shimmer terlihat
+    // await Future.delayed(const Duration(seconds: 2)); 
+
     try {
       String? token = await storage.read(key: 'token');
       final response = await http.get(
@@ -95,7 +101,8 @@ class VendorIndexWidgetState extends State<VendorIndexWidget> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      // [PERUBAHAN] Ganti CircularProgressIndicator dengan Shimmer Skeleton
+      return const _VendorListSkeleton();
     }
 
     if (errorMessage != null) {
@@ -217,6 +224,115 @@ class VendorIndexWidgetState extends State<VendorIndexWidget> {
           ),
         ),
       ],
+    );
+  }
+}
+
+// =================================================================
+// [BARU] WIDGET-WIDGET UNTUK SHIMMER SKELETON
+// =================================================================
+
+/// Widget Box placeholder dasar
+class _ShimmerBox extends StatelessWidget {
+  final double? height;
+  final double? width;
+  final double radius;
+
+  const _ShimmerBox({this.height, this.width, this.radius = 4});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      width: width,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
+}
+
+/// Skeleton untuk satu baris detail (Ikon, Label, Value)
+class _ShimmerDetailRow extends StatelessWidget {
+  const _ShimmerDetailRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _ShimmerBox(height: 16, width: 16, radius: 4), // Ikon
+        const SizedBox(width: 8),
+        const _ShimmerBox(height: 14, width: 60, radius: 4), // Label
+        const SizedBox(width: 8),
+        const Expanded(
+          child: _ShimmerBox(height: 14, radius: 4), // Value
+        ),
+      ],
+    );
+  }
+}
+
+/// Skeleton untuk satu kartu vendor
+class _ShimmerVendorCard extends StatelessWidget {
+  const _ShimmerVendorCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 3,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade100, width: 1),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Expanded(
+                  child: _ShimmerBox(height: 18, width: 200, radius: 4), // Nama Vendor
+                ),
+                const SizedBox(width: 8),
+                const _ShimmerBox(height: 10, width: 10, radius: 5), // Status
+              ],
+            ),
+            const Divider(height: 16, thickness: 0.5),
+            const _ShimmerDetailRow(), // Detail PIC
+            const SizedBox(height: 8),
+            const _ShimmerDetailRow(), // Detail Email
+            const SizedBox(height: 8),
+            const _ShimmerDetailRow(), // Detail City
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Widget Skeleton utama yang berisi daftar kartu shimmer
+class _VendorListSkeleton extends StatelessWidget {
+  const _VendorListSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      enabled: true,
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        itemCount: 6, // Tampilkan 6 placeholder kartu
+        itemBuilder: (context, index) {
+          return const _ShimmerVendorCard();
+        },
+      ),
     );
   }
 }
