@@ -1,4 +1,4 @@
-// Ganti seluruh isi file sales_team_update_models.dart
+//  isi file sales_team_update_models.dart
 
 class SalesTeamUpdateModel {
   final int idSalesTeam;

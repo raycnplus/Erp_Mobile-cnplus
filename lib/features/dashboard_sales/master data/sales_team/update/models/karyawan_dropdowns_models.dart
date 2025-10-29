@@ -1,4 +1,4 @@
-// Ganti isi file karyawan_dropdowns_models.dart
+//  isi file karyawan_dropdowns_models.dart
 
 import 'package:equatable/equatable.dart';
 

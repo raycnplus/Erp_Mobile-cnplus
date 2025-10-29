@@ -1,4 +1,3 @@
-// Ganti seluruh isi file: lib/.../purchase_team/screen/purchase_team_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,7 +13,6 @@ class PurchaseTeamScreen extends StatefulWidget {
 }
 
 class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
-  // ✅ Variabel searchQuery sudah dihapus
   final GlobalKey<PurchaseTeamCardListState> _listKey = GlobalKey<PurchaseTeamCardListState>();
 
   void _refreshPurchaseTeamList() {
@@ -23,7 +21,8 @@ class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryColor = Colors.blueAccent;
+    // [DIUBAH] Mengganti warna biru menjadi hijau agar konsisten
+    const primaryColor = Color(0xFF2D6A4F); 
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -43,7 +42,6 @@ class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
         elevation: 0.5,
         foregroundColor: Colors.black87,
       ),
-      // ✅ Body diubah, Column dan TextField dihapus
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: PurchaseTeamCardList(
@@ -66,7 +64,7 @@ class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-                color: primaryColor.withAlpha(100),
+                color: primaryColor.withAlpha(100), // Otomatis pakai warna hijau
                 blurRadius: 15,
                 spreadRadius: 2,
                 offset: const Offset(0, 5)),
@@ -82,7 +80,7 @@ class _PurchaseTeamScreenState extends State<PurchaseTeamScreen> {
               _refreshPurchaseTeamList();
             }
           },
-          backgroundColor: primaryColor,
+          backgroundColor: primaryColor, // Otomatis pakai warna hijau
           elevation: 0,
           child: const Icon(Icons.add, color: Colors.white),
         ),

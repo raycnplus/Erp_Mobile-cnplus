@@ -1,4 +1,4 @@
-// Ganti seluruh isi file: lib/.../purchase_team/screen/purchase_team_show_screen.dart
+//  isi file: lib/.../purchase_team/screen/purchase_team_show_screen.dart
 
 import 'dart:convert';
 import 'dart:ui' as ui;

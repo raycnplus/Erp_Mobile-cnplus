@@ -1,4 +1,3 @@
-// Ganti seluruh isi file index_widget_vendor.dart
 
 import 'dart:convert';
 import 'package:flutter/material.dart';

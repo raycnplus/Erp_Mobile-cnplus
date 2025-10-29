@@ -1,4 +1,4 @@
-// Ganti seluruh isi file: lib/.../purchase_team/widget/purchase_team_show.dart
+//  isi file: lib/.../purchase_team/widget/purchase_team_show.dart
 
 import 'dart:convert';
 import 'package:flutter/material.dart';

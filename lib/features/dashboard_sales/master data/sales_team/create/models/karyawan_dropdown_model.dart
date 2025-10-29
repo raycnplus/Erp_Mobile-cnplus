@@ -1,4 +1,4 @@
-// Ganti isi file karyawan_dropdown_model.dart
+//  isi file karyawan_dropdown_model.dart
 
 class KaryawanDropdownModel {
   final int id;

@@ -1,4 +1,4 @@
-// Ganti isi file sales_team_create_model.dart
+//  isi file sales_team_create_model.dart
 
 class SalesTeamCreateModel {
   final String teamName;

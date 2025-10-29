@@ -1,4 +1,3 @@
-// Ganti seluruh isi file: lib/.../purchase_team/widget/purchase_team_list_card.dart
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,7 +8,6 @@ import '../models/purchase_team_models.dart';
 import '../../../../../../services/api_base.dart';
 
 class PurchaseTeamCardList extends StatefulWidget {
-  // ✅ Parameter searchQuery sudah dihapus
   final void Function(int teamId)? onTap;
 
   const PurchaseTeamCardList({
@@ -69,7 +67,6 @@ class PurchaseTeamCardListState extends State<PurchaseTeamCardList> {
           return const Center(child: Text("Tidak ada data tim pembelian."));
         }
         
-        // ✅ Logika filter berdasarkan searchQuery sudah dihapus
         final teams = snapshot.data!;
 
         return ListView.builder(
@@ -85,7 +82,7 @@ class PurchaseTeamCardListState extends State<PurchaseTeamCardList> {
   }
 
   Widget _buildTeamCard(BuildContext context, PurchaseTeamIndexModel team) {
-    const primaryColor = Colors.blueAccent;
+    const accentColor = Color(0xFF2D6A4F);
 
     return GestureDetector(
       onTap: () => widget.onTap?.call(team.idPurchaseTeam),
@@ -110,10 +107,10 @@ class PurchaseTeamCardListState extends State<PurchaseTeamCardList> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.15),
+                color: accentColor.withOpacity(0.15), 
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.shopping_cart_outlined, color: primaryColor, size: 28),
+              child: const Icon(Icons.shopping_cart_outlined, color: accentColor, size: 28), 
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -134,13 +131,13 @@ class PurchaseTeamCardListState extends State<PurchaseTeamCardList> {
                   _buildInfoRow(
                     Icons.person_pin_outlined,
                     team.teamLeader,
-                    const Color(0xFF3B82F6),
+                    accentColor, // [DIUBAH] Warna info leader
                   ),
                   const SizedBox(height: 6),
                   _buildInfoRow(
                     Icons.groups_outlined,
                     "${team.totalMembers} Anggota",
-                    const Color(0xFFF59E0B),
+                    const Color(0xFFF59E0B), // Biarkan kuning/orange untuk anggota
                   ),
                   if (team.description.isNotEmpty) ...[
                     const Divider(height: 20),

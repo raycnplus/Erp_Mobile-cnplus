@@ -1,4 +1,3 @@
-// Ganti seluruh isi file purchase_team_update_widget.dart
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -7,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../../../services/api_base.dart';
 
-import '../models/purchase_team_update_model.dart'; 
+import '../models/purchase_team_update_model.dart';
 import '../models/karyawan_dropdown_model.dart';
 
 class PurchaseTeamUpdateForm extends StatefulWidget {
@@ -25,6 +24,8 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
 
   final TextEditingController _teamNameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  // [BARU] Controller untuk field Team Leader
+  final TextEditingController _leaderDisplayController = TextEditingController();
 
   KaryawanDropdownModel? _selectedLeader;
   final List<KaryawanDropdownModel> _selectedMembers = [];
@@ -35,7 +36,7 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
   List<KaryawanDropdownModel> _karyawanList = [];
   Map<int, KaryawanDropdownModel> _karyawanMap = {};
 
-  // --- [BARU] Definisi Warna & Style Modern ---
+  // --- Definisi Warna & Style Modern ---
   static const Color accentColor = Color(0xFF2D6A4F); // Hijau tua konsisten
   static final Color accentBgColor = accentColor.withOpacity(0.08); // Latar belakang
   static final Color softGrey = Colors.grey.shade100; // Latar belakang input
@@ -46,7 +47,7 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
     _fetchInitialData();
   }
 
-  // --- [BARU] Helper untuk Judul Bagian ---
+  // --- Helper untuk Judul Bagian ---
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0, top: 16.0),
@@ -61,7 +62,7 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
     );
   }
 
-  // --- [BARU] Helper untuk Dekorasi Input Modern ---
+  // --- Helper untuk Dekorasi Input Modern ---
   InputDecoration _buildInputDecoration(String label) {
     return InputDecoration(
       labelText: label,
@@ -83,7 +84,7 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
     );
   }
 
-  // --- Logika Fetch Data (Tidak Berubah) ---
+  // --- Logika Fetch Data ---
   Future<void> _fetchInitialData() async {
     try {
       await _fetchKaryawan();
@@ -147,6 +148,8 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
         _descriptionController.text = teamData.description ?? '';
         
         _selectedLeader = _karyawanMap[teamData.teamLeaderId];
+        // [BARU] Set teks untuk display controller
+        _leaderDisplayController.text = _selectedLeader?.fullName ?? '';
         
         _selectedMembers.clear();
         for (var memberId in teamData.memberIds) {
@@ -161,6 +164,7 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
     }
   }
 
+  // --- Logika Update Data ---
   Future<void> _updateTeam() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSubmitting = true);
@@ -208,11 +212,118 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
       }
     }
   }
+
+  // --- [BARU] FUNGSI UNTUK MODAL PENCARIAN ---
+  Future<void> _showLeaderSearchModal() async {
+    // Menampilkan modal bottom sheet
+    final KaryawanDropdownModel? result = await showModalBottomSheet<KaryawanDropdownModel>(
+      context: context,
+      isScrollControlled: true, // Penting agar modal bisa full-height
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (modalContext) {
+        // StatefulBuilder agar UI di dalam modal bisa di-update (untuk search)
+        return StatefulBuilder(
+          builder: (stfContext, setModalState) {
+            String searchQuery = "";
+            List<KaryawanDropdownModel> filteredList = _karyawanList;
+
+            // Logika filter
+            if (searchQuery.isNotEmpty) {
+              filteredList = _karyawanList
+                  .where((k) => k.fullName.toLowerCase().contains(searchQuery.toLowerCase()))
+                  .toList();
+            }
+
+            return Container(
+              // Atur tinggi modal, misal 80% layar
+              height: MediaQuery.of(context).size.height * 0.8,
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 1. Judul Modal
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 5,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    "Select Team Leader",
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 2. Search Bar di dalam Modal
+                  TextField(
+                    onChanged: (value) {
+                      setModalState(() {
+                        searchQuery = value;
+                      });
+                    },
+                    decoration: _buildInputDecoration("Search Karyawan...").copyWith(
+                      prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    ),
+                    style: GoogleFonts.poppins(),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 3. Daftar Karyawan
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: filteredList.length,
+                      itemBuilder: (context, index) {
+                        final karyawan = filteredList[index];
+                        final bool isSelected = _selectedLeader?.id == karyawan.id;
+                        
+                        return ListTile(
+                          title: Text(karyawan.fullName, style: GoogleFonts.poppins()),
+                          selected: isSelected,
+                          selectedTileColor: accentBgColor,
+                          trailing: isSelected 
+                              ? const Icon(Icons.check, color: accentColor) 
+                              : null,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          onTap: () {
+                            // Kirim data Karyawan yang dipilih kembali ke form
+                            Navigator.pop(modalContext, karyawan);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    // Setelah modal ditutup, cek hasilnya
+    if (result != null) {
+      setState(() {
+        _selectedLeader = result;
+        _leaderDisplayController.text = result.fullName;
+      });
+    }
+  }
   
   @override
   void dispose() {
     _teamNameController.dispose();
     _descriptionController.dispose();
+    _leaderDisplayController.dispose(); // [BARU] Dispose controller
     super.dispose();
   }
 
@@ -222,7 +333,6 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
       return const Center(child: CircularProgressIndicator(color: accentColor));
     }
 
-    // [BARU] Mengatur warna kursor agar sesuai tema
     return Theme(
       data: Theme.of(context).copyWith(
         textSelectionTheme: TextSelectionThemeData(
@@ -232,7 +342,7 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
         ),
       ),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0), // Beri padding lebih
+        padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey,
           child: Column(
@@ -247,19 +357,20 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
                 style: GoogleFonts.poppins(),
               ),
               const SizedBox(height: 16),
-              DropdownButtonFormField<KaryawanDropdownModel>(
-                value: _selectedLeader,
-                items: _karyawanList
-                    .map((k) => DropdownMenuItem<KaryawanDropdownModel>(
-                          value: k,
-                          child: Text(k.fullName, style: GoogleFonts.poppins()),
-                        ))
-                    .toList(),
-                onChanged: (val) => setState(() => _selectedLeader = val),
-                decoration: _buildInputDecoration("Team Leader"),
-                validator: (val) => val == null ? "Please select a team leader" : null,
-                style: GoogleFonts.poppins(),
+
+              // --- [DIUBAH] Field Team Leader ---
+              TextFormField(
+                controller: _leaderDisplayController,
+                readOnly: true, // Penting! Agar keyboard tidak muncul
+                decoration: _buildInputDecoration("Team Leader").copyWith(
+                  // Tambah ikon untuk menandakan ini adalah pemilih
+                  suffixIcon: const Icon(Icons.person_search_outlined, color: accentColor),
+                ),
+                onTap: _showLeaderSearchModal, // Panggil modal saat diketuk
+                validator: (val) => val!.isEmpty ? "Please select a team leader" : null,
+                style: GoogleFonts.poppins(color: Colors.black87),
               ),
+              // --- AKHIR PERUBAHAN ---
 
               // --- Bagian 2: Anggota Tim ---
               _buildSectionTitle("Members"),
@@ -272,8 +383,9 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
                 child: Wrap(
                   spacing: 10,
                   runSpacing: 8,
+                  // Logika ini otomatis me-refresh saat _selectedLeader berubah
                   children: _karyawanList
-                      .where((k) => k.id != _selectedLeader?.id)
+                      .where((k) => k.id != _selectedLeader?.id) 
                       .map((k) {
                         final bool isSelected = _selectedMembers.any((m) => m.id == k.id);
                         return FilterChip(
@@ -294,7 +406,6 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
                               }
                             });
                           },
-                          // [STYLE BARU] Style chip yang modern
                           selectedColor: accentColor,
                           backgroundColor: Colors.white,
                           checkmarkColor: Colors.white,
@@ -321,7 +432,7 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
               ),
               const SizedBox(height: 32),
 
-              // --- [BARU] Tombol Submit dengan Efek Shadow ---
+              // --- Tombol Submit ---
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -338,12 +449,11 @@ class _PurchaseTeamUpdateFormState extends State<PurchaseTeamUpdateForm> {
                   onPressed: _isSubmitting ? null : _updateTeam,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: accentColor, // Warna hijau
+                    backgroundColor: accentColor,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     minimumSize: const Size(double.infinity, 54),
                   ),
-                  // [BARU] Animasi loading yang halus
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
                     child: _isSubmitting 

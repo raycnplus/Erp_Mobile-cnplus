@@ -1,4 +1,3 @@
-// Ganti seluruh isi file: lib/.../purchase_team/models/purchase_team_models.dart
 
 class PurchaseTeamIndexModel {
   final int idPurchaseTeam;

@@ -1,4 +1,4 @@
-// Ganti seluruh isi file purchase_team_update_model.dart
+//  isi file purchase_team_update_model.dart
 
 class PurchaseTeamUpdateModel {
   final int idPurchaseTeam;
