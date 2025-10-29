@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui'; 
+import 'dart:ui';
 
 import '../repositories/inventory_repository.dart';
 import '../models/dashboard_data_model.dart';
+
+import '../../../../shared/logout/screen/profile_screen.dart';
 
 import '../models/chart_data_model.dart';
 import '../widget/bar_chart_widget.dart';
@@ -113,27 +115,20 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
   // [BARU] Helper widget untuk animasi transisi "pop" (fade + scale)
   Widget _buildTransition(Widget child, Animation<double> animation) {
     final scaleAnimation = Tween<double>(
-      begin: 0.9, 
+      begin: 0.9,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: animation, 
-      curve: Curves.easeOutCubic,
-    ));
-    
-    final fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: animation,
-      curve: const Interval(0.5, 1.0), // Mulai fade in di pertengahan scale
-    ));
+    ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
+
+    final fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: animation,
+        curve: const Interval(0.5, 1.0), // Mulai fade in di pertengahan scale
+      ),
+    );
 
     return FadeTransition(
       opacity: fadeAnimation,
-      child: ScaleTransition(
-        scale: scaleAnimation,
-        child: child,
-      ),
+      child: ScaleTransition(scale: scaleAnimation, child: child),
     );
   }
 
@@ -193,10 +188,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
               width: double.infinity,
               child: Align(
                 alignment: currentAlignment,
-                child: Text(
-                  'Dashboard Inventory',
-                  style: currentTitleStyle,
-                ),
+                child: Text('Dashboard Inventory', style: currentTitleStyle),
               ),
             );
           },
@@ -225,8 +217,12 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                   size: currentIconSize,
                 ),
                 onPressed: () {
-                  // TODO: Tambahkan navigasi ke halaman profil
-                  print('Profile icon tapped');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProfileScreen(),
+                    ),
+                  );
                 },
               );
             },
@@ -337,7 +333,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                   // [DIUBAH] Menggunakan Widget baru
                   const SectionTitle(title: "Stock"),
                   const SizedBox(height: 16),
-                  
+
                   // [DIUBAH] Menggunakan Widget baru
                   StockToggleButtons(
                     selectedIndex: _selectedStockView,
@@ -345,11 +341,11 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                       setState(() => _selectedStockView = index);
                     },
                   ),
-                  
+
                   const SizedBox(height: 16),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
-                    
+
                     // [PERUBAHAN TERBARU] Menggunakan helper animasi
                     transitionBuilder: _buildTransition,
 
@@ -375,22 +371,22 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                       fontStyle: FontStyle.italic,
                     ),
                   ),
-                  
+
                   // [DIUBAH] Menggunakan Widget baru
                   StockLegend(
                     data: _selectedStockView == 0
                         ? processedWarehouseData
                         : processedLocationData,
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // [DIUBAH] Menggunakan Widget baru
                   const SectionTitle(title: "Top 5 Hand Stock"),
                   const SizedBox(height: 8),
                   TopProductList(topProducts: dashboardData.topProducts),
                   const SizedBox(height: 24),
-                  
+
                   // [DIUBAH] Menggunakan Widget baru
                   const SectionTitle(title: "Product Category"),
                   const SizedBox(height: 4),
@@ -407,7 +403,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                     data: dashboardData.charts.productsByCategory,
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // [DIUBAH] Menggunakan Widget baru
                   const SectionTitle(title: "Stock Moves"),
                   const SizedBox(height: 4),
@@ -420,7 +416,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  
+
                   // [DIUBAH] Menggunakan Widget baru
                   StockMovesToggleButtons(
                     selectedIndex: _selectedStockMovesView,
@@ -428,7 +424,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                       setState(() => _selectedStockMovesView = index);
                     },
                   ),
-                  
+
                   const SizedBox(height: 16),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
@@ -448,7 +444,7 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                             barColor: const Color.fromARGB(255, 74, 227, 214),
                           ),
                   ),
-                  const SizedBox(height: 24), // [FIX] Tambahan spasi di akhir
+                  const SizedBox(height: 24),
                 ],
               ),
             ),

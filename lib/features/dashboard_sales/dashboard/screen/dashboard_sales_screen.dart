@@ -10,6 +10,7 @@ import '../services/sales_dashboard_service.dart';
 import '../helpers/currency_helper.dart';
 import '../../../../core/routes/app_routes.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../../shared/logout/screen/profile_screen.dart';
 import '../../../../shared/widgets/personalized_header.dart';
 
 class DashboardSalesScreen extends StatefulWidget {
@@ -23,10 +24,6 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
   late Future<SalesDashboardResponse> _dashboardFuture;
   late ScrollController _scrollController;
 
-  // --- ANIMASI ---
-
-  // 1. Definisikan nilai AWAL dan AKHIR
-  
   // Posisi
   final Alignment _initialTitleAlignment = const Alignment(-0.6, 0.0);
   final Alignment _scrolledTitleAlignment = const Alignment(-1.20, 0.0);
@@ -34,7 +31,7 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
   // Gaya Teks
   final TextStyle _initialTitleStyle = GoogleFonts.poppins(
     color: Colors.black87,
-    fontSize: 20, 
+    fontSize: 20,
     fontWeight: FontWeight.w600,
   );
   final TextStyle _scrolledTitleStyle = GoogleFonts.poppins(
@@ -44,13 +41,11 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
   );
 
   // Ukuran Ikon
-  final double _initialIconSize = 28.0; 
+  final double _initialIconSize = 28.0;
   final double _scrolledIconSize = 24.0;
 
   // Jarak scroll untuk menyelesaikan animasi
   final double _scrollThreshold = 50.0;
-
-  // --- END MODIFIKASI ANIMASI ---
 
   @override
   void initState() {
@@ -58,7 +53,6 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
     _dashboardFuture = SalesDashboardService.fetchDashboardData();
     _scrollController = ScrollController();
   }
-
 
   @override
   void dispose() {
@@ -76,80 +70,101 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
       ),
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        automaticallyImplyLeading: false, 
-        
-        // [MODIFIKASI] Gunakan AnimatedBuilder untuk Ikon
+        automaticallyImplyLeading: false,
+
         leading: AnimatedBuilder(
           animation: _scrollController,
           builder: (context, child) {
-            
             double progress = 0.0;
             if (_scrollController.hasClients && _scrollController.offset > 0) {
-              progress = (_scrollController.offset / _scrollThreshold).clamp(0.0, 1.0);
+              progress = (_scrollController.offset / _scrollThreshold).clamp(
+                0.0,
+                1.0,
+              );
             }
 
-            final double currentIconSize = lerpDouble(_initialIconSize, _scrolledIconSize, progress)!;
+            final double currentIconSize = lerpDouble(
+              _initialIconSize,
+              _scrolledIconSize,
+              progress,
+            )!;
 
             return IconButton(
               icon: Icon(
-                Icons.menu, 
+                Icons.menu,
                 color: Colors.black,
-                size: currentIconSize, 
+                size: currentIconSize,
               ),
               onPressed: () => Scaffold.of(context).openDrawer(),
             );
           },
         ),
 
-        // [MODIFIKASI] Gunakan AnimatedBuilder untuk Title
         title: AnimatedBuilder(
           animation: _scrollController,
           builder: (context, child) {
-
             double progress = 0.0;
             if (_scrollController.hasClients && _scrollController.offset > 0) {
-              progress = (_scrollController.offset / _scrollThreshold).clamp(0.0, 1.0);
+              progress = (_scrollController.offset / _scrollThreshold).clamp(
+                0.0,
+                1.0,
+              );
             }
 
-            final Alignment currentAlignment = Alignment.lerp(_initialTitleAlignment, _scrolledTitleAlignment, progress)!;
-            final TextStyle currentTitleStyle = TextStyle.lerp(_initialTitleStyle, _scrolledTitleStyle, progress)!;
+            final Alignment currentAlignment = Alignment.lerp(
+              _initialTitleAlignment,
+              _scrolledTitleAlignment,
+              progress,
+            )!;
+            final TextStyle currentTitleStyle = TextStyle.lerp(
+              _initialTitleStyle,
+              _scrolledTitleStyle,
+              progress,
+            )!;
 
             return Container(
               width: double.infinity,
               child: Align(
-                alignment: currentAlignment, 
-                child: Text(
-                  'Dashboard Sales',
-                  style: currentTitleStyle,
-                ),
+                alignment: currentAlignment,
+                child: Text('Dashboard Sales', style: currentTitleStyle),
               ),
             );
           },
         ),
 
-        // [BARU] Menambahkan ikon profil di sebelah kanan
         actions: [
           AnimatedBuilder(
             animation: _scrollController,
             builder: (context, child) {
-              
               double progress = 0.0;
-              if (_scrollController.hasClients && _scrollController.offset > 0) {
-                progress = (_scrollController.offset / _scrollThreshold).clamp(0.0, 1.0);
+              if (_scrollController.hasClients &&
+                  _scrollController.offset > 0) {
+                progress = (_scrollController.offset / _scrollThreshold).clamp(
+                  0.0,
+                  1.0,
+                );
               }
 
-              // Gunakan variabel ukuran ikon yang SAMA dengan yang di 'leading'
-              final double currentIconSize = lerpDouble(_initialIconSize, _scrolledIconSize, progress)!;
+              final double currentIconSize = lerpDouble(
+                _initialIconSize,
+                _scrolledIconSize,
+                progress,
+              )!;
 
               return IconButton(
                 icon: Icon(
                   Icons.person_outline, // Ikon person
                   color: Colors.black,
-                  size: currentIconSize, 
+                  size: currentIconSize,
                 ),
                 onPressed: () {
-                  // TODO: Tambahkan navigasi ke halaman profil
-                  print('Profile icon tapped'); 
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProfileScreen(),
+                    ),
+                  );
+                  print('Profile icon tapped');
                 },
               );
             },
@@ -220,9 +235,7 @@ class _DashboardSalesScreenState extends State<DashboardSalesScreen> {
                       child: StatCard(
                         title: "Products",
                         value: data.salesProductCount.toString(),
-                        titleStyle: const TextStyle(
-                          fontSize: 11,
-                        ),
+                        titleStyle: const TextStyle(fontSize: 11),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -322,8 +335,9 @@ class _DashboardSalesShimmer extends StatelessWidget {
       width: width,
       decoration: BoxDecoration(
         color: Colors.white, // Warna dasar shimmer
-        borderRadius:
-            shape == BoxShape.rectangle ? BorderRadius.circular(radius) : null,
+        borderRadius: shape == BoxShape.rectangle
+            ? BorderRadius.circular(radius)
+            : null,
         shape: shape,
       ),
     );
@@ -430,7 +444,10 @@ class _DashboardSalesShimmer extends StatelessWidget {
             Row(
               children: [
                 _buildSkeletonBlock(
-                    height: 50, width: 50, shape: BoxShape.circle),
+                  height: 50,
+                  width: 50,
+                  shape: BoxShape.circle,
+                ),
                 const SizedBox(width: 12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,7 +456,7 @@ class _DashboardSalesShimmer extends StatelessWidget {
                     const SizedBox(height: 8),
                     _buildSkeletonBlock(height: 16, width: 100, radius: 8),
                   ],
-                )
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -453,7 +470,9 @@ class _DashboardSalesShimmer extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               children: List.generate(
-                  4, (index) => _buildSkeletonBlock(radius: 12)),
+                4,
+                (index) => _buildSkeletonBlock(radius: 12),
+              ),
             ),
             const SizedBox(height: 16),
 

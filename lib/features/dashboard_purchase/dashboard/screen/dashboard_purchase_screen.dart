@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widget/purchase_dashboard_shimmer.dart';
-import 'dart:ui'; // Diperlukan untuk lerpDouble
+import 'dart:ui';
 import '../models/purchase_models.dart';
 import '../widget/purchase_analysis_chart.dart';
 import '../widget/top_list_card.dart';
@@ -14,6 +14,7 @@ import '../../../../core/routes/app_routes.dart';
 import '../models/purchase_dashboard_model.dart' as ApiModel;
 import '../utils/formatters.dart';
 import '../../../../shared/widgets/personalized_header.dart';
+import '../../../../shared/logout/screen/profile_screen.dart';
 
 class DashboardPurchaseScreen extends StatefulWidget {
   const DashboardPurchaseScreen({super.key});
@@ -327,7 +328,13 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
                   size: currentIconSize,
                 ),
                 onPressed: () {
-                  // TODO: Tambahkan navigasi ke halaman profil
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProfileScreen(),
+                    ),
+                  );
+
                   print('Profile icon tapped');
                 },
               );
@@ -470,7 +477,6 @@ class _DashboardPurchaseScreenState extends State<DashboardPurchaseScreen> {
                 ),
                 const SizedBox(height: 24),
                 TopListCard(
-                  
                   title: 'Top 5 Purchase Order',
                   items: topPurchaseOrderData,
                 ),
