@@ -1,3 +1,5 @@
+// show_product_models.dart
+
 class ProductShowResponse {
   final Map<String, dynamic> rawData;
 
@@ -14,44 +16,76 @@ class ProductShowResponse {
   Map<String, dynamic> get product => rawData["product"] ?? {};
   Map<String, dynamic> get productDetail => rawData["product_detail"] ?? {};
   Map<String, dynamic> get inventory => rawData["inventory"] ?? {};
+  
+  // Getter ini aman karena 'String?' (nullable)
   String? get createdByName => rawData["created_by_name"];
   
   // Product getters
   int get idProduct => product["id_product"] ?? 0;
+  
+  // [PERBAIKAN] Pastikan semua 'String' (non-nullable) punya nilai default '??'
   String get productCode => product["product_code"] ?? '';
   String get productName => product["product_name"] ?? '';
-  String? get barcode => product["barcode"];
   String get createdDate => product["created_date"] ?? '';
+
+  // [AMAN] Ini 'String?' (nullable), sudah benar
+  String? get barcode => product["barcode"];
   int get createdBy => product["created_by"] ?? 0;
   
   // Product Detail getters
   int get idProductDetail => productDetail["id_product_detail"] ?? 0;
+  
+  // [AMAN] Ini 'double?' (nullable), sudah benar
   double? get salesPrice => productDetail["sales_price"] != null 
       ? double.tryParse(productDetail["sales_price"].toString())
       : null;
   double? get costPrice => productDetail["cost_price"] != null 
       ? double.tryParse(productDetail["cost_price"].toString())
       : null;
+      
+  // [AMAN] Ini 'String?' (nullable), sudah benar
   String? get detailBarcode => productDetail["barcode"];
+  
+  // [AMAN] Ini 'int?' (nullable), sudah benar
   int? get productType => productDetail["product_type"];
   int? get productCategory => productDetail["product_category"];
+  
+  // [AMAN] Ini 'String?' (nullable), sudah benar
   String? get productBrand => productDetail["product_brand"]?.toString();
-  String get unitOfMeasureName => productDetail["unit_of_measure_name"] ?? '';
   String? get noteDetail => productDetail["note_detail"];
+
+  // [PERBAIKAN] Pastikan 'String' (non-nullable) punya nilai default '??'
+  String get unitOfMeasureName => productDetail["unit_of_measure_name"] ?? '';
   
   // Inventory getters
   int get idInventory => inventory["id_inventory"] ?? 0;
+  
+  // [AMAN] Ini 'String?' (nullable), sudah benar
   String? get weight => inventory["weight"]?.toString();
   String? get length => inventory["length"]?.toString();
   String? get width => inventory["width"]?.toString();
   String? get height => inventory["height"]?.toString();
   String? get volume => inventory["volume"]?.toString();
-  String get inventoryCreatedDate => inventory["created_date"] ?? '';
-  int get inventoryCreatedBy => inventory["created_by"] ?? 0;
   String? get noteInventory => inventory["note_inventory"];
+  String? get trackingMethod => inventory["tracking_method"]; // Sangat penting, karena di JSON nilainya null
+
+  // [PERBAIKAN] Pastikan 'String' (non-nullable) punya nilai default '??'
+  String get inventoryCreatedDate => inventory["created_date"] ?? '';
+  
+  // [AMAN] Ini 'int?' (nullable), sudah benar
+  int get inventoryCreatedBy => inventory["created_by"] ?? 0;
   int? get tracking => inventory["tracking"];
-  String? get trackingMethod => inventory["tracking_method"];
 }
+
+
+/* ===================================================================
+  CATATAN: Kelas-kelas di bawah ini (Product, ProductDetail, Inventory)
+  TIDAK DIGUNAKAN oleh 'ProductShowWidget' kamu. 
+  Widget kamu hanya menggunakan 'ProductShowResponse'. 
+  Jadi error-nya pasti ada di kelas 'ProductShowResponse' di atas.
+  Namun, saya biarkan saja definisi kelas ini di sini.
+===================================================================
+*/
 
 class Product {
   final int idProduct;
