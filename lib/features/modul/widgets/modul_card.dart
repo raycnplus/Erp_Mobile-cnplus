@@ -57,7 +57,6 @@ class ModulCard extends StatelessWidget {
             ),
             const SizedBox(width: 20),
             Expanded(
-              // [DIUBAH] Menggunakan Column untuk menampung judul dan deskripsi
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

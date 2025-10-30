@@ -404,7 +404,6 @@ class _DashboardInventoryScreenState extends State<DashboardInventoryScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // [DIUBAH] Menggunakan Widget baru
                   const SectionTitle(title: "Stock Moves"),
                   const SizedBox(height: 4),
                   Text(
