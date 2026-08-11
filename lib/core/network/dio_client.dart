@@ -145,30 +145,30 @@ class DioClient {
   InterceptorsWrapper _loggerInterceptor() {
     return InterceptorsWrapper(
       onRequest: (options, handler) {
-        // print('🌐 REQUEST[${options.method}] => ${options.path}');
-        // print('Headers: ${options.headers}');
+         print('🌐 REQUEST[${options.method}] => ${options.path}');
+         print('Headers: ${options.headers}');
         if (options.data != null) {
           if (options.data is Map) {
             final data = Map.from(options.data);
             if (data.containsKey('password')) {
               data['password'] = '***';
             }
-            // print('Data: $data');
+             print('Data: $data');
           } else {
-            // print('Data: ${options.data}');
+             print('Data: ${options.data}');
           }
         }
         return handler.next(options);
       },
       onResponse: (response, handler) {
-        // print('✅ RESPONSE[${response.statusCode}] => ${response.requestOptions.path}');
+         print('✅ RESPONSE[${response.statusCode}] => ${response.requestOptions.path}');
         return handler.next(response);
       },
       onError: (error, handler) {
-        // print('❌ ERROR[${error.response?.statusCode}] => ${error.requestOptions.path}');
-        // print('Message: ${error.message}');
+         print('❌ ERROR[${error.response?.statusCode}] => ${error.requestOptions.path}');
+         print('Message: ${error.message}');
         if (error.response?.data != null) {
-          // print('Response: ${error.response?.data}');
+           print('Response: ${error.response?.data}');
         }
         return handler.next(error);
       },
@@ -218,10 +218,10 @@ class DioClient {
       
       return null;
     } on DioException catch (e) {
-      // print('❌ Refresh token DioException: ${e.message}');
+       print('❌ Refresh token DioException: ${e.message}');
       return null;
     } catch (e) {
-      // print('❌ Refresh token error: $e');
+       print('❌ Refresh token error: $e');
       return null;
     }
   }
