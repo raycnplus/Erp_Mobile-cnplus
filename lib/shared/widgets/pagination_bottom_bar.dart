@@ -1,5 +1,3 @@
-// lib/shared/widgets/pagination_bottom_bar.dart
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:erp_mobile_cnplus/core/utils/colors.dart';
@@ -34,6 +32,39 @@ class PaginationBottomBar extends StatelessWidget {
     int end = (start + maxBtn - 1).clamp(1, lastPage);
     if (end - start < maxBtn - 1) start = (end - maxBtn + 1).clamp(1, lastPage);
 
+    final pageButtons = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _PgIconBtn(
+          icon: Icons.first_page,
+          onTap: currentPage > 1 ? () => onGoToPage(1) : null,
+        ),
+        const SizedBox(width: 4),
+        _PgIconBtn(
+          icon: Icons.chevron_left,
+          onTap: hasPrev ? onPrev : null,
+        ),
+        const SizedBox(width: 4),
+        for (int p = start; p <= end; p++) ...[
+          _PgNumBtn(
+            page: p,
+            isActive: p == currentPage,
+            onTap: () => onGoToPage(p),
+          ),
+          const SizedBox(width: 4),
+        ],
+        _PgIconBtn(
+          icon: Icons.chevron_right,
+          onTap: hasNext ? onNext : null,
+        ),
+        const SizedBox(width: 4),
+        _PgIconBtn(
+          icon: Icons.last_page,
+          onTap: currentPage < lastPage ? () => onGoToPage(lastPage) : null,
+        ),
+      ],
+    );
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
@@ -47,66 +78,45 @@ class PaginationBottomBar extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+      child: onCreateTap != null
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _PgIconBtn(
-                  icon: Icons.first_page,
-                  onTap: currentPage > 1 ? () => onGoToPage(1) : null,
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: pageButtons,
                 ),
-                const SizedBox(width: 4),
-                _PgIconBtn(
-                  icon: Icons.chevron_left,
-                  onTap: hasPrev ? onPrev : null,
-                ),
-                const SizedBox(width: 4),
-                for (int p = start; p <= end; p++) ...[
-                  _PgNumBtn(
-                    page: p,
-                    isActive: p == currentPage,
-                    onTap: () => onGoToPage(p),
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  onPressed: onCreateTap,
+                  icon: const Icon(Icons.add, size: 18, color: colorWhite),
+                  label: Text(
+                    'Create',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: colorWhite,
+                    ),
                   ),
-                  const SizedBox(width: 4),
-                ],
-                _PgIconBtn(
-                  icon: Icons.chevron_right,
-                  onTap: hasNext ? onNext : null,
-                ),
-                const SizedBox(width: 4),
-                _PgIconBtn(
-                  icon: Icons.last_page,
-                  onTap: currentPage < lastPage ? () => onGoToPage(lastPage) : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colorPrimary,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    elevation: 0,
+                  ),
                 ),
               ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          if (onCreateTap != null)
-            ElevatedButton.icon(
-              onPressed: onCreateTap,
-              icon: const Icon(Icons.add, size: 18, color: colorWhite),
-              label: Text(
-                'Create',
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: colorWhite,
+            )
+          : SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Center(
+                widthFactor: 1,
+                child: SizedBox(
+                  width: sw - 24,
+                  child: Center(child: pageButtons),
                 ),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorPrimary,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                elevation: 0,
-              ),
             ),
-        ],
-      ),
     );
   }
 }
