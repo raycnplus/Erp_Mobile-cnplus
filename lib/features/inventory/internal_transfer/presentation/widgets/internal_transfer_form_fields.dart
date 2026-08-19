@@ -234,6 +234,16 @@ class _State extends State<InternalTransferFormFields> with TickerProviderStateM
     }
   }
 
+  List<ITLocationOption> _getFilteredSourceLocations() {
+    if (_opts == null || widget.formData.sourceWarehouse == null) return [];
+    return _opts!.locationsForWarehouse(widget.formData.sourceWarehouse!);
+  }
+
+  List<ITLocationOption> _getFilteredDestinationLocations() {
+    if (_opts == null || widget.formData.destinationWarehouse == null) return [];
+    return _opts!.locationsForWarehouse(widget.formData.destinationWarehouse!);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -294,7 +304,6 @@ class _State extends State<InternalTransferFormFields> with TickerProviderStateM
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Source', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: colorPrimary)),
           const SizedBox(height: 10),
           CustomSearchableDropdown<ITWarehouseOption>(
             key: ValueKey('swh_${widget.formData.sourceWarehouse}_${_opts?.warehouses.length}'),
@@ -312,9 +321,11 @@ class _State extends State<InternalTransferFormFields> with TickerProviderStateM
           ),
           const SizedBox(height: 14),
           CustomSearchableDropdown<ITLocationOption>(
-            key: ValueKey('sloc_${widget.formData.sourceLocation}_${_opts?.locations.length}'),
-            value: _opts?.locations.where((l) => l.id == widget.formData.sourceLocation).firstOrNull,
-            items: _opts?.locations ?? [],
+            key: ValueKey('sloc_${widget.formData.sourceLocation}_${widget.formData.sourceWarehouse}'),
+            value: _getFilteredSourceLocations()
+                .where((l) => l.id == widget.formData.sourceLocation)
+                .firstOrNull,
+            items: _getFilteredSourceLocations(),
             itemLabel: (l) => l.name,
             onChanged: (v) => setState(() {
               widget.formData.sourceLocation = v?.id;
@@ -326,8 +337,6 @@ class _State extends State<InternalTransferFormFields> with TickerProviderStateM
           ),
           const SizedBox(height: 20),
 
-          Text('Destination', style: GoogleFonts.poppins(fontSize: 13, fontWeight: FontWeight.w700, color: colorPrimary)),
-          const SizedBox(height: 10),
           CustomSearchableDropdown<ITWarehouseOption>(
             key: ValueKey('dwh_${widget.formData.destinationWarehouse}_${_opts?.warehouses.length}'),
             value: _opts?.warehouses.where((w) => w.id == widget.formData.destinationWarehouse).firstOrNull,
@@ -343,9 +352,11 @@ class _State extends State<InternalTransferFormFields> with TickerProviderStateM
           ),
           const SizedBox(height: 14),
           CustomSearchableDropdown<ITLocationOption>(
-            key: ValueKey('dloc_${widget.formData.destinationLocation}_${_opts?.locations.length}'),
-            value: _opts?.locations.where((l) => l.id == widget.formData.destinationLocation).firstOrNull,
-            items: _opts?.locations ?? [],
+            key: ValueKey('dloc_${widget.formData.destinationLocation}_${widget.formData.destinationWarehouse}'),
+            value: _getFilteredDestinationLocations()
+                .where((l) => l.id == widget.formData.destinationLocation)
+                .firstOrNull,
+            items: _getFilteredDestinationLocations(),
             itemLabel: (l) => l.name,
             onChanged: (v) => setState(() => widget.formData.destinationLocation = v?.id),
             isRequired: true,
