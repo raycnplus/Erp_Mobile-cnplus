@@ -20,11 +20,9 @@ class InternalTransferRepository {
 
   Future<Map<String, dynamic>> saveTracking({
     required int idInternalTransferItem,
-    required double transferredQty,
     List<Map<String, dynamic>>? trackingData,
   }) => ds.saveTracking(
         idInternalTransferItem: idInternalTransferItem,
-        transferredQty: transferredQty,
         trackingData: trackingData,
       );
 
