@@ -262,12 +262,30 @@ import 'package:erp_mobile_cnplus/features/inventory/internal_transfer/presentat
 // Transfer In
 import 'package:erp_mobile_cnplus/features/inventory/transfer_in/presentation/screens/transfer_in_list_screen.dart';
 import 'package:erp_mobile_cnplus/features/inventory/transfer_in/presentation/screens/transfer_in_detail_screen.dart';
-import 'package:erp_mobile_cnplus/features/inventory/transfer_in/presentation/screens/transfer_in_form_screen.dart';
 
 // Transfer Out
 import 'package:erp_mobile_cnplus/features/inventory/transfer_out/presentation/screens/transfer_out_list_screen.dart';
 import 'package:erp_mobile_cnplus/features/inventory/transfer_out/presentation/screens/transfer_out_detail_screen.dart';
-import 'package:erp_mobile_cnplus/features/inventory/transfer_out/presentation/screens/transfer_out_form_screen.dart';
+
+// Scrap Order
+import 'package:erp_mobile_cnplus/features/inventory/scrap_order/presentation/screens/scrap_order_list_screen.dart';
+import 'package:erp_mobile_cnplus/features/inventory/scrap_order/presentation/screens/scrap_order_detail_screen.dart';
+import 'package:erp_mobile_cnplus/features/inventory/scrap_order/presentation/screens/scrap_order_form_screen.dart';
+
+// Stock Count
+import 'package:erp_mobile_cnplus/features/inventory/stock_count/presentation/screens/stock_count_list_screen.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_count/presentation/screens/stock_count_detail_screen.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_count/presentation/screens/stock_count_form_screen.dart';
+
+// Return RN
+import 'package:erp_mobile_cnplus/features/inventory/return_rn/presentation/screens/return_rn_list_screen.dart';
+import 'package:erp_mobile_cnplus/features/inventory/return_rn/presentation/screens/return_rn_detail_screen.dart';
+import 'package:erp_mobile_cnplus/features/inventory/return_rn/presentation/screens/return_rn_form_screen.dart';
+
+// Return DN
+import 'package:erp_mobile_cnplus/features/inventory/return_dn/presentation/screens/return_dn_list_screen.dart';
+import 'package:erp_mobile_cnplus/features/inventory/return_dn/presentation/screens/return_dn_detail_screen.dart';
+import 'package:erp_mobile_cnplus/features/inventory/return_dn/presentation/screens/return_dn_form_screen.dart';
 
 
 class AppRoutes {
@@ -580,14 +598,34 @@ class AppRoutes {
   // Transfer In
   static const String transferInList = '/inventory/transfer-in';
   static const String transferInDetail = '/inventory/transfer-in/detail';
-  static const String transferInCreate = '/inventory/transfer-in/create';
-  static const String transferInEdit = '/inventory/transfer-in/edit';
 
   // Transfer Out
   static const String transferOutList = '/inventory/transfer-out';
   static const String transferOutDetail = '/inventory/transfer-out/detail';
-  static const String transferOutCreate = '/inventory/transfer-out/create';
-  static const String transferOutEdit = '/inventory/transfer-out/edit';
+
+  // Scrap Order
+  static const String scrapOrderList = '/inventory/scrap-order';
+  static const String scrapOrderDetail = '/inventory/scrap-order/detail';
+  static const String scrapOrderCreate = '/inventory/scrap-order/create';
+  static const String scrapOrderEdit = '/inventory/scrap-order/edit';
+
+  // Stock Count
+  static const String stockCountList = '/inventory/stock-count';
+  static const String stockCountDetail = '/inventory/stock-count/detail';
+  static const String stockCountCreate = '/inventory/stock-count/create';
+  static const String stockCountEdit = '/inventory/stock-count/edit';
+
+  // Return RN
+  static const String returnRNList = '/inventory/return-rn';
+  static const String returnRNDetail = '/inventory/return-rn/detail';
+  static const String returnRNCreate = '/inventory/return-rn/create';
+  static const String returnRNEdit = '/inventory/return-rn/edit';
+
+  // Return DN
+  static const String returnDNList = '/inventory/return-dn';
+  static const String returnDNDetail = '/inventory/return-dn/detail';
+  static const String returnDNCreate = '/inventory/return-dn/create';
+  static const String returnDNEdit = '/inventory/return-dn/edit';
 
 
   static Map<String, WidgetBuilder> routes = {
@@ -904,6 +942,38 @@ class AppRoutes {
     internalTransferDetail: (context) => InternalTransferDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
     internalTransferCreate: (context) => const InternalTransferFormScreen(),
     internalTransferEdit: (context) => InternalTransferFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
-     
+
+    // Transfer Out
+    transferOutList: (context) => const TransferOutListScreen(),
+    transferOutDetail: (context) => TransferOutDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+
+    // Transfer In
+    transferInList: (context) => const TransferInListScreen(),
+    transferInDetail: (context) => TransferInDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+
+    // Scrap Order
+    scrapOrderList: (context) => const ScrapOrderListScreen(),
+    scrapOrderDetail: (context) => ScrapOrderDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    scrapOrderCreate: (context) => const ScrapOrderFormScreen(),
+    scrapOrderEdit: (context) => ScrapOrderFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+
+    // Stock Count
+    stockCountList: (context) => const StockCountListScreen(),
+    stockCountDetail: (context) => StockCountDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    stockCountCreate: (context) => const StockCountFormScreen(),
+
+    // Return RN
+    // returnRNList: (context) => const ReturnRNListScreen(),
+    // returnRNDetail: (context) => ReturnRNDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    // returnRNCreate: (context) => const ReturnRNFormScreen(),
+    // returnRNEdit: (context) => ReturnRNFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+
+    // Return DN
+    // returnDNList: (context) => const ReturnDNListScreen(),
+    // returnDNDetail: (context) => ReturnDNDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    // returnDNCreate: (context) => const ReturnDNFormScreen(),
+    // returnDNEdit: (context) => ReturnDNFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+
+
   };
 }
