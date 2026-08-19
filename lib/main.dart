@@ -57,6 +57,13 @@ import 'package:erp_mobile_cnplus/features/purchase/bill/presentation/controller
 import 'package:erp_mobile_cnplus/features/inventory/receipt_note/presentation/controllers/receipt_note_controller.dart';
 import 'package:erp_mobile_cnplus/features/inventory/delivery_note/presentation/controllers/delivery_note_controller.dart';
 import 'package:erp_mobile_cnplus/features/inventory/internal_transfer/presentation/controllers/internal_transfer_controller.dart';
+import 'package:erp_mobile_cnplus/features/inventory/transfer_out/presentation/controllers/transfer_out_controller.dart';
+import 'package:erp_mobile_cnplus/features/inventory/transfer_in/presentation/controllers/transfer_in_controller.dart';
+import 'package:erp_mobile_cnplus/features/inventory/scrap_order/presentation/controllers/scrap_order_controller.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_count/presentation/controllers/stock_count_controller.dart';
+import 'package:erp_mobile_cnplus/features/inventory/return_rn/presentation/controllers/return_rn_controller.dart';
+import 'package:erp_mobile_cnplus/features/inventory/return_dn/presentation/controllers/return_dn_controller.dart';
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -223,8 +230,20 @@ void main() {
           create: (_) => getIt<DeliveryNoteController>(),
         ),
         ChangeNotifierProvider<InternalTransferController>(
-          create: (_) =>getIt<InternalTransferController>(),
-        )
+          create: (_) => getIt<InternalTransferController>(),
+        ),
+        ChangeNotifierProvider<TransferOutController>(
+          create: (_) => getIt<TransferOutController>(),
+        ),
+        ChangeNotifierProvider<TransferInController>(
+          create: (_) => getIt<TransferInController>(),
+        ),
+        ChangeNotifierProvider<ScrapOrderController>(
+          create: (_) => getIt<ScrapOrderController>(),
+        ),
+        ChangeNotifierProvider<StockCountController>(
+          create: (_) => getIt<StockCountController>(),
+        ),
       ],
       child: const MyApp(),
     ),
