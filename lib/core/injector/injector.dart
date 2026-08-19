@@ -378,6 +378,30 @@ import 'package:erp_mobile_cnplus/features/inventory/transfer_out/data/repositor
 import 'package:erp_mobile_cnplus/features/inventory/transfer_out/domain/usecases/transfer_out_usecases.dart';
 import 'package:erp_mobile_cnplus/features/inventory/transfer_out/presentation/controllers/transfer_out_controller.dart';
 
+// Inventory Scrap Order
+import 'package:erp_mobile_cnplus/features/inventory/scrap_order/data/datasources/scrap_order_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/inventory/scrap_order/data/repositories/scrap_order_repository.dart';
+import 'package:erp_mobile_cnplus/features/inventory/scrap_order/domain/usecases/scrap_order_usecases.dart';
+import 'package:erp_mobile_cnplus/features/inventory/scrap_order/presentation/controllers/scrap_order_controller.dart';
+
+// Inventory Stock Count
+import 'package:erp_mobile_cnplus/features/inventory/stock_count/data/datasources/stock_count_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_count/data/repositories/stock_count_repository.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_count/domain/usecases/stock_count_usecases.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_count/presentation/controllers/stock_count_controller.dart';
+
+// Inventory Return RN
+import 'package:erp_mobile_cnplus/features/inventory/return_rn/data/datasources/return_rn_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/inventory/return_rn/data/repositories/return_rn_repository.dart';
+import 'package:erp_mobile_cnplus/features/inventory/return_rn/domain/usecases/return_rn_usecases.dart';
+import 'package:erp_mobile_cnplus/features/inventory/return_rn/presentation/controllers/return_rn_controller.dart';
+
+// Inventory Return DN
+import 'package:erp_mobile_cnplus/features/inventory/return_dn/data/datasources/return_dn_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/inventory/return_dn/data/repositories/return_dn_repository.dart';
+import 'package:erp_mobile_cnplus/features/inventory/return_dn/domain/usecases/return_dn_usecases.dart';
+import 'package:erp_mobile_cnplus/features/inventory/return_dn/presentation/controllers/return_dn_controller.dart';
+
 
 final getIt = GetIt.instance;
 
@@ -1446,6 +1470,112 @@ class AppInjector {
         approveIT:               getIt(),
         rejectIT:                getIt(),
         getSteps:                getIt(),
+      ),
+    );
+    
+    // ==================== TRANSFER OUT ====================
+    getIt.registerLazySingleton<TransferOutRemoteDataSource>(() => TransferOutRemoteDataSource(getIt<DioClient>().dio));
+    getIt.registerLazySingleton<TransferOutRepository>(() => TransferOutRepository(getIt()));
+    getIt.registerLazySingleton(() => GetTOList(getIt()));
+    getIt.registerLazySingleton(() => GetTODetail(getIt()));
+    getIt.registerLazySingleton(() => SaveTransferOut(getIt()));
+    getIt.registerLazySingleton(() => ValidateTransferOut(getIt()));
+    getIt.registerLazySingleton<TransferOutController>(
+      () => TransferOutController(
+        getList:    getIt(),
+        getDetail:  getIt(),
+        saveTO:     getIt(),
+        validateTO: getIt(),
+      ),
+    );
+
+    // ==================== TRANSFER IN ====================
+    getIt.registerLazySingleton<TransferInRemoteDataSource>(() => TransferInRemoteDataSource(getIt<DioClient>().dio));
+    getIt.registerLazySingleton<TransferInRepository>(() => TransferInRepository(getIt()));
+    getIt.registerLazySingleton(() => GetTIList(getIt()));
+    getIt.registerLazySingleton(() => GetTIDetail(getIt()));
+    getIt.registerLazySingleton(() => SaveTransferIn(getIt()));
+    getIt.registerLazySingleton(() => ValidateTransferIn(getIt()));
+    getIt.registerLazySingleton<TransferInController>(
+      () => TransferInController(
+        getList:    getIt(),
+        getDetail:  getIt(),
+        saveTI:     getIt(),
+        validateTI: getIt(),
+      ),
+    );
+
+    // ==================== SCRAP ORDER ====================
+    getIt.registerLazySingleton<ScrapOrderRemoteDataSource>(() => ScrapOrderRemoteDataSource(getIt<DioClient>().dio));
+    getIt.registerLazySingleton<ScrapOrderRepository>(() => ScrapOrderRepository(getIt()));
+    getIt.registerLazySingleton(() => GetScrapOrderList(getIt()));
+    getIt.registerLazySingleton(() => GetScrapOrderDetail(getIt()));
+    getIt.registerLazySingleton(() => GetScrapOrderFormOptions(getIt()));
+    getIt.registerLazySingleton(() => GetScrapOrderProductsByLocation(getIt()));
+    getIt.registerLazySingleton(() => CheckScrapOrderStock(getIt()));
+    getIt.registerLazySingleton(() => SaveScrapOrder(getIt()));
+    getIt.registerLazySingleton(() => ConfirmScrapOrder(getIt()));
+    getIt.registerLazySingleton(() => ValidateScrapOrder(getIt()));
+    getIt.registerLazySingleton(() => CancelScrapOrder(getIt()));
+    getIt.registerLazySingleton(() => DeleteScrapOrder(getIt()));
+    getIt.registerLazySingleton(() => ApproveScrapOrder(getIt()));
+    getIt.registerLazySingleton(() => RejectScrapOrder(getIt()));
+    getIt.registerLazySingleton(() => GetScrapOrderSteps(getIt()));
+    getIt.registerLazySingleton<ScrapOrderController>(
+      () => ScrapOrderController(
+        getList:               getIt(),
+        getDetail:             getIt(),
+        getFormOptions:        getIt(),
+        getProductsByLocation: getIt(),
+        checkStockUC:          getIt(),
+        saveSO:                getIt(),
+        confirmSO:             getIt(),
+        validateSO:            getIt(),
+        cancelSO:              getIt(),
+        deleteSO:              getIt(),
+        approveSO:             getIt(),
+        rejectSO:              getIt(),
+        getSteps:              getIt(),
+      ),
+    );
+
+    // ==================== STOCK COUNT ====================
+    getIt.registerLazySingleton<StockCountRemoteDataSource>(() => StockCountRemoteDataSource(getIt<DioClient>().dio));
+    getIt.registerLazySingleton<StockCountRepository>(() => StockCountRepository(getIt()));
+    getIt.registerLazySingleton(() => GetSCList(getIt()));
+    getIt.registerLazySingleton(() => GetSCDetail(getIt()));
+    getIt.registerLazySingleton(() => GetSCFormOptions(getIt()));
+    getIt.registerLazySingleton(() => CreateStockCount(getIt()));
+    getIt.registerLazySingleton(() => UpdateStockCountHeader(getIt()));
+    getIt.registerLazySingleton(() => ConfirmStockCount(getIt()));
+    getIt.registerLazySingleton(() => ValidateStockCount(getIt()));
+    getIt.registerLazySingleton(() => CancelStockCount(getIt()));
+    getIt.registerLazySingleton(() => DeleteStockCount(getIt()));
+    getIt.registerLazySingleton(() => StoreLocationCount(getIt()));
+    getIt.registerLazySingleton(() => LoadSCProducts(getIt()));
+    getIt.registerLazySingleton(() => GetSCLocationsByWarehouse(getIt()));
+    getIt.registerLazySingleton(() => GetSCIndexLocation(getIt()));
+    getIt.registerLazySingleton(() => GetSCSteps(getIt()));
+    getIt.registerLazySingleton(() => ApproveStockCount(getIt()));
+    getIt.registerLazySingleton(() => RejectStockCount(getIt()));
+    getIt.registerLazySingleton<StockCountController>(
+      () => StockCountController(
+        getList:                 getIt(),
+        getDetail:               getIt(),
+        getFormOptions:          getIt(),
+        createSC:                getIt(),
+        updateHeader:            getIt(),
+        confirmSC:               getIt(),
+        validateSC:              getIt(),
+        cancelSC:                getIt(),
+        deleteSC:                getIt(),
+        storeLocationCount:      getIt(),
+        loadProducts:            getIt(),
+        getLocationsByWarehouse: getIt(),
+        getIndexLocation:        getIt(),
+        getSteps:                getIt(),
+        approveSC:               getIt(),
+        rejectSC:                getIt(),
       ),
     );
   }
