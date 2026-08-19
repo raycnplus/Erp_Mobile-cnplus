@@ -297,6 +297,7 @@ class _InternalTransferDetailScreenState extends State<InternalTransferDetailScr
       items.add(InternalTransferFormItem(
         idProduct: item.idProduct,
         uomId: item.unitOfMeasure,
+        demandQty: item.demandQty, 
         transferredQty: transferred,
       ));
     }
@@ -368,10 +369,8 @@ class _InternalTransferDetailScreenState extends State<InternalTransferDetailScr
     );
     if (result == null || !mounted) return;
 
-    final totalQty = result.fold<double>(0, (s, r) => s + (r['quantity'] as double));
     final ok = await ctrl.saveTracking(
       idInternalTransferItem: item.idInternalTransferItem,
-      transferredQty: totalQty,
       trackingData: result,
     );
     if (!mounted) return;
