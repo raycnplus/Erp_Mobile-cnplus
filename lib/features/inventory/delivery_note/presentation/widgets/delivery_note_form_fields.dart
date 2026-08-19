@@ -289,6 +289,11 @@ class _State extends State<DeliveryNoteFormFields> with TickerProviderStateMixin
     );
   }
 
+  List<DNLocationOption> _getFilteredLocations() {
+    if (_opts == null || widget.formData.sourceWarehouse == null) return [];
+    return _opts!.locationsForWarehouse(widget.formData.sourceWarehouse!);
+  }
+
   Widget _buildHeaderTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -324,9 +329,11 @@ class _State extends State<DeliveryNoteFormFields> with TickerProviderStateMixin
           const SizedBox(height: 14),
 
           CustomSearchableDropdown<DNLocationOption>(
-            key: ValueKey('loc_${widget.formData.sourceLocation}_${_opts?.locations.length}'),
-            value: _opts?.locations.where((l) => l.id == widget.formData.sourceLocation).firstOrNull,
-            items: _opts?.locations ?? [],
+            key: ValueKey('loc_${widget.formData.sourceLocation}_${widget.formData.sourceWarehouse}'),
+            value: _getFilteredLocations()
+                .where((l) => l.id == widget.formData.sourceLocation)
+                .firstOrNull,
+            items: _getFilteredLocations(),
             itemLabel: (l) => l.name,
             onChanged: (v) => setState(() {
               widget.formData.sourceLocation = v?.id;
