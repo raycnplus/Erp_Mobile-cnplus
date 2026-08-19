@@ -296,10 +296,17 @@ class ITWarehouseOption {
 
 class ITLocationOption {
   final int id;
+  final int warehouseId;
   final String name;
-  ITLocationOption({required this.id, required this.name});
-  factory ITLocationOption.fromJson(Map<String, dynamic> j) =>
-      ITLocationOption(id: _pi(j['id_location']), name: _ps(j['location_name']));
+
+  ITLocationOption({required this.id, required this.warehouseId, required this.name});
+
+  factory ITLocationOption.fromJson(Map<String, dynamic> j) => ITLocationOption(
+        id:          _pi(j['id_location']),
+        warehouseId: _pi(j['warehouse'] ?? j['id_warehouse']),
+        name:        _ps(j['location_name']),
+      );
+
   @override bool operator ==(Object o) => o is ITLocationOption && o.id == id;
   @override int get hashCode => id.hashCode;
 }
@@ -354,6 +361,11 @@ class InternalTransferFormOptions {
       defaultUomPerProduct: rawMap.map((k, v) => MapEntry(_pi(k), _pi(v))),
     );
   }
+
+  List<ITLocationOption> locationsForWarehouse(int warehouseId) {
+    final filtered = locations.where((l) => l.warehouseId == warehouseId).toList();
+    return filtered.isNotEmpty ? filtered : locations;
+  }
 }
 
 class InternalTransferFormItem {
@@ -384,6 +396,7 @@ class InternalTransferFormItem {
   Map<String, dynamic> toJsonTransferred() => {
         'id_product':       idProduct,
         'unit_of_measure':  uomId,
+        'demand_qty':       demandQty,
         'transferred_qty':  transferredQty,
       };
 }
@@ -428,6 +441,7 @@ class InternalTransferFormModel {
     if (status == 'validate') {
       return {
         'id_internal_transfer': idInternalTransfer,
+        'status':               'validate', 
         'products':             items.map((i) => i.toJsonTransferred()).toList(),
         'allow_backorder':      allowBackorder,
       };
