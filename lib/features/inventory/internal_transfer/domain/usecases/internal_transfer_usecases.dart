@@ -78,11 +78,9 @@ class SaveITTracking {
 
   Future<Map<String, dynamic>> call({
     required int idInternalTransferItem,
-    required double transferredQty,
     List<Map<String, dynamic>>? trackingData,
   }) => r.saveTracking(
         idInternalTransferItem: idInternalTransferItem,
-        transferredQty: transferredQty,
         trackingData: trackingData,
       );
 }
