@@ -330,7 +330,6 @@ class InternalTransferController extends ChangeNotifier {
 
   Future<bool> saveTracking({
     required int idInternalTransferItem,
-    required double transferredQty,
     List<Map<String, dynamic>>? trackingData,
   }) async {
     _isSaving = true;
@@ -340,7 +339,6 @@ class InternalTransferController extends ChangeNotifier {
     try {
       final result = await saveTrackingUC(
         idInternalTransferItem: idInternalTransferItem,
-        transferredQty: transferredQty,
         trackingData: trackingData,
       );
       _successMessage = result['message']?.toString() ?? 'Tracking saved';
