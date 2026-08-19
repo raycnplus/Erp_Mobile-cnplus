@@ -92,13 +92,11 @@ class InternalTransferRemoteDataSource {
 
   Future<Map<String, dynamic>> saveTracking({
     required int idInternalTransferItem,
-    required double transferredQty,
     List<Map<String, dynamic>>? trackingData,
   }) async {
     try {
       final r = await dio.post('$_base/save-tracking', data: {
         'id_internal_transfer_item': idInternalTransferItem,
-        'transferred_qty': transferredQty,
         'tracking_data': trackingData,
       });
       return r.data as Map<String, dynamic>;
