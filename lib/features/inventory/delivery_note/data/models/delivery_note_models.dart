@@ -318,10 +318,17 @@ class DNWarehouseOption {
 
 class DNLocationOption {
   final int id;
+  final int warehouseId;
   final String name;
-  DNLocationOption({required this.id, required this.name});
-  factory DNLocationOption.fromJson(Map<String, dynamic> j) =>
-      DNLocationOption(id: _pi(j['id_location']), name: _ps(j['location_name']));
+
+  DNLocationOption({required this.id, required this.warehouseId, required this.name});
+
+  factory DNLocationOption.fromJson(Map<String, dynamic> j) => DNLocationOption(
+        id:          _pi(j['id_location']),
+        warehouseId: _pi(j['warehouse'] ?? j['id_warehouse']),
+        name:        _ps(j['location_name']),
+      );
+
   @override bool operator ==(Object o) => o is DNLocationOption && o.id == id;
   @override int get hashCode => id.hashCode;
 }
@@ -378,6 +385,11 @@ class DeliveryNoteFormOptions {
       uoms:       (data['uoms']       as List? ?? []).map((e) => DNUomOption.fromJson(e)).toList(),
       defaultUomPerProduct: rawMap.map((k, v) => MapEntry(_pi(k), _pi(v))),
     );
+  }
+
+  List<DNLocationOption> locationsForWarehouse(int warehouseId) {
+    final filtered = locations.where((l) => l.warehouseId == warehouseId).toList();
+    return filtered.isNotEmpty ? filtered : locations;
   }
 }
 
@@ -453,6 +465,7 @@ class DeliveryNoteFormModel {
     if (status == 'validate') {
       return {
         'id_delivery_note': idDeliveryNote,
+        'status':           'validate',
         'products':         items.map((i) => i.toJsonDelivered()).toList(),
         'allow_backorder':  allowBackorder,
       };
