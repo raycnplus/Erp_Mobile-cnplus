@@ -287,235 +287,280 @@ import 'package:erp_mobile_cnplus/features/inventory/return_dn/presentation/scre
 import 'package:erp_mobile_cnplus/features/inventory/return_dn/presentation/screens/return_dn_detail_screen.dart';
 import 'package:erp_mobile_cnplus/features/inventory/return_dn/presentation/screens/return_dn_form_screen.dart';
 
+//  Warehouse Report
+import 'package:erp_mobile_cnplus/features/inventory/warehouse_report/presentation/screens/warehouse_report_list_screen.dart';
+
+//  Location Report
+import 'package:erp_mobile_cnplus/features/inventory/location_report/presentation/screens/location_report_list_screen.dart';
+
+//  Stock Report
+import 'package:erp_mobile_cnplus/features/inventory/stock_report/presentation/screens/stock_report_list_screen.dart';
+
+// Stock Movement Report
+import 'package:erp_mobile_cnplus/features/inventory/stock_movement/presentation/screens/stock_movement_list_screen.dart';
+
+// Stock Valuation Report
+import 'package:erp_mobile_cnplus/features/inventory/stock_valuation/presentation/screens/stock_valuation_list_screen.dart';
+
+// Stock History Report
+import 'package:erp_mobile_cnplus/features/inventory/history_stock/presentation/screens/history_stock_list_screen.dart';
+
+// Expired Report
+import 'package:erp_mobile_cnplus/features/inventory/expired_report/presentation/screens/expired_report_list_screen.dart';
 
 class AppRoutes {
-  static const String splash             = '/';
-  static const String initial            = '/login';
-  static const String profile            = '/profile';
-  static const String modul              = '/modul';
+  static const String splash = '/';
+  static const String initial = '/login';
+  static const String profile = '/profile';
+  static const String modul = '/modul';
   static const String dashboardInventory = '/inventory';
-  static const String dashboardPurchase  = '/purchase';
-  static const String dashboardSales     = '/sales';
-  static const String dashboardHr        = '/hr';
-  static const String dashboardAccounting= '/accounting';
-  static const String dashboardManufacturing= '/manufacturing';
-  static const String dashboardCrm= '/crm';
-  static const String dashboardPos= '/pos';
-  static const String generalDashboard= '/general-dashboard';
+  static const String dashboardPurchase = '/purchase';
+  static const String dashboardSales = '/sales';
+  static const String dashboardHr = '/hr';
+  static const String dashboardAccounting = '/accounting';
+  static const String dashboardManufacturing = '/manufacturing';
+  static const String dashboardCrm = '/crm';
+  static const String dashboardPos = '/pos';
+  static const String generalDashboard = '/general-dashboard';
 
   // Product
-  static const String productList   = '/master/products';
+  static const String productList = '/master/products';
   static const String productDetail = '/master/products/detail';
   static const String productCreate = '/master/products/create';
-  static const String productEdit   = '/master/products/edit';
+  static const String productEdit = '/master/products/edit';
 
   // Brand
-  static const String brandList   = '/master/brands';
+  static const String brandList = '/master/brands';
   static const String brandDetail = '/master/brands/detail';
   static const String brandCreate = '/master/brands/create';
-  static const String brandEdit   = '/master/brands/edit';
+  static const String brandEdit = '/master/brands/edit';
 
   // Product Category
-  static const String productCategoryList   = '/master/product-categories';
-  static const String productCategoryDetail = '/master/product-categories/detail';
-  static const String productCategoryCreate = '/master/product-categories/create';
-  static const String productCategoryEdit   = '/master/product-categories/edit';
+  static const String productCategoryList = '/master/product-categories';
+  static const String productCategoryDetail =
+      '/master/product-categories/detail';
+  static const String productCategoryCreate =
+      '/master/product-categories/create';
+  static const String productCategoryEdit = '/master/product-categories/edit';
 
   // Product Type
-  static const String productTypeList   = '/master/product-types';
+  static const String productTypeList = '/master/product-types';
   static const String productTypeDetail = '/master/product-types/detail';
   static const String productTypeCreate = '/master/product-types/create';
-  static const String productTypeEdit   = '/master/product-types/edit';
+  static const String productTypeEdit = '/master/product-types/edit';
 
   // Vendor
-  static const String vendorList   = '/master/vendors';
+  static const String vendorList = '/master/vendors';
   static const String vendorDetail = '/master/vendors/detail';
   static const String vendorCreate = '/master/vendors/create';
-  static const String vendorEdit   = '/master/vendors/edit';
+  static const String vendorEdit = '/master/vendors/edit';
 
   // Location
-  static const String locationList   = '/master/locations';
+  static const String locationList = '/master/locations';
   static const String locationDetail = '/master/locations/detail';
   static const String locationCreate = '/master/locations/create';
-  static const String locationEdit   = '/master/locations/edit';
+  static const String locationEdit = '/master/locations/edit';
 
   // Warehouse
-  static const String warehouseList   = '/master/warehouses';
+  static const String warehouseList = '/master/warehouses';
   static const String warehouseDetail = '/master/warehouses/detail';
   static const String warehouseCreate = '/master/warehouses/create';
-  static const String warehouseEdit   = '/master/warehouses/edit';
+  static const String warehouseEdit = '/master/warehouses/edit';
+
+  // Warehouse Report
+  static const String warehouseReport = '/inventory/warehouse-report';
+
+  // Location Report
+  static const String locationReport = '/inventory/location-report';
+
+  // Stock Report
+  static const String stockReport = '/inventory/stock-report';
+
+  // Stock Movement
+  static const String stockMovement = '/inventory/stock-movement';
+
+  // Stock Valuation
+  static const String stockValuation = '/inventory/stock-valuation';
+
+  // History Stock
+  static const String historyStock = '/inventory/history-stock-report';
+
+  // Expired Report
+  static const String expiredReport = '/inventory/expired-report';
 
   // Customer Category
-  static const String customerCategoryList   = '/master/customer-categories';
-  static const String customerCategoryDetail = '/master/customer-categories/detail';
-  static const String customerCategoryCreate = '/master/customer-categories/create';
-  static const String customerCategoryEdit   = '/master/customer-categories/edit';
+  static const String customerCategoryList = '/master/customer-categories';
+  static const String customerCategoryDetail =
+      '/master/customer-categories/detail';
+  static const String customerCategoryCreate =
+      '/master/customer-categories/create';
+  static const String customerCategoryEdit = '/master/customer-categories/edit';
 
   // Customer
-  static const String customerList   = '/master/customers';
+  static const String customerList = '/master/customers';
   static const String customerDetail = '/master/customers/detail';
   static const String customerCreate = '/master/customers/create';
-  static const String customerEdit   = '/master/customers/edit';
+  static const String customerEdit = '/master/customers/edit';
 
   // Sales Team
-  static const String salesTeamList   = '/master/sales-teams';
+  static const String salesTeamList = '/master/sales-teams';
   static const String salesTeamDetail = '/master/sales-teams/detail';
   static const String salesTeamCreate = '/master/sales-teams/create';
-  static const String salesTeamEdit   = '/master/sales-teams/edit';
+  static const String salesTeamEdit = '/master/sales-teams/edit';
 
   // Purchase Team
-  static const String purchaseTeamList   = '/master/purchase-teams';
+  static const String purchaseTeamList = '/master/purchase-teams';
   static const String purchaseTeamDetail = '/master/purchase-teams/detail';
   static const String purchaseTeamCreate = '/master/purchase-teams/create';
-  static const String purchaseTeamEdit   = '/master/purchase-teams/edit';
+  static const String purchaseTeamEdit = '/master/purchase-teams/edit';
 
   // HR Attendance
-  static const String attendance        = '/hr/attendance';
+  static const String attendance = '/hr/attendance';
   static const String attendanceCheckIn = '/hr/attendance/check-in';
-  static const String attendanceCheckOut= '/hr/attendance/check-out';
+  static const String attendanceCheckOut = '/hr/attendance/check-out';
   static const String attendanceHistory = '/hr/attendance/history';
 
   // HR Department
-  static const String departmentList   = '/hr/departments';
+  static const String departmentList = '/hr/departments';
   static const String departmentDetail = '/hr/departments/detail';
   static const String departmentCreate = '/hr/departments/create';
-  static const String departmentEdit   = '/hr/departments/edit';
+  static const String departmentEdit = '/hr/departments/edit';
 
   // HR Employee Status
-  static const String employeeStatusList   = '/hr/employee-statuses';
+  static const String employeeStatusList = '/hr/employee-statuses';
   static const String employeeStatusDetail = '/hr/employee-statuses/detail';
   static const String employeeStatusCreate = '/hr/employee-statuses/create';
-  static const String employeeStatusEdit   = '/hr/employee-statuses/edit';
+  static const String employeeStatusEdit = '/hr/employee-statuses/edit';
 
   // HR National Holiday
-  static const String nationalHolidayList   = '/hr/national-holidays';
+  static const String nationalHolidayList = '/hr/national-holidays';
   static const String nationalHolidayDetail = '/hr/national-holidays/detail';
   static const String nationalHolidayCreate = '/hr/national-holidays/create';
-  static const String nationalHolidayEdit   = '/hr/national-holidays/edit';
+  static const String nationalHolidayEdit = '/hr/national-holidays/edit';
 
   // HR Position
-  static const String positionList   = '/hr/positions';
+  static const String positionList = '/hr/positions';
   static const String positionDetail = '/hr/positions/detail';
   static const String positionCreate = '/hr/positions/create';
-  static const String positionEdit   = '/hr/positions/edit';
+  static const String positionEdit = '/hr/positions/edit';
 
   // HR Leave Type
-  static const String leaveTypeList   = '/hr/leave-types';
+  static const String leaveTypeList = '/hr/leave-types';
   static const String leaveTypeDetail = '/hr/leave-types/detail';
   static const String leaveTypeCreate = '/hr/leave-types/create';
-  static const String leaveTypeEdit   = '/hr/leave-types/edit';
+  static const String leaveTypeEdit = '/hr/leave-types/edit';
 
   // HR Collective Leave
-  static const String collectiveLeaveList   = '/hr/collective-leave';
+  static const String collectiveLeaveList = '/hr/collective-leave';
   static const String collectiveLeaveDetail = '/hr/collective-leave/detail';
   static const String collectiveLeaveCreate = '/hr/collective-leave/create';
-  static const String collectiveLeaveEdit   = '/hr/collective-leave/edit';
+  static const String collectiveLeaveEdit = '/hr/collective-leave/edit';
 
   // Master Employee
-  static const String employeeList   = '/hr/employee';
+  static const String employeeList = '/hr/employee';
   static const String employeeDetail = '/hr/employee/detail';
   static const String employeeCreate = '/hr/employee/create';
-  static const String employeeEdit   = '/hr/employee/edit';
-  
+  static const String employeeEdit = '/hr/employee/edit';
+
   // HR Leave Allocation
-  static const String leaveAllocationList   = '/hr/leave-allocation';
+  static const String leaveAllocationList = '/hr/leave-allocation';
   static const String leaveAllocationDetail = '/hr/leave-allocation/detail';
   static const String leaveAllocationCreate = '/hr/leave-allocation/create';
-  static const String leaveAllocationEdit   = '/hr/leave-allocation/edit';
+  static const String leaveAllocationEdit = '/hr/leave-allocation/edit';
 
   // HR Overtime Type
-  static const String overtimeTypeList   = '/hr/overtime-type';
+  static const String overtimeTypeList = '/hr/overtime-type';
   static const String overtimeTypeDetail = '/hr/overtime-type/detail';
   static const String overtimeTypeCreate = '/hr/overtime-type/create';
-  static const String overtimeTypeEdit   = '/hr/overtime-type/edit';
+  static const String overtimeTypeEdit = '/hr/overtime-type/edit';
 
   // HR Leave Quota
-  static const String leaveQuotaList   = '/hr/leave-quota';
+  static const String leaveQuotaList = '/hr/leave-quota';
   static const String leaveQuotaDetail = '/hr/leave-quota/detail';
 
   // HR Leave request
-  static const String leaveRequestList   = '/hr/leave-request';
+  static const String leaveRequestList = '/hr/leave-request';
   static const String leaveRequestDetail = '/hr/leave-request/detail';
   static const String leaveRequestCreate = '/hr/leave-request/create';
-  static const String leaveRequestEdit   = '/hr/leave-request/edit';
+  static const String leaveRequestEdit = '/hr/leave-request/edit';
 
   // HR Leave request
-  static const String overtimeRequestList   = '/hr/overtime-request';
+  static const String overtimeRequestList = '/hr/overtime-request';
   static const String overtimeRequestDetail = '/hr/overtime-request/detail';
   static const String overtimeRequestCreate = '/hr/overtime-request/create';
-  static const String overtimeRequestEdit   = '/hr/overtime-request/edit';
+  static const String overtimeRequestEdit = '/hr/overtime-request/edit';
 
   // Accounting Coa
-  static const String coaList   = '/accounting/coa';
+  static const String coaList = '/accounting/coa';
   static const String coaDetail = '/accounting/coa/detail';
   static const String coaCreate = '/accounting/coa/create';
-  static const String coaEdit   = '/accounting/coa/edit';
+  static const String coaEdit = '/accounting/coa/edit';
 
   // Accounting Bank Account
-  static const String bankAccountList   = '/accounting/bank-account';
+  static const String bankAccountList = '/accounting/bank-account';
   static const String bankAccountDetail = '/accounting/bank-account/detail';
   static const String bankAccountCreate = '/accounting/bank-account/create';
-  static const String bankAccountEdit   = '/accounting/bank-account/edit';
+  static const String bankAccountEdit = '/accounting/bank-account/edit';
 
   // Master Project
-  static const String projectList   = '/master/project';
+  static const String projectList = '/master/project';
   static const String projectDetail = '/master/project/detail';
   static const String projectCreate = '/master/project/create';
-  static const String projectEdit   = '/master/project/edit';
-  
+  static const String projectEdit = '/master/project/edit';
+
   // Sales Price List
-  static const String priceListList   = '/sales/price-list';
+  static const String priceListList = '/sales/price-list';
   static const String priceListDetail = '/sales/price-list/detail';
   static const String priceListCreate = '/sales/price-list/create';
-  static const String priceListEdit   = '/sales/price-list/edit';
+  static const String priceListEdit = '/sales/price-list/edit';
 
   // Manufacturing Workstation
-  static const String workstationList   = '/manufacturing/workstation';
+  static const String workstationList = '/manufacturing/workstation';
   static const String workstationDetail = '/manufacturing/workstation/detail';
   static const String workstationCreate = '/manufacturing/workstation/create';
-  static const String workstationEdit   = '/manufacturing/workstation/edit';
+  static const String workstationEdit = '/manufacturing/workstation/edit';
 
   // Manufacturing Bill of Material
-  static const String bomList   = '/manufacturing/bom';
+  static const String bomList = '/manufacturing/bom';
   static const String bomDetail = '/manufacturing/bom/detail';
   static const String bomCreate = '/manufacturing/bom/create';
-  static const String bomEdit   = '/manufacturing/bom/edit';
-  
+  static const String bomEdit = '/manufacturing/bom/edit';
+
   // Master UOM
-  static const String uomList   = '/master/uom';
+  static const String uomList = '/master/uom';
   static const String uomDetail = '/master/uom/detail';
   static const String uomCreate = '/master/uom/create';
-  static const String uomEdit   = '/master/uom/edit';
+  static const String uomEdit = '/master/uom/edit';
 
   // Master User
-  static const String userList   = '/master/user';
+  static const String userList = '/master/user';
   static const String userDetail = '/master/user/detail';
   static const String userCreate = '/master/user/create';
-  static const String userEdit   = '/master/user/edit';
+  static const String userEdit = '/master/user/edit';
 
   // PoS Store
-  static const String storeList   = '/master/store';
+  static const String storeList = '/master/store';
   static const String storeDetail = '/master/store/detail';
   static const String storeCreate = '/master/store/create';
-  static const String storeEdit   = '/master/store/edit';
+  static const String storeEdit = '/master/store/edit';
 
   // Sales Quotation
-  static const String quotationList   = '/sales/quotation';
+  static const String quotationList = '/sales/quotation';
   static const String quotationDetail = '/sales/quotation/detail';
   static const String quotationCreate = '/sales/quotation/create';
-  static const String quotationEdit   = '/sales/quotation/edit';
+  static const String quotationEdit = '/sales/quotation/edit';
 
   // Sales Sales Order
-  static const String salesOrderList   = '/sales/sales-order';
+  static const String salesOrderList = '/sales/sales-order';
   static const String salesOrderDetail = '/sales/sales-order/detail';
   static const String salesOrderCreate = '/sales/sales-order/create';
-  static const String salesOrderEdit   = '/sales/sales-order/edit';
+  static const String salesOrderEdit = '/sales/sales-order/edit';
 
   // Sales Direct Sales
-  static const String directSalesList   = '/sales/direct-sales';
+  static const String directSalesList = '/sales/direct-sales';
   static const String directSalesDetail = '/sales/direct-sales/detail';
   static const String directSalesCreate = '/sales/direct-sales/create';
-  static const String directSalesEdit   = '/sales/direct-sales/edit';
+  static const String directSalesEdit = '/sales/direct-sales/edit';
 
   // Sales Invoice
   static const String invoiceList = '/sales/invoices';
@@ -525,21 +570,28 @@ class AppRoutes {
 
   // Sales Service Quotation
   static const String serviceQuotationList = '/sales/service/quotation';
-  static const String serviceQuotationDetail = '/sales/service/quotation/detail';
-  static const String serviceQuotationCreate = '/sales/service/quotation/create';
+  static const String serviceQuotationDetail =
+      '/sales/service/quotation/detail';
+  static const String serviceQuotationCreate =
+      '/sales/service/quotation/create';
   static const String serviceQuotationEdit = '/sales/service/quotation/edit';
 
   // Sales Service Sales Order
   static const String serviceSalesOrderList = '/sales/service/sales-order';
-  static const String serviceSalesOrderDetail = '/sales/service/sales-order/detail';
-  static const String serviceSalesOrderCreate = '/sales/service/sales-order/create';
+  static const String serviceSalesOrderDetail =
+      '/sales/service/sales-order/detail';
+  static const String serviceSalesOrderCreate =
+      '/sales/service/sales-order/create';
   static const String serviceSalesOrderEdit = '/sales/service/sales-order/edit';
 
   // Sales Service Direct Sales
   static const String serviceDirectSalesList = '/sales/service/direct-sales';
-  static const String serviceDirectSalesDetail = '/sales/service/direct-sales/detail';
-  static const String serviceDirectSalesCreate = '/sales/service/direct-sales/create';
-  static const String serviceDirectSalesEdit = '/sales/service/direct-sales/edit';
+  static const String serviceDirectSalesDetail =
+      '/sales/service/direct-sales/detail';
+  static const String serviceDirectSalesCreate =
+      '/sales/service/direct-sales/create';
+  static const String serviceDirectSalesEdit =
+      '/sales/service/direct-sales/edit';
 
   // Sales Service Invoice
   static const String serviceInvoiceList = '/sales/service/invoice';
@@ -549,8 +601,10 @@ class AppRoutes {
 
   // Purchase Request
   static const String purchaseRequestList = '/purchase/purchase-request';
-  static const String purchaseRequestDetail = '/purchase/purchase-request/detail';
-  static const String purchaseRequestCreate = '/purchase/purchase-request/create';
+  static const String purchaseRequestDetail =
+      '/purchase/purchase-request/detail';
+  static const String purchaseRequestCreate =
+      '/purchase/purchase-request/create';
   static const String purchaseRequestEdit = '/purchase/purchase-request/edit';
 
   // Rfq
@@ -591,9 +645,12 @@ class AppRoutes {
 
   // Internal Transfer
   static const String internalTransferList = '/inventory/internal-transfer';
-  static const String internalTransferDetail = '/inventory/internal-transfer/detail';
-  static const String internalTransferCreate = '/inventory/internal-transfer/create';
-  static const String internalTransferEdit = '/inventory/internal-transfer/edit';
+  static const String internalTransferDetail =
+      '/inventory/internal-transfer/detail';
+  static const String internalTransferCreate =
+      '/inventory/internal-transfer/create';
+  static const String internalTransferEdit =
+      '/inventory/internal-transfer/edit';
 
   // Transfer In
   static const String transferInList = '/inventory/transfer-in';
@@ -627,17 +684,16 @@ class AppRoutes {
   static const String returnDNCreate = '/inventory/return-dn/create';
   static const String returnDNEdit = '/inventory/return-dn/edit';
 
-
   static Map<String, WidgetBuilder> routes = {
-    splash:  (context) => const SplashScreen(),
+    splash: (context) => const SplashScreen(),
     initial: (context) => const LoginScreen(),
     profile: (context) => const ProfileScreen(),
-    modul:   (context) => const ModulScreen(),
+    modul: (context) => const ModulScreen(),
 
-    dashboardInventory:  (context) => const DashboardInventoryScreen(),
-    dashboardPurchase:   (context) => const DashboardPurchaseScreen(),
-    dashboardSales:      (context) => const DashboardSalesScreen(),
-    dashboardHr:         (context) => const DashboardHrScreen(),
+    dashboardInventory: (context) => const DashboardInventoryScreen(),
+    dashboardPurchase: (context) => const DashboardPurchaseScreen(),
+    dashboardSales: (context) => const DashboardSalesScreen(),
+    dashboardHr: (context) => const DashboardHrScreen(),
     dashboardAccounting: (context) => const DashboardAccountingScreen(),
     dashboardManufacturing: (context) => const DashboardManufacturingScreen(),
     dashboardCrm: (context) => const DashboardCrmScreen(),
@@ -645,135 +701,239 @@ class AppRoutes {
     generalDashboard: (context) => const GeneralDashboardScreen(),
 
     // Product
-    productList:   (context) => const ProductListScreen(),
-    productDetail: (context) => ProductDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    productList: (context) => const ProductListScreen(),
+    productDetail: (context) => ProductDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     productCreate: (context) => const ProductFormScreen(),
-    productEdit:   (context) => ProductFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    productEdit: (context) => ProductFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Brand
-    brandList:   (context) => const BrandListScreen(),
-    brandDetail: (context) => BrandDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    brandList: (context) => const BrandListScreen(),
+    brandDetail: (context) => BrandDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     brandCreate: (context) => const BrandFormScreen(),
-    brandEdit:   (context) => BrandFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    brandEdit: (context) => BrandFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Product Category
-    productCategoryList:   (context) => const ProductCategoryListScreen(),
-    productCategoryDetail: (context) => ProductCategoryDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    productCategoryList: (context) => const ProductCategoryListScreen(),
+    productCategoryDetail: (context) => ProductCategoryDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     productCategoryCreate: (context) => const ProductCategoryFormScreen(),
-    productCategoryEdit:   (context) => ProductCategoryFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    productCategoryEdit: (context) => ProductCategoryFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Product Type
-    productTypeList:   (context) => const ProductTypeListScreen(),
-    productTypeDetail: (context) => ProductTypeDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    productTypeList: (context) => const ProductTypeListScreen(),
+    productTypeDetail: (context) => ProductTypeDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     productTypeCreate: (context) => const ProductTypeFormScreen(),
-    productTypeEdit:   (context) => ProductTypeFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    productTypeEdit: (context) => ProductTypeFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Vendor
-    vendorList:   (context) => const VendorListScreen(),
-    vendorDetail: (context) => VendorDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    vendorList: (context) => const VendorListScreen(),
+    vendorDetail: (context) => VendorDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     vendorCreate: (context) => const VendorFormScreen(),
-    vendorEdit:   (context) => VendorFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    vendorEdit: (context) => VendorFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Location
-    locationList:   (context) => const LocationListScreen(),
-    locationDetail: (context) => LocationDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    locationList: (context) => const LocationListScreen(),
+    locationDetail: (context) => LocationDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     locationCreate: (context) => const LocationFormScreen(),
-    locationEdit:   (context) => LocationFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    locationEdit: (context) => LocationFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Warehouse
-    warehouseList:   (context) => const WarehouseListScreen(),
-    warehouseDetail: (context) => WarehouseDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    warehouseList: (context) => const WarehouseListScreen(),
+    warehouseDetail: (context) => WarehouseDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     warehouseCreate: (context) => const WarehouseFormScreen(),
-    warehouseEdit:   (context) => WarehouseFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    warehouseEdit: (context) => WarehouseFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
+
+    // Warehouse Report
+    warehouseReport: (context) => const WarehouseReportListScreen(),
+
+    // Location Report
+    locationReport: (context) => const LocationReportListScreen(),
+
+    // Stock Report
+    stockReport: (context) => const StockReportListScreen(),
+
+    // Stock Movement Report
+    stockMovement: (context) => const StockMovementListScreen(),
+
+    // Stock Valuation Report
+    stockValuation: (context) => const StockValuationListScreen(),
+
+    // Stock History Report
+    historyStock: (context) => const HistoryStockListScreen(),
+
+    // Expired Report
+    expiredReport: (context) => const ExpiredReportListScreen(),
 
     // Customer Category
-    customerCategoryList:   (context) => const CustomerCategoryListScreen(),
-    customerCategoryDetail: (context) => CustomerCategoryDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    customerCategoryList: (context) => const CustomerCategoryListScreen(),
+    customerCategoryDetail: (context) => CustomerCategoryDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     customerCategoryCreate: (context) => const CustomerCategoryFormScreen(),
-    customerCategoryEdit:   (context) => CustomerCategoryFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    customerCategoryEdit: (context) => CustomerCategoryFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Customer
-    customerList:   (context) => const CustomerListScreen(),
-    customerDetail: (context) => CustomerDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    customerList: (context) => const CustomerListScreen(),
+    customerDetail: (context) => CustomerDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     customerCreate: (context) => const CustomerFormScreen(),
-    customerEdit:   (context) => CustomerFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    customerEdit: (context) => CustomerFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Sales Team
-    salesTeamList:   (context) => const SalesTeamListScreen(),
-    salesTeamDetail: (context) => SalesTeamDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    salesTeamList: (context) => const SalesTeamListScreen(),
+    salesTeamDetail: (context) => SalesTeamDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     salesTeamCreate: (context) => const SalesTeamFormScreen(),
-    salesTeamEdit:   (context) => SalesTeamFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    salesTeamEdit: (context) => SalesTeamFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Purchase Team
-    purchaseTeamList:   (context) => const PurchaseTeamListScreen(),
-    purchaseTeamDetail: (context) => PurchaseTeamDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    purchaseTeamList: (context) => const PurchaseTeamListScreen(),
+    purchaseTeamDetail: (context) => PurchaseTeamDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     purchaseTeamCreate: (context) => const PurchaseTeamFormScreen(),
-    purchaseTeamEdit:   (context) => PurchaseTeamFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    purchaseTeamEdit: (context) => PurchaseTeamFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // HR Attendance
-    attendance:         (context) => const AttendanceScreen(),
-    attendanceCheckIn:  (context) => const AttendanceFormScreen(isCheckOut: false),
-    attendanceCheckOut: (context) => const AttendanceFormScreen(isCheckOut: true),
-    attendanceHistory:  (context) => const AttendanceHistoryScreen(),
+    attendance: (context) => const AttendanceScreen(),
+    attendanceCheckIn: (context) =>
+        const AttendanceFormScreen(isCheckOut: false),
+    attendanceCheckOut: (context) =>
+        const AttendanceFormScreen(isCheckOut: true),
+    attendanceHistory: (context) => const AttendanceHistoryScreen(),
 
     // HR Department
-    departmentList:   (context) => const DepartmentListScreen(),
-    departmentDetail: (context) => DepartmentDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    departmentList: (context) => const DepartmentListScreen(),
+    departmentDetail: (context) => DepartmentDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     departmentCreate: (context) => const DepartmentFormScreen(),
-    departmentEdit:   (context) => DepartmentFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    departmentEdit: (context) => DepartmentFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // HR Employee Status
-    employeeStatusList:   (context) => const EmployeeStatusListScreen(),
-    employeeStatusDetail: (context) => EmployeeStatusDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    employeeStatusList: (context) => const EmployeeStatusListScreen(),
+    employeeStatusDetail: (context) => EmployeeStatusDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     employeeStatusCreate: (context) => const EmployeeStatusFormScreen(),
-    employeeStatusEdit:   (context) => EmployeeStatusFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    employeeStatusEdit: (context) => EmployeeStatusFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // HR National Holiday
-    nationalHolidayList:   (context) => const NationalHolidayListScreen(),
-    nationalHolidayDetail: (context) => NationalHolidayDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    nationalHolidayList: (context) => const NationalHolidayListScreen(),
+    nationalHolidayDetail: (context) => NationalHolidayDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     nationalHolidayCreate: (context) => const NationalHolidayFormScreen(),
-    nationalHolidayEdit:   (context) => NationalHolidayFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    nationalHolidayEdit: (context) => NationalHolidayFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // HR Position
-    positionList:   (context) => const PositionListScreen(),
-    positionDetail: (context) => PositionDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    positionList: (context) => const PositionListScreen(),
+    positionDetail: (context) => PositionDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     positionCreate: (context) => const PositionFormScreen(),
-    positionEdit:   (context) => PositionFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    positionEdit: (context) => PositionFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // HR Leave Type
-    leaveTypeList:   (context) => const LeaveTypeListScreen(),
-    leaveTypeDetail: (context) => LeaveTypeDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    leaveTypeList: (context) => const LeaveTypeListScreen(),
+    leaveTypeDetail: (context) => LeaveTypeDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     leaveTypeCreate: (context) => const LeaveTypeFormScreen(),
-    leaveTypeEdit:   (context) => LeaveTypeFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    leaveTypeEdit: (context) => LeaveTypeFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // HR Collective Leave
-    collectiveLeaveList:   (context) => const CollectiveLeaveListScreen(),
-    collectiveLeaveDetail: (context) => CollectiveLeaveDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    collectiveLeaveList: (context) => const CollectiveLeaveListScreen(),
+    collectiveLeaveDetail: (context) => CollectiveLeaveDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     collectiveLeaveCreate: (context) => const CollectiveLeaveFormScreen(),
-    collectiveLeaveEdit:   (context) => CollectiveLeaveFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    collectiveLeaveEdit: (context) => CollectiveLeaveFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Master Employee
-    employeeList:   (context) => const EmployeeListScreen(),
-    employeeDetail: (context) => EmployeeDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    employeeList: (context) => const EmployeeListScreen(),
+    employeeDetail: (context) => EmployeeDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     employeeCreate: (context) => const EmployeeFormScreen(),
-    employeeEdit:   (context) => EmployeeFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    employeeEdit: (context) => EmployeeFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // HR Leave Allocation
-    leaveAllocationList:   (context) => const LeaveAllocationListScreen(),
-    leaveAllocationDetail: (context) => LeaveAllocationDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    leaveAllocationList: (context) => const LeaveAllocationListScreen(),
+    leaveAllocationDetail: (context) => LeaveAllocationDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     leaveAllocationCreate: (context) => const LeaveAllocationFormScreen(),
-    leaveAllocationEdit:   (context) => LeaveAllocationFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    leaveAllocationEdit: (context) => LeaveAllocationFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // HR Overtime Type
-    overtimeTypeList:   (context) => const OvertimeTypeListScreen(),
-    overtimeTypeDetail: (context) => OvertimeTypeDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    overtimeTypeList: (context) => const OvertimeTypeListScreen(),
+    overtimeTypeDetail: (context) => OvertimeTypeDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     overtimeTypeCreate: (context) => const OvertimeTypeFormScreen(),
-    overtimeTypeEdit:   (context) => OvertimeTypeFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    overtimeTypeEdit: (context) => OvertimeTypeFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // HR Leave Quota
-    leaveQuotaList:   (context) => const LeaveQuotaListScreen(),
+    leaveQuotaList: (context) => const LeaveQuotaListScreen(),
     leaveQuotaDetail: (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+      final args =
+          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
       return LeaveQuotaDetailScreen(
         employeeEncryption: args['employeeEncryption'],
         employeeName: args['employeeName'],
@@ -784,182 +944,299 @@ class AppRoutes {
     },
 
     // HR Leave Request
-    leaveRequestList:   (context) => const LeaveRequestListScreen(),
-    leaveRequestDetail: (context) => LeaveRequestDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    leaveRequestList: (context) => const LeaveRequestListScreen(),
+    leaveRequestDetail: (context) => LeaveRequestDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     leaveRequestCreate: (context) => const LeaveRequestFormScreen(),
-    leaveRequestEdit:   (context) => LeaveRequestFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    leaveRequestEdit: (context) => LeaveRequestFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // HR Leave Request
-    overtimeRequestList:   (context) => const OvertimeRequestListScreen(),
-    overtimeRequestDetail: (context) => OvertimeRequestDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    overtimeRequestList: (context) => const OvertimeRequestListScreen(),
+    overtimeRequestDetail: (context) => OvertimeRequestDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     overtimeRequestCreate: (context) => const OvertimeRequestFormScreen(),
-    overtimeRequestEdit:   (context) => OvertimeRequestFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    overtimeRequestEdit: (context) => OvertimeRequestFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Accounting Coa
-    coaList:   (context) => const CoaListScreen(),
-    coaDetail: (context) => CoaDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    coaList: (context) => const CoaListScreen(),
+    coaDetail: (context) => CoaDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     coaCreate: (context) => const CoaFormScreen(),
-    coaEdit:   (context) => CoaFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    coaEdit: (context) => CoaFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Accounting Bank Account
-    bankAccountList:   (context) => const BankAccountListScreen(),
-    bankAccountDetail: (context) => BankAccountDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    bankAccountList: (context) => const BankAccountListScreen(),
+    bankAccountDetail: (context) => BankAccountDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     bankAccountCreate: (context) => const BankAccountFormScreen(),
-    bankAccountEdit:   (context) => BankAccountFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    bankAccountEdit: (context) => BankAccountFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Master Project
-    projectList:   (context) => const ProjectListScreen(),
-    projectDetail: (context) => ProjectDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    projectList: (context) => const ProjectListScreen(),
+    projectDetail: (context) => ProjectDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     projectCreate: (context) => const ProjectFormScreen(),
-    projectEdit:   (context) => ProjectFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    projectEdit: (context) => ProjectFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Sales Price List
-    priceListList:   (context) => const PriceListListScreen(),
-    priceListDetail: (context) => PriceListDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    priceListList: (context) => const PriceListListScreen(),
+    priceListDetail: (context) => PriceListDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     priceListCreate: (context) => const PriceListFormScreen(),
-    priceListEdit:   (context) => PriceListFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    priceListEdit: (context) => PriceListFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Manufacturing Workstation
-    workstationList:   (context) => const WorkstationListScreen(),
-    workstationDetail: (context) => WorkstationDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    workstationList: (context) => const WorkstationListScreen(),
+    workstationDetail: (context) => WorkstationDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     workstationCreate: (context) => const WorkstationFormScreen(),
-    workstationEdit:   (context) => WorkstationFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    workstationEdit: (context) => WorkstationFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Manufacturing Bill of Material
-    bomList:   (context) => const BomListScreen(),
-    bomDetail: (context) => BomDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    bomList: (context) => const BomListScreen(),
+    bomDetail: (context) => BomDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     bomCreate: (context) => const BomFormScreen(),
-    bomEdit:   (context) => BomFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    bomEdit: (context) => BomFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Master UOM
-    uomList:   (context) => const UomListScreen(),
-    uomDetail: (context) => UomDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    uomList: (context) => const UomListScreen(),
+    uomDetail: (context) => UomDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     uomCreate: (context) => const UomFormScreen(),
-    uomEdit:   (context) => UomFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    uomEdit: (context) => UomFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Master User
-    userList:   (context) => const UserListScreen(),
-    userDetail: (context) => UserDetailScreen(userId: ModalRoute.of(context)!.settings.arguments as int),
+    userList: (context) => const UserListScreen(),
+    userDetail: (context) => UserDetailScreen(
+      userId: ModalRoute.of(context)!.settings.arguments as int,
+    ),
 
     // PoS Store
-    storeList:   (context) => const StoreListScreen(),
-    storeDetail: (context) => StoreDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    storeList: (context) => const StoreListScreen(),
+    storeDetail: (context) => StoreDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     storeCreate: (context) => const StoreFormScreen(),
-    storeEdit:   (context) => StoreFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    storeEdit: (context) => StoreFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Sales Quotation
-    quotationList:   (context) => const QuotationListScreen(),
-    quotationDetail: (context) => QuotationDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    quotationList: (context) => const QuotationListScreen(),
+    quotationDetail: (context) => QuotationDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     quotationCreate: (context) => const QuotationFormScreen(),
-    quotationEdit:   (context) => QuotationFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    quotationEdit: (context) => QuotationFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Sales Sales Order
-    salesOrderList:   (context) => const SalesOrderListScreen(),
-    salesOrderDetail: (context) => SalesOrderDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    salesOrderList: (context) => const SalesOrderListScreen(),
+    salesOrderDetail: (context) => SalesOrderDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     salesOrderCreate: (context) => const SalesOrderFormScreen(),
-    salesOrderEdit:   (context) => SalesOrderFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    salesOrderEdit: (context) => SalesOrderFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Sales Direct Sales
-    directSalesList:   (context) => const DirectSalesListScreen(),
-    directSalesDetail: (context) => DirectSalesDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    directSalesList: (context) => const DirectSalesListScreen(),
+    directSalesDetail: (context) => DirectSalesDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     directSalesCreate: (context) => const DirectSalesFormScreen(),
-    directSalesEdit:   (context) => DirectSalesFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    directSalesEdit: (context) => DirectSalesFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Sales Invoice
     invoiceList: (context) => const InvoiceListScreen(),
-    invoiceDetail: (context) => InvoiceDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    invoiceDetail: (context) => InvoiceDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     invoiceCreate: (context) => const InvoiceFormScreen(),
-    invoiceEdit: (context) => InvoiceFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    invoiceEdit: (context) => InvoiceFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Sales Service Quotation
     serviceQuotationList: (context) => const ServiceQuotationListScreen(),
-    serviceQuotationDetail: (context) => ServiceQuotationDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    serviceQuotationDetail: (context) => ServiceQuotationDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     serviceQuotationCreate: (context) => const ServiceQuotationFormScreen(),
-    serviceQuotationEdit: (context) => ServiceQuotationFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    serviceQuotationEdit: (context) => ServiceQuotationFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Sales Service Sales Order
     serviceSalesOrderList: (context) => const ServiceSalesOrderListScreen(),
-    serviceSalesOrderDetail: (context) => ServiceSalesOrderDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    serviceSalesOrderDetail: (context) => ServiceSalesOrderDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     serviceSalesOrderCreate: (context) => const ServiceSalesOrderFormScreen(),
-    serviceSalesOrderEdit: (context) => ServiceSalesOrderFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    serviceSalesOrderEdit: (context) => ServiceSalesOrderFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Sales Service Direct Sales
     serviceDirectSalesList: (context) => const ServiceDirectSalesListScreen(),
-    serviceDirectSalesDetail: (context) => ServiceDirectSalesDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    serviceDirectSalesDetail: (context) => ServiceDirectSalesDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     serviceDirectSalesCreate: (context) => const ServiceDirectSalesFormScreen(),
-    serviceDirectSalesEdit: (context) => ServiceDirectSalesFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    serviceDirectSalesEdit: (context) => ServiceDirectSalesFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Sales Service Invoice
     serviceInvoiceList: (context) => const ServiceInvoiceListScreen(),
-    serviceInvoiceDetail: (context) => ServiceInvoiceDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    serviceInvoiceDetail: (context) => ServiceInvoiceDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     serviceInvoiceCreate: (context) => const ServiceInvoiceFormScreen(),
-    serviceInvoiceEdit: (context) => ServiceInvoiceFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    serviceInvoiceEdit: (context) => ServiceInvoiceFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Purchase Request
     purchaseRequestList: (context) => const PurchaseRequestListScreen(),
-    purchaseRequestDetail: (context) => PurchaseRequestDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    purchaseRequestDetail: (context) => PurchaseRequestDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     purchaseRequestCreate: (context) => const PurchaseRequestFormScreen(),
-    purchaseRequestEdit: (context) => PurchaseRequestFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    purchaseRequestEdit: (context) => PurchaseRequestFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // RFQ
     rfqList: (context) => const RfqListScreen(),
-    rfqDetail: (context) => RfqDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    rfqDetail: (context) => RfqDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     rfqCreate: (context) => const RfqFormScreen(),
-    rfqEdit: (context) => RfqFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
-  
+    rfqEdit: (context) => RfqFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
+
     // Direct Purchase
     directPurchaseList: (context) => const DirectPurchaseListScreen(),
-    directPurchaseDetail: (context) => DirectPurchaseDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    directPurchaseDetail: (context) => DirectPurchaseDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     directPurchaseCreate: (context) => const DirectPurchaseFormScreen(),
-    directPurchaseEdit: (context) => DirectPurchaseFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
-    
+    directPurchaseEdit: (context) => DirectPurchaseFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
+
     // Purchase Order
     purchaseOrderList: (context) => const PurchaseOrderListScreen(),
-    purchaseOrderDetail: (context) => PurchaseOrderDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    purchaseOrderDetail: (context) => PurchaseOrderDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     purchaseOrderCreate: (context) => const PurchaseOrderFormScreen(),
-    purchaseOrderEdit: (context) => PurchaseOrderFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
-    
+    purchaseOrderEdit: (context) => PurchaseOrderFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
+
     // Bill
     billList: (context) => const BillListScreen(),
-    billDetail: (context) => BillDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    billDetail: (context) => BillDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     billCreate: (context) => const BillFormScreen(),
-    billEdit: (context) => BillFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
-    
+    billEdit: (context) => BillFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
+
     // Receipt Note
     receiptNoteList: (context) => const ReceiptNoteListScreen(),
-    receiptNoteDetail: (context) => ReceiptNoteDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    receiptNoteDetail: (context) => ReceiptNoteDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     receiptNoteCreate: (context) => const ReceiptNoteFormScreen(),
-    receiptNoteEdit: (context) => ReceiptNoteFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
-    
+    receiptNoteEdit: (context) => ReceiptNoteFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
+
     // Delivery Note
     deliveryNoteList: (context) => const DeliveryNoteListScreen(),
-    deliveryNoteDetail: (context) => DeliveryNoteDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    deliveryNoteDetail: (context) => DeliveryNoteDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     deliveryNoteCreate: (context) => const DeliveryNoteFormScreen(),
-    deliveryNoteEdit: (context) => DeliveryNoteFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    deliveryNoteEdit: (context) => DeliveryNoteFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Internal Transfer
     internalTransferList: (context) => const InternalTransferListScreen(),
-    internalTransferDetail: (context) => InternalTransferDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    internalTransferDetail: (context) => InternalTransferDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     internalTransferCreate: (context) => const InternalTransferFormScreen(),
-    internalTransferEdit: (context) => InternalTransferFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+
+    internalTransferEdit: (context) => InternalTransferFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Transfer Out
     transferOutList: (context) => const TransferOutListScreen(),
-    transferOutDetail: (context) => TransferOutDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    transferOutDetail: (context) => TransferOutDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Transfer In
     transferInList: (context) => const TransferInListScreen(),
-    transferInDetail: (context) => TransferInDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    transferInDetail: (context) => TransferInDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Scrap Order
     scrapOrderList: (context) => const ScrapOrderListScreen(),
-    scrapOrderDetail: (context) => ScrapOrderDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    scrapOrderDetail: (context) => ScrapOrderDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     scrapOrderCreate: (context) => const ScrapOrderFormScreen(),
-    scrapOrderEdit: (context) => ScrapOrderFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    scrapOrderEdit: (context) => ScrapOrderFormScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
 
     // Stock Count
     stockCountList: (context) => const StockCountListScreen(),
-    stockCountDetail: (context) => StockCountDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
+    stockCountDetail: (context) => StockCountDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
     stockCountCreate: (context) => const StockCountFormScreen(),
 
     // Return RN
@@ -973,7 +1250,5 @@ class AppRoutes {
     // returnDNDetail: (context) => ReturnDNDetailScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
     // returnDNCreate: (context) => const ReturnDNFormScreen(),
     // returnDNEdit: (context) => ReturnDNFormScreen(encryption: ModalRoute.of(context)!.settings.arguments as String),
-
-
   };
 }

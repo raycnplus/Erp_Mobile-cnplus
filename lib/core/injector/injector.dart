@@ -402,504 +402,1108 @@ import 'package:erp_mobile_cnplus/features/inventory/return_dn/data/repositories
 import 'package:erp_mobile_cnplus/features/inventory/return_dn/domain/usecases/return_dn_usecases.dart';
 import 'package:erp_mobile_cnplus/features/inventory/return_dn/presentation/controllers/return_dn_controller.dart';
 
+// Inventory Warehouse Report
+import 'package:erp_mobile_cnplus/features/inventory/warehouse_report/data/datasources/warehouse_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/inventory/warehouse_report/data/repositories/warehouse_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/inventory/warehouse_report/domain/usecases/warehouse_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/inventory/warehouse_report/presentation/controllers/warehouse_report_controller.dart';
+
+// Inventory Location Report
+import 'package:erp_mobile_cnplus/features/inventory/location_report/data/datasources/location_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/inventory/location_report/data/repositories/location_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/inventory/location_report/domain/usecases/location_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/inventory/location_report/presentation/controllers/location_report_controller.dart';
+
+// Inventory Stock Report
+import 'package:erp_mobile_cnplus/features/inventory/stock_report/data/datasources/stock_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_report/data/repositories/stock_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_report/domain/usecases/stock_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_report/presentation/controllers/stock_report_controller.dart';
+
+// Inventory Stock Movement
+import 'package:erp_mobile_cnplus/features/inventory/stock_movement/data/datasources/stock_movement_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_movement/data/repositories/stock_movement_repository.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_movement/domain/usecases/stock_movement_usecases.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_movement/presentation/controllers/stock_movement_controller.dart';
+
+// Inventory Stock Valuation
+import 'package:erp_mobile_cnplus/features/inventory/stock_valuation/data/datasources/stock_valuation_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_valuation/data/repositories/stock_valuation_repository.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_valuation/domain/usecases/stock_valuation_usecases.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_valuation/presentation/controllers/stock_valuation_controller.dart';
+
+// Inventory History Stock
+import 'package:erp_mobile_cnplus/features/inventory/history_stock/data/datasources/history_stock_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/inventory/history_stock/data/repositories/history_stock_repository.dart';
+import 'package:erp_mobile_cnplus/features/inventory/history_stock/domain/usecases/history_stock_usecases.dart';
+import 'package:erp_mobile_cnplus/features/inventory/history_stock/presentation/controllers/history_stock_controller.dart';
+
+// Inventory Expired Report
+import 'package:erp_mobile_cnplus/features/inventory/expired_report/data/datasources/expired_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/inventory/expired_report/data/repositories/expired_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/inventory/expired_report/domain/usecases/expired_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/inventory/expired_report/presentation/controllers/expired_report_controller.dart';
 
 final getIt = GetIt.instance;
 
 class AppInjector {
   static void init() {
     // ==================== CORE ====================
-    getIt.registerLazySingleton<FlutterSecureStorage>(() => const FlutterSecureStorage());
+    getIt.registerLazySingleton<FlutterSecureStorage>(
+      () => const FlutterSecureStorage(),
+    );
     getIt.registerLazySingleton<DioClient>(() => DioClient());
 
     // ==================== AUTH ====================
-    getIt.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(getIt<DioClient>()));
-    getIt.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSourceImpl(getIt<FlutterSecureStorage>()));
-    getIt.registerLazySingleton<AuthRepository>(() => AuthRepository(
-      remoteDataSource: getIt<AuthRemoteDataSource>(),
-      localDataSource: getIt<AuthLocalDataSource>(),
-    ));
-    getIt.registerLazySingleton<LoginUseCase>(() => LoginUseCase(getIt<AuthRepository>()));
-    getIt.registerFactory<AuthController>(() => AuthController(
-      loginUseCase: getIt<LoginUseCase>(),
-      authRepository: getIt<AuthRepository>(),
-    ));
+    getIt.registerLazySingleton<AuthRemoteDataSource>(
+      () => AuthRemoteDataSourceImpl(getIt<DioClient>()),
+    );
+    getIt.registerLazySingleton<AuthLocalDataSource>(
+      () => AuthLocalDataSourceImpl(getIt<FlutterSecureStorage>()),
+    );
+    getIt.registerLazySingleton<AuthRepository>(
+      () => AuthRepository(
+        remoteDataSource: getIt<AuthRemoteDataSource>(),
+        localDataSource: getIt<AuthLocalDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton<LoginUseCase>(
+      () => LoginUseCase(getIt<AuthRepository>()),
+    );
+    getIt.registerFactory<AuthController>(
+      () => AuthController(
+        loginUseCase: getIt<LoginUseCase>(),
+        authRepository: getIt<AuthRepository>(),
+      ),
+    );
 
     // ==================== PROFILE ====================
-    getIt.registerLazySingleton<ProfileRemoteDataSource>(() => ProfileRemoteDataSourceImpl(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<ProfileRepository>(() => ProfileRepository(remoteDataSource: getIt<ProfileRemoteDataSource>()));
+    getIt.registerLazySingleton<ProfileRemoteDataSource>(
+      () => ProfileRemoteDataSourceImpl(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<ProfileRepository>(
+      () =>
+          ProfileRepository(remoteDataSource: getIt<ProfileRemoteDataSource>()),
+    );
     getIt.registerLazySingleton(() => GetProfile(getIt<ProfileRepository>()));
-    getIt.registerLazySingleton(() => Logout(getIt<ProfileRepository>(), getIt<FlutterSecureStorage>()));
-    getIt.registerFactory<ProfileController>(() => ProfileController(
-      getProfile: getIt<GetProfile>(),
-      logout: getIt<Logout>(),
-    ));
+    getIt.registerLazySingleton(
+      () => Logout(getIt<ProfileRepository>(), getIt<FlutterSecureStorage>()),
+    );
+    getIt.registerFactory<ProfileController>(
+      () => ProfileController(
+        getProfile: getIt<GetProfile>(),
+        logout: getIt<Logout>(),
+      ),
+    );
 
     // ==================== MODUL ====================
-    getIt.registerFactory<ModulController>(() => ModulController(
-      authRepository: getIt<AuthRepository>(),
-      dioClient: getIt<DioClient>(),
-    ));
+    getIt.registerFactory<ModulController>(
+      () => ModulController(
+        authRepository: getIt<AuthRepository>(),
+        dioClient: getIt<DioClient>(),
+      ),
+    );
 
     // ==================== DASHBOARD INVENTORY ====================
-    getIt.registerLazySingleton<InventoryRemoteDataSource>(() => InventoryRemoteDataSourceImpl(getIt<DioClient>()));
-    getIt.registerLazySingleton<InventoryDashboardRepository>(() => InventoryDashboardRepository(remoteDataSource: getIt<InventoryRemoteDataSource>()));
-    getIt.registerLazySingleton<GetInventoryDashboard>(() => GetInventoryDashboard(getIt<InventoryDashboardRepository>()));
-    getIt.registerFactory<InventoryDashboardController>(() => InventoryDashboardController(getIt<GetInventoryDashboard>()));
+    getIt.registerLazySingleton<InventoryRemoteDataSource>(
+      () => InventoryRemoteDataSourceImpl(getIt<DioClient>()),
+    );
+    getIt.registerLazySingleton<InventoryDashboardRepository>(
+      () => InventoryDashboardRepository(
+        remoteDataSource: getIt<InventoryRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton<GetInventoryDashboard>(
+      () => GetInventoryDashboard(getIt<InventoryDashboardRepository>()),
+    );
+    getIt.registerFactory<InventoryDashboardController>(
+      () => InventoryDashboardController(getIt<GetInventoryDashboard>()),
+    );
 
     // ==================== DASHBOARD PURCHASE ====================
-    getIt.registerLazySingleton<PurchaseRemoteDataSource>(() => PurchaseRemoteDataSourceImpl(getIt<DioClient>()));
-    getIt.registerLazySingleton<PurchaseDashboardRepository>(() => PurchaseDashboardRepository(remoteDataSource: getIt<PurchaseRemoteDataSource>()));
-    getIt.registerLazySingleton<GetPurchaseDashboardData>(() => GetPurchaseDashboardData(getIt<PurchaseDashboardRepository>()));
-    getIt.registerFactory<PurchaseDashboardController>(() => PurchaseDashboardController(getDashboardData: getIt<GetPurchaseDashboardData>()));
+    getIt.registerLazySingleton<PurchaseRemoteDataSource>(
+      () => PurchaseRemoteDataSourceImpl(getIt<DioClient>()),
+    );
+    getIt.registerLazySingleton<PurchaseDashboardRepository>(
+      () => PurchaseDashboardRepository(
+        remoteDataSource: getIt<PurchaseRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton<GetPurchaseDashboardData>(
+      () => GetPurchaseDashboardData(getIt<PurchaseDashboardRepository>()),
+    );
+    getIt.registerFactory<PurchaseDashboardController>(
+      () => PurchaseDashboardController(
+        getDashboardData: getIt<GetPurchaseDashboardData>(),
+      ),
+    );
 
     // ==================== DASHBOARD SALES ====================
-    getIt.registerLazySingleton<SalesRemoteDataSource>(() => SalesRemoteDataSourceImpl(getIt<DioClient>()));
-    getIt.registerLazySingleton<SalesDashboardRepository>(() => SalesDashboardRepository(remoteDataSource: getIt<SalesRemoteDataSource>()));
-    getIt.registerLazySingleton<GetSalesDashboardData>(() => GetSalesDashboardData(getIt<SalesDashboardRepository>()));
-    getIt.registerFactory<SalesDashboardController>(() => SalesDashboardController(getDashboardData: getIt<GetSalesDashboardData>()));
+    getIt.registerLazySingleton<SalesRemoteDataSource>(
+      () => SalesRemoteDataSourceImpl(getIt<DioClient>()),
+    );
+    getIt.registerLazySingleton<SalesDashboardRepository>(
+      () => SalesDashboardRepository(
+        remoteDataSource: getIt<SalesRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton<GetSalesDashboardData>(
+      () => GetSalesDashboardData(getIt<SalesDashboardRepository>()),
+    );
+    getIt.registerFactory<SalesDashboardController>(
+      () => SalesDashboardController(
+        getDashboardData: getIt<GetSalesDashboardData>(),
+      ),
+    );
 
     // ==================== DASHBOARD HR ====================
-    getIt.registerLazySingleton(() => HrRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton(() => HrDashboardRepository(remoteDataSource: getIt()));
+    getIt.registerLazySingleton(
+      () => HrRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton(
+      () => HrDashboardRepository(remoteDataSource: getIt()),
+    );
     getIt.registerLazySingleton(() => GetHrDashboardData(getIt()));
-    getIt.registerLazySingleton(() => HrDashboardController(getHrDashboardData: getIt()));
+    getIt.registerLazySingleton(
+      () => HrDashboardController(getHrDashboardData: getIt()),
+    );
 
     // ==================== DASHBOARD ACCOUNTING ====================
-    getIt.registerLazySingleton<AccountingRemoteDataSource>(() => AccountingRemoteDataSourceImpl(getIt<DioClient>()));
-    getIt.registerLazySingleton<AccountingDashboardRepository>(() => AccountingDashboardRepository(remoteDataSource: getIt<AccountingRemoteDataSource>()));
-    getIt.registerLazySingleton<GetAccountingDashboardData>(() => GetAccountingDashboardData(getIt<AccountingDashboardRepository>()));
-    getIt.registerFactory<AccountingDashboardController>(() => AccountingDashboardController(getDashboardData: getIt<GetAccountingDashboardData>()));
+    getIt.registerLazySingleton<AccountingRemoteDataSource>(
+      () => AccountingRemoteDataSourceImpl(getIt<DioClient>()),
+    );
+    getIt.registerLazySingleton<AccountingDashboardRepository>(
+      () => AccountingDashboardRepository(
+        remoteDataSource: getIt<AccountingRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton<GetAccountingDashboardData>(
+      () => GetAccountingDashboardData(getIt<AccountingDashboardRepository>()),
+    );
+    getIt.registerFactory<AccountingDashboardController>(
+      () => AccountingDashboardController(
+        getDashboardData: getIt<GetAccountingDashboardData>(),
+      ),
+    );
 
     // ==================== DASHBOARD MANUFACTURING ====================
-    getIt.registerLazySingleton<ManufacturingRemoteDataSource>(() => ManufacturingRemoteDataSourceImpl(getIt<DioClient>()));
-    getIt.registerLazySingleton<ManufacturingDashboardRepository>(() => ManufacturingDashboardRepository(remoteDataSource: getIt<ManufacturingRemoteDataSource>()));
-    getIt.registerLazySingleton<GetManufacturingDashboardData>(() => GetManufacturingDashboardData(getIt<ManufacturingDashboardRepository>()));
-    getIt.registerFactory<ManufacturingDashboardController>(() => ManufacturingDashboardController(getManufacturingDashboardData: getIt<GetManufacturingDashboardData>()));
+    getIt.registerLazySingleton<ManufacturingRemoteDataSource>(
+      () => ManufacturingRemoteDataSourceImpl(getIt<DioClient>()),
+    );
+    getIt.registerLazySingleton<ManufacturingDashboardRepository>(
+      () => ManufacturingDashboardRepository(
+        remoteDataSource: getIt<ManufacturingRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton<GetManufacturingDashboardData>(
+      () => GetManufacturingDashboardData(
+        getIt<ManufacturingDashboardRepository>(),
+      ),
+    );
+    getIt.registerFactory<ManufacturingDashboardController>(
+      () => ManufacturingDashboardController(
+        getManufacturingDashboardData: getIt<GetManufacturingDashboardData>(),
+      ),
+    );
 
     // ==================== CRM DASHBOARD ====================
-    getIt.registerLazySingleton<CrmRemoteDataSource>(() => CrmRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<CrmDashboardRepository>(() => CrmDashboardRepository(dataSource: getIt()));
+    getIt.registerLazySingleton<CrmRemoteDataSource>(
+      () => CrmRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<CrmDashboardRepository>(
+      () => CrmDashboardRepository(dataSource: getIt()),
+    );
     getIt.registerLazySingleton(() => GetCrmDashboard(getIt()));
     getIt.registerLazySingleton(() => GetCrmConversationChart(getIt()));
     getIt.registerLazySingleton(() => GetCrmMessageChart(getIt()));
-    getIt.registerLazySingleton<CrmDashboardController>(() => CrmDashboardController(
-      getDashboard: getIt(), getConversationChart: getIt(), getMessageChart: getIt(),
-    ));
+    getIt.registerLazySingleton<CrmDashboardController>(
+      () => CrmDashboardController(
+        getDashboard: getIt(),
+        getConversationChart: getIt(),
+        getMessageChart: getIt(),
+      ),
+    );
 
     // ==================== POS DASHBOARD ====================
-    getIt.registerLazySingleton<PosRemoteDataSource>(() => PosRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<PosDashboardRepository>(() => PosDashboardRepository(dataSource: getIt()));
+    getIt.registerLazySingleton<PosRemoteDataSource>(
+      () => PosRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<PosDashboardRepository>(
+      () => PosDashboardRepository(dataSource: getIt()),
+    );
     getIt.registerLazySingleton(() => GetPosDashboard(getIt()));
-    getIt.registerLazySingleton<PosDashboardController>(() => PosDashboardController(getPosDashboard: getIt()));
+    getIt.registerLazySingleton<PosDashboardController>(
+      () => PosDashboardController(getPosDashboard: getIt()),
+    );
 
     // ==================== GENERAL DASHBOARD ====================
-    getIt.registerLazySingleton<GeneralDashboardRemoteDataSource>(() => GeneralDashboardRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<GeneralDashboardRepository>(() => GeneralDashboardRepository(remoteDataSource: getIt()));
+    getIt.registerLazySingleton<GeneralDashboardRemoteDataSource>(
+      () => GeneralDashboardRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<GeneralDashboardRepository>(
+      () => GeneralDashboardRepository(remoteDataSource: getIt()),
+    );
     getIt.registerLazySingleton(() => GetGeneralDashboard(getIt()));
-    getIt.registerLazySingleton<GeneralDashboardController>(() => GeneralDashboardController(getGeneralDashboard: getIt()));
+    getIt.registerLazySingleton<GeneralDashboardController>(
+      () => GeneralDashboardController(getGeneralDashboard: getIt()),
+    );
 
     // ==================== HR ATTENDANCE ====================
-    getIt.registerLazySingleton<AttendanceRemoteDataSource>(() => AttendanceRemoteDataSourceImpl(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<AttendanceRepository>(() => AttendanceRepository(remoteDataSource: getIt<AttendanceRemoteDataSource>()));
-    getIt.registerLazySingleton(() => GetAttendanceData(getIt<AttendanceRepository>()));
+    getIt.registerLazySingleton<AttendanceRemoteDataSource>(
+      () => AttendanceRemoteDataSourceImpl(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<AttendanceRepository>(
+      () => AttendanceRepository(
+        remoteDataSource: getIt<AttendanceRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetAttendanceData(getIt<AttendanceRepository>()),
+    );
     getIt.registerLazySingleton(() => CheckIn(getIt<AttendanceRepository>()));
     getIt.registerLazySingleton(() => CheckOut(getIt<AttendanceRepository>()));
-    getIt.registerLazySingleton(() => GetAttendanceHistory(getIt<AttendanceRepository>()));
-    getIt.registerFactory<AttendanceController>(() => AttendanceController(
-      getAttendanceData: getIt<GetAttendanceData>(),
-      checkInUseCase: getIt<CheckIn>(),
-      checkOutUseCase: getIt<CheckOut>(),
-      getAttendanceHistory: getIt<GetAttendanceHistory>(),
-    ));
+    getIt.registerLazySingleton(
+      () => GetAttendanceHistory(getIt<AttendanceRepository>()),
+    );
+    getIt.registerFactory<AttendanceController>(
+      () => AttendanceController(
+        getAttendanceData: getIt<GetAttendanceData>(),
+        checkInUseCase: getIt<CheckIn>(),
+        checkOutUseCase: getIt<CheckOut>(),
+        getAttendanceHistory: getIt<GetAttendanceHistory>(),
+      ),
+    );
 
     // ==================== HR DEPARTMENT ====================
-    getIt.registerLazySingleton<DepartmentRemoteDataSource>(() => DepartmentRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<DepartmentRepository>(() => DepartmentRepository(remoteDataSource: getIt<DepartmentRemoteDataSource>()));
-    getIt.registerLazySingleton(() => GetDepartmentList(getIt<DepartmentRepository>()));
-    getIt.registerLazySingleton(() => GetDepartmentDetail(getIt<DepartmentRepository>()));
-    getIt.registerLazySingleton(() => CreateDepartment(getIt<DepartmentRepository>()));
-    getIt.registerLazySingleton(() => UpdateDepartment(getIt<DepartmentRepository>()));
-    getIt.registerLazySingleton(() => DeleteDepartment(getIt<DepartmentRepository>()));
-    getIt.registerLazySingleton<DepartmentController>(() => DepartmentController(
-      getDepartmentList: getIt<GetDepartmentList>(),
-      getDepartmentDetail: getIt<GetDepartmentDetail>(),
-      createDepartment: getIt<CreateDepartment>(),
-      updateDepartment: getIt<UpdateDepartment>(),
-      deleteDepartment: getIt<DeleteDepartment>(),
-    ));
+    getIt.registerLazySingleton<DepartmentRemoteDataSource>(
+      () => DepartmentRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<DepartmentRepository>(
+      () => DepartmentRepository(
+        remoteDataSource: getIt<DepartmentRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetDepartmentList(getIt<DepartmentRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetDepartmentDetail(getIt<DepartmentRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => CreateDepartment(getIt<DepartmentRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => UpdateDepartment(getIt<DepartmentRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => DeleteDepartment(getIt<DepartmentRepository>()),
+    );
+    getIt.registerLazySingleton<DepartmentController>(
+      () => DepartmentController(
+        getDepartmentList: getIt<GetDepartmentList>(),
+        getDepartmentDetail: getIt<GetDepartmentDetail>(),
+        createDepartment: getIt<CreateDepartment>(),
+        updateDepartment: getIt<UpdateDepartment>(),
+        deleteDepartment: getIt<DeleteDepartment>(),
+      ),
+    );
 
     // ==================== HR EMPLOYEE STATUS ====================
-    getIt.registerLazySingleton<EmployeeStatusRemoteDataSource>(() => EmployeeStatusRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<EmployeeStatusRepository>(() => EmployeeStatusRepository(remoteDataSource: getIt<EmployeeStatusRemoteDataSource>()));
-    getIt.registerLazySingleton(() => GetEmployeeStatusList(getIt<EmployeeStatusRepository>()));
-    getIt.registerLazySingleton(() => GetEmployeeStatusDetail(getIt<EmployeeStatusRepository>()));
-    getIt.registerLazySingleton(() => CreateEmployeeStatus(getIt<EmployeeStatusRepository>()));
-    getIt.registerLazySingleton(() => UpdateEmployeeStatus(getIt<EmployeeStatusRepository>()));
-    getIt.registerLazySingleton(() => DeleteEmployeeStatus(getIt<EmployeeStatusRepository>()));
-    getIt.registerLazySingleton<EmployeeStatusController>(() => EmployeeStatusController(
-      getStatusList: getIt<GetEmployeeStatusList>(),
-      getStatusDetail: getIt<GetEmployeeStatusDetail>(),
-      createStatus: getIt<CreateEmployeeStatus>(),
-      updateStatus: getIt<UpdateEmployeeStatus>(),
-      deleteStatus: getIt<DeleteEmployeeStatus>(),
-    ));
+    getIt.registerLazySingleton<EmployeeStatusRemoteDataSource>(
+      () => EmployeeStatusRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<EmployeeStatusRepository>(
+      () => EmployeeStatusRepository(
+        remoteDataSource: getIt<EmployeeStatusRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetEmployeeStatusList(getIt<EmployeeStatusRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetEmployeeStatusDetail(getIt<EmployeeStatusRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => CreateEmployeeStatus(getIt<EmployeeStatusRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => UpdateEmployeeStatus(getIt<EmployeeStatusRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => DeleteEmployeeStatus(getIt<EmployeeStatusRepository>()),
+    );
+    getIt.registerLazySingleton<EmployeeStatusController>(
+      () => EmployeeStatusController(
+        getStatusList: getIt<GetEmployeeStatusList>(),
+        getStatusDetail: getIt<GetEmployeeStatusDetail>(),
+        createStatus: getIt<CreateEmployeeStatus>(),
+        updateStatus: getIt<UpdateEmployeeStatus>(),
+        deleteStatus: getIt<DeleteEmployeeStatus>(),
+      ),
+    );
 
     // ==================== HR NATIONAL HOLIDAY ====================
-    getIt.registerLazySingleton<NationalHolidayRemoteDataSource>(() => NationalHolidayRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<NationalHolidayRepository>(() => NationalHolidayRepository(remoteDataSource: getIt<NationalHolidayRemoteDataSource>()));
-    getIt.registerLazySingleton(() => GetNationalHolidayList(getIt<NationalHolidayRepository>()));
-    getIt.registerLazySingleton(() => GetNationalHolidayDetail(getIt<NationalHolidayRepository>()));
-    getIt.registerLazySingleton(() => CreateNationalHoliday(getIt<NationalHolidayRepository>()));
-    getIt.registerLazySingleton(() => UpdateNationalHoliday(getIt<NationalHolidayRepository>()));
-    getIt.registerLazySingleton(() => DeleteNationalHoliday(getIt<NationalHolidayRepository>()));
-    getIt.registerLazySingleton<NationalHolidayController>(() => NationalHolidayController(
-      getHolidayList: getIt<GetNationalHolidayList>(),
-      getHolidayDetail: getIt<GetNationalHolidayDetail>(),
-      createHoliday: getIt<CreateNationalHoliday>(),
-      updateHoliday: getIt<UpdateNationalHoliday>(),
-      deleteHoliday: getIt<DeleteNationalHoliday>(),
-    ));
+    getIt.registerLazySingleton<NationalHolidayRemoteDataSource>(
+      () => NationalHolidayRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<NationalHolidayRepository>(
+      () => NationalHolidayRepository(
+        remoteDataSource: getIt<NationalHolidayRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetNationalHolidayList(getIt<NationalHolidayRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetNationalHolidayDetail(getIt<NationalHolidayRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => CreateNationalHoliday(getIt<NationalHolidayRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => UpdateNationalHoliday(getIt<NationalHolidayRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => DeleteNationalHoliday(getIt<NationalHolidayRepository>()),
+    );
+    getIt.registerLazySingleton<NationalHolidayController>(
+      () => NationalHolidayController(
+        getHolidayList: getIt<GetNationalHolidayList>(),
+        getHolidayDetail: getIt<GetNationalHolidayDetail>(),
+        createHoliday: getIt<CreateNationalHoliday>(),
+        updateHoliday: getIt<UpdateNationalHoliday>(),
+        deleteHoliday: getIt<DeleteNationalHoliday>(),
+      ),
+    );
 
     // ==================== MASTER PRODUCT ====================
-    getIt.registerLazySingleton<ProductRemoteDataSource>(() => ProductRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<ProductRepository>(() => ProductRepository(remoteDataSource: getIt<ProductRemoteDataSource>()));
-    getIt.registerLazySingleton(() => GetProductList(getIt<ProductRepository>()));
-    getIt.registerLazySingleton(() => GetProductDetail(getIt<ProductRepository>()));
-    getIt.registerLazySingleton(() => GetProductFormDropdownData(getIt<ProductRepository>()));
-    getIt.registerLazySingleton(() => CreateProduct(getIt<ProductRepository>()));
-    getIt.registerLazySingleton(() => UpdateProduct(getIt<ProductRepository>()));
-    getIt.registerLazySingleton(() => DeleteProduct(getIt<ProductRepository>()));
-    getIt.registerLazySingleton<ProductController>(() => ProductController(
-      getProductList: getIt<GetProductList>(),
-      getProductDetail: getIt<GetProductDetail>(),
-      getFormDropdownData: getIt<GetProductFormDropdownData>(),
-      createProduct: getIt<CreateProduct>(),
-      updateProduct: getIt<UpdateProduct>(),
-      deleteProduct: getIt<DeleteProduct>(),
-    ));
+    getIt.registerLazySingleton<ProductRemoteDataSource>(
+      () => ProductRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<ProductRepository>(
+      () =>
+          ProductRepository(remoteDataSource: getIt<ProductRemoteDataSource>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetProductList(getIt<ProductRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetProductDetail(getIt<ProductRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetProductFormDropdownData(getIt<ProductRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => CreateProduct(getIt<ProductRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => UpdateProduct(getIt<ProductRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => DeleteProduct(getIt<ProductRepository>()),
+    );
+    getIt.registerLazySingleton<ProductController>(
+      () => ProductController(
+        getProductList: getIt<GetProductList>(),
+        getProductDetail: getIt<GetProductDetail>(),
+        getFormDropdownData: getIt<GetProductFormDropdownData>(),
+        createProduct: getIt<CreateProduct>(),
+        updateProduct: getIt<UpdateProduct>(),
+        deleteProduct: getIt<DeleteProduct>(),
+      ),
+    );
 
     // ==================== MASTER BRAND ====================
-    getIt.registerLazySingleton<BrandRemoteDataSource>(() => BrandRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<BrandRepository>(() => BrandRepository(remoteDataSource: getIt<BrandRemoteDataSource>()));
+    getIt.registerLazySingleton<BrandRemoteDataSource>(
+      () => BrandRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<BrandRepository>(
+      () => BrandRepository(remoteDataSource: getIt<BrandRemoteDataSource>()),
+    );
     getIt.registerLazySingleton(() => GetBrandList(getIt<BrandRepository>()));
     getIt.registerLazySingleton(() => GetBrandDetail(getIt<BrandRepository>()));
     getIt.registerLazySingleton(() => CreateBrand(getIt<BrandRepository>()));
     getIt.registerLazySingleton(() => UpdateBrand(getIt<BrandRepository>()));
     getIt.registerLazySingleton(() => DeleteBrand(getIt<BrandRepository>()));
-    getIt.registerFactory<BrandController>(() => BrandController(
-      getBrandList: getIt<GetBrandList>(),
-      getBrandDetail: getIt<GetBrandDetail>(),
-      createBrand: getIt<CreateBrand>(),
-      updateBrand: getIt<UpdateBrand>(),
-      deleteBrand: getIt<DeleteBrand>(),
-    ));
+    getIt.registerFactory<BrandController>(
+      () => BrandController(
+        getBrandList: getIt<GetBrandList>(),
+        getBrandDetail: getIt<GetBrandDetail>(),
+        createBrand: getIt<CreateBrand>(),
+        updateBrand: getIt<UpdateBrand>(),
+        deleteBrand: getIt<DeleteBrand>(),
+      ),
+    );
 
     // ==================== MASTER PRODUCT CATEGORY ====================
-    getIt.registerLazySingleton<ProductCategoryRemoteDataSource>(() => ProductCategoryRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<ProductCategoryRepository>(() => ProductCategoryRepository(remoteDataSource: getIt<ProductCategoryRemoteDataSource>()));
-    getIt.registerLazySingleton(() => GetProductCategoryList(getIt<ProductCategoryRepository>()));
-    getIt.registerLazySingleton(() => GetProductCategoryDetail(getIt<ProductCategoryRepository>()));
-    getIt.registerLazySingleton(() => CreateProductCategory(getIt<ProductCategoryRepository>()));
-    getIt.registerLazySingleton(() => UpdateProductCategory(getIt<ProductCategoryRepository>()));
-    getIt.registerLazySingleton(() => DeleteProductCategory(getIt<ProductCategoryRepository>()));
-    getIt.registerFactory<ProductCategoryController>(() => ProductCategoryController(
-      getProductCategoryList: getIt<GetProductCategoryList>(),
-      getProductCategoryDetail: getIt<GetProductCategoryDetail>(),
-      createProductCategory: getIt<CreateProductCategory>(),
-      updateProductCategory: getIt<UpdateProductCategory>(),
-      deleteProductCategory: getIt<DeleteProductCategory>(),
-    ));
+    getIt.registerLazySingleton<ProductCategoryRemoteDataSource>(
+      () => ProductCategoryRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<ProductCategoryRepository>(
+      () => ProductCategoryRepository(
+        remoteDataSource: getIt<ProductCategoryRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetProductCategoryList(getIt<ProductCategoryRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetProductCategoryDetail(getIt<ProductCategoryRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => CreateProductCategory(getIt<ProductCategoryRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => UpdateProductCategory(getIt<ProductCategoryRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => DeleteProductCategory(getIt<ProductCategoryRepository>()),
+    );
+    getIt.registerFactory<ProductCategoryController>(
+      () => ProductCategoryController(
+        getProductCategoryList: getIt<GetProductCategoryList>(),
+        getProductCategoryDetail: getIt<GetProductCategoryDetail>(),
+        createProductCategory: getIt<CreateProductCategory>(),
+        updateProductCategory: getIt<UpdateProductCategory>(),
+        deleteProductCategory: getIt<DeleteProductCategory>(),
+      ),
+    );
 
     // ==================== MASTER PRODUCT TYPE ====================
-    getIt.registerLazySingleton<ProductTypeRemoteDataSource>(() => ProductTypeRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<ProductTypeRepository>(() => ProductTypeRepository(remoteDataSource: getIt<ProductTypeRemoteDataSource>()));
-    getIt.registerLazySingleton(() => GetProductTypeList(getIt<ProductTypeRepository>()));
-    getIt.registerLazySingleton(() => GetProductTypeDetail(getIt<ProductTypeRepository>()));
-    getIt.registerLazySingleton(() => CreateProductType(getIt<ProductTypeRepository>()));
-    getIt.registerLazySingleton(() => UpdateProductType(getIt<ProductTypeRepository>()));
-    getIt.registerLazySingleton(() => DeleteProductType(getIt<ProductTypeRepository>()));
-    getIt.registerFactory<ProductTypeController>(() => ProductTypeController(
-      getProductTypeList: getIt<GetProductTypeList>(),
-      getProductTypeDetail: getIt<GetProductTypeDetail>(),
-      createProductType: getIt<CreateProductType>(),
-      updateProductType: getIt<UpdateProductType>(),
-      deleteProductType: getIt<DeleteProductType>(),
-    ));
+    getIt.registerLazySingleton<ProductTypeRemoteDataSource>(
+      () => ProductTypeRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<ProductTypeRepository>(
+      () => ProductTypeRepository(
+        remoteDataSource: getIt<ProductTypeRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetProductTypeList(getIt<ProductTypeRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetProductTypeDetail(getIt<ProductTypeRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => CreateProductType(getIt<ProductTypeRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => UpdateProductType(getIt<ProductTypeRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => DeleteProductType(getIt<ProductTypeRepository>()),
+    );
+    getIt.registerFactory<ProductTypeController>(
+      () => ProductTypeController(
+        getProductTypeList: getIt<GetProductTypeList>(),
+        getProductTypeDetail: getIt<GetProductTypeDetail>(),
+        createProductType: getIt<CreateProductType>(),
+        updateProductType: getIt<UpdateProductType>(),
+        deleteProductType: getIt<DeleteProductType>(),
+      ),
+    );
 
     // ==================== MASTER VENDOR ====================
-    getIt.registerLazySingleton<VendorRemoteDataSource>(() => VendorRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<VendorRepository>(() => VendorRepository(remoteDataSource: getIt<VendorRemoteDataSource>()));
+    getIt.registerLazySingleton<VendorRemoteDataSource>(
+      () => VendorRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<VendorRepository>(
+      () => VendorRepository(remoteDataSource: getIt<VendorRemoteDataSource>()),
+    );
     getIt.registerLazySingleton(() => GetVendorList(getIt<VendorRepository>()));
-    getIt.registerLazySingleton(() => GetVendorDetail(getIt<VendorRepository>()));
-    getIt.registerLazySingleton(() => GetVendorFormDropdownData(getIt<VendorRepository>()));
+    getIt.registerLazySingleton(
+      () => GetVendorDetail(getIt<VendorRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetVendorFormDropdownData(getIt<VendorRepository>()),
+    );
     getIt.registerLazySingleton(() => CreateVendor(getIt<VendorRepository>()));
     getIt.registerLazySingleton(() => UpdateVendor(getIt<VendorRepository>()));
     getIt.registerLazySingleton(() => DeleteVendor(getIt<VendorRepository>()));
-    getIt.registerLazySingleton<VendorController>(() => VendorController(
-      getVendorList: getIt<GetVendorList>(),
-      getVendorDetail: getIt<GetVendorDetail>(),
-      getFormDropdownData: getIt<GetVendorFormDropdownData>(),
-      createVendor: getIt<CreateVendor>(),
-      updateVendor: getIt<UpdateVendor>(),
-      deleteVendor: getIt<DeleteVendor>(),
-    ));
+    getIt.registerLazySingleton<VendorController>(
+      () => VendorController(
+        getVendorList: getIt<GetVendorList>(),
+        getVendorDetail: getIt<GetVendorDetail>(),
+        getFormDropdownData: getIt<GetVendorFormDropdownData>(),
+        createVendor: getIt<CreateVendor>(),
+        updateVendor: getIt<UpdateVendor>(),
+        deleteVendor: getIt<DeleteVendor>(),
+      ),
+    );
 
     // ==================== MASTER LOCATION ====================
-    getIt.registerLazySingleton<LocationRemoteDataSource>(() => LocationRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<LocationRepository>(() => LocationRepository(remoteDataSource: getIt<LocationRemoteDataSource>()));
-    getIt.registerLazySingleton(() => GetLocationList(getIt<LocationRepository>()));
-    getIt.registerLazySingleton(() => GetLocationDetail(getIt<LocationRepository>()));
-    getIt.registerLazySingleton(() => GetLocationFormDropdownData(getIt<LocationRepository>()));
-    getIt.registerLazySingleton(() => CreateLocation(getIt<LocationRepository>()));
-    getIt.registerLazySingleton(() => UpdateLocation(getIt<LocationRepository>()));
-    getIt.registerLazySingleton(() => DeleteLocation(getIt<LocationRepository>()));
-    getIt.registerFactory<LocationController>(() => LocationController(
-      getLocationList: getIt<GetLocationList>(),
-      getLocationDetail: getIt<GetLocationDetail>(),
-      getFormDropdownData: getIt<GetLocationFormDropdownData>(),
-      createLocation: getIt<CreateLocation>(),
-      updateLocation: getIt<UpdateLocation>(),
-      deleteLocation: getIt<DeleteLocation>(),
-    ));
+    getIt.registerLazySingleton<LocationRemoteDataSource>(
+      () => LocationRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<LocationRepository>(
+      () => LocationRepository(
+        remoteDataSource: getIt<LocationRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetLocationList(getIt<LocationRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetLocationDetail(getIt<LocationRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetLocationFormDropdownData(getIt<LocationRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => CreateLocation(getIt<LocationRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => UpdateLocation(getIt<LocationRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => DeleteLocation(getIt<LocationRepository>()),
+    );
+    getIt.registerFactory<LocationController>(
+      () => LocationController(
+        getLocationList: getIt<GetLocationList>(),
+        getLocationDetail: getIt<GetLocationDetail>(),
+        getFormDropdownData: getIt<GetLocationFormDropdownData>(),
+        createLocation: getIt<CreateLocation>(),
+        updateLocation: getIt<UpdateLocation>(),
+        deleteLocation: getIt<DeleteLocation>(),
+      ),
+    );
 
     // ==================== MASTER WAREHOUSE ====================
-    getIt.registerLazySingleton<WarehouseRemoteDataSource>(() => WarehouseRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<WarehouseRepository>(() => WarehouseRepository(remoteDataSource: getIt<WarehouseRemoteDataSource>()));
-    getIt.registerLazySingleton(() => GetWarehouseList(getIt<WarehouseRepository>()));
-    getIt.registerLazySingleton(() => GetWarehouseDetail(getIt<WarehouseRepository>()));
-    getIt.registerLazySingleton(() => CreateWarehouse(getIt<WarehouseRepository>()));
-    getIt.registerLazySingleton(() => UpdateWarehouse(getIt<WarehouseRepository>()));
-    getIt.registerLazySingleton(() => DeleteWarehouse(getIt<WarehouseRepository>()));
-    getIt.registerFactory<WarehouseController>(() => WarehouseController(
-      getWarehouseList: getIt<GetWarehouseList>(),
-      getWarehouseDetail: getIt<GetWarehouseDetail>(),
-      createWarehouse: getIt<CreateWarehouse>(),
-      updateWarehouse: getIt<UpdateWarehouse>(),
-      deleteWarehouse: getIt<DeleteWarehouse>(),
-    ));
+    getIt.registerLazySingleton<WarehouseRemoteDataSource>(
+      () => WarehouseRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<WarehouseRepository>(
+      () => WarehouseRepository(
+        remoteDataSource: getIt<WarehouseRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetWarehouseList(getIt<WarehouseRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetWarehouseDetail(getIt<WarehouseRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => CreateWarehouse(getIt<WarehouseRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => UpdateWarehouse(getIt<WarehouseRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => DeleteWarehouse(getIt<WarehouseRepository>()),
+    );
+    getIt.registerFactory<WarehouseController>(
+      () => WarehouseController(
+        getWarehouseList: getIt<GetWarehouseList>(),
+        getWarehouseDetail: getIt<GetWarehouseDetail>(),
+        createWarehouse: getIt<CreateWarehouse>(),
+        updateWarehouse: getIt<UpdateWarehouse>(),
+        deleteWarehouse: getIt<DeleteWarehouse>(),
+      ),
+    );
 
     // ==================== MASTER CUSTOMER CATEGORY ====================
-    getIt.registerLazySingleton<CustomerCategoryRemoteDataSource>(() => CustomerCategoryRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<CustomerCategoryRepository>(() => CustomerCategoryRepository(remoteDataSource: getIt<CustomerCategoryRemoteDataSource>()));
-    getIt.registerLazySingleton(() => GetCustomerCategoryList(getIt<CustomerCategoryRepository>()));
-    getIt.registerLazySingleton(() => GetCustomerCategoryDetail(getIt<CustomerCategoryRepository>()));
-    getIt.registerLazySingleton(() => CreateCustomerCategory(getIt<CustomerCategoryRepository>()));
-    getIt.registerLazySingleton(() => UpdateCustomerCategory(getIt<CustomerCategoryRepository>()));
-    getIt.registerLazySingleton(() => DeleteCustomerCategory(getIt<CustomerCategoryRepository>()));
-    getIt.registerFactory<CustomerCategoryController>(() => CustomerCategoryController(
-      getCustomerCategoryList: getIt<GetCustomerCategoryList>(),
-      getCustomerCategoryDetail: getIt<GetCustomerCategoryDetail>(),
-      createCustomerCategory: getIt<CreateCustomerCategory>(),
-      updateCustomerCategory: getIt<UpdateCustomerCategory>(),
-      deleteCustomerCategory: getIt<DeleteCustomerCategory>(),
-    ));
+    getIt.registerLazySingleton<CustomerCategoryRemoteDataSource>(
+      () => CustomerCategoryRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<CustomerCategoryRepository>(
+      () => CustomerCategoryRepository(
+        remoteDataSource: getIt<CustomerCategoryRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetCustomerCategoryList(getIt<CustomerCategoryRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetCustomerCategoryDetail(getIt<CustomerCategoryRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => CreateCustomerCategory(getIt<CustomerCategoryRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => UpdateCustomerCategory(getIt<CustomerCategoryRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => DeleteCustomerCategory(getIt<CustomerCategoryRepository>()),
+    );
+    getIt.registerFactory<CustomerCategoryController>(
+      () => CustomerCategoryController(
+        getCustomerCategoryList: getIt<GetCustomerCategoryList>(),
+        getCustomerCategoryDetail: getIt<GetCustomerCategoryDetail>(),
+        createCustomerCategory: getIt<CreateCustomerCategory>(),
+        updateCustomerCategory: getIt<UpdateCustomerCategory>(),
+        deleteCustomerCategory: getIt<DeleteCustomerCategory>(),
+      ),
+    );
 
     // ==================== MASTER CUSTOMER ====================
-    getIt.registerLazySingleton<CustomerRemoteDataSource>(() => CustomerRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<CustomerRepository>(() => CustomerRepository(remoteDataSource: getIt<CustomerRemoteDataSource>()));
-    getIt.registerLazySingleton(() => GetCustomerList(getIt<CustomerRepository>()));
-    getIt.registerLazySingleton(() => GetCustomerDetail(getIt<CustomerRepository>()));
-    getIt.registerLazySingleton(() => GetCustomerFormDropdownData(getIt<CustomerRepository>()));
-    getIt.registerLazySingleton(() => CreateCustomer(getIt<CustomerRepository>()));
-    getIt.registerLazySingleton(() => UpdateCustomer(getIt<CustomerRepository>()));
-    getIt.registerLazySingleton(() => DeleteCustomer(getIt<CustomerRepository>()));
-    getIt.registerFactory<CustomerController>(() => CustomerController(
-      getCustomerList: getIt<GetCustomerList>(),
-      getCustomerDetail: getIt<GetCustomerDetail>(),
-      getFormDropdownData: getIt<GetCustomerFormDropdownData>(),
-      createCustomer: getIt<CreateCustomer>(),
-      updateCustomer: getIt<UpdateCustomer>(),
-      deleteCustomer: getIt<DeleteCustomer>(),
-    ));
+    getIt.registerLazySingleton<CustomerRemoteDataSource>(
+      () => CustomerRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<CustomerRepository>(
+      () => CustomerRepository(
+        remoteDataSource: getIt<CustomerRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetCustomerList(getIt<CustomerRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetCustomerDetail(getIt<CustomerRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetCustomerFormDropdownData(getIt<CustomerRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => CreateCustomer(getIt<CustomerRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => UpdateCustomer(getIt<CustomerRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => DeleteCustomer(getIt<CustomerRepository>()),
+    );
+    getIt.registerFactory<CustomerController>(
+      () => CustomerController(
+        getCustomerList: getIt<GetCustomerList>(),
+        getCustomerDetail: getIt<GetCustomerDetail>(),
+        getFormDropdownData: getIt<GetCustomerFormDropdownData>(),
+        createCustomer: getIt<CreateCustomer>(),
+        updateCustomer: getIt<UpdateCustomer>(),
+        deleteCustomer: getIt<DeleteCustomer>(),
+      ),
+    );
 
     // ==================== MASTER SALES TEAM ====================
-    getIt.registerLazySingleton<SalesTeamRemoteDataSource>(() => SalesTeamRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<SalesTeamRepository>(() => SalesTeamRepository(remoteDataSource: getIt<SalesTeamRemoteDataSource>()));
-    getIt.registerLazySingleton(() => GetSalesTeamList(getIt<SalesTeamRepository>()));
-    getIt.registerLazySingleton(() => GetSalesTeamDetail(getIt<SalesTeamRepository>()));
-    getIt.registerLazySingleton(() => GetSalesTeamFormOptions(getIt<SalesTeamRepository>()));
-    getIt.registerLazySingleton(() => CreateSalesTeam(getIt<SalesTeamRepository>()));
-    getIt.registerLazySingleton(() => UpdateSalesTeam(getIt<SalesTeamRepository>()));
-    getIt.registerLazySingleton(() => DeleteSalesTeam(getIt<SalesTeamRepository>()));
-    getIt.registerLazySingleton<SalesTeamController>(() => SalesTeamController(
-      getSalesTeamList: getIt<GetSalesTeamList>(),
-      getSalesTeamDetail: getIt<GetSalesTeamDetail>(),
-      getFormOptions: getIt<GetSalesTeamFormOptions>(),
-      createSalesTeam: getIt<CreateSalesTeam>(),
-      updateSalesTeam: getIt<UpdateSalesTeam>(),
-      deleteSalesTeam: getIt<DeleteSalesTeam>(),
-    ));
+    getIt.registerLazySingleton<SalesTeamRemoteDataSource>(
+      () => SalesTeamRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<SalesTeamRepository>(
+      () => SalesTeamRepository(
+        remoteDataSource: getIt<SalesTeamRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetSalesTeamList(getIt<SalesTeamRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetSalesTeamDetail(getIt<SalesTeamRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetSalesTeamFormOptions(getIt<SalesTeamRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => CreateSalesTeam(getIt<SalesTeamRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => UpdateSalesTeam(getIt<SalesTeamRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => DeleteSalesTeam(getIt<SalesTeamRepository>()),
+    );
+    getIt.registerLazySingleton<SalesTeamController>(
+      () => SalesTeamController(
+        getSalesTeamList: getIt<GetSalesTeamList>(),
+        getSalesTeamDetail: getIt<GetSalesTeamDetail>(),
+        getFormOptions: getIt<GetSalesTeamFormOptions>(),
+        createSalesTeam: getIt<CreateSalesTeam>(),
+        updateSalesTeam: getIt<UpdateSalesTeam>(),
+        deleteSalesTeam: getIt<DeleteSalesTeam>(),
+      ),
+    );
 
     // ==================== MASTER PURCHASE TEAM ====================
-    getIt.registerLazySingleton<PurchaseTeamRemoteDataSource>(() => PurchaseTeamRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<PurchaseTeamRepository>(() => PurchaseTeamRepository(remoteDataSource: getIt<PurchaseTeamRemoteDataSource>()));
-    getIt.registerLazySingleton(() => GetPurchaseTeamList(getIt<PurchaseTeamRepository>()));
-    getIt.registerLazySingleton(() => GetPurchaseTeamDetail(getIt<PurchaseTeamRepository>()));
-    getIt.registerLazySingleton(() => GetPurchaseTeamFormOptions(getIt<PurchaseTeamRepository>()));
-    getIt.registerLazySingleton(() => CreatePurchaseTeam(getIt<PurchaseTeamRepository>()));
-    getIt.registerLazySingleton(() => UpdatePurchaseTeam(getIt<PurchaseTeamRepository>()));
-    getIt.registerLazySingleton(() => DeletePurchaseTeam(getIt<PurchaseTeamRepository>()));
-    getIt.registerLazySingleton<PurchaseTeamController>(() => PurchaseTeamController(
-      getPurchaseTeamList: getIt<GetPurchaseTeamList>(),
-      getPurchaseTeamDetail: getIt<GetPurchaseTeamDetail>(),
-      getFormOptions: getIt<GetPurchaseTeamFormOptions>(),
-      createPurchaseTeam: getIt<CreatePurchaseTeam>(),
-      updatePurchaseTeam: getIt<UpdatePurchaseTeam>(),
-      deletePurchaseTeam: getIt<DeletePurchaseTeam>(),
-    ));
+    getIt.registerLazySingleton<PurchaseTeamRemoteDataSource>(
+      () => PurchaseTeamRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<PurchaseTeamRepository>(
+      () => PurchaseTeamRepository(
+        remoteDataSource: getIt<PurchaseTeamRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetPurchaseTeamList(getIt<PurchaseTeamRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetPurchaseTeamDetail(getIt<PurchaseTeamRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetPurchaseTeamFormOptions(getIt<PurchaseTeamRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => CreatePurchaseTeam(getIt<PurchaseTeamRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => UpdatePurchaseTeam(getIt<PurchaseTeamRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => DeletePurchaseTeam(getIt<PurchaseTeamRepository>()),
+    );
+    getIt.registerLazySingleton<PurchaseTeamController>(
+      () => PurchaseTeamController(
+        getPurchaseTeamList: getIt<GetPurchaseTeamList>(),
+        getPurchaseTeamDetail: getIt<GetPurchaseTeamDetail>(),
+        getFormOptions: getIt<GetPurchaseTeamFormOptions>(),
+        createPurchaseTeam: getIt<CreatePurchaseTeam>(),
+        updatePurchaseTeam: getIt<UpdatePurchaseTeam>(),
+        deletePurchaseTeam: getIt<DeletePurchaseTeam>(),
+      ),
+    );
 
-     // ==================== HR LEAVE TYPE ====================
-    getIt.registerLazySingleton<LeaveTypeRemoteDataSource>(() => LeaveTypeRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<LeaveTypeRepository>(() => LeaveTypeRepository(remoteDataSource: getIt<LeaveTypeRemoteDataSource>()));
-    getIt.registerLazySingleton(() => GetLeaveTypeList(getIt<LeaveTypeRepository>()));
-    getIt.registerLazySingleton(() => GetLeaveTypeDetail(getIt<LeaveTypeRepository>()));
-    getIt.registerLazySingleton(() => GetLeaveTypeFormOptions(getIt<LeaveTypeRepository>()));
-    getIt.registerLazySingleton(() => CreateLeaveType(getIt<LeaveTypeRepository>()));
-    getIt.registerLazySingleton(() => UpdateLeaveType(getIt<LeaveTypeRepository>()));
-    getIt.registerLazySingleton(() => DeleteLeaveType(getIt<LeaveTypeRepository>()));
-    getIt.registerLazySingleton<LeaveTypeController>(() => LeaveTypeController(
-      getLeaveTypeList: getIt<GetLeaveTypeList>(),
-      getLeaveTypeDetail: getIt<GetLeaveTypeDetail>(),
-      getFormOptions: getIt<GetLeaveTypeFormOptions>(),
-      createLeaveType: getIt<CreateLeaveType>(),
-      updateLeaveType: getIt<UpdateLeaveType>(),
-      deleteLeaveType: getIt<DeleteLeaveType>(),
-    ));
- 
+    // ==================== HR LEAVE TYPE ====================
+    getIt.registerLazySingleton<LeaveTypeRemoteDataSource>(
+      () => LeaveTypeRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<LeaveTypeRepository>(
+      () => LeaveTypeRepository(
+        remoteDataSource: getIt<LeaveTypeRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetLeaveTypeList(getIt<LeaveTypeRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetLeaveTypeDetail(getIt<LeaveTypeRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetLeaveTypeFormOptions(getIt<LeaveTypeRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => CreateLeaveType(getIt<LeaveTypeRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => UpdateLeaveType(getIt<LeaveTypeRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => DeleteLeaveType(getIt<LeaveTypeRepository>()),
+    );
+    getIt.registerLazySingleton<LeaveTypeController>(
+      () => LeaveTypeController(
+        getLeaveTypeList: getIt<GetLeaveTypeList>(),
+        getLeaveTypeDetail: getIt<GetLeaveTypeDetail>(),
+        getFormOptions: getIt<GetLeaveTypeFormOptions>(),
+        createLeaveType: getIt<CreateLeaveType>(),
+        updateLeaveType: getIt<UpdateLeaveType>(),
+        deleteLeaveType: getIt<DeleteLeaveType>(),
+      ),
+    );
+
     // ==================== HR POSITION ====================
-    getIt.registerLazySingleton<PositionRemoteDataSource>(() => PositionRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<PositionRepository>(() => PositionRepository(remoteDataSource: getIt<PositionRemoteDataSource>()));
-    getIt.registerLazySingleton(() => GetPositionList(getIt<PositionRepository>()));
-    getIt.registerLazySingleton(() => GetPositionDetail(getIt<PositionRepository>()));
-    getIt.registerLazySingleton(() => CreatePosition(getIt<PositionRepository>()));
-    getIt.registerLazySingleton(() => UpdatePosition(getIt<PositionRepository>()));
-    getIt.registerLazySingleton(() => DeletePosition(getIt<PositionRepository>()));
-    getIt.registerLazySingleton<PositionController>(() => PositionController(
-      getPositionList: getIt<GetPositionList>(),
-      getPositionDetail: getIt<GetPositionDetail>(),
-      createPosition: getIt<CreatePosition>(),
-      updatePosition: getIt<UpdatePosition>(),
-      deletePosition: getIt<DeletePosition>(),
-    ));
- 
+    getIt.registerLazySingleton<PositionRemoteDataSource>(
+      () => PositionRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<PositionRepository>(
+      () => PositionRepository(
+        remoteDataSource: getIt<PositionRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetPositionList(getIt<PositionRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetPositionDetail(getIt<PositionRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => CreatePosition(getIt<PositionRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => UpdatePosition(getIt<PositionRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => DeletePosition(getIt<PositionRepository>()),
+    );
+    getIt.registerLazySingleton<PositionController>(
+      () => PositionController(
+        getPositionList: getIt<GetPositionList>(),
+        getPositionDetail: getIt<GetPositionDetail>(),
+        createPosition: getIt<CreatePosition>(),
+        updatePosition: getIt<UpdatePosition>(),
+        deletePosition: getIt<DeletePosition>(),
+      ),
+    );
+
     // ==================== HR COLLECTIVE LEAVE ====================
-    getIt.registerLazySingleton<CollectiveLeaveRemoteDataSource>(() => CollectiveLeaveRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<CollectiveLeaveRepository>(() => CollectiveLeaveRepository(remoteDataSource: getIt<CollectiveLeaveRemoteDataSource>()));
-    getIt.registerLazySingleton(() => GetCollectiveLeaveList(getIt<CollectiveLeaveRepository>()));
-    getIt.registerLazySingleton(() => GetCollectiveLeaveDetail(getIt<CollectiveLeaveRepository>()));
-    getIt.registerLazySingleton(() => CreateCollectiveLeave(getIt<CollectiveLeaveRepository>()));
-    getIt.registerLazySingleton(() => UpdateCollectiveLeave(getIt<CollectiveLeaveRepository>()));
-    getIt.registerLazySingleton(() => DeleteCollectiveLeave(getIt<CollectiveLeaveRepository>()));
-    getIt.registerLazySingleton<CollectiveLeaveController>(() => CollectiveLeaveController(
-      getCollectiveLeaveList: getIt<GetCollectiveLeaveList>(),
-      getCollectiveLeaveDetail: getIt<GetCollectiveLeaveDetail>(),
-      createCollectiveLeave: getIt<CreateCollectiveLeave>(),
-      updateCollectiveLeave: getIt<UpdateCollectiveLeave>(),
-      deleteCollectiveLeave: getIt<DeleteCollectiveLeave>(),
-    ));
+    getIt.registerLazySingleton<CollectiveLeaveRemoteDataSource>(
+      () => CollectiveLeaveRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<CollectiveLeaveRepository>(
+      () => CollectiveLeaveRepository(
+        remoteDataSource: getIt<CollectiveLeaveRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetCollectiveLeaveList(getIt<CollectiveLeaveRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetCollectiveLeaveDetail(getIt<CollectiveLeaveRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => CreateCollectiveLeave(getIt<CollectiveLeaveRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => UpdateCollectiveLeave(getIt<CollectiveLeaveRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => DeleteCollectiveLeave(getIt<CollectiveLeaveRepository>()),
+    );
+    getIt.registerLazySingleton<CollectiveLeaveController>(
+      () => CollectiveLeaveController(
+        getCollectiveLeaveList: getIt<GetCollectiveLeaveList>(),
+        getCollectiveLeaveDetail: getIt<GetCollectiveLeaveDetail>(),
+        createCollectiveLeave: getIt<CreateCollectiveLeave>(),
+        updateCollectiveLeave: getIt<UpdateCollectiveLeave>(),
+        deleteCollectiveLeave: getIt<DeleteCollectiveLeave>(),
+      ),
+    );
 
     // ==================== MASTER EMPLOYEE ====================
-    getIt.registerLazySingleton<EmployeeRemoteDataSource>(() => EmployeeRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<EmployeeRepository>(() => EmployeeRepository(remoteDataSource: getIt()));
-    getIt.registerLazySingleton(() => GetEmployeeList(getIt())); getIt.registerLazySingleton(() => GetEmployeeDetail(getIt()));
-    getIt.registerLazySingleton(() => GetEmployeeFormOptions(getIt())); getIt.registerLazySingleton(() => CreateEmployee(getIt()));
-    getIt.registerLazySingleton(() => UpdateEmployee(getIt())); getIt.registerLazySingleton(() => DeleteEmployee(getIt()));
+    getIt.registerLazySingleton<EmployeeRemoteDataSource>(
+      () => EmployeeRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<EmployeeRepository>(
+      () => EmployeeRepository(remoteDataSource: getIt()),
+    );
+    getIt.registerLazySingleton(() => GetEmployeeList(getIt()));
+    getIt.registerLazySingleton(() => GetEmployeeDetail(getIt()));
+    getIt.registerLazySingleton(() => GetEmployeeFormOptions(getIt()));
+    getIt.registerLazySingleton(() => CreateEmployee(getIt()));
+    getIt.registerLazySingleton(() => UpdateEmployee(getIt()));
+    getIt.registerLazySingleton(() => DeleteEmployee(getIt()));
     getIt.registerLazySingleton(() => CreateEmployeeUserAccount(getIt()));
-    getIt.registerLazySingleton<EmployeeController>(() => EmployeeController(
-      getEmployeeList: getIt(), getEmployeeDetail: getIt(), getFormOptions: getIt(),
-      createEmployee: getIt(), updateEmployee: getIt(), deleteEmployee: getIt(),
-      createUserAccount: getIt(),
-    ));
+    getIt.registerLazySingleton<EmployeeController>(
+      () => EmployeeController(
+        getEmployeeList: getIt(),
+        getEmployeeDetail: getIt(),
+        getFormOptions: getIt(),
+        createEmployee: getIt(),
+        updateEmployee: getIt(),
+        deleteEmployee: getIt(),
+        createUserAccount: getIt(),
+      ),
+    );
 
     // ==================== HR LEAVE ALLOCATION ====================
-    getIt.registerLazySingleton<LeaveAllocationRemoteDataSource>(() => LeaveAllocationRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<LeaveAllocationRepository>(() => LeaveAllocationRepository(remoteDataSource: getIt()));
-    getIt.registerLazySingleton(() => GetLeaveAllocationList(getIt())); getIt.registerLazySingleton(() => GetLeaveAllocationDetail(getIt()));
-    getIt.registerLazySingleton(() => GetLeaveAllocationFormOptions(getIt())); getIt.registerLazySingleton(() => CreateLeaveAllocation(getIt()));
-    getIt.registerLazySingleton(() => UpdateLeaveAllocation(getIt())); getIt.registerLazySingleton(() => DeleteLeaveAllocation(getIt()));
-    getIt.registerLazySingleton<LeaveAllocationController>(() => LeaveAllocationController(
-      getList: getIt(), getDetail: getIt(), getFormOptions: getIt(),
-      createAllocation: getIt(), updateAllocation: getIt(), deleteAllocation: getIt(),
-    ));
+    getIt.registerLazySingleton<LeaveAllocationRemoteDataSource>(
+      () => LeaveAllocationRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<LeaveAllocationRepository>(
+      () => LeaveAllocationRepository(remoteDataSource: getIt()),
+    );
+    getIt.registerLazySingleton(() => GetLeaveAllocationList(getIt()));
+    getIt.registerLazySingleton(() => GetLeaveAllocationDetail(getIt()));
+    getIt.registerLazySingleton(() => GetLeaveAllocationFormOptions(getIt()));
+    getIt.registerLazySingleton(() => CreateLeaveAllocation(getIt()));
+    getIt.registerLazySingleton(() => UpdateLeaveAllocation(getIt()));
+    getIt.registerLazySingleton(() => DeleteLeaveAllocation(getIt()));
+    getIt.registerLazySingleton<LeaveAllocationController>(
+      () => LeaveAllocationController(
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        createAllocation: getIt(),
+        updateAllocation: getIt(),
+        deleteAllocation: getIt(),
+      ),
+    );
 
     // ==================== ACCOUNTING COA ====================
-    getIt.registerLazySingleton<CoaRemoteDataSource>(() => CoaRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<CoaRepository>(() => CoaRepository(remoteDataSource: getIt()));
-    getIt.registerLazySingleton(() => GetCoaList(getIt())); getIt.registerLazySingleton(() => GetCoaDetail(getIt()));
-    getIt.registerLazySingleton(() => GetCoaFormOptions(getIt())); getIt.registerLazySingleton(() => GetCoaAutonumber(getIt()));
-    getIt.registerLazySingleton(() => CheckCoaChildren(getIt())); getIt.registerLazySingleton(() => CreateCoa(getIt()));
-    getIt.registerLazySingleton(() => UpdateCoa(getIt())); getIt.registerLazySingleton(() => DeleteCoa(getIt()));
-    getIt.registerLazySingleton<CoaController>(() => CoaController(
-      getCoaList: getIt(), getCoaDetail: getIt(), getFormOptions: getIt(), getAutonumber: getIt(),
-      checkChildren: getIt(), createCoa: getIt(), updateCoa: getIt(), deleteCoa: getIt(),
-    ));
+    getIt.registerLazySingleton<CoaRemoteDataSource>(
+      () => CoaRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<CoaRepository>(
+      () => CoaRepository(remoteDataSource: getIt()),
+    );
+    getIt.registerLazySingleton(() => GetCoaList(getIt()));
+    getIt.registerLazySingleton(() => GetCoaDetail(getIt()));
+    getIt.registerLazySingleton(() => GetCoaFormOptions(getIt()));
+    getIt.registerLazySingleton(() => GetCoaAutonumber(getIt()));
+    getIt.registerLazySingleton(() => CheckCoaChildren(getIt()));
+    getIt.registerLazySingleton(() => CreateCoa(getIt()));
+    getIt.registerLazySingleton(() => UpdateCoa(getIt()));
+    getIt.registerLazySingleton(() => DeleteCoa(getIt()));
+    getIt.registerLazySingleton<CoaController>(
+      () => CoaController(
+        getCoaList: getIt(),
+        getCoaDetail: getIt(),
+        getFormOptions: getIt(),
+        getAutonumber: getIt(),
+        checkChildren: getIt(),
+        createCoa: getIt(),
+        updateCoa: getIt(),
+        deleteCoa: getIt(),
+      ),
+    );
 
     // ==================== ACCOUNTING BANK ACCOUNT ====================
-    getIt.registerLazySingleton<BankAccountRemoteDataSource>(() => BankAccountRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<BankAccountRepository>(() => BankAccountRepository(remoteDataSource: getIt()));
-    getIt.registerLazySingleton(() => GetBankAccountList(getIt())); getIt.registerLazySingleton(() => GetBankAccountDetail(getIt()));
-    getIt.registerLazySingleton(() => GetBankAccountFormOptions(getIt())); getIt.registerLazySingleton(() => CreateBankAccount(getIt()));
-    getIt.registerLazySingleton(() => UpdateBankAccount(getIt())); getIt.registerLazySingleton(() => DeleteBankAccount(getIt()));
-    getIt.registerLazySingleton<BankAccountController>(() => BankAccountController(
-      getList: getIt(), getDetail: getIt(), getFormOptions: getIt(),
-      createBankAccount: getIt(), updateBankAccount: getIt(), deleteBankAccount: getIt(),
-    ));
+    getIt.registerLazySingleton<BankAccountRemoteDataSource>(
+      () => BankAccountRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<BankAccountRepository>(
+      () => BankAccountRepository(remoteDataSource: getIt()),
+    );
+    getIt.registerLazySingleton(() => GetBankAccountList(getIt()));
+    getIt.registerLazySingleton(() => GetBankAccountDetail(getIt()));
+    getIt.registerLazySingleton(() => GetBankAccountFormOptions(getIt()));
+    getIt.registerLazySingleton(() => CreateBankAccount(getIt()));
+    getIt.registerLazySingleton(() => UpdateBankAccount(getIt()));
+    getIt.registerLazySingleton(() => DeleteBankAccount(getIt()));
+    getIt.registerLazySingleton<BankAccountController>(
+      () => BankAccountController(
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        createBankAccount: getIt(),
+        updateBankAccount: getIt(),
+        deleteBankAccount: getIt(),
+      ),
+    );
 
     // ==================== MASTER PROJECT ====================
-    getIt.registerLazySingleton<ProjectRemoteDataSource>(() => ProjectRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<ProjectRepository>(() => ProjectRepository(remoteDataSource: getIt()));
-    getIt.registerLazySingleton(() => GetProjectList(getIt())); getIt.registerLazySingleton(() => GetProjectDetail(getIt()));
-    getIt.registerLazySingleton(() => GetProjectFormOptions(getIt())); getIt.registerLazySingleton(() => CreateProject(getIt()));
-    getIt.registerLazySingleton(() => UpdateProject(getIt())); getIt.registerLazySingleton(() => DeleteProject(getIt()));
-    getIt.registerLazySingleton<ProjectController>(() => ProjectController(
-      getProjectList: getIt(), getProjectDetail: getIt(), getFormOptions: getIt(),
-      createProject: getIt(), updateProject: getIt(), deleteProject: getIt(),
-    ));
+    getIt.registerLazySingleton<ProjectRemoteDataSource>(
+      () => ProjectRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<ProjectRepository>(
+      () => ProjectRepository(remoteDataSource: getIt()),
+    );
+    getIt.registerLazySingleton(() => GetProjectList(getIt()));
+    getIt.registerLazySingleton(() => GetProjectDetail(getIt()));
+    getIt.registerLazySingleton(() => GetProjectFormOptions(getIt()));
+    getIt.registerLazySingleton(() => CreateProject(getIt()));
+    getIt.registerLazySingleton(() => UpdateProject(getIt()));
+    getIt.registerLazySingleton(() => DeleteProject(getIt()));
+    getIt.registerLazySingleton<ProjectController>(
+      () => ProjectController(
+        getProjectList: getIt(),
+        getProjectDetail: getIt(),
+        getFormOptions: getIt(),
+        createProject: getIt(),
+        updateProject: getIt(),
+        deleteProject: getIt(),
+      ),
+    );
 
     // ==================== SALES PRICE LIST ====================
-    getIt.registerLazySingleton<PriceListRemoteDataSource>(() => PriceListRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<PriceListRepository>(() => PriceListRepository(remoteDataSource: getIt()));
-    getIt.registerLazySingleton(() => GetPriceListList(getIt())); getIt.registerLazySingleton(() => GetPriceListDetail(getIt()));
-    getIt.registerLazySingleton(() => GetPriceListProducts(getIt())); getIt.registerLazySingleton(() => CreatePriceList(getIt()));
-    getIt.registerLazySingleton(() => UpdatePriceList(getIt())); getIt.registerLazySingleton(() => DeletePriceList(getIt()));
-    getIt.registerLazySingleton<PriceListController>(() => PriceListController(
-      getList: getIt(), getDetail: getIt(), getProducts: getIt(),
-      createPriceList: getIt(), updatePriceList: getIt(), deletePriceList: getIt(),
-    ));
+    getIt.registerLazySingleton<PriceListRemoteDataSource>(
+      () => PriceListRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<PriceListRepository>(
+      () => PriceListRepository(remoteDataSource: getIt()),
+    );
+    getIt.registerLazySingleton(() => GetPriceListList(getIt()));
+    getIt.registerLazySingleton(() => GetPriceListDetail(getIt()));
+    getIt.registerLazySingleton(() => GetPriceListProducts(getIt()));
+    getIt.registerLazySingleton(() => CreatePriceList(getIt()));
+    getIt.registerLazySingleton(() => UpdatePriceList(getIt()));
+    getIt.registerLazySingleton(() => DeletePriceList(getIt()));
+    getIt.registerLazySingleton<PriceListController>(
+      () => PriceListController(
+        getList: getIt(),
+        getDetail: getIt(),
+        getProducts: getIt(),
+        createPriceList: getIt(),
+        updatePriceList: getIt(),
+        deletePriceList: getIt(),
+      ),
+    );
 
     // ==================== MANUFACTURING WORKSTATION ====================
-    getIt.registerLazySingleton<WorkstationRemoteDataSource>(() => WorkstationRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<WorkstationRepository>(() => WorkstationRepository(remoteDataSource: getIt()));
-    getIt.registerLazySingleton(() => GetWorkstationList(getIt())); getIt.registerLazySingleton(() => GetWorkstationDetail(getIt()));
-    getIt.registerLazySingleton(() => CreateWorkstation(getIt())); getIt.registerLazySingleton(() => UpdateWorkstation(getIt())); getIt.registerLazySingleton(() => DeleteWorkstation(getIt()));
-    getIt.registerLazySingleton<WorkstationController>(() => WorkstationController(getList: getIt(), getDetail: getIt(), createWorkstation: getIt(), updateWorkstation: getIt(), deleteWorkstation: getIt()));
+    getIt.registerLazySingleton<WorkstationRemoteDataSource>(
+      () => WorkstationRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<WorkstationRepository>(
+      () => WorkstationRepository(remoteDataSource: getIt()),
+    );
+    getIt.registerLazySingleton(() => GetWorkstationList(getIt()));
+    getIt.registerLazySingleton(() => GetWorkstationDetail(getIt()));
+    getIt.registerLazySingleton(() => CreateWorkstation(getIt()));
+    getIt.registerLazySingleton(() => UpdateWorkstation(getIt()));
+    getIt.registerLazySingleton(() => DeleteWorkstation(getIt()));
+    getIt.registerLazySingleton<WorkstationController>(
+      () => WorkstationController(
+        getList: getIt(),
+        getDetail: getIt(),
+        createWorkstation: getIt(),
+        updateWorkstation: getIt(),
+        deleteWorkstation: getIt(),
+      ),
+    );
 
     // ==================== MANUFACTURING BOM ====================
-    getIt.registerLazySingleton<BomRemoteDataSource>(() => BomRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<BomRepository>(() => BomRepository(remoteDataSource: getIt()));
-    getIt.registerLazySingleton(() => GetBomList(getIt())); getIt.registerLazySingleton(() => GetBomDetail(getIt()));
-    getIt.registerLazySingleton(() => GetBomFormOptions(getIt())); getIt.registerLazySingleton(() => CreateBom(getIt()));
-    getIt.registerLazySingleton(() => UpdateBom(getIt())); getIt.registerLazySingleton(() => DeleteBom(getIt()));
-    getIt.registerLazySingleton<BomController>(() => BomController(getBomList: getIt(), getBomDetail: getIt(), getFormOptions: getIt(), createBom: getIt(), updateBom: getIt(), deleteBom: getIt()));
+    getIt.registerLazySingleton<BomRemoteDataSource>(
+      () => BomRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<BomRepository>(
+      () => BomRepository(remoteDataSource: getIt()),
+    );
+    getIt.registerLazySingleton(() => GetBomList(getIt()));
+    getIt.registerLazySingleton(() => GetBomDetail(getIt()));
+    getIt.registerLazySingleton(() => GetBomFormOptions(getIt()));
+    getIt.registerLazySingleton(() => CreateBom(getIt()));
+    getIt.registerLazySingleton(() => UpdateBom(getIt()));
+    getIt.registerLazySingleton(() => DeleteBom(getIt()));
+    getIt.registerLazySingleton<BomController>(
+      () => BomController(
+        getBomList: getIt(),
+        getBomDetail: getIt(),
+        getFormOptions: getIt(),
+        createBom: getIt(),
+        updateBom: getIt(),
+        deleteBom: getIt(),
+      ),
+    );
 
     // ==================== MASTER UOM ====================
-    getIt.registerLazySingleton<UomRemoteDataSource>(() => UomRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<UomRepository>(() => UomRepository(remoteDataSource: getIt()));
-    getIt.registerLazySingleton(() => GetUomList(getIt())); getIt.registerLazySingleton(() => GetUomDetail(getIt()));
-    getIt.registerLazySingleton(() => CreateUom(getIt())); getIt.registerLazySingleton(() => UpdateUom(getIt())); getIt.registerLazySingleton(() => DeleteUom(getIt()));
+    getIt.registerLazySingleton<UomRemoteDataSource>(
+      () => UomRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<UomRepository>(
+      () => UomRepository(remoteDataSource: getIt()),
+    );
+    getIt.registerLazySingleton(() => GetUomList(getIt()));
+    getIt.registerLazySingleton(() => GetUomDetail(getIt()));
+    getIt.registerLazySingleton(() => CreateUom(getIt()));
+    getIt.registerLazySingleton(() => UpdateUom(getIt()));
+    getIt.registerLazySingleton(() => DeleteUom(getIt()));
     getIt.registerLazySingleton(() => GetUomFormOptions(getIt()));
-    getIt.registerLazySingleton<UomController>(() => UomController(getList: getIt(), getDetail: getIt(), getFormOptions: getIt(), createUom: getIt(), updateUom: getIt(), deleteUom: getIt()));
+    getIt.registerLazySingleton<UomController>(
+      () => UomController(
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        createUom: getIt(),
+        updateUom: getIt(),
+        deleteUom: getIt(),
+      ),
+    );
 
     // ==================== MASTER USER ====================
-    getIt.registerLazySingleton<UserRemoteDataSource>(() => UserRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<UserRepository>(() => UserRepository(remoteDataSource: getIt()));
-    getIt.registerLazySingleton(() => GetUserList(getIt())); getIt.registerLazySingleton(() => GetUserDetail(getIt()));
-    getIt.registerLazySingleton(() => ToggleUserStatus(getIt())); getIt.registerLazySingleton(() => DeleteUser(getIt()));
-    getIt.registerLazySingleton<UserController>(() => UserController(getUserList: getIt(), getUserDetail: getIt(), toggleUserStatus: getIt(), deleteUser: getIt()));
+    getIt.registerLazySingleton<UserRemoteDataSource>(
+      () => UserRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<UserRepository>(
+      () => UserRepository(remoteDataSource: getIt()),
+    );
+    getIt.registerLazySingleton(() => GetUserList(getIt()));
+    getIt.registerLazySingleton(() => GetUserDetail(getIt()));
+    getIt.registerLazySingleton(() => ToggleUserStatus(getIt()));
+    getIt.registerLazySingleton(() => DeleteUser(getIt()));
+    getIt.registerLazySingleton<UserController>(
+      () => UserController(
+        getUserList: getIt(),
+        getUserDetail: getIt(),
+        toggleUserStatus: getIt(),
+        deleteUser: getIt(),
+      ),
+    );
 
     // ==================== POS: STORE ====================
-    getIt.registerLazySingleton<StoreRemoteDataSource>(() => StoreRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<StoreRepository>(() => StoreRepository(remoteDataSource: getIt()));
+    getIt.registerLazySingleton<StoreRemoteDataSource>(
+      () => StoreRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<StoreRepository>(
+      () => StoreRepository(remoteDataSource: getIt()),
+    );
     getIt.registerLazySingleton(() => GetStoreList(getIt()));
     getIt.registerLazySingleton(() => GetStoreDetail(getIt()));
     getIt.registerLazySingleton(() => GetStoreOptions(getIt()));
@@ -908,27 +1512,58 @@ class AppInjector {
     getIt.registerLazySingleton(() => DeleteStore(getIt()));
     getIt.registerLazySingleton(() => SelectStore(getIt()));
     getIt.registerLazySingleton(() => VerifyStorePin(getIt()));
-    getIt.registerLazySingleton<StoreController>(() => StoreController(
-      getStoreList: getIt(), getStoreDetail: getIt(), getStoreOptions: getIt(),
-      createStore: getIt(), updateStore: getIt(), deleteStore: getIt(),
-      selectStore: getIt(), verifyStorePin: getIt(),
-    ));
+    getIt.registerLazySingleton<StoreController>(
+      () => StoreController(
+        getStoreList: getIt(),
+        getStoreDetail: getIt(),
+        getStoreOptions: getIt(),
+        createStore: getIt(),
+        updateStore: getIt(),
+        deleteStore: getIt(),
+        selectStore: getIt(),
+        verifyStorePin: getIt(),
+      ),
+    );
 
     // ==================== HR: OVERTIME TYPE ====================
-    getIt.registerLazySingleton<OvertimeTypeRemoteDataSource>(() => OvertimeTypeRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<OvertimeTypeRepository>(() => OvertimeTypeRepository(ds: getIt()));
-    getIt.registerLazySingleton(() => GetOvertimeTypeList(getIt())); getIt.registerLazySingleton(() => GetOvertimeTypeDetail(getIt()));
-    getIt.registerLazySingleton(() => GetOvertimeTypeFormOptions(getIt())); getIt.registerLazySingleton(() => CreateOvertimeType(getIt()));
-    getIt.registerLazySingleton(() => UpdateOvertimeType(getIt())); getIt.registerLazySingleton(() => DeleteOvertimeType(getIt()));
-    getIt.registerLazySingleton<OvertimeTypeController>(() => OvertimeTypeController(getList: getIt(), getDetail: getIt(), getFormOptions: getIt(), createOT: getIt(), updateOT: getIt(), deleteOT: getIt()));
+    getIt.registerLazySingleton<OvertimeTypeRemoteDataSource>(
+      () => OvertimeTypeRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<OvertimeTypeRepository>(
+      () => OvertimeTypeRepository(ds: getIt()),
+    );
+    getIt.registerLazySingleton(() => GetOvertimeTypeList(getIt()));
+    getIt.registerLazySingleton(() => GetOvertimeTypeDetail(getIt()));
+    getIt.registerLazySingleton(() => GetOvertimeTypeFormOptions(getIt()));
+    getIt.registerLazySingleton(() => CreateOvertimeType(getIt()));
+    getIt.registerLazySingleton(() => UpdateOvertimeType(getIt()));
+    getIt.registerLazySingleton(() => DeleteOvertimeType(getIt()));
+    getIt.registerLazySingleton<OvertimeTypeController>(
+      () => OvertimeTypeController(
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        createOT: getIt(),
+        updateOT: getIt(),
+        deleteOT: getIt(),
+      ),
+    );
 
     // ==================== HR: LEAVE QUOTA ====================
-    getIt.registerLazySingleton<LeaveQuotaRemoteDataSource>(() => LeaveQuotaRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<LeaveQuotaController>(() => LeaveQuotaController(ds: getIt()));
+    getIt.registerLazySingleton<LeaveQuotaRemoteDataSource>(
+      () => LeaveQuotaRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<LeaveQuotaController>(
+      () => LeaveQuotaController(ds: getIt()),
+    );
 
     // ==================== HR: LEAVE REQUEST ====================
-    getIt.registerLazySingleton<LeaveRequestRemoteDataSource>(() => LeaveRequestRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<LeaveRequestRepository>(() => LeaveRequestRepository(remoteDataSource: getIt()));
+    getIt.registerLazySingleton<LeaveRequestRemoteDataSource>(
+      () => LeaveRequestRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<LeaveRequestRepository>(
+      () => LeaveRequestRepository(remoteDataSource: getIt()),
+    );
     getIt.registerLazySingleton(() => GetLeaveRequestList(getIt()));
     getIt.registerLazySingleton(() => GetLeaveRequestDetail(getIt()));
     getIt.registerLazySingleton(() => GetLeaveRequestFormOptions(getIt()));
@@ -937,20 +1572,26 @@ class AppInjector {
     getIt.registerLazySingleton(() => DeleteLeaveRequest(getIt()));
     getIt.registerLazySingleton(() => ApproveLeaveRequest(getIt()));
     getIt.registerLazySingleton(() => RejectLeaveRequest(getIt()));
-    getIt.registerLazySingleton<LeaveRequestController>(() => LeaveRequestController(
-      getLeaveRequestList:        getIt(),
-      getLeaveRequestDetail:      getIt(),
-      getLeaveRequestFormOptions: getIt(),
-      createLeaveRequest:         getIt(),
-      updateLeaveRequest:         getIt(),
-      deleteLeaveRequest:         getIt(),
-      approveLeaveRequest:        getIt(),
-      rejectLeaveRequest:         getIt(),
-    ));
+    getIt.registerLazySingleton<LeaveRequestController>(
+      () => LeaveRequestController(
+        getLeaveRequestList: getIt(),
+        getLeaveRequestDetail: getIt(),
+        getLeaveRequestFormOptions: getIt(),
+        createLeaveRequest: getIt(),
+        updateLeaveRequest: getIt(),
+        deleteLeaveRequest: getIt(),
+        approveLeaveRequest: getIt(),
+        rejectLeaveRequest: getIt(),
+      ),
+    );
 
     // ==================== OVERTIME REQUEST ====================
-    getIt.registerLazySingleton<OvertimeRequestRemoteDataSource>(() => OvertimeRequestRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<OvertimeRequestRepository>(() => OvertimeRequestRepository(ds: getIt()));
+    getIt.registerLazySingleton<OvertimeRequestRemoteDataSource>(
+      () => OvertimeRequestRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<OvertimeRequestRepository>(
+      () => OvertimeRequestRepository(ds: getIt()),
+    );
     getIt.registerLazySingleton(() => GetOvertimeRequestList(getIt()));
     getIt.registerLazySingleton(() => GetOvertimeRequestDetail(getIt()));
     getIt.registerLazySingleton(() => GetOvertimeRequestFormOptions(getIt()));
@@ -959,20 +1600,26 @@ class AppInjector {
     getIt.registerLazySingleton(() => DeleteOvertimeRequest(getIt()));
     getIt.registerLazySingleton(() => ApproveOvertimeRequest(getIt()));
     getIt.registerLazySingleton(() => RejectOvertimeRequest(getIt()));
-    getIt.registerLazySingleton<OvertimeRequestController>(() => OvertimeRequestController(
-      getList: getIt(), 
-      getDetail: getIt(),
-      getFormOptions: getIt(),
-      createOT: getIt(), 
-      updateOT: getIt(),
-      deleteOT: getIt(),
-      approveOT: getIt(), 
-      rejectOT: getIt(),
-    ));
+    getIt.registerLazySingleton<OvertimeRequestController>(
+      () => OvertimeRequestController(
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        createOT: getIt(),
+        updateOT: getIt(),
+        deleteOT: getIt(),
+        approveOT: getIt(),
+        rejectOT: getIt(),
+      ),
+    );
 
     // ==================== QUOTATION ====================
-    getIt.registerLazySingleton<QuotationRemoteDataSource>(() => QuotationRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<QuotationRepository>(() => QuotationRepository(ds: getIt()));
+    getIt.registerLazySingleton<QuotationRemoteDataSource>(
+      () => QuotationRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<QuotationRepository>(
+      () => QuotationRepository(ds: getIt()),
+    );
     getIt.registerLazySingleton(() => GetQuotationList(getIt()));
     getIt.registerLazySingleton(() => GetQuotationDetail(getIt()));
     getIt.registerLazySingleton(() => GetQuotationFormOptions(getIt()));
@@ -985,16 +1632,30 @@ class AppInjector {
     getIt.registerLazySingleton(() => ApproveQuotation(getIt()));
     getIt.registerLazySingleton(() => RejectQuotation(getIt()));
     getIt.registerLazySingleton(() => GetQuotationSteps(getIt()));
-    getIt.registerLazySingleton<QuotationController>(() => QuotationController(
-      getList: getIt(), getDetail: getIt(), getFormOptions: getIt(),
-      saveQ: getIt(), cancelQ: getIt(), deleteQ: getIt(),
-      createSOUC: getIt(), getProductsByLocation: getIt(), getPriceFromList: getIt(),
-      approveQ: getIt(), rejectQ: getIt(), getSteps: getIt(),
-    ));
+    getIt.registerLazySingleton<QuotationController>(
+      () => QuotationController(
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        saveQ: getIt(),
+        cancelQ: getIt(),
+        deleteQ: getIt(),
+        createSOUC: getIt(),
+        getProductsByLocation: getIt(),
+        getPriceFromList: getIt(),
+        approveQ: getIt(),
+        rejectQ: getIt(),
+        getSteps: getIt(),
+      ),
+    );
 
     // ==================== SALES ORDER ====================
-    getIt.registerLazySingleton<SalesOrderRemoteDataSource>(() => SalesOrderRemoteDataSource(getIt<DioClient>().dio),);
-    getIt.registerLazySingleton<SalesOrderRepository>(() => SalesOrderRepository(getIt()),);
+    getIt.registerLazySingleton<SalesOrderRemoteDataSource>(
+      () => SalesOrderRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<SalesOrderRepository>(
+      () => SalesOrderRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetSOList(getIt()));
     getIt.registerLazySingleton(() => GetSODetail(getIt()));
     getIt.registerLazySingleton(() => GetSOFormOptions(getIt()));
@@ -1011,26 +1672,30 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetSOSteps(getIt()));
     getIt.registerLazySingleton<SalesOrderController>(
       () => SalesOrderController(
-        getList:                getIt(),
-        getDetail:              getIt(),
-        getFormOptions:         getIt(),
-        saveSO:                 getIt(),
-        cancelSO:               getIt(),
-        closeSO:                getIt(),
-        deleteSO:               getIt(),
-        createInvoiceUC:        getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        saveSO: getIt(),
+        cancelSO: getIt(),
+        closeSO: getIt(),
+        deleteSO: getIt(),
+        createInvoiceUC: getIt(),
         createInvoiceFromTermUC: getIt(),
-        getProductsByLocation:  getIt(),
-        getPriceFromList:       getIt(),
-        approveSO:              getIt(),
-        rejectSO:               getIt(),
-        getSteps:               getIt(),
+        getProductsByLocation: getIt(),
+        getPriceFromList: getIt(),
+        approveSO: getIt(),
+        rejectSO: getIt(),
+        getSteps: getIt(),
       ),
     );
 
     // ==================== DIRECT SALES ====================
-    getIt.registerLazySingleton<DirectSalesRemoteDataSource>(() => DirectSalesRemoteDataSource(getIt<DioClient>().dio),);
-    getIt.registerLazySingleton<DirectSalesRepository>(() => DirectSalesRepository(getIt()),);
+    getIt.registerLazySingleton<DirectSalesRemoteDataSource>(
+      () => DirectSalesRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<DirectSalesRepository>(
+      () => DirectSalesRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetDSList(getIt()));
     getIt.registerLazySingleton(() => GetDSDetail(getIt()));
     getIt.registerLazySingleton(() => GetDSFormOptions(getIt()));
@@ -1046,25 +1711,29 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetDSSteps(getIt()));
     getIt.registerLazySingleton<DirectSalesController>(
       () => DirectSalesController(
-        getList:                 getIt(),
-        getDetail:               getIt(),
-        getFormOptions:          getIt(),
-        saveDS:                  getIt(),
-        cancelDS:                getIt(),
-        deleteDS:                getIt(),
-        createInvoiceUC:         getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        saveDS: getIt(),
+        cancelDS: getIt(),
+        deleteDS: getIt(),
+        createInvoiceUC: getIt(),
         createInvoiceFromTermUC: getIt(),
-        getProductsByLocation:   getIt(),
-        getPriceFromList:        getIt(),
-        approveDS:               getIt(),
-        rejectDS:                getIt(),
-        getSteps:                getIt(),
+        getProductsByLocation: getIt(),
+        getPriceFromList: getIt(),
+        approveDS: getIt(),
+        rejectDS: getIt(),
+        getSteps: getIt(),
       ),
     );
 
     // ==================== INVOICE ====================
-    getIt.registerLazySingleton<InvoiceRemoteDataSource>(() => InvoiceRemoteDataSource(getIt<DioClient>().dio),);
-    getIt.registerLazySingleton<InvoiceRepository>(() => InvoiceRepository(getIt()),);
+    getIt.registerLazySingleton<InvoiceRemoteDataSource>(
+      () => InvoiceRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<InvoiceRepository>(
+      () => InvoiceRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetInvoiceList(getIt()));
     getIt.registerLazySingleton(() => GetInvoiceDetail(getIt()));
     getIt.registerLazySingleton(() => GetInvoiceFormOptions(getIt()));
@@ -1078,23 +1747,27 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetInvoiceSteps(getIt()));
     getIt.registerLazySingleton<InvoiceController>(
       () => InvoiceController(
-        getList:                 getIt(),
-        getDetail:               getIt(),
-        getFormOptions:          getIt(),
-        saveInv:                  getIt(),
-        cancelInv:                getIt(),
-        deleteInv:                getIt(),
-        createPaymentUC:         getIt(),
-        getPriceFromList:        getIt(),
-        approveInv:               getIt(),
-        rejectInv:                getIt(),
-        getSteps:                getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        saveInv: getIt(),
+        cancelInv: getIt(),
+        deleteInv: getIt(),
+        createPaymentUC: getIt(),
+        getPriceFromList: getIt(),
+        approveInv: getIt(),
+        rejectInv: getIt(),
+        getSteps: getIt(),
       ),
     );
 
     // ==================== SERVICE QUOTATION ====================
-    getIt.registerLazySingleton<ServiceQuotationRemoteDataSource>(() => ServiceQuotationRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<ServiceQuotationRepository>(() => ServiceQuotationRepository(getIt()),);
+    getIt.registerLazySingleton<ServiceQuotationRemoteDataSource>(
+      () => ServiceQuotationRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<ServiceQuotationRepository>(
+      () => ServiceQuotationRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetSQList(getIt()));
     getIt.registerLazySingleton(() => GetSQDetail(getIt()));
     getIt.registerLazySingleton(() => GetSQFormOptions(getIt()));
@@ -1106,16 +1779,29 @@ class AppInjector {
     getIt.registerLazySingleton(() => ApproveSQ(getIt()));
     getIt.registerLazySingleton(() => RejectSQ(getIt()));
     getIt.registerLazySingleton(() => GetSQSteps(getIt()));
-    getIt.registerLazySingleton<ServiceQuotationController>(() => ServiceQuotationController(
-      getList: getIt(), getDetail: getIt(), getFormOptions: getIt(),
-      saveQ: getIt(), cancelQ: getIt(), deleteQ: getIt(),
-      createSSOUC: getIt(), getPriceFromList: getIt(),
-      approveQ: getIt(), rejectQ: getIt(), getSteps: getIt(),
-    ));
+    getIt.registerLazySingleton<ServiceQuotationController>(
+      () => ServiceQuotationController(
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        saveQ: getIt(),
+        cancelQ: getIt(),
+        deleteQ: getIt(),
+        createSSOUC: getIt(),
+        getPriceFromList: getIt(),
+        approveQ: getIt(),
+        rejectQ: getIt(),
+        getSteps: getIt(),
+      ),
+    );
 
     // ==================== SERVICE SALES ORDER ====================
-    getIt.registerLazySingleton<ServiceSalesOrderRemoteDataSource>(() => ServiceSalesOrderRemoteDataSource(getIt<DioClient>().dio),);
-    getIt.registerLazySingleton<ServiceSalesOrderRepository>(() => ServiceSalesOrderRepository(getIt()),);
+    getIt.registerLazySingleton<ServiceSalesOrderRemoteDataSource>(
+      () => ServiceSalesOrderRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<ServiceSalesOrderRepository>(
+      () => ServiceSalesOrderRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetSSOList(getIt()));
     getIt.registerLazySingleton(() => GetSSODetail(getIt()));
     getIt.registerLazySingleton(() => GetSSOFormOptions(getIt()));
@@ -1131,25 +1817,29 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetSSOSteps(getIt()));
     getIt.registerLazySingleton<ServiceSalesOrderController>(
       () => ServiceSalesOrderController(
-        getList:                getIt(),
-        getDetail:              getIt(),
-        getFormOptions:         getIt(),
-        saveSSO:                 getIt(),
-        cancelSSO:               getIt(),
-        closeSSO:                getIt(),
-        deleteSSO:               getIt(),
-        createInvoiceUC:        getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        saveSSO: getIt(),
+        cancelSSO: getIt(),
+        closeSSO: getIt(),
+        deleteSSO: getIt(),
+        createInvoiceUC: getIt(),
         createInvoiceFromTermUC: getIt(),
-        getPriceFromList:       getIt(),
-        approveSSO:              getIt(),
-        rejectSSO:               getIt(),
-        getSteps:               getIt(),
+        getPriceFromList: getIt(),
+        approveSSO: getIt(),
+        rejectSSO: getIt(),
+        getSteps: getIt(),
       ),
     );
 
     // ==================== SERVICE DIRECT SALES ====================
-    getIt.registerLazySingleton<ServiceDirectSalesRemoteDataSource>(() => ServiceDirectSalesRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<ServiceDirectSalesRepository>(() => ServiceDirectSalesRepository(getIt()),);
+    getIt.registerLazySingleton<ServiceDirectSalesRemoteDataSource>(
+      () => ServiceDirectSalesRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<ServiceDirectSalesRepository>(
+      () => ServiceDirectSalesRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetSDSList(getIt()));
     getIt.registerLazySingleton(() => GetSDSDetail(getIt()));
     getIt.registerLazySingleton(() => GetSDSFormOptions(getIt()));
@@ -1172,8 +1862,12 @@ class AppInjector {
     );
 
     // ==================== SERVICE INVOICE ====================
-    getIt.registerLazySingleton<ServiceInvoiceRemoteDataSource>(() => ServiceInvoiceRemoteDataSource(getIt<DioClient>().dio),);
-    getIt.registerLazySingleton<ServiceInvoiceRepository>(() => ServiceInvoiceRepository(getIt()),);
+    getIt.registerLazySingleton<ServiceInvoiceRemoteDataSource>(
+      () => ServiceInvoiceRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<ServiceInvoiceRepository>(
+      () => ServiceInvoiceRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetServiceInvoiceList(getIt()));
     getIt.registerLazySingleton(() => GetServiceInvoiceDetail(getIt()));
     getIt.registerLazySingleton(() => GetServiceInvoiceFormOptions(getIt()));
@@ -1187,23 +1881,27 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetServiceInvoiceSteps(getIt()));
     getIt.registerLazySingleton<ServiceInvoiceController>(
       () => ServiceInvoiceController(
-        getList:                 getIt(),
-        getDetail:               getIt(),
-        getFormOptions:          getIt(),
-        saveInv:                  getIt(),
-        cancelInv:                getIt(),
-        deleteInv:                getIt(),
-        createPaymentUC:         getIt(),
-        getPriceFromList:        getIt(),
-        approveInv:               getIt(),
-        rejectInv:                getIt(),
-        getSteps:                getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        saveInv: getIt(),
+        cancelInv: getIt(),
+        deleteInv: getIt(),
+        createPaymentUC: getIt(),
+        getPriceFromList: getIt(),
+        approveInv: getIt(),
+        rejectInv: getIt(),
+        getSteps: getIt(),
       ),
     );
 
     // ==================== PURCHASE REQUEST ====================
-    getIt.registerLazySingleton<PurchaseRequestRemoteDataSource>(() => PurchaseRequestRemoteDataSource(getIt<DioClient>().dio),);
-    getIt.registerLazySingleton<PurchaseRequestRepository>(() => PurchaseRequestRepository(getIt()),);
+    getIt.registerLazySingleton<PurchaseRequestRemoteDataSource>(
+      () => PurchaseRequestRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<PurchaseRequestRepository>(
+      () => PurchaseRequestRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetPRList(getIt()));
     getIt.registerLazySingleton(() => GetPRDetail(getIt()));
     getIt.registerLazySingleton(() => GetPRFormOptions(getIt()));
@@ -1217,23 +1915,25 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetPRSteps(getIt()));
     getIt.registerLazySingleton<PurchaseRequestController>(
       () => PurchaseRequestController(
-        getList:                 getIt(),
-        getDetail:               getIt(),
-        getFormOptions:          getIt(),
-        savePR:                  getIt(),
-        cancelPR:                getIt(),
-        deletePR:                getIt(),
-        createRfqUC:             getIt(),
-        createDpUC:              getIt(),
-        approvePR:               getIt(),
-        rejectPR:                getIt(),
-        getSteps:                getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        savePR: getIt(),
+        cancelPR: getIt(),
+        deletePR: getIt(),
+        createRfqUC: getIt(),
+        createDpUC: getIt(),
+        approvePR: getIt(),
+        rejectPR: getIt(),
+        getSteps: getIt(),
       ),
     );
 
     // ==================== RFQ ====================
-    getIt.registerLazySingleton<RfqRemoteDataSource>(() => RfqRemoteDataSource(getIt<DioClient>().dio),);
-    getIt.registerLazySingleton<RfqRepository>(() => RfqRepository(getIt()),);
+    getIt.registerLazySingleton<RfqRemoteDataSource>(
+      () => RfqRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<RfqRepository>(() => RfqRepository(getIt()));
     getIt.registerLazySingleton(() => GetRfqList(getIt()));
     getIt.registerLazySingleton(() => GetRfqDetail(getIt()));
     getIt.registerLazySingleton(() => GetRfqFormOptions(getIt()));
@@ -1248,24 +1948,28 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetRfqSteps(getIt()));
     getIt.registerLazySingleton<RfqController>(
       () => RfqController(
-        getList:                 getIt(),
-        getDetail:               getIt(),
-        getFormOptions:          getIt(),
-        getPriceFromList:        getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        getPriceFromList: getIt(),
         getLocationsByWarehouse: getIt(),
-        saveRfq:                 getIt(),
-        cancelRfq:               getIt(),
-        deleteRfq:               getIt(),
-        createPOUC:              getIt(),
-        approveRfq:              getIt(),
-        rejectRfq:               getIt(),
-        getSteps:                getIt(),
+        saveRfq: getIt(),
+        cancelRfq: getIt(),
+        deleteRfq: getIt(),
+        createPOUC: getIt(),
+        approveRfq: getIt(),
+        rejectRfq: getIt(),
+        getSteps: getIt(),
       ),
     );
 
     // ==================== DIRECT PURCHASE ====================
-    getIt.registerLazySingleton<DirectPurchaseRemoteDataSource>(() => DirectPurchaseRemoteDataSource(getIt<DioClient>().dio),);
-    getIt.registerLazySingleton<DirectPurchaseRepository>(() => DirectPurchaseRepository(getIt()),);
+    getIt.registerLazySingleton<DirectPurchaseRemoteDataSource>(
+      () => DirectPurchaseRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<DirectPurchaseRepository>(
+      () => DirectPurchaseRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetDirectPurchaseList(getIt()));
     getIt.registerLazySingleton(() => GetDirectPurchaseDetail(getIt()));
     getIt.registerLazySingleton(() => GetDirectPurchaseFormOptions(getIt()));
@@ -1279,23 +1983,27 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetDirectPurchaseSteps(getIt()));
     getIt.registerLazySingleton<DirectPurchaseController>(
       () => DirectPurchaseController(
-        getList:                 getIt(),
-        getDetail:               getIt(),
-        getFormOptions:          getIt(),
-        getPriceFromList:        getIt(),
-        saveDirectPurchase:      getIt(),
-        cancelDirectPurchase:    getIt(),
-        deleteDirectPurchase:    getIt(),
-        approveDirectPurchase:   getIt(),
-        rejectDirectPurchase:    getIt(),
-        closeDirectPurchase:     getIt(),
-        getSteps:                getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        getPriceFromList: getIt(),
+        saveDirectPurchase: getIt(),
+        cancelDirectPurchase: getIt(),
+        deleteDirectPurchase: getIt(),
+        approveDirectPurchase: getIt(),
+        rejectDirectPurchase: getIt(),
+        closeDirectPurchase: getIt(),
+        getSteps: getIt(),
       ),
     );
 
     // ==================== PURCHASE ORDER ====================
-    getIt.registerLazySingleton<PurchaseOrderRemoteDataSource>(() => PurchaseOrderRemoteDataSource(getIt<DioClient>().dio),);
-    getIt.registerLazySingleton<PurchaseOrderRepository>(() => PurchaseOrderRepository(getIt()),);
+    getIt.registerLazySingleton<PurchaseOrderRemoteDataSource>(
+      () => PurchaseOrderRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<PurchaseOrderRepository>(
+      () => PurchaseOrderRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetPOList(getIt()));
     getIt.registerLazySingleton(() => GetPODetail(getIt()));
     getIt.registerLazySingleton(() => GetPOFormOptions(getIt()));
@@ -1312,26 +2020,28 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetPOSteps(getIt()));
     getIt.registerLazySingleton<PurchaseOrderController>(
       () => PurchaseOrderController(
-        getList:                 getIt(),
-        getDetail:               getIt(),
-        getFormOptions:          getIt(),
-        getPriceFromList:        getIt(),
-        getLastPricesUC:         getIt(),
-        savePO:                  getIt(),
-        cancelPO:                getIt(),
-        deletePO:                getIt(),
-        createBillUC:            getIt(),
-        createBillFromTermUC:    getIt(),
-        approvePO:               getIt(),
-        rejectPO:                getIt(),
-        closePO:                 getIt(),
-        getSteps:                getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        getPriceFromList: getIt(),
+        getLastPricesUC: getIt(),
+        savePO: getIt(),
+        cancelPO: getIt(),
+        deletePO: getIt(),
+        createBillUC: getIt(),
+        createBillFromTermUC: getIt(),
+        approvePO: getIt(),
+        rejectPO: getIt(),
+        closePO: getIt(),
+        getSteps: getIt(),
       ),
     );
 
     // ==================== BILL ====================
-    getIt.registerLazySingleton<BillRemoteDataSource>(() => BillRemoteDataSource(getIt<DioClient>().dio),);
-    getIt.registerLazySingleton<BillRepository>(() => BillRepository(getIt()),);
+    getIt.registerLazySingleton<BillRemoteDataSource>(
+      () => BillRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<BillRepository>(() => BillRepository(getIt()));
     getIt.registerLazySingleton(() => GetBillList(getIt()));
     getIt.registerLazySingleton(() => GetBillDetail(getIt()));
     getIt.registerLazySingleton(() => GetBillFormOptions(getIt()));
@@ -1345,23 +2055,27 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetBillSteps(getIt()));
     getIt.registerLazySingleton<BillController>(
       () => BillController(
-        getList:                 getIt(),
-        getDetail:               getIt(),
-        getFormOptions:          getIt(),
-        saveBill:                  getIt(),
-        cancelBill:                getIt(),
-        deleteBill:                getIt(),
-        createPaymentUC:         getIt(),
-        getPriceFromList:        getIt(),
-        approveBill:               getIt(),
-        rejectBill:                getIt(),
-        getSteps:                getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        saveBill: getIt(),
+        cancelBill: getIt(),
+        deleteBill: getIt(),
+        createPaymentUC: getIt(),
+        getPriceFromList: getIt(),
+        approveBill: getIt(),
+        rejectBill: getIt(),
+        getSteps: getIt(),
       ),
     );
 
     // ==================== RECEIPT NOTE ====================
-    getIt.registerLazySingleton<ReceiptNoteRemoteDataSource>(() => ReceiptNoteRemoteDataSource(getIt<DioClient>().dio),);
-    getIt.registerLazySingleton<ReceiptNoteRepository>(() => ReceiptNoteRepository(getIt()),);
+    getIt.registerLazySingleton<ReceiptNoteRemoteDataSource>(
+      () => ReceiptNoteRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<ReceiptNoteRepository>(
+      () => ReceiptNoteRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetRNList(getIt()));
     getIt.registerLazySingleton(() => GetRNDetail(getIt()));
     getIt.registerLazySingleton(() => GetRNFormOptions(getIt()));
@@ -1378,26 +2092,30 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetRNSteps(getIt()));
     getIt.registerLazySingleton<ReceiptNoteController>(
       () => ReceiptNoteController(
-        getList:                 getIt(),
-        getDetail:               getIt(),
-        getFormOptions:          getIt(),
-        getInventorySettings:    getIt(),
-        saveRN:                  getIt(),
-        confirmRN:               getIt(),
-        validateRN:              getIt(),
-        createReturnUC:          getIt(),
-        saveTrackingUC:          getIt(),
-        cancelRN:                getIt(),
-        deleteRN:                getIt(),
-        approveRN:               getIt(),
-        rejectRN:                getIt(),
-        getSteps:                getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        getInventorySettings: getIt(),
+        saveRN: getIt(),
+        confirmRN: getIt(),
+        validateRN: getIt(),
+        createReturnUC: getIt(),
+        saveTrackingUC: getIt(),
+        cancelRN: getIt(),
+        deleteRN: getIt(),
+        approveRN: getIt(),
+        rejectRN: getIt(),
+        getSteps: getIt(),
       ),
     );
 
     // ==================== DELIVERY NOTE ====================
-    getIt.registerLazySingleton<DeliveryNoteRemoteDataSource>(() => DeliveryNoteRemoteDataSource(getIt<DioClient>().dio),);
-    getIt.registerLazySingleton<DeliveryNoteRepository>(() => DeliveryNoteRepository(getIt()),);
+    getIt.registerLazySingleton<DeliveryNoteRemoteDataSource>(
+      () => DeliveryNoteRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<DeliveryNoteRepository>(
+      () => DeliveryNoteRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetDNList(getIt()));
     getIt.registerLazySingleton(() => GetDNDetail(getIt()));
     getIt.registerLazySingleton(() => GetDNFormOptions(getIt()));
@@ -1416,28 +2134,32 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetDNSteps(getIt()));
     getIt.registerLazySingleton<DeliveryNoteController>(
       () => DeliveryNoteController(
-        getList:                 getIt(),
-        getDetail:               getIt(),
-        getFormOptions:          getIt(),
-        getProductsByLocation:   getIt(),
-        getLotSerialsSortedUC:   getIt(),
-        checkStockUC:            getIt(),
-        saveDN:                  getIt(),
-        confirmDN:               getIt(),
-        validateDN:              getIt(),
-        createReturnUC:          getIt(),
-        saveTrackingUC:          getIt(),
-        cancelDN:                getIt(),
-        deleteDN:                getIt(),
-        approveDN:               getIt(),
-        rejectDN:                getIt(),
-        getSteps:                getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        getProductsByLocation: getIt(),
+        getLotSerialsSortedUC: getIt(),
+        checkStockUC: getIt(),
+        saveDN: getIt(),
+        confirmDN: getIt(),
+        validateDN: getIt(),
+        createReturnUC: getIt(),
+        saveTrackingUC: getIt(),
+        cancelDN: getIt(),
+        deleteDN: getIt(),
+        approveDN: getIt(),
+        rejectDN: getIt(),
+        getSteps: getIt(),
       ),
     );
 
     // ==================== INTERNAL TRANSFER ====================
-    getIt.registerLazySingleton<InternalTransferRemoteDataSource>(() => InternalTransferRemoteDataSource(getIt<DioClient>().dio),);
-    getIt.registerLazySingleton<InternalTransferRepository>(() => InternalTransferRepository(getIt()),);
+    getIt.registerLazySingleton<InternalTransferRemoteDataSource>(
+      () => InternalTransferRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<InternalTransferRepository>(
+      () => InternalTransferRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetITList(getIt()));
     getIt.registerLazySingleton(() => GetITDetail(getIt()));
     getIt.registerLazySingleton(() => GetITFormOptions(getIt()));
@@ -1455,59 +2177,254 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetITSteps(getIt()));
     getIt.registerLazySingleton<InternalTransferController>(
       () => InternalTransferController(
-        getList:                 getIt(),
-        getDetail:               getIt(),
-        getFormOptions:          getIt(),
-        getProductsByLocation:   getIt(),
-        getLotSerialsSortedUC:   getIt(),
-        checkStockUC:            getIt(),
-        saveIT:                  getIt(),
-        confirmIT:               getIt(),
-        validateIT:              getIt(),
-        saveTrackingUC:          getIt(),
-        cancelIT:                getIt(),
-        deleteIT:                getIt(),
-        approveIT:               getIt(),
-        rejectIT:                getIt(),
-        getSteps:                getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        getProductsByLocation: getIt(),
+        getLotSerialsSortedUC: getIt(),
+        checkStockUC: getIt(),
+        saveIT: getIt(),
+        confirmIT: getIt(),
+        validateIT: getIt(),
+        saveTrackingUC: getIt(),
+        cancelIT: getIt(),
+        deleteIT: getIt(),
+        approveIT: getIt(),
+        rejectIT: getIt(),
+        getSteps: getIt(),
       ),
     );
-    
+
+    // ==================== WAREHOUSE REPORT ====================
+    getIt.registerLazySingleton<WarehouseReportRemoteDataSource>(
+      () => WarehouseReportRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<WarehouseReportRepository>(
+      () => WarehouseReportRepository(
+        remoteDataSource: getIt<WarehouseReportRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetWarehouseReportList(getIt<WarehouseReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetWarehouseReportDetail(getIt<WarehouseReportRepository>()),
+    );
+    getIt.registerFactory<WarehouseReportController>(
+      () => WarehouseReportController(
+        getWarehouseReportList: getIt<GetWarehouseReportList>(),
+        getWarehouseReportDetail: getIt<GetWarehouseReportDetail>(),
+      ),
+    );
+
+    // ==================== LOCATION REPORT ====================
+    getIt.registerLazySingleton<LocationReportRemoteDataSource>(
+      () => LocationReportRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<LocationReportRepository>(
+      () => LocationReportRepository(
+        remoteDataSource: getIt<LocationReportRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetLocationReportList(getIt<LocationReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetLocationReportDetail(getIt<LocationReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetLocationReportFormOptions(getIt<LocationReportRepository>()),
+    );
+    getIt.registerFactory<LocationReportController>(
+      () => LocationReportController(
+        getLocationReportList: getIt<GetLocationReportList>(),
+        getLocationReportDetail: getIt<GetLocationReportDetail>(),
+        getLocationReportFormOptions: getIt<GetLocationReportFormOptions>(),
+      ),
+    );
+
+    // ==================== STOCK REPORT ====================
+    getIt.registerLazySingleton<StockReportRemoteDataSource>(
+      () => StockReportRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<StockReportRepository>(
+      () => StockReportRepository(
+        remoteDataSource: getIt<StockReportRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetStockReportList(getIt<StockReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetStockReportDetail(getIt<StockReportRepository>()),
+    );
+    getIt.registerFactory<StockReportController>(
+      () => StockReportController(
+        getStockReportList: getIt<GetStockReportList>(),
+        getStockReportDetail: getIt<GetStockReportDetail>(),
+      ),
+    );
+
+    // ==================== STOCK MOVEMENT ====================
+    getIt.registerLazySingleton<StockMovementRemoteDataSource>(
+      () => StockMovementRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<StockMovementRepository>(
+      () => StockMovementRepository(
+        remoteDataSource: getIt<StockMovementRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetStockMovementList(getIt<StockMovementRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetStockMovementFormOptions(getIt<StockMovementRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetStockMovementLocationsByWarehouse(
+        getIt<StockMovementRepository>(),
+      ),
+    );
+    getIt.registerFactory<StockMovementController>(
+      () => StockMovementController(
+        getStockMovementList: getIt<GetStockMovementList>(),
+        getStockMovementFormOptions: getIt<GetStockMovementFormOptions>(),
+        getLocationsByWarehouse: getIt<GetStockMovementLocationsByWarehouse>(),
+      ),
+    );
+
+    // ==================== STOCK VALUATION ====================
+    getIt.registerLazySingleton<StockValuationRemoteDataSource>(
+      () => StockValuationRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<StockValuationRepository>(
+      () => StockValuationRepository(
+        remoteDataSource: getIt<StockValuationRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetStockValuationList(getIt<StockValuationRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetStockValuationDetail(getIt<StockValuationRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetStockValuationCostingMethods(getIt<StockValuationRepository>()),
+    );
+    getIt.registerFactory<StockValuationController>(
+      () => StockValuationController(
+        getStockValuationList: getIt<GetStockValuationList>(),
+        getStockValuationDetail: getIt<GetStockValuationDetail>(),
+        getCostingMethods: getIt<GetStockValuationCostingMethods>(),
+      ),
+    );
+
+    // ==================== HISTORY STOCK ====================
+    getIt.registerLazySingleton<HistoryStockRemoteDataSource>(
+      () => HistoryStockRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<HistoryStockRepository>(
+      () => HistoryStockRepository(
+        remoteDataSource: getIt<HistoryStockRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetHistoryStockList(getIt<HistoryStockRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetHistoryTransactions(getIt<HistoryStockRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetHistoryStockFormOptions(getIt<HistoryStockRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () =>
+          GetHistoryStockLocationsByWarehouse(getIt<HistoryStockRepository>()),
+    );
+    getIt.registerFactory<HistoryStockController>(
+      () => HistoryStockController(
+        getHistoryStockList: getIt<GetHistoryStockList>(),
+        getHistoryTransactions: getIt<GetHistoryTransactions>(),
+        getHistoryStockFormOptions: getIt<GetHistoryStockFormOptions>(),
+        getLocationsByWarehouse: getIt<GetHistoryStockLocationsByWarehouse>(),
+      ),
+    );
+
+    // ==================== EXPIRED REPORT ====================
+    getIt.registerLazySingleton<ExpiredReportRemoteDataSource>(
+      () => ExpiredReportRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<ExpiredReportRepository>(
+      () => ExpiredReportRepository(
+        remoteDataSource: getIt<ExpiredReportRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetExpiredReportList(getIt<ExpiredReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetExpiredReportFormOptions(getIt<ExpiredReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetExpiredReportLocationsByWarehouse(
+        getIt<ExpiredReportRepository>(),
+      ),
+    );
+    getIt.registerFactory<ExpiredReportController>(
+      () => ExpiredReportController(
+        getExpiredReportList: getIt<GetExpiredReportList>(),
+        getExpiredReportFormOptions: getIt<GetExpiredReportFormOptions>(),
+        getLocationsByWarehouse: getIt<GetExpiredReportLocationsByWarehouse>(),
+      ),
+    );
+
     // ==================== TRANSFER OUT ====================
-    getIt.registerLazySingleton<TransferOutRemoteDataSource>(() => TransferOutRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<TransferOutRepository>(() => TransferOutRepository(getIt()));
+    getIt.registerLazySingleton<TransferOutRemoteDataSource>(
+      () => TransferOutRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<TransferOutRepository>(
+      () => TransferOutRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetTOList(getIt()));
     getIt.registerLazySingleton(() => GetTODetail(getIt()));
     getIt.registerLazySingleton(() => SaveTransferOut(getIt()));
     getIt.registerLazySingleton(() => ValidateTransferOut(getIt()));
     getIt.registerLazySingleton<TransferOutController>(
       () => TransferOutController(
-        getList:    getIt(),
-        getDetail:  getIt(),
-        saveTO:     getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        saveTO: getIt(),
         validateTO: getIt(),
       ),
     );
 
     // ==================== TRANSFER IN ====================
-    getIt.registerLazySingleton<TransferInRemoteDataSource>(() => TransferInRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<TransferInRepository>(() => TransferInRepository(getIt()));
+    getIt.registerLazySingleton<TransferInRemoteDataSource>(
+      () => TransferInRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<TransferInRepository>(
+      () => TransferInRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetTIList(getIt()));
     getIt.registerLazySingleton(() => GetTIDetail(getIt()));
     getIt.registerLazySingleton(() => SaveTransferIn(getIt()));
     getIt.registerLazySingleton(() => ValidateTransferIn(getIt()));
     getIt.registerLazySingleton<TransferInController>(
       () => TransferInController(
-        getList:    getIt(),
-        getDetail:  getIt(),
-        saveTI:     getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        saveTI: getIt(),
         validateTI: getIt(),
       ),
     );
 
     // ==================== SCRAP ORDER ====================
-    getIt.registerLazySingleton<ScrapOrderRemoteDataSource>(() => ScrapOrderRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<ScrapOrderRepository>(() => ScrapOrderRepository(getIt()));
+    getIt.registerLazySingleton<ScrapOrderRemoteDataSource>(
+      () => ScrapOrderRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<ScrapOrderRepository>(
+      () => ScrapOrderRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetScrapOrderList(getIt()));
     getIt.registerLazySingleton(() => GetScrapOrderDetail(getIt()));
     getIt.registerLazySingleton(() => GetScrapOrderFormOptions(getIt()));
@@ -1523,25 +2440,29 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetScrapOrderSteps(getIt()));
     getIt.registerLazySingleton<ScrapOrderController>(
       () => ScrapOrderController(
-        getList:               getIt(),
-        getDetail:             getIt(),
-        getFormOptions:        getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
         getProductsByLocation: getIt(),
-        checkStockUC:          getIt(),
-        saveSO:                getIt(),
-        confirmSO:             getIt(),
-        validateSO:            getIt(),
-        cancelSO:              getIt(),
-        deleteSO:              getIt(),
-        approveSO:             getIt(),
-        rejectSO:              getIt(),
-        getSteps:              getIt(),
+        checkStockUC: getIt(),
+        saveSO: getIt(),
+        confirmSO: getIt(),
+        validateSO: getIt(),
+        cancelSO: getIt(),
+        deleteSO: getIt(),
+        approveSO: getIt(),
+        rejectSO: getIt(),
+        getSteps: getIt(),
       ),
     );
 
     // ==================== STOCK COUNT ====================
-    getIt.registerLazySingleton<StockCountRemoteDataSource>(() => StockCountRemoteDataSource(getIt<DioClient>().dio));
-    getIt.registerLazySingleton<StockCountRepository>(() => StockCountRepository(getIt()));
+    getIt.registerLazySingleton<StockCountRemoteDataSource>(
+      () => StockCountRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<StockCountRepository>(
+      () => StockCountRepository(getIt()),
+    );
     getIt.registerLazySingleton(() => GetSCList(getIt()));
     getIt.registerLazySingleton(() => GetSCDetail(getIt()));
     getIt.registerLazySingleton(() => GetSCFormOptions(getIt()));
@@ -1560,22 +2481,22 @@ class AppInjector {
     getIt.registerLazySingleton(() => RejectStockCount(getIt()));
     getIt.registerLazySingleton<StockCountController>(
       () => StockCountController(
-        getList:                 getIt(),
-        getDetail:               getIt(),
-        getFormOptions:          getIt(),
-        createSC:                getIt(),
-        updateHeader:            getIt(),
-        confirmSC:               getIt(),
-        validateSC:              getIt(),
-        cancelSC:                getIt(),
-        deleteSC:                getIt(),
-        storeLocationCount:      getIt(),
-        loadProducts:            getIt(),
+        getList: getIt(),
+        getDetail: getIt(),
+        getFormOptions: getIt(),
+        createSC: getIt(),
+        updateHeader: getIt(),
+        confirmSC: getIt(),
+        validateSC: getIt(),
+        cancelSC: getIt(),
+        deleteSC: getIt(),
+        storeLocationCount: getIt(),
+        loadProducts: getIt(),
         getLocationsByWarehouse: getIt(),
-        getIndexLocation:        getIt(),
-        getSteps:                getIt(),
-        approveSC:               getIt(),
-        rejectSC:                getIt(),
+        getIndexLocation: getIt(),
+        getSteps: getIt(),
+        approveSC: getIt(),
+        rejectSC: getIt(),
       ),
     );
   }

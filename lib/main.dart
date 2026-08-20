@@ -63,7 +63,13 @@ import 'package:erp_mobile_cnplus/features/inventory/scrap_order/presentation/co
 import 'package:erp_mobile_cnplus/features/inventory/stock_count/presentation/controllers/stock_count_controller.dart';
 import 'package:erp_mobile_cnplus/features/inventory/return_rn/presentation/controllers/return_rn_controller.dart';
 import 'package:erp_mobile_cnplus/features/inventory/return_dn/presentation/controllers/return_dn_controller.dart';
-
+import 'package:erp_mobile_cnplus/features/inventory/warehouse_report/presentation/controllers/warehouse_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/inventory/location_report/presentation/controllers/location_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_report/presentation/controllers/stock_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_movement/presentation/controllers/stock_movement_controller.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_valuation/presentation/controllers/stock_valuation_controller.dart';
+import 'package:erp_mobile_cnplus/features/inventory/history_stock/presentation/controllers/history_stock_controller.dart';
+import 'package:erp_mobile_cnplus/features/inventory/expired_report/presentation/controllers/expired_report_controller.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -191,7 +197,7 @@ void main() {
           create: (_) => getIt<SalesOrderController>(),
         ),
         ChangeNotifierProvider<DirectSalesController>(
-           create: (_) => getIt<DirectSalesController>(),
+          create: (_) => getIt<DirectSalesController>(),
         ),
         ChangeNotifierProvider<InvoiceController>(
           create: (_) => getIt<InvoiceController>(),
@@ -244,6 +250,27 @@ void main() {
         ChangeNotifierProvider<StockCountController>(
           create: (_) => getIt<StockCountController>(),
         ),
+        ChangeNotifierProvider<WarehouseReportController>(
+          create: (_) => getIt<WarehouseReportController>(),
+        ),
+        ChangeNotifierProvider<LocationReportController>(
+          create: (_) => getIt<LocationReportController>(),
+        ),
+        ChangeNotifierProvider<StockReportController>(
+          create: (_) => getIt<StockReportController>(),
+        ),
+        ChangeNotifierProvider<StockMovementController>(
+          create: (_) => getIt<StockMovementController>(),
+        ),
+        ChangeNotifierProvider<StockValuationController>(
+          create: (_) => getIt<StockValuationController>(),
+        ),
+        ChangeNotifierProvider<HistoryStockController>(
+          create: (_) => getIt<HistoryStockController>(),
+        ),
+        ChangeNotifierProvider<ExpiredReportController>(
+          create: (_) => getIt<ExpiredReportController>(),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -268,12 +295,10 @@ class MyApp extends StatelessWidget {
       title: 'CNERSIA Mobile',
       debugShowCheckedModeBanner: false,
       theme: ensuredTheme,
-      initialRoute: AppRoutes.splash, 
+      initialRoute: AppRoutes.splash,
       routes: AppRoutes.routes,
       builder: (context, child) {
-        return ConnectivityBanner(
-          child: child ?? const SizedBox.shrink(),
-        );
+        return ConnectivityBanner(child: child ?? const SizedBox.shrink());
       },
     );
   }
