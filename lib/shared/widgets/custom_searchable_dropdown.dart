@@ -1,6 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 
+class _SearchableItem<T> with CustomDropdownListFilter {
+  final T value;
+  final String label;
+
+  _SearchableItem({
+    required this.value,
+    required this.label,
+  });
+
+  @override
+  String toString() => label;
+
+  @override
+  bool filter(String query) => label.toLowerCase().contains(query.toLowerCase());
+
+  @override
+  bool operator ==(Object other) => other is _SearchableItem<T> && other.value == value;
+
+  @override
+  int get hashCode => value.hashCode;
+}
+
 class CustomSearchableDropdown<T> extends StatelessWidget {
   final T? value;
   final List<T> items;
@@ -30,6 +52,15 @@ class CustomSearchableDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final wrappedItems = items
+        .map((e) => _SearchableItem<T>(value: e, label: itemLabel(e)))
+        .toList();
+
+    final currentValue = value;
+    final wrappedValue = currentValue == null
+        ? null
+        : _SearchableItem<T>(value: currentValue, label: itemLabel(currentValue));
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -56,11 +87,11 @@ class CustomSearchableDropdown<T> extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              child: CustomDropdown<T>.search(
+              child: CustomDropdown<_SearchableItem<T>>.search(
                 hintText: hintText ?? 'Select $label',
-                items: items,
-                initialItem: value,
-                onChanged: enabled ? onChanged : null,
+                items: wrappedItems,
+                initialItem: wrappedValue,
+                onChanged: enabled ? (w) => onChanged?.call(w?.value) : null,
                 searchHintText: 'Search $label...',
                 noResultFoundText: 'No result found',
                 decoration: CustomDropdownDecoration(
@@ -104,7 +135,7 @@ class CustomSearchableDropdown<T> extends StatelessWidget {
                 headerBuilder: (context, selectedItem, enabled) {
                   return Text(
                     selectedItem != null
-                        ? itemLabel(selectedItem)
+                        ? selectedItem.label
                         : (hintText ?? 'Select $label'),
                     style: TextStyle(
                       fontSize: 14,
@@ -130,7 +161,7 @@ class CustomSearchableDropdown<T> extends StatelessWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            itemLabel(item),
+                            item.label,
                             style: TextStyle(
                               fontSize: 14,
                               color: isSelected
@@ -146,7 +177,9 @@ class CustomSearchableDropdown<T> extends StatelessWidget {
                     ),
                   );
                 },
-                validator: validator,
+                validator: validator == null
+                    ? null
+                    : (w) => validator!(w?.value),
                 excludeSelected: false,
               ),
             ),
