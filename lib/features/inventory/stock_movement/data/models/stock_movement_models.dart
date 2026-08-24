@@ -31,8 +31,9 @@ class StockMovementModel {
   final String productCode;
   final String? locationName;
   final String? warehouseName;
+  final String uomName; // tambahan
   final double qty;
-  final String movementType; // 'in' | 'out'
+  final String movementType;
   final String movementDate;
   final String? notes;
 
@@ -46,6 +47,7 @@ class StockMovementModel {
     required this.productCode,
     this.locationName,
     this.warehouseName,
+    required this.uomName,
     required this.qty,
     required this.movementType,
     required this.movementDate,
@@ -63,10 +65,10 @@ class StockMovementModel {
       productCode: json['product_code'] ?? '',
       locationName: json['location_name'],
       warehouseName: json['warehouse_name'],
+      uomName: json['uom_name'] ?? '-',
       qty: double.tryParse('${json['qty'] ?? 0}') ?? 0,
       movementType: json['movement_type'] ?? '',
-      movementDate:
-          json['movement_date_formatted'] ?? json['movement_date'] ?? '',
+      movementDate: json['movement_date_formatted'] ?? json['movement_date'] ?? '',
       notes: json['notes'],
     );
   }

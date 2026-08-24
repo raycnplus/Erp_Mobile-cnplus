@@ -110,12 +110,8 @@ class StockMovementListItem extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${isIn ? '+' : '-'}${formatQty(item.qty)}',
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                    color: typeColor,
-                  ),
+                  '${isIn ? '+' : '-'}${formatQty(item.qty)} ${item.uomName}',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w700, fontSize: 15, color: typeColor),
                 ),
               ],
             ),
