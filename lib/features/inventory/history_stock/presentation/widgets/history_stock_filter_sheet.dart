@@ -3,13 +3,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:erp_mobile_cnplus/core/utils/colors.dart';
 import 'package:erp_mobile_cnplus/features/inventory/history_stock/presentation/controllers/history_stock_controller.dart';
+import 'package:erp_mobile_cnplus/features/inventory/history_stock/data/models/history_stock_models.dart';
+import 'package:erp_mobile_cnplus/shared/widgets/custom_searchable_dropdown.dart';
 
 class HistoryStockFilterSheet extends StatefulWidget {
   const HistoryStockFilterSheet({super.key});
 
   @override
-  State<HistoryStockFilterSheet> createState() =>
-      _HistoryStockFilterSheetState();
+  State<HistoryStockFilterSheet> createState() => _HistoryStockFilterSheetState();
 }
 
 class _HistoryStockFilterSheetState extends State<HistoryStockFilterSheet> {
@@ -34,12 +35,61 @@ class _HistoryStockFilterSheetState extends State<HistoryStockFilterSheet> {
       initialDate: _date,
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
+      builder: (ctx, child) => Theme(
+        data: Theme.of(ctx).copyWith(colorScheme: const ColorScheme.light(primary: colorPrimary)),
+        child: child!,
+      ),
     );
     if (picked != null) setState(() => _date = picked);
   }
 
   String _fmt(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  Widget _sectionLabel(String label) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
+        ),
+      );
+
+  Widget _datePickerBox({
+    required DateTime? value,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        decoration: BoxDecoration(
+          color: colorCard,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: value != null ? colorPrimary : colorGreyLight,
+            width: value != null ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.calendar_today_outlined, size: 16, color: value != null ? colorPrimary : colorGrey),
+            const SizedBox(width: 8),
+            Text(
+              value != null ? _fmt(value) : 'Select date',
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: value != null ? colorTextPrimary : colorGrey,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,167 +117,57 @@ class _HistoryStockFilterSheetState extends State<HistoryStockFilterSheet> {
                 ),
                 const SizedBox(height: 16),
 
-                Text(
-                  'Date',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: colorTextSubtle,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                OutlinedButton(
-                  onPressed: _pickDate,
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    side: const BorderSide(color: colorGreyLight),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    alignment: Alignment.centerLeft,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
-                      _fmt(_date),
-                      style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        color: colorTextPrimary,
-                      ),
-                    ),
-                  ),
-                ),
+                _sectionLabel('Date'),
+                _datePickerBox(value: _date, onTap: _pickDate),
 
                 const SizedBox(height: 14),
-                Text(
-                  'Warehouse',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: colorTextSubtle,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                DropdownButtonFormField<int?>(
-                  value: _warehouseId,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: colorBackground,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  items: [
-                    const DropdownMenuItem<int?>(
-                      value: null,
-                      child: Text('All Warehouses'),
-                    ),
-                    ...ctrl.warehouseOptions.map(
-                      (w) => DropdownMenuItem<int?>(
-                        value: w.idWarehouse,
-                        child: Text(w.warehouseName),
-                      ),
-                    ),
-                  ],
+                CustomSearchableDropdown<HistoryWarehouseOption>(
+                  value: ctrl.warehouseOptions.where((w) => w.idWarehouse == _warehouseId).isEmpty
+                      ? null
+                      : ctrl.warehouseOptions.firstWhere((w) => w.idWarehouse == _warehouseId),
+                  items: ctrl.warehouseOptions,
+                  itemLabel: (w) => w.warehouseName,
                   onChanged: (val) async {
                     setState(() {
-                      _warehouseId = val;
+                      _warehouseId = val?.idWarehouse;
                       _locationId = null;
                     });
-                    await ctrl.selectWarehouse(val);
+                    await ctrl.selectWarehouse(val?.idWarehouse);
                   },
+                  label: 'Warehouse',
+                  hintText: 'All Warehouses',
+                  clearable: true,
                 ),
 
                 const SizedBox(height: 14),
-                Text(
-                  'Location',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: colorTextSubtle,
-                  ),
-                ),
-                const SizedBox(height: 6),
                 ctrl.isLoadingLocations
                     ? const Padding(
                         padding: EdgeInsets.symmetric(vertical: 12),
-                        child: Center(
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
+                        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
                       )
-                    : DropdownButtonFormField<int?>(
-                        value: _locationId,
-                        isExpanded: true,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: colorBackground,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        items: [
-                          const DropdownMenuItem<int?>(
-                            value: null,
-                            child: Text('All Locations'),
-                          ),
-                          ...ctrl.locationOptions.map(
-                            (l) => DropdownMenuItem<int?>(
-                              value: l.idLocation,
-                              child: Text(l.locationName),
-                            ),
-                          ),
-                        ],
-                        onChanged: (val) => setState(() => _locationId = val),
+                    : CustomSearchableDropdown<HistoryLocationOption>(
+                        value: ctrl.locationOptions.where((l) => l.idLocation == _locationId).isEmpty
+                            ? null
+                            : ctrl.locationOptions.firstWhere((l) => l.idLocation == _locationId),
+                        items: ctrl.locationOptions,
+                        itemLabel: (l) => l.locationName,
+                        onChanged: (val) => setState(() => _locationId = val?.idLocation),
+                        label: 'Location',
+                        hintText: 'All Locations',
+                        clearable: true,
                       ),
 
                 const SizedBox(height: 14),
-                Text(
-                  'Product',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: colorTextSubtle,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                DropdownButtonFormField<int?>(
-                  value: _productId,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: colorBackground,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  items: [
-                    const DropdownMenuItem<int?>(
-                      value: null,
-                      child: Text('All Products'),
-                    ),
-                    ...ctrl.productOptions.map(
-                      (p) => DropdownMenuItem<int?>(
-                        value: p.idProduct,
-                        child: Text(
-                          '${p.productCode} - ${p.productName}',
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                  ],
-                  onChanged: (val) => setState(() => _productId = val),
+                CustomSearchableDropdown<HistoryProductOption>(
+                  value: ctrl.productOptions.where((p) => p.idProduct == _productId).isEmpty
+                      ? null
+                      : ctrl.productOptions.firstWhere((p) => p.idProduct == _productId),
+                  items: ctrl.productOptions,
+                  itemLabel: (p) => '${p.productCode} - ${p.productName}',
+                  onChanged: (val) => setState(() => _productId = val?.idProduct),
+                  label: 'Product',
+                  hintText: 'All Products',
+                  clearable: true,
                 ),
 
                 const SizedBox(height: 20),
@@ -242,14 +182,9 @@ class _HistoryStockFilterSheetState extends State<HistoryStockFilterSheet> {
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           side: const BorderSide(color: colorGreyLight),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
-                        child: Text(
-                          'Reset',
-                          style: GoogleFonts.poppins(color: colorTextPrimary),
-                        ),
+                        child: Text('Reset', style: GoogleFonts.poppins(color: colorTextPrimary)),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -266,16 +201,9 @@ class _HistoryStockFilterSheetState extends State<HistoryStockFilterSheet> {
                           backgroundColor: colorPrimary,
                           foregroundColor: colorWhite,
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
-                        child: Text(
-                          'Apply Filter',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        child: Text('Apply Filter', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
                       ),
                     ),
                   ],
