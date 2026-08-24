@@ -242,6 +242,27 @@ class UniversalDrawer extends StatelessWidget {
         icon: Icons.view_list_outlined,
         route: AppRoutes.priceListList,
       ),
+      _reportHeader,
+      _MenuItem(
+        title: 'Goods Ops Report',
+        type: _MenuType.master,
+        icon: Icons.point_of_sale_outlined,
+        children: [
+          _MenuItem(title: 'Quotation', route: AppRoutes.quotationReportList),
+          _MenuItem(
+            title: 'Sales Order',
+            route: AppRoutes.salesOrderReportList,
+          ),
+          _MenuItem(
+            title: 'Direct Sales',
+            route: AppRoutes.directSalesReportList,
+          ),
+          _MenuItem(
+            title: 'Invoice',
+            route: AppRoutes.invoiceReportList
+          ),
+        ],
+      ),
       _configurationHeader,
       _users,
       _uom,

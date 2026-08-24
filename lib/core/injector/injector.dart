@@ -318,6 +318,30 @@ import 'package:erp_mobile_cnplus/features/sales/service_sales/service_invoice/d
 import 'package:erp_mobile_cnplus/features/sales/service_sales/service_invoice/domain/usecases/service_invoice_usecases.dart';
 import 'package:erp_mobile_cnplus/features/sales/service_sales/service_invoice/presentation/controllers/service_invoice_controller.dart';
 
+// Sales Quotation Report
+import 'package:erp_mobile_cnplus/features/sales/quotation_report/data/datasources/quotation_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/sales/quotation_report/data/repositories/quotation_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/sales/quotation_report/domain/usecases/quotation_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/sales/quotation_report/presentation/controllers/quotation_report_controller.dart';
+
+// Sales Sales Order Report
+import 'package:erp_mobile_cnplus/features/sales/sales_order_report/data/datasources/sales_order_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/sales/sales_order_report/data/repositories/sales_order_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/sales/sales_order_report/domain/usecases/sales_order_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/sales/sales_order_report/presentation/controllers/sales_order_report_controller.dart';
+
+// Sales Direct Sales Report
+import 'package:erp_mobile_cnplus/features/sales/direct_sales_report/data/datasources/direct_sales_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/sales/direct_sales_report/data/repositories/direct_sales_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/sales/direct_sales_report/domain/usecases/direct_sales_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/sales/direct_sales_report/presentation/controllers/direct_sales_report_controller.dart';
+
+// Sales Invoice Report
+import 'package:erp_mobile_cnplus/features/sales/invoice_report/data/datasources/invoice_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/sales/invoice_report/data/repositories/invoice_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/sales/invoice_report/domain/usecases/invoice_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/sales/invoice_report/presentation/controllers/invoice_report_controller.dart';
+
 // Purchase Purchase Request
 import 'package:erp_mobile_cnplus/features/purchase/purchase_request/data/datasources/purchase_request_remote_datasource.dart';
 import 'package:erp_mobile_cnplus/features/purchase/purchase_request/data/repositories/purchase_request_repository.dart';
@@ -1895,6 +1919,115 @@ class AppInjector {
       ),
     );
 
+    // ==================== SALES QUOTATION REPORT ====================
+    getIt.registerLazySingleton<QuotationReportRemoteDataSource>(
+      () => QuotationReportRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<QuotationReportRepository>(
+      () => QuotationReportRepository(
+        remoteDataSource: getIt<QuotationReportRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetQuotationReportList(getIt<QuotationReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetQuotationReportFormOptions(getIt<QuotationReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetQuotationReportLocationsByWarehouse(
+        getIt<QuotationReportRepository>(),
+      ),
+    );
+    getIt.registerFactory<QuotationReportController>(
+      () => QuotationReportController(
+        getQuotationReportList: getIt<GetQuotationReportList>(),
+        getQuotationReportFormOptions: getIt<GetQuotationReportFormOptions>(),
+        getLocationsByWarehouse:
+            getIt<GetQuotationReportLocationsByWarehouse>(),
+      ),
+    );
+
+    // ==================== SALES SALES ORDER REPORT ====================
+    getIt.registerLazySingleton<SalesOrderReportRemoteDataSource>(
+      () => SalesOrderReportRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<SalesOrderReportRepository>(
+      () => SalesOrderReportRepository(
+        remoteDataSource: getIt<SalesOrderReportRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetSalesOrderReportList(getIt<SalesOrderReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetSalesOrderReportFormOptions(getIt<SalesOrderReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetSalesOrderReportLocationsByWarehouse(
+        getIt<SalesOrderReportRepository>(),
+      ),
+    );
+    getIt.registerFactory<SalesOrderReportController>(
+      () => SalesOrderReportController(
+        getSalesOrderReportList: getIt<GetSalesOrderReportList>(),
+        getSalesOrderReportFormOptions: getIt<GetSalesOrderReportFormOptions>(),
+        getLocationsByWarehouse:
+            getIt<GetSalesOrderReportLocationsByWarehouse>(),
+      ),
+    );
+
+    // ==================== SALES DIRECT SALES REPORT ====================
+    getIt.registerLazySingleton<DirectSalesReportRemoteDataSource>(
+      () => DirectSalesReportRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<DirectSalesReportRepository>(
+      () => DirectSalesReportRepository(
+        remoteDataSource: getIt<DirectSalesReportRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetDirectSalesReportList(getIt<DirectSalesReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetDirectSalesReportFormOptions(getIt<DirectSalesReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetDirectSalesReportLocationsByWarehouse(
+        getIt<DirectSalesReportRepository>(),
+      ),
+    );
+    getIt.registerFactory<DirectSalesReportController>(
+      () => DirectSalesReportController(
+        getDirectSalesReportList: getIt<GetDirectSalesReportList>(),
+        getDirectSalesReportFormOptions: getIt<GetDirectSalesReportFormOptions>(),
+        getLocationsByWarehouse:
+            getIt<GetDirectSalesReportLocationsByWarehouse>(),
+      ),
+    );
+
+    // ==================== SALES INVOICE REPORT ====================
+    getIt.registerLazySingleton<InvoiceReportRemoteDataSource>(
+      () => InvoiceReportRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<InvoiceReportRepository>(
+      () => InvoiceReportRepository(
+        remoteDataSource: getIt<InvoiceReportRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetInvoiceReportList(getIt<InvoiceReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetInvoiceReportFormOptions(getIt<InvoiceReportRepository>()),
+    );
+    getIt.registerFactory<InvoiceReportController>(
+      () => InvoiceReportController(
+        getInvoiceReportList: getIt<GetInvoiceReportList>(),
+        getInvoiceReportFormOptions: getIt<GetInvoiceReportFormOptions>(),
+      ),
+    );
+
     // ==================== PURCHASE REQUEST ====================
     getIt.registerLazySingleton<PurchaseRequestRemoteDataSource>(
       () => PurchaseRequestRemoteDataSource(getIt<DioClient>().dio),
@@ -2303,19 +2436,19 @@ class AppInjector {
       ),
     );
     getIt.registerLazySingleton(
-      () => GetStockValuationList(getIt<StockValuationRepository>()),
+      () => GetStockValuationWarehouseList(getIt<StockValuationRepository>()),
     );
     getIt.registerLazySingleton(
-      () => GetStockValuationDetail(getIt<StockValuationRepository>()),
+      () => GetStockValuationWarehouseDetail(getIt<StockValuationRepository>()),
     );
     getIt.registerLazySingleton(
-      () => GetStockValuationCostingMethods(getIt<StockValuationRepository>()),
+      () => GetStockValuationBranches(getIt<StockValuationRepository>()),
     );
     getIt.registerFactory<StockValuationController>(
       () => StockValuationController(
-        getStockValuationList: getIt<GetStockValuationList>(),
-        getStockValuationDetail: getIt<GetStockValuationDetail>(),
-        getCostingMethods: getIt<GetStockValuationCostingMethods>(),
+        getWarehouseList: getIt<GetStockValuationWarehouseList>(),
+        getWarehouseDetail: getIt<GetStockValuationWarehouseDetail>(),
+        getBranches: getIt<GetStockValuationBranches>(),
       ),
     );
 

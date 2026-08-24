@@ -49,6 +49,10 @@ import 'package:erp_mobile_cnplus/features/sales/service_sales/service_quotation
 import 'package:erp_mobile_cnplus/features/sales/service_sales/service_sales_order/presentation/controllers/service_sales_order_controller.dart';
 import 'package:erp_mobile_cnplus/features/sales/service_sales/service_direct_sales/presentation/controllers/service_direct_sales_controller.dart';
 import 'package:erp_mobile_cnplus/features/sales/service_sales/service_invoice/presentation/controllers/service_invoice_controller.dart';
+import 'package:erp_mobile_cnplus/features/sales/quotation_report/presentation/controllers/quotation_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/sales/sales_order_report/presentation/controllers/sales_order_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/sales/direct_sales_report/presentation/controllers/direct_sales_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/sales/invoice_report/presentation/controllers/invoice_report_controller.dart';
 import 'package:erp_mobile_cnplus/features/purchase/purchase_request/presentation/controllers/purchase_request_controller.dart';
 import 'package:erp_mobile_cnplus/features/purchase/request_quotation/presentation/controllers/rfq_controller.dart';
 import 'package:erp_mobile_cnplus/features/purchase/direct_purchase/presentation/controllers/direct_purchase_controller.dart';
@@ -213,6 +217,18 @@ void main() {
         ),
         ChangeNotifierProvider<ServiceInvoiceController>(
           create: (_) => getIt<ServiceInvoiceController>(),
+        ),
+        ChangeNotifierProvider<QuotationReportController>(
+          create: (_) => getIt<QuotationReportController>(),
+        ),
+        ChangeNotifierProvider<SalesOrderReportController>(
+          create: (_) => getIt<SalesOrderReportController>(),
+        ),
+        ChangeNotifierProvider<DirectSalesReportController>(
+          create: (_) => getIt<DirectSalesReportController>(),
+        ),
+        ChangeNotifierProvider<InvoiceReportController>(
+          create: (_) => getIt<InvoiceReportController>(),
         ),
         ChangeNotifierProvider<PurchaseRequestController>(
           create: (_) => getIt<PurchaseRequestController>(),

@@ -219,6 +219,18 @@ import 'package:erp_mobile_cnplus/features/sales/service_sales/service_invoice/p
 import 'package:erp_mobile_cnplus/features/sales/service_sales/service_invoice/presentation/screens/service_invoice_detail_screen.dart';
 import 'package:erp_mobile_cnplus/features/sales/service_sales/service_invoice/presentation/screens/service_invoice_form_screen.dart';
 
+// Sales Quotation Report
+import 'package:erp_mobile_cnplus/features/sales/quotation_report/presentation/screens/quotation_report_list_screen.dart';
+
+// Sales Sales Order Report
+import 'package:erp_mobile_cnplus/features/sales/sales_order_report/presentation/screens/sales_order_report_list_screen.dart';
+
+// Sales Direct Sales Report
+import 'package:erp_mobile_cnplus/features/sales/direct_sales_report/presentation/screens/direct_sales_report_list_screen.dart';
+
+// Sales Invoice Report
+import 'package:erp_mobile_cnplus/features/sales/invoice_report/presentation/screens/invoice_report_list_screen.dart';
+
 // Purchase Request
 import 'package:erp_mobile_cnplus/features/purchase/purchase_request/presentation/screens/purchase_request_list_screen.dart';
 import 'package:erp_mobile_cnplus/features/purchase/purchase_request/presentation/screens/purchase_request_detail_screen.dart';
@@ -598,6 +610,18 @@ class AppRoutes {
   static const String serviceInvoiceDetail = '/sales/service/invoice/detail';
   static const String serviceInvoiceCreate = '/sales/service/invoice/create';
   static const String serviceInvoiceEdit = '/sales/service/invoice/edit';
+
+  // Sales Quotation Report
+  static const String quotationReportList = '/sales/quotation-report';
+
+  // Sales Sales Order Report
+  static const String salesOrderReportList = '/sales/sales-order-report';
+
+  // Sales Direct Sales Report
+  static const String directSalesReportList = '/sales/direct-sales-report';
+
+  // Sales Invoice Report
+  static const String invoiceReportList = '/sales/invoice-report';
 
   // Purchase Request
   static const String purchaseRequestList = '/purchase/purchase-request';
@@ -1128,6 +1152,18 @@ class AppRoutes {
     serviceInvoiceEdit: (context) => ServiceInvoiceFormScreen(
       encryption: ModalRoute.of(context)!.settings.arguments as String,
     ),
+
+    // Sales Quotation Report
+    quotationReportList: (context) => const QuotationReportListScreen(),
+
+    // Sales Sales Order Report
+    salesOrderReportList: (context) => const SalesOrderReportListScreen(),
+
+    // Sales Direct Sales Report
+    directSalesReportList: (context) => const DirectSalesReportListScreen(),
+    
+    // Sales Invoice Report
+    invoiceReportList: (context) => const InvoiceReportListScreen(),
 
     // Purchase Request
     purchaseRequestList: (context) => const PurchaseRequestListScreen(),
