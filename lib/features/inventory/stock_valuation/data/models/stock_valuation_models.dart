@@ -21,127 +21,115 @@ class StockValuationPaginationMeta {
   }
 }
 
-class StockValuationSummary {
-  final double grandTotalQty;
-  final double grandTotalValue;
-
-  StockValuationSummary({
-    required this.grandTotalQty,
-    required this.grandTotalValue,
-  });
-
-  factory StockValuationSummary.fromJson(Map<String, dynamic> json) {
-    return StockValuationSummary(
-      grandTotalQty: double.tryParse('${json['grand_total_qty'] ?? 0}') ?? 0,
-      grandTotalValue:
-          double.tryParse('${json['grand_total_value'] ?? 0}') ?? 0,
-    );
-  }
-}
-
-class StockValuationModel {
-  final int idProduct;
-  final String productCode;
-  final String productName;
-  final String? uomName;
-  final String? costingMethod;
-  final double totalQty;
-  final double avgCost;
-  final double totalValue;
-
-  StockValuationModel({
-    required this.idProduct,
-    required this.productCode,
-    required this.productName,
-    this.uomName,
-    this.costingMethod,
-    required this.totalQty,
-    required this.avgCost,
-    required this.totalValue,
-  });
-
-  factory StockValuationModel.fromJson(Map<String, dynamic> json) {
-    return StockValuationModel(
-      idProduct: json['id_product'] ?? 0,
-      productCode: json['product_code'] ?? '',
-      productName: json['product_name'] ?? '',
-      uomName: json['uom_name'],
-      costingMethod: json['costing_method'],
-      totalQty: double.tryParse('${json['total_qty'] ?? 0}') ?? 0,
-      avgCost: double.tryParse('${json['avg_cost'] ?? 0}') ?? 0,
-      totalValue: double.tryParse('${json['total_value'] ?? 0}') ?? 0,
-    );
-  }
-}
-
-class StockValuationByLocationModel {
-  final int idProduct;
-  final String productCode;
-  final String productName;
+class StockValuationWarehouseModel {
+  final int idWarehouse;
   final String warehouseName;
-  final String locationName;
-  final double stockQty;
-  final String? costingMethod;
-  final double avgCost;
-  final double locationValue;
+  final String warehouseCode;
+  final String? branch;
+  final String totalValuationRaw;
 
-  StockValuationByLocationModel({
+  StockValuationWarehouseModel({
+    required this.idWarehouse,
+    required this.warehouseName,
+    required this.warehouseCode,
+    this.branch,
+    required this.totalValuationRaw,
+  });
+
+  factory StockValuationWarehouseModel.fromJson(Map<String, dynamic> json) {
+    return StockValuationWarehouseModel(
+      idWarehouse: json['id_warehouse'] ?? 0,
+      warehouseName: json['warehouse_name'] ?? '',
+      warehouseCode: json['warehouse_code'] ?? '',
+      branch: json['branch'],
+      totalValuationRaw: '${json['total_valuation'] ?? 0}',
+    );
+  }
+}
+
+class StockValuationItemModel {
+  final int idLocation;
+  final String locationName;
+  final int idProduct;
+  final String productCode;
+  final String productName;
+  final String baseUomName;
+  final String purchasePriceRaw;
+  final String totalStockRaw;
+  final String totalOnHandRaw;
+  final String totalValueRaw;
+
+  StockValuationItemModel({
+    required this.idLocation,
+    required this.locationName,
     required this.idProduct,
     required this.productCode,
     required this.productName,
-    required this.warehouseName,
-    required this.locationName,
-    required this.stockQty,
-    this.costingMethod,
-    required this.avgCost,
-    required this.locationValue,
+    required this.baseUomName,
+    required this.purchasePriceRaw,
+    required this.totalStockRaw,
+    required this.totalOnHandRaw,
+    required this.totalValueRaw,
   });
 
-  factory StockValuationByLocationModel.fromJson(Map<String, dynamic> json) {
-    return StockValuationByLocationModel(
+  factory StockValuationItemModel.fromJson(Map<String, dynamic> json) {
+    return StockValuationItemModel(
+      idLocation: json['id_location'] ?? 0,
+      locationName: json['location_name'] ?? '',
       idProduct: json['id_product'] ?? 0,
       productCode: json['product_code'] ?? '',
       productName: json['product_name'] ?? '',
-      warehouseName: json['warehouse_name'] ?? '',
-      locationName: json['location_name'] ?? '',
-      stockQty: double.tryParse('${json['stock_qty'] ?? 0}') ?? 0,
-      costingMethod: json['costing_method'],
-      avgCost: double.tryParse('${json['avg_cost'] ?? 0}') ?? 0,
-      locationValue: double.tryParse('${json['location_value'] ?? 0}') ?? 0,
+      baseUomName: json['base_uom_name'] ?? '-',
+      purchasePriceRaw: '${json['purchase_price'] ?? 0}',
+      totalStockRaw: '${json['total_stock'] ?? 0}',
+      totalOnHandRaw: '${json['total_on_hand'] ?? 0}',
+      totalValueRaw: '${json['total_value'] ?? 0}',
     );
   }
 }
 
 class StockValuationDetailModel {
-  final int idProduct;
-  final String productCode;
-  final String productName;
-  final List<StockValuationByLocationModel> byLocation;
-  final double totalQty;
-  final double totalValue;
+  final int idWarehouse;
+  final String warehouseName;
+  final String warehouseCode;
+  final String? branch;
+  final String totalStockRaw;
+  final String totalValueRaw;
+  final List<StockValuationItemModel> items;
+  final StockValuationPaginationMeta itemsMeta;
 
   StockValuationDetailModel({
-    required this.idProduct,
-    required this.productCode,
-    required this.productName,
-    required this.byLocation,
-    required this.totalQty,
-    required this.totalValue,
+    required this.idWarehouse,
+    required this.warehouseName,
+    required this.warehouseCode,
+    this.branch,
+    required this.totalStockRaw,
+    required this.totalValueRaw,
+    required this.items,
+    required this.itemsMeta,
   });
 
   factory StockValuationDetailModel.fromJson(Map<String, dynamic> json) {
     final data = json['data'] ?? json;
-    final product = data['product'] ?? {};
-    final List<dynamic> list = data['by_location'] ?? [];
+    final warehouse = data['warehouse'] ?? {};
+    final summary = data['summary'] ?? {};
+    final itemsPaginator = data['items'] as Map<String, dynamic>? ?? {};
+    final List<dynamic> itemList = itemsPaginator['data'] ?? [];
+
     return StockValuationDetailModel(
-      idProduct: product['id_product'] ?? 0,
-      productCode: product['product_code'] ?? '',
-      productName: product['product_name'] ?? '',
-      byLocation: list
-          .map((e) => StockValuationByLocationModel.fromJson(e))
-          .toList(),
-      totalQty: double.tryParse('${data['total_qty'] ?? 0}') ?? 0,
-      totalValue: double.tryParse('${data['total_value'] ?? 0}') ?? 0,
+      idWarehouse: warehouse['id_warehouse'] ?? 0,
+      warehouseName: warehouse['warehouse_name'] ?? '',
+      warehouseCode: warehouse['warehouse_code'] ?? '',
+      branch: warehouse['branch'],
+      totalStockRaw: '${summary['total_stock'] ?? 0}',
+      totalValueRaw: '${summary['total_value'] ?? 0}',
+      items: itemList.map((e) => StockValuationItemModel.fromJson(e)).toList(),
+      itemsMeta: StockValuationPaginationMeta.fromJson(itemsPaginator),
     );
   }
+}
+
+class StockValuationBranchOption {
+  final String branch;
+  StockValuationBranchOption(this.branch);
 }

@@ -5,21 +5,19 @@ class StockValuationRepository {
   final StockValuationRemoteDataSource remoteDataSource;
   StockValuationRepository({required this.remoteDataSource});
 
-  Future<Map<String, dynamic>> getStockValuationList({
+  Future<Map<String, dynamic>> getWarehouseList({
     int page = 1,
     int perPage = 100,
     String? search,
-    String? costingMethod,
-  }) => remoteDataSource.getStockValuationList(
-    page: page,
-    perPage: perPage,
-    search: search,
-    costingMethod: costingMethod,
-  );
+    String? branch,
+  }) => remoteDataSource.getWarehouseList(page: page, perPage: perPage, search: search, branch: branch);
 
-  Future<StockValuationDetailModel> getStockValuationDetail(int idProduct) =>
-      remoteDataSource.getStockValuationDetail(idProduct);
+  Future<StockValuationDetailModel> getWarehouseDetail(
+    int idWarehouse, {
+    int page = 1,
+    int perPage = 100,
+    String? search,
+  }) => remoteDataSource.getWarehouseDetail(idWarehouse, page: page, perPage: perPage, search: search);
 
-  Future<List<String>> getCostingMethods() =>
-      remoteDataSource.getCostingMethods();
+  Future<List<String>> getBranches() => remoteDataSource.getBranches();
 }

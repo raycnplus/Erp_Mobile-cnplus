@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:erp_mobile_cnplus/features/inventory/stock_valuation/presentation/controllers/stock_valuation_controller.dart';
-import 'package:erp_mobile_cnplus/features/inventory/stock_valuation/presentation/widgets/stock_valuation_list_item.dart';
-import 'package:erp_mobile_cnplus/features/inventory/stock_valuation/presentation/screens/stock_valuation_detail_screen.dart';
 import 'package:erp_mobile_cnplus/core/utils/colors.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_valuation/presentation/controllers/stock_valuation_controller.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_valuation/presentation/widgets/stock_valuation_warehouse_card.dart';
+import 'package:erp_mobile_cnplus/features/inventory/stock_valuation/presentation/screens/stock_valuation_detail_screen.dart';
 import 'package:erp_mobile_cnplus/shared/widgets/pagination_bottom_bar.dart';
-import 'package:erp_mobile_cnplus/core/utils/number_format_helper.dart';
+import 'package:erp_mobile_cnplus/shared/widgets/custom_searchable_dropdown.dart';
 
 class StockValuationListScreen extends StatefulWidget {
   const StockValuationListScreen({super.key});
 
   @override
-  State<StockValuationListScreen> createState() =>
-      _StockValuationListScreenState();
+  State<StockValuationListScreen> createState() => _StockValuationListScreenState();
 }
 
 class _StockValuationListScreenState extends State<StockValuationListScreen> {
@@ -24,8 +23,8 @@ class _StockValuationListScreenState extends State<StockValuationListScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctrl = context.read<StockValuationController>();
-      ctrl.fetchCostingMethods();
-      ctrl.fetchList();
+      ctrl.fetchBranches();
+      ctrl.fetchWarehouseList();
     });
   }
 
@@ -35,35 +34,33 @@ class _StockValuationListScreenState extends State<StockValuationListScreen> {
     super.dispose();
   }
 
-  void _onSearchChanged(String v) =>
-      context.read<StockValuationController>().searchList(v);
+  void _onSearchChanged(String v) => context.read<StockValuationController>().searchWarehouses(v);
 
   void _clearSearch() {
     _searchController.clear();
     context.read<StockValuationController>().clearSearch();
   }
 
-  Future<void> _handleRefresh() =>
-      context.read<StockValuationController>().fetchList();
+  Future<void> _handleRefresh() => context.read<StockValuationController>().fetchWarehouseList();
 
-  void _navigateToDetail(int idProduct) {
+  void _navigateToDetail(int idWarehouse) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => StockValuationDetailScreen(idProduct: idProduct),
-      ),
+      MaterialPageRoute(builder: (_) => StockValuationDetailScreen(idWarehouse: idWarehouse)),
     );
   }
 
-  String _formatRupiah(double value) {
-    final rounded = value.round();
-    final str = rounded.toString();
+  String _formatRupiah(String rawValue) {
+    final parts = rawValue.split('.');
+    final wholePart = parts[0];
+    final decimalPart = parts.length > 1 ? parts[1] : '';
     final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) buffer.write('.');
-      buffer.write(str[i]);
+    for (int i = 0; i < wholePart.length; i++) {
+      if (i > 0 && (wholePart.length - i) % 3 == 0) buffer.write('.');
+      buffer.write(wholePart[i]);
     }
-    return 'Rp $buffer';
+    if (decimalPart.isEmpty) return 'Rp $buffer';
+    return 'Rp $buffer,$decimalPart';
   }
 
   @override
@@ -77,11 +74,7 @@ class _StockValuationListScreenState extends State<StockValuationListScreen> {
         ),
         title: Text(
           "Stock Valuation",
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            color: colorTextPrimary,
-            fontSize: 20,
-          ),
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: colorTextPrimary, fontSize: 20),
         ),
         elevation: 0.5,
         backgroundColor: colorWhite,
@@ -97,117 +90,52 @@ class _StockValuationListScreenState extends State<StockValuationListScreen> {
                 TextField(
                   controller: _searchController,
                   onChanged: _onSearchChanged,
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: colorTextPrimary,
-                  ),
+                  style: GoogleFonts.poppins(fontSize: 14, color: colorTextPrimary),
                   decoration: InputDecoration(
-                    hintText: 'Search product name or code...',
-                    hintStyle: GoogleFonts.poppins(
-                      fontSize: 13,
-                      color: colorGrey,
-                    ),
-                    prefixIcon: const Icon(
-                      Icons.search,
-                      color: colorGrey,
-                      size: 20,
-                    ),
+                    hintText: 'Search warehouse name or code...',
+                    hintStyle: GoogleFonts.poppins(fontSize: 13, color: colorGrey),
+                    prefixIcon: const Icon(Icons.search, color: colorGrey, size: 20),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(
-                              Icons.close,
-                              color: colorGrey,
-                              size: 18,
-                            ),
+                            icon: const Icon(Icons.close, color: colorGrey, size: 18),
                             onPressed: _clearSearch,
                           )
                         : null,
                     filled: true,
                     fillColor: colorBackground,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: colorGreyLight,
-                        width: 1,
-                      ),
+                      borderSide: const BorderSide(color: colorGreyLight, width: 1),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: colorPrimary,
-                        width: 1.5,
-                      ),
+                      borderSide: const BorderSide(color: colorPrimary, width: 1.5),
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                Consumer<StockValuationController>(
-                  builder: (context, ctrl, child) {
-                    return SizedBox(
-                      width: double.infinity,
-                      child: DropdownButtonFormField<String?>(
-                        value: ctrl.selectedCostingMethod,
-                        isExpanded: true,
-                        style: GoogleFonts.poppins(
-                          fontSize: 13,
-                          color: colorTextPrimary,
-                        ),
-                        decoration: InputDecoration(
-                          labelText: 'Costing method',
-                          labelStyle: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: colorTextSubtle,
-                          ),
-                          filled: true,
-                          fillColor: colorBackground,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                              color: colorGreyLight,
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                        items: [
-                          const DropdownMenuItem<String?>(
-                            value: null,
-                            child: Text('All Methods'),
-                          ),
-                          ...ctrl.costingMethods.map(
-                            (m) => DropdownMenuItem<String?>(
-                              value: m,
-                              child: Text(humanizeEnum(m)),
-                            ),
-                          ),
-                        ],
-                        onChanged: (val) => ctrl.filterByCostingMethod(val),
-                      ),
-                    );
-                  },
-                ),
+const SizedBox(height: 10),
+Consumer<StockValuationController>(
+  builder: (context, ctrl, child) {
+    if (ctrl.branchOptions.isEmpty) return const SizedBox.shrink();
+    return CustomSearchableDropdown<String>(
+      value: ctrl.selectedBranch,
+      items: ctrl.branchOptions,
+      itemLabel: (b) => b,
+      onChanged: (val) => ctrl.filterByBranch(val),
+      label: 'Branch',
+      hintText: 'All Branches',
+      clearable: true,
+    );
+  },
+),
               ],
             ),
           ),
           Consumer<StockValuationController>(
             builder: (context, ctrl, child) {
-              final summary = ctrl.summary;
-              if (summary == null) return const SizedBox.shrink();
+              if (ctrl.warehouses.isEmpty) return const SizedBox.shrink();
               return Container(
                 width: double.infinity,
                 margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -216,29 +144,14 @@ class _StockValuationListScreenState extends State<StockValuationListScreen> {
                   color: colorPrimary.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Grand Total Value',
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: colorTextSubtle,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          _formatRupiah(summary.grandTotalValue),
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: colorPrimary,
-                          ),
-                        ),
-                      ],
+                    Text('Grand Total Valuation', style: GoogleFonts.poppins(fontSize: 12, color: colorTextSubtle)),
+                    const SizedBox(height: 2),
+                    Text(
+                      _formatRupiah(ctrl.grandTotalValuationRaw),
+                      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w700, color: colorPrimary),
                     ),
                   ],
                 ),
@@ -259,14 +172,12 @@ class _StockValuationListScreenState extends State<StockValuationListScreen> {
                 );
 
                 if (ctrl.isLoadingList) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: colorPrimary),
-                  );
+                  return const Center(child: CircularProgressIndicator(color: colorPrimary));
                 }
-                if (ctrl.listError != null && ctrl.list.isEmpty) {
+                if (ctrl.listError != null && ctrl.warehouses.isEmpty) {
                   return _buildErrorState(ctrl.listError!, _handleRefresh);
                 }
-                if (ctrl.list.isEmpty) {
+                if (ctrl.warehouses.isEmpty) {
                   return Column(
                     children: [
                       Expanded(
@@ -282,27 +193,12 @@ class _StockValuationListScreenState extends State<StockValuationListScreen> {
                 return Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            '${ctrl.total} products',
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: colorTextSubtle,
-                            ),
-                          ),
-                          Text(
-                            'Page ${ctrl.currentPage} of ${ctrl.lastPage}',
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: colorTextSubtle,
-                            ),
-                          ),
+                          Text('${ctrl.total} warehouses', style: GoogleFonts.poppins(fontSize: 12, color: colorTextSubtle)),
+                          Text('Page ${ctrl.currentPage} of ${ctrl.lastPage}', style: GoogleFonts.poppins(fontSize: 12, color: colorTextSubtle)),
                         ],
                       ),
                     ),
@@ -312,12 +208,12 @@ class _StockValuationListScreenState extends State<StockValuationListScreen> {
                         color: colorPrimary,
                         child: ListView.builder(
                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                          itemCount: ctrl.list.length,
+                          itemCount: ctrl.warehouses.length,
                           itemBuilder: (context, index) {
-                            final item = ctrl.list[index];
-                            return StockValuationListItem(
-                              item: item,
-                              onTap: () => _navigateToDetail(item.idProduct),
+                            final w = ctrl.warehouses[index];
+                            return StockValuationWarehouseCard(
+                              warehouse: w,
+                              onTap: () => _navigateToDetail(w.idWarehouse),
                             );
                           },
                         ),
@@ -343,18 +239,11 @@ class _StockValuationListScreenState extends State<StockValuationListScreen> {
           children: [
             const Icon(Icons.error_outline, size: 64, color: colorError),
             const SizedBox(height: 16),
-            Text(
-              error,
-              style: GoogleFonts.poppins(color: colorError),
-              textAlign: TextAlign.center,
-            ),
+            Text(error, style: GoogleFonts.poppins(color: colorError), textAlign: TextAlign.center),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: onRetry,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorPrimary,
-                foregroundColor: colorWhite,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: colorPrimary, foregroundColor: colorWhite),
               child: const Text("Try Again"),
             ),
           ],
@@ -363,29 +252,18 @@ class _StockValuationListScreenState extends State<StockValuationListScreen> {
     );
   }
 
-  Widget _buildEmptyState({
-    bool isSearching = false,
-    VoidCallback? onClearSearch,
-  }) {
+  Widget _buildEmptyState({bool isSearching = false, VoidCallback? onClearSearch}) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              isSearching ? Icons.search_off : Icons.assessment_outlined,
-              size: 80,
-              color: colorGrey,
-            ),
+            Icon(isSearching ? Icons.search_off : Icons.warehouse_outlined, size: 80, color: colorGrey),
             const SizedBox(height: 16),
             Text(
-              isSearching ? 'Product not found' : 'No valuation data yet',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: colorTextSubtle,
-              ),
+              isSearching ? 'Warehouse not found' : 'No warehouse data yet',
+              style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w500, color: colorTextSubtle),
               textAlign: TextAlign.center,
             ),
             if (isSearching) ...[
@@ -393,10 +271,7 @@ class _StockValuationListScreenState extends State<StockValuationListScreen> {
               TextButton.icon(
                 onPressed: onClearSearch,
                 icon: const Icon(Icons.close, size: 16, color: colorPrimary),
-                label: Text(
-                  'Clear search',
-                  style: GoogleFonts.poppins(color: colorPrimary, fontSize: 14),
-                ),
+                label: Text('Clear search', style: GoogleFonts.poppins(color: colorPrimary, fontSize: 14)),
               ),
             ],
           ],

@@ -5,11 +5,11 @@ class StockValuationRemoteDataSource {
   final Dio dio;
   StockValuationRemoteDataSource(this.dio);
 
-  Future<Map<String, dynamic>> getStockValuationList({
+  Future<Map<String, dynamic>> getWarehouseList({
     int page = 1,
     int perPage = 100,
     String? search,
-    String? costingMethod,
+    String? branch,
   }) async {
     try {
       final response = await dio.get(
@@ -18,40 +18,49 @@ class StockValuationRemoteDataSource {
           'page': page,
           'per_page': perPage,
           if (search != null && search.isNotEmpty) 'search': search,
-          if (costingMethod != null && costingMethod.isNotEmpty)
-            'costing_method': costingMethod,
+          if (branch != null && branch.isNotEmpty) 'branch': branch,
         },
       );
       final json = response.data as Map<String, dynamic>;
       final paginator = json['data'] as Map<String, dynamic>;
       final List<dynamic> items = paginator['data'] ?? [];
       return {
-        'items': items.map((e) => StockValuationModel.fromJson(e)).toList(),
+        'items': items.map((e) => StockValuationWarehouseModel.fromJson(e)).toList(),
         'meta': StockValuationPaginationMeta.fromJson(paginator),
-        'summary': StockValuationSummary.fromJson(json['summary'] ?? {}),
+        'grandTotalValuationRaw': '${json['summary']?['grand_total_valuation'] ?? 0}',
       };
     } on DioException catch (e) {
       throw Exception(_handleDioError(e));
     }
   }
 
-  Future<StockValuationDetailModel> getStockValuationDetail(
-    int idProduct,
-  ) async {
+  Future<StockValuationDetailModel> getWarehouseDetail(
+    int idWarehouse, {
+    int page = 1,
+    int perPage = 100,
+    String? search,
+  }) async {
     try {
-      final response = await dio.get('/inventory/stock-valuation/$idProduct');
+      final response = await dio.get(
+        '/inventory/stock-valuation/$idWarehouse',
+        queryParameters: {
+          'page': page,
+          'per_page': perPage,
+          if (search != null && search.isNotEmpty) 'search': search,
+        },
+      );
       return StockValuationDetailModel.fromJson(response.data);
     } on DioException catch (e) {
       throw Exception(_handleDioError(e));
     }
   }
 
-  Future<List<String>> getCostingMethods() async {
+  Future<List<String>> getBranches() async {
     try {
       final response = await dio.get('/inventory/stock-valuation/form-options');
       final json = response.data as Map<String, dynamic>;
-      final List<dynamic> methods = json['data']?['costing_methods'] ?? [];
-      return methods.map((e) => '$e').toList();
+      final List<dynamic> branches = json['data']?['branches'] ?? [];
+      return branches.map((e) => '$e').toList();
     } on DioException catch (e) {
       throw Exception(_handleDioError(e));
     }
@@ -59,8 +68,7 @@ class StockValuationRemoteDataSource {
 
   String _handleDioError(DioException e) {
     if (e.response != null) {
-      return e.response?.data['message'] ??
-          'Server error: ${e.response?.statusCode}';
+      return e.response?.data['message'] ?? 'Server error: ${e.response?.statusCode}';
     }
     return 'Network error: ${e.message}';
   }

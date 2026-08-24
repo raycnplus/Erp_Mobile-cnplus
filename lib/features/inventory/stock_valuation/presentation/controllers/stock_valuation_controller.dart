@@ -3,126 +3,140 @@ import 'package:erp_mobile_cnplus/features/inventory/stock_valuation/data/models
 import 'package:erp_mobile_cnplus/features/inventory/stock_valuation/domain/usecases/stock_valuation_usecases.dart';
 
 class StockValuationController extends ChangeNotifier {
-  final GetStockValuationList getStockValuationList;
-  final GetStockValuationDetail getStockValuationDetail;
-  final GetStockValuationCostingMethods getCostingMethods;
+  final GetStockValuationWarehouseList getWarehouseList;
+  final GetStockValuationWarehouseDetail getWarehouseDetail;
+  final GetStockValuationBranches getBranches;
 
   StockValuationController({
-    required this.getStockValuationList,
-    required this.getStockValuationDetail,
-    required this.getCostingMethods,
+    required this.getWarehouseList,
+    required this.getWarehouseDetail,
+    required this.getBranches,
   });
 
-  List<StockValuationModel> _list = [];
+  // Warehouse list
+  List<StockValuationWarehouseModel> _warehouses = [];
   bool _isLoadingList = false;
   String? _listError;
-  StockValuationSummary? _summary;
+  String _grandTotalValuationRaw = '0';
 
   int _currentPage = 1;
   int _lastPage = 1;
   int _total = 0;
   static const int _perPage = 15;
   String _searchQuery = '';
-  String? _selectedCostingMethod;
+  String? _selectedBranch;
 
-  List<String> _costingMethods = [];
+  List<String> _branchOptions = [];
   bool _isLoadingOptions = false;
 
+  // Detail (per warehouse)
   StockValuationDetailModel? _detail;
   bool _isLoadingDetail = false;
   String? _detailError;
+  int _detailCurrentPage = 1;
+  String _detailSearchQuery = '';
 
-  List<StockValuationModel> get list => _list;
+  List<StockValuationWarehouseModel> get warehouses => _warehouses;
   bool get isLoadingList => _isLoadingList;
   String? get listError => _listError;
-  StockValuationSummary? get summary => _summary;
+  String get grandTotalValuationRaw => _grandTotalValuationRaw;
 
   int get currentPage => _currentPage;
   int get lastPage => _lastPage;
   int get total => _total;
   bool get hasPrevPage => _currentPage > 1;
   bool get hasNextPage => _currentPage < _lastPage;
-  String? get selectedCostingMethod => _selectedCostingMethod;
+  String? get selectedBranch => _selectedBranch;
 
-  List<String> get costingMethods => _costingMethods;
+  List<String> get branchOptions => _branchOptions;
   bool get isLoadingOptions => _isLoadingOptions;
 
   StockValuationDetailModel? get detail => _detail;
   bool get isLoadingDetail => _isLoadingDetail;
   String? get detailError => _detailError;
+  int get detailCurrentPage => _detailCurrentPage;
+  bool get detailHasPrevPage => _detail != null && _detailCurrentPage > 1;
+  bool get detailHasNextPage => _detail != null && _detailCurrentPage < _detail!.itemsMeta.lastPage;
 
-  Future<void> fetchCostingMethods() async {
+  Future<void> fetchBranches() async {
     _isLoadingOptions = true;
     notifyListeners();
     try {
-      _costingMethods = await getCostingMethods();
+      _branchOptions = await getBranches();
     } catch (_) {
-      _costingMethods = [];
+      _branchOptions = [];
     } finally {
       _isLoadingOptions = false;
       notifyListeners();
     }
   }
 
-  Future<void> fetchList({int? page}) async {
+  Future<void> fetchWarehouseList({int? page}) async {
     _isLoadingList = true;
     _listError = null;
     notifyListeners();
 
     try {
-      final result = await getStockValuationList(
+      final result = await getWarehouseList(
         page: page ?? _currentPage,
         perPage: _perPage,
         search: _searchQuery,
-        costingMethod: _selectedCostingMethod,
+        branch: _selectedBranch,
       );
       final meta = result['meta'] as StockValuationPaginationMeta;
-      _list = result['items'] as List<StockValuationModel>;
-      _summary = result['summary'] as StockValuationSummary;
+      _warehouses = result['items'] as List<StockValuationWarehouseModel>;
+      _grandTotalValuationRaw = result['grandTotalValuationRaw'] as String;
       _currentPage = meta.currentPage;
       _lastPage = meta.lastPage;
       _total = meta.total;
     } catch (e) {
       _listError = _extractMessage(e);
-      _list = [];
+      _warehouses = [];
     } finally {
       _isLoadingList = false;
       notifyListeners();
     }
   }
 
-  void searchList(String query) {
+  void searchWarehouses(String query) {
     _searchQuery = query.trim();
     _currentPage = 1;
-    fetchList(page: 1);
+    fetchWarehouseList(page: 1);
   }
 
   void clearSearch() {
     _searchQuery = '';
     _currentPage = 1;
-    fetchList(page: 1);
+    fetchWarehouseList(page: 1);
   }
 
-  void filterByCostingMethod(String? method) {
-    _selectedCostingMethod = method;
+  void filterByBranch(String? branch) {
+    _selectedBranch = branch;
     _currentPage = 1;
-    fetchList(page: 1);
+    fetchWarehouseList(page: 1);
   }
 
   void goToPage(int page) {
     if (page < 1 || page > _lastPage || page == _currentPage) return;
-    fetchList(page: page);
+    fetchWarehouseList(page: page);
   }
 
   void nextPage() => goToPage(_currentPage + 1);
   void prevPage() => goToPage(_currentPage - 1);
 
-  Future<void> fetchDetail(int idProduct) async {
+  // Detail
+  Future<void> fetchWarehouseDetail(int idWarehouse, {int? page}) async {
     _isLoadingDetail = true;
     _detailError = null;
     notifyListeners();
     try {
-      _detail = await getStockValuationDetail(idProduct);
+      _detail = await getWarehouseDetail(
+        idWarehouse,
+        page: page ?? _detailCurrentPage,
+        perPage: _perPage,
+        search: _detailSearchQuery,
+      );
+      _detailCurrentPage = _detail!.itemsMeta.currentPage;
     } catch (e) {
       _detailError = _extractMessage(e);
       _detail = null;
@@ -132,10 +146,25 @@ class StockValuationController extends ChangeNotifier {
     }
   }
 
+  void searchDetailItems(int idWarehouse, String query) {
+    _detailSearchQuery = query.trim();
+    _detailCurrentPage = 1;
+    fetchWarehouseDetail(idWarehouse, page: 1);
+  }
+
+  void detailGoToPage(int idWarehouse, int page) {
+    if (_detail == null || page < 1 || page > _detail!.itemsMeta.lastPage || page == _detailCurrentPage) return;
+    fetchWarehouseDetail(idWarehouse, page: page);
+  }
+
+  void detailNextPage(int idWarehouse) => detailGoToPage(idWarehouse, _detailCurrentPage + 1);
+  void detailPrevPage(int idWarehouse) => detailGoToPage(idWarehouse, _detailCurrentPage - 1);
+
   void resetDetailState() {
     _detail = null;
     _detailError = null;
-    notifyListeners();
+    _detailCurrentPage = 1;
+    _detailSearchQuery = '';
   }
 
   String _extractMessage(dynamic error) =>

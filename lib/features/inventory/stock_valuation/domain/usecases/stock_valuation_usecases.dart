@@ -1,34 +1,33 @@
 import 'package:erp_mobile_cnplus/features/inventory/stock_valuation/data/repositories/stock_valuation_repository.dart';
 import 'package:erp_mobile_cnplus/features/inventory/stock_valuation/data/models/stock_valuation_models.dart';
 
-class GetStockValuationList {
+class GetStockValuationWarehouseList {
   final StockValuationRepository repository;
-  GetStockValuationList(this.repository);
+  GetStockValuationWarehouseList(this.repository);
 
   Future<Map<String, dynamic>> call({
     int page = 1,
     int perPage = 100,
     String? search,
-    String? costingMethod,
-  }) => repository.getStockValuationList(
-    page: page,
-    perPage: perPage,
-    search: search,
-    costingMethod: costingMethod,
-  );
+    String? branch,
+  }) => repository.getWarehouseList(page: page, perPage: perPage, search: search, branch: branch);
 }
 
-class GetStockValuationDetail {
+class GetStockValuationWarehouseDetail {
   final StockValuationRepository repository;
-  GetStockValuationDetail(this.repository);
+  GetStockValuationWarehouseDetail(this.repository);
 
-  Future<StockValuationDetailModel> call(int idProduct) =>
-      repository.getStockValuationDetail(idProduct);
+  Future<StockValuationDetailModel> call(
+    int idWarehouse, {
+    int page = 1,
+    int perPage = 100,
+    String? search,
+  }) => repository.getWarehouseDetail(idWarehouse, page: page, perPage: perPage, search: search);
 }
 
-class GetStockValuationCostingMethods {
+class GetStockValuationBranches {
   final StockValuationRepository repository;
-  GetStockValuationCostingMethods(this.repository);
+  GetStockValuationBranches(this.repository);
 
-  Future<List<String>> call() => repository.getCostingMethods();
+  Future<List<String>> call() => repository.getBranches();
 }
