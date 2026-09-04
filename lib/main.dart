@@ -41,6 +41,13 @@ import 'package:erp_mobile_cnplus/features/hr/overtime_type/presentation/control
 import 'package:erp_mobile_cnplus/features/hr/leave_quota/presentation/controllers/leave_quota_controller.dart';
 import 'package:erp_mobile_cnplus/features/hr/leave_request/presentation/controllers/leave_request_controller.dart';
 import 'package:erp_mobile_cnplus/features/hr/overtime_request/presentation/controllers/overtime_request_controller.dart';
+import 'package:erp_mobile_cnplus/features/hr/attendance_report/presentation/controllers/attendance_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/hr/attendance_late_report/presentation/controllers/attendance_late_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/hr/attendance_overtime_report/presentation/controllers/attendance_overtime_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/hr/leave_report/presentation/controllers/leave_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/hr/payroll_summary_report/presentation/controllers/payroll_summary_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/hr/my_payslip/presentation/controllers/my_payslip_controller.dart';
+import 'package:erp_mobile_cnplus/features/hr/my_payslip/presentation/controllers/my_payslip_detail_controller.dart';
 import 'package:erp_mobile_cnplus/features/sales/quotation/presentation/controllers/quotation_controller.dart';
 import 'package:erp_mobile_cnplus/features/sales/sales_order/presentation/controllers/sales_order_controller.dart';
 import 'package:erp_mobile_cnplus/features/sales/direct_sales/presentation/controllers/direct_sales_controller.dart';
@@ -53,11 +60,26 @@ import 'package:erp_mobile_cnplus/features/sales/quotation_report/presentation/c
 import 'package:erp_mobile_cnplus/features/sales/sales_order_report/presentation/controllers/sales_order_report_controller.dart';
 import 'package:erp_mobile_cnplus/features/sales/direct_sales_report/presentation/controllers/direct_sales_report_controller.dart';
 import 'package:erp_mobile_cnplus/features/sales/invoice_report/presentation/controllers/invoice_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_quotation_report/presentation/controllers/service_quotation_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_sales_order_report/presentation/controllers/service_sales_order_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_direct_sales_report/presentation/controllers/service_direct_sales_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_invoice_report/presentation/controllers/service_invoice_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/sales/sales_product_report/presentation/controllers/sales_product_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/sales/salespersons_report/presentation/controllers/salespersons_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/sales/top_customer_report/presentation/controllers/top_customer_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/sales/ppn_report/presentation/controllers/ppn_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/sales/pph_report/presentation/controllers/pph_report_controller.dart';
 import 'package:erp_mobile_cnplus/features/purchase/purchase_request/presentation/controllers/purchase_request_controller.dart';
 import 'package:erp_mobile_cnplus/features/purchase/request_quotation/presentation/controllers/rfq_controller.dart';
 import 'package:erp_mobile_cnplus/features/purchase/direct_purchase/presentation/controllers/direct_purchase_controller.dart';
 import 'package:erp_mobile_cnplus/features/purchase/purchase_order/presentation/controllers/purchase_order_controller.dart';
 import 'package:erp_mobile_cnplus/features/purchase/bill/presentation/controllers/bill_controller.dart';
+import 'package:erp_mobile_cnplus/features/purchase/purchase_request_report/presentation/controllers/purchase_request_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/purchase/request_quotation_report/presentation/controllers/request_quotation_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/purchase/purchase_order_report/presentation/controllers/purchase_order_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/purchase/direct_purchase_report/presentation/controllers/direct_purchase_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/purchase/top_purchase_order_report/presentation/controllers/top_purchase_order_report_controller.dart';
+import 'package:erp_mobile_cnplus/features/purchase/top_purchasing_product_report/presentation/controllers/top_purchasing_product_report_controller.dart';
 import 'package:erp_mobile_cnplus/features/inventory/receipt_note/presentation/controllers/receipt_note_controller.dart';
 import 'package:erp_mobile_cnplus/features/inventory/delivery_note/presentation/controllers/delivery_note_controller.dart';
 import 'package:erp_mobile_cnplus/features/inventory/internal_transfer/presentation/controllers/internal_transfer_controller.dart';
@@ -194,6 +216,27 @@ void main() {
         ChangeNotifierProvider<OvertimeRequestController>(
           create: (_) => getIt<OvertimeRequestController>(),
         ),
+        ChangeNotifierProvider<AttendanceReportController>(
+          create: (_) => getIt<AttendanceReportController>(),
+        ),
+        ChangeNotifierProvider<AttendanceLateReportController>(
+          create: (_) => getIt<AttendanceLateReportController>(),
+        ),
+        ChangeNotifierProvider<AttendanceOvertimeReportController>(
+          create: (_) => getIt<AttendanceOvertimeReportController>(),
+        ),
+        ChangeNotifierProvider<LeaveReportController>(
+          create: (_) => getIt<LeaveReportController>(),
+        ),
+        ChangeNotifierProvider<PayrollSummaryReportController>(
+          create: (_) => getIt<PayrollSummaryReportController>(),
+        ),
+        ChangeNotifierProvider<MyPaySlipController>(
+          create: (_) => getIt<MyPaySlipController>(),
+        ),
+        ChangeNotifierProvider<MyPaySlipDetailController>(
+          create: (_) => getIt<MyPaySlipDetailController>(),
+        ),
         ChangeNotifierProvider<QuotationController>(
           create: (_) => getIt<QuotationController>(),
         ),
@@ -230,6 +273,33 @@ void main() {
         ChangeNotifierProvider<InvoiceReportController>(
           create: (_) => getIt<InvoiceReportController>(),
         ),
+        ChangeNotifierProvider<ServiceQuotationReportController>(
+          create: (_) => getIt<ServiceQuotationReportController>(),
+        ),
+        ChangeNotifierProvider<ServiceSalesOrderReportController>(
+          create: (_) => getIt<ServiceSalesOrderReportController>(),
+        ),
+        ChangeNotifierProvider<ServiceDirectSalesReportController>(
+          create: (_) => getIt<ServiceDirectSalesReportController>(),
+        ),
+        ChangeNotifierProvider<ServiceInvoiceReportController>(
+          create: (_) => getIt<ServiceInvoiceReportController>(),
+        ),
+        ChangeNotifierProvider<SalesProductReportController>(
+          create: (_) => getIt<SalesProductReportController>(),
+        ),
+        ChangeNotifierProvider<SalespersonsReportController>(
+          create: (_) => getIt<SalespersonsReportController>(),
+        ),
+        ChangeNotifierProvider<TopCustomerReportController>(
+          create: (_) => getIt<TopCustomerReportController>(),
+        ),
+        ChangeNotifierProvider<PPNReportController>(
+          create: (_) => getIt<PPNReportController>(),
+        ),
+        ChangeNotifierProvider<PPHReportController>(
+          create: (_) => getIt<PPHReportController>(),
+        ),
         ChangeNotifierProvider<PurchaseRequestController>(
           create: (_) => getIt<PurchaseRequestController>(),
         ),
@@ -244,6 +314,24 @@ void main() {
         ),
         ChangeNotifierProvider<BillController>(
           create: (_) => getIt<BillController>(),
+        ),
+        ChangeNotifierProvider<PurchaseRequestReportController>(
+          create: (_) => getIt<PurchaseRequestReportController>(),
+        ),
+        ChangeNotifierProvider<RequestQuotationReportController>(
+          create: (_) => getIt<RequestQuotationReportController>(),
+        ),
+        ChangeNotifierProvider<PurchaseOrderReportController>(
+          create: (_) => getIt<PurchaseOrderReportController>(),
+        ),
+        ChangeNotifierProvider<DirectPurchaseReportController>(
+          create: (_) => getIt<DirectPurchaseReportController>(),
+        ),
+        ChangeNotifierProvider<TopPurchaseOrderReportController>(
+          create: (_) => getIt<TopPurchaseOrderReportController>(),
+        ),
+        ChangeNotifierProvider<TopPurchasingProductReportController>(
+          create: (_) => getIt<TopPurchasingProductReportController>(),
         ),
         ChangeNotifierProvider<ReceiptNoteController>(
           create: (_) => getIt<ReceiptNoteController>(),

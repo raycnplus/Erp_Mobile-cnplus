@@ -246,7 +246,7 @@ class UniversalDrawer extends StatelessWidget {
       _MenuItem(
         title: 'Goods Ops Report',
         type: _MenuType.master,
-        icon: Icons.point_of_sale_outlined,
+        icon: Icons.design_services_outlined,
         children: [
           _MenuItem(title: 'Quotation', route: AppRoutes.quotationReportList),
           _MenuItem(
@@ -262,6 +262,51 @@ class UniversalDrawer extends StatelessWidget {
             route: AppRoutes.invoiceReportList
           ),
         ],
+      ),
+      _MenuItem(
+        title: 'Service Ops Report',
+        type: _MenuType.master,
+        icon: Icons.point_of_sale_outlined,
+        children: [
+          _MenuItem(title: 'Quotation', route: AppRoutes.serviceQuotationReportList),
+          _MenuItem(
+            title: 'Sales Order',
+            route: AppRoutes.serviceSalesOrderReportList,
+          ),
+          _MenuItem(
+            title: 'Direct Sales',
+            route: AppRoutes.serviceDirectSalesReportList,
+          ),
+          _MenuItem(
+            title: 'Invoice',
+            route: AppRoutes.serviceInvoiceReportList
+          ),
+        ],
+      ),   
+      _MenuItem(
+        title: 'Sales Product Report',
+        icon: Icons.inventory_2_outlined,
+        route: AppRoutes.salesProductReportList,
+      ),
+      _MenuItem(
+        title: 'Salespersons Report',
+        icon: Icons.badge_outlined,
+        route: AppRoutes.salespersonsReportList,
+      ),
+      _MenuItem(
+        title: 'Top Customer Report',
+        icon: Icons.emoji_events_outlined,
+        route: AppRoutes.topCustomerReportList,
+      ),
+      _MenuItem(
+        title: 'PPN Report',
+        icon: Icons.receipt_long_outlined,
+        route: AppRoutes.ppnReportList,
+      ),
+      _MenuItem(
+        title: 'PPH Report',
+        icon: Icons.receipt_outlined,
+        route: AppRoutes.pphReportList,
       ),
       _configurationHeader,
       _users,
@@ -306,12 +351,48 @@ class UniversalDrawer extends StatelessWidget {
         icon: Icons.groups_2_outlined,
         route: AppRoutes.purchaseTeamList,
       ),
+      _reportHeader,
+      _MenuItem(
+        title: 'Purchase Request Report',
+        icon: Icons.assignment_outlined,
+        route: AppRoutes.purchaseRequestReportList,
+      ),
+      _MenuItem(
+        title: 'RFQ Report',
+        icon: Icons.request_quote_outlined,
+        route: AppRoutes.requestQuotationReportList,
+      ),
+      _MenuItem(
+        title: 'Purchase Order Report',
+        icon: Icons.shopping_cart_outlined,
+        route: AppRoutes.purchaseOrderReportList,
+      ),
+      _MenuItem(
+        title: 'Direct Purchase Report',
+        icon: Icons.shopping_bag_outlined,
+        route: AppRoutes.directPurchaseReportList,
+      ),
+      _MenuItem(
+        title: 'Top Purchase Order',
+        icon: Icons.bar_chart_outlined,
+        route: AppRoutes.topPurchaseOrderReportList,
+      ),
+      _MenuItem(
+        title: 'Top Purchasing Product',
+        icon: Icons.inventory_2_outlined,
+        route: AppRoutes.topPurchasingProductReportList,
+      ),
       _configurationHeader,
       _users,
       _uom,
     ],
 
     AppModule.hr: [
+      _MenuItem(
+        title: 'My Payslip',
+        icon: Icons.receipt_long_outlined,
+        route: AppRoutes.myPaySlipList,
+      ),
       _operationHeader,
       _MenuItem(
         title: 'Attendance',
@@ -378,6 +459,36 @@ class UniversalDrawer extends StatelessWidget {
         title: 'National Holiday',
         icon: Icons.event_outlined,
         route: AppRoutes.nationalHolidayList,
+      ),
+      _reportHeader,
+      _MenuItem(
+        title: 'Attendance Report',
+        icon: Icons.fact_check_outlined,
+        route: AppRoutes.attendanceReportList,
+      ),
+
+      _MenuItem(
+        title: 'Attendance Late Report',
+        icon: Icons.access_time_outlined,
+        route: AppRoutes.attendanceLateReportList,
+      ),
+
+      _MenuItem(
+        title: 'Overtime Report',
+        icon: Icons.more_time_outlined,
+        route: AppRoutes.attendanceOvertimeReportList,
+      ),
+
+      _MenuItem(
+        title: 'Leave Report',
+        icon: Icons.event_available_outlined,
+        route: AppRoutes.leaveReportList,
+      ),
+
+      _MenuItem(
+        title: 'Payroll Summary Report',
+        icon: Icons.payments_outlined,
+        route: AppRoutes.payrollSummaryReportList,
       ),
       _configurationHeader,
       _users,

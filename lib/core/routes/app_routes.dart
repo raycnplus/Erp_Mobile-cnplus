@@ -179,6 +179,25 @@ import 'package:erp_mobile_cnplus/features/hr/overtime_request/presentation/scre
 import 'package:erp_mobile_cnplus/features/hr/overtime_request/presentation/screens/overtime_request_detail_screen.dart';
 import 'package:erp_mobile_cnplus/features/hr/overtime_request/presentation/screens/overtime_request_form_screen.dart';
 
+// Attendance Report
+import 'package:erp_mobile_cnplus/features/hr/attendance_report/presentation/screens/attendance_report_list_screen.dart';
+
+// Attendance Late Report
+import 'package:erp_mobile_cnplus/features/hr/attendance_late_report/presentation/screens/attendance_late_report_list_screen.dart';
+
+// Attendance Overtime Report
+import 'package:erp_mobile_cnplus/features/hr/attendance_overtime_report/presentation/screens/attendance_overtime_report_list_screen.dart';
+
+// Leave Report
+import 'package:erp_mobile_cnplus/features/hr/leave_report/presentation/screens/leave_report_list_screen.dart';
+
+// Payroll Summary Report
+import 'package:erp_mobile_cnplus/features/hr/payroll_summary_report/presentation/screens/payroll_summary_report_list_screen.dart';
+
+// My PaySlip
+import 'package:erp_mobile_cnplus/features/hr/my_payslip/presentation/screens/my_payslip_list_screen.dart';
+import 'package:erp_mobile_cnplus/features/hr/my_payslip/presentation/screens/my_payslip_detail_screen.dart';
+
 // Sales Quotation
 import 'package:erp_mobile_cnplus/features/sales/quotation/presentation/screens/quotation_list_screen.dart';
 import 'package:erp_mobile_cnplus/features/sales/quotation/presentation/screens/quotation_detail_screen.dart';
@@ -231,6 +250,33 @@ import 'package:erp_mobile_cnplus/features/sales/direct_sales_report/presentatio
 // Sales Invoice Report
 import 'package:erp_mobile_cnplus/features/sales/invoice_report/presentation/screens/invoice_report_list_screen.dart';
 
+// Sales Service Quotation Report
+import 'package:erp_mobile_cnplus/features/sales/service_quotation_report/presentation/screens/service_quotation_report_list_screen.dart';
+
+// Sales Service Sales Order Report
+import 'package:erp_mobile_cnplus/features/sales/service_sales_order_report/presentation/screens/service_sales_order_report_list_screen.dart';
+
+// Sales Service Direct Sales Report
+import 'package:erp_mobile_cnplus/features/sales/service_direct_sales_report/presentation/screens/service_direct_sales_report_list_screen.dart';
+
+// Sales Service Invoice Report
+import 'package:erp_mobile_cnplus/features/sales/service_invoice_report/presentation/screens/service_invoice_report_list_screen.dart';
+
+// Sales Product Report
+import 'package:erp_mobile_cnplus/features/sales/sales_product_report/presentation/screens/sales_product_report_list_screen.dart';
+
+// Salespersons Report
+import 'package:erp_mobile_cnplus/features/sales/salespersons_report/presentation/screens/salespersons_report_list_screen.dart';
+
+// Top Customer Report
+import 'package:erp_mobile_cnplus/features/sales/top_customer_report/presentation/screens/top_customer_report_list_screen.dart';
+
+// PPN Report
+import 'package:erp_mobile_cnplus/features/sales/ppn_report/presentation/screens/ppn_report_list_screen.dart';
+
+// PPH Report
+import 'package:erp_mobile_cnplus/features/sales/pph_report/presentation/screens/pph_report_list_screen.dart';
+
 // Purchase Request
 import 'package:erp_mobile_cnplus/features/purchase/purchase_request/presentation/screens/purchase_request_list_screen.dart';
 import 'package:erp_mobile_cnplus/features/purchase/purchase_request/presentation/screens/purchase_request_detail_screen.dart';
@@ -255,6 +301,24 @@ import 'package:erp_mobile_cnplus/features/purchase/purchase_order/presentation/
 import 'package:erp_mobile_cnplus/features/purchase/bill/presentation/screens/bill_list_screen.dart';
 import 'package:erp_mobile_cnplus/features/purchase/bill/presentation/screens/bill_detail_screen.dart';
 import 'package:erp_mobile_cnplus/features/purchase/bill/presentation/screens/bill_form_screen.dart';
+
+// Purchase Request Report
+import 'package:erp_mobile_cnplus/features/purchase/purchase_request_report/presentation/screens/purchase_request_report_list_screen.dart';
+
+// Request For Quotation Report
+import 'package:erp_mobile_cnplus/features/purchase/request_quotation_report/presentation/screens/request_quotation_report_list_screen.dart';
+
+// Purchase Order Report
+import 'package:erp_mobile_cnplus/features/purchase/purchase_order_report/presentation/screens/purchase_order_report_list_screen.dart';
+
+// Direct Purchase Report
+import 'package:erp_mobile_cnplus/features/purchase/direct_purchase_report/presentation/screens/direct_purchase_report_list_screen.dart';
+
+// Top Purchase Order Report
+import 'package:erp_mobile_cnplus/features/purchase/top_purchase_order_report/presentation/screens/top_purchase_order_report_list_screen.dart';
+
+// Top Purchasing Product Report
+import 'package:erp_mobile_cnplus/features/purchase/top_purchasing_product_report/presentation/screens/top_purchasing_product_report_list_screen.dart';
 
 // Receipt Note
 import 'package:erp_mobile_cnplus/features/inventory/receipt_note/presentation/screens/receipt_note_list_screen.dart';
@@ -501,6 +565,25 @@ class AppRoutes {
   static const String overtimeRequestDetail = '/hr/overtime-request/detail';
   static const String overtimeRequestCreate = '/hr/overtime-request/create';
   static const String overtimeRequestEdit = '/hr/overtime-request/edit';
+  
+  // Attendance Report
+  static const String attendanceReportList = '/hr/attendance-report';
+
+  // Attendance Late Report
+  static const String attendanceLateReportList = '/hr/attendance-late-report';
+  
+  // Attendance Overtime Report
+  static const String attendanceOvertimeReportList = '/hr/attendance-overtime-report';
+
+  // Leave Report
+  static const String leaveReportList = '/hr/leave-report';
+
+  // Payroll Summary Report
+  static const String payrollSummaryReportList = '/hr/payroll-summary-report';
+
+  // My PaySlip
+  static const String myPaySlipList = '/hr/my-payslip';
+  static const String myPaySlipDetail = '/hr/my-payslip/detail';
 
   // Accounting Coa
   static const String coaList = '/accounting/coa';
@@ -623,6 +706,33 @@ class AppRoutes {
   // Sales Invoice Report
   static const String invoiceReportList = '/sales/invoice-report';
 
+  // Sales Service Quotation Report
+  static const String serviceQuotationReportList = '/sales/service/quotation-report';
+
+  // Sales Service Sales Order Report
+  static const String serviceSalesOrderReportList = '/sales/service/sales-order-report';
+
+  // Sales Service Direct Sales Report
+  static const String serviceDirectSalesReportList = '/sales/service/direct-sales-report';
+
+  // Sales Service Invoice Report
+  static const String serviceInvoiceReportList = '/sales/service/invoice-report';
+
+  // Sales Product Report
+  static const String salesProductReportList = '/sales/sales-product-report';
+  
+  // Top Sales Person Report
+  static const String salespersonsReportList = '/sales/salespersons-report';
+  
+  // Top Customer Report
+  static const String topCustomerReportList = '/sales/top-customer-report';
+
+  // PPN Report
+  static const String ppnReportList = '/sales/ppn-report';
+  
+  // PPH Report
+  static const String pphReportList = '/sales/pph-report';
+
   // Purchase Request
   static const String purchaseRequestList = '/purchase/purchase-request';
   static const String purchaseRequestDetail =
@@ -654,6 +764,24 @@ class AppRoutes {
   static const String billDetail = '/purchase/bill/detail';
   static const String billCreate = '/purchase/bill/create';
   static const String billEdit = '/purchase/bill/edit';
+
+  // Purchase Request Report
+  static const String purchaseRequestReportList = '/purchase/purchase-request-report';
+
+  // Request For Quotation Report
+  static const String requestQuotationReportList = '/purchase/rfq-report';
+
+  // Purchase Order Report
+  static const String purchaseOrderReportList = '/purchase/purchase-order-report';
+
+  // Direct Purchase Report
+  static const String directPurchaseReportList = '/purchase/direct-purchase-report';
+
+  // Top Purchase Order Report
+  static const String topPurchaseOrderReportList = '/purchase/top-purchase-order-report';
+
+  // Top Purchasing Product Report
+  static const String topPurchasingProductReportList = '/purchase/top-purchasing-product-report';
 
   // Receipt Note
   static const String receiptNoteList = '/inventory/receipt-note';
@@ -987,6 +1115,27 @@ class AppRoutes {
       encryption: ModalRoute.of(context)!.settings.arguments as String,
     ),
 
+    // Attendance Report
+    attendanceReportList: (context) => const AttendanceReportListScreen(),
+
+    // Attendance Late Report
+    attendanceLateReportList: (context) => const AttendanceLateReportListScreen(),
+
+    // Attendance Overtime Report
+    attendanceOvertimeReportList: (context) => const AttendanceOvertimeReportListScreen(),
+
+    // Leave Report
+    leaveReportList: (context) => const LeaveReportListScreen(),
+
+    // Payroll Summary Report
+    payrollSummaryReportList: (context) => const PayrollSummaryReportListScreen(),
+
+    // My PaySlip
+    myPaySlipList: (context) => const MyPaySlipListScreen(),
+    myPaySlipDetail: (context) => MyPaySlipDetailScreen(
+      encryption: ModalRoute.of(context)!.settings.arguments as String,
+    ),
+
     // Accounting Coa
     coaList: (context) => const CoaListScreen(),
     coaDetail: (context) => CoaDetailScreen(
@@ -1165,6 +1314,33 @@ class AppRoutes {
     // Sales Invoice Report
     invoiceReportList: (context) => const InvoiceReportListScreen(),
 
+    // Sales Service Quotation Report
+    serviceQuotationReportList: (context) => const ServiceQuotationReportListScreen(),
+
+    // Sales Service Sales Order Report
+    serviceSalesOrderReportList: (context) => const ServiceSalesOrderReportListScreen(),
+
+    // Sales Service Direct Sales Report
+    serviceDirectSalesReportList: (context) => const ServiceDirectSalesReportListScreen(),
+
+    // Sales Service Invoice Report
+    serviceInvoiceReportList: (context) => const ServiceInvoiceReportListScreen(),
+
+    // Sales Product Report
+    salesProductReportList: (context) => const SalesProductReportListScreen(),
+
+    // Salespersons Report
+    salespersonsReportList: (context) => const SalespersonsReportListScreen(),
+
+    // Top Customer Report
+    topCustomerReportList: (context) => const TopCustomerReportListScreen(),
+
+    // PPN Report
+    ppnReportList: (context) => const PPNReportListScreen(),
+
+    // PPH Report
+    pphReportList: (context) => const PPHReportListScreen(),
+
     // Purchase Request
     purchaseRequestList: (context) => const PurchaseRequestListScreen(),
     purchaseRequestDetail: (context) => PurchaseRequestDetailScreen(
@@ -1214,6 +1390,24 @@ class AppRoutes {
     billEdit: (context) => BillFormScreen(
       encryption: ModalRoute.of(context)!.settings.arguments as String,
     ),
+
+    // Purchase Request Report
+    purchaseRequestReportList: (context) => const PurchaseRequestReportListScreen(),
+
+    // Request For Quotation Report
+    requestQuotationReportList: (context) => const RequestQuotationReportListScreen(),
+
+    // Purchase Order Report
+    purchaseOrderReportList: (context) => const PurchaseOrderReportListScreen(),
+
+    // Direct Purchase Report
+    directPurchaseReportList: (context) => const DirectPurchaseReportListScreen(),
+
+    // Top Purchase Order Report
+    topPurchaseOrderReportList: (context) => const TopPurchaseOrderReportListScreen(),
+
+    // Top Purchasing Product Report
+    topPurchasingProductReportList: (context) => const TopPurchasingProductReportListScreen(),
 
     // Receipt Note
     receiptNoteList: (context) => const ReceiptNoteListScreen(),

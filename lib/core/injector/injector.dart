@@ -41,7 +41,7 @@ import 'package:erp_mobile_cnplus/features/sales/dashboard/presentation/controll
 // Dashboard HR
 import 'package:erp_mobile_cnplus/features/hr/dashboard/data/datasources/hr_remote_datasource.dart';
 import 'package:erp_mobile_cnplus/features/hr/dashboard/data/repositories/hr_dashboard_repository.dart';
-import 'package:erp_mobile_cnplus/features/hr/dashboard/domain/usecases/hr_dashboard_usecases.dart.dart';
+import 'package:erp_mobile_cnplus/features/hr/dashboard/domain/usecases/hr_dashboard_usecases.dart';
 import 'package:erp_mobile_cnplus/features/hr/dashboard/presentation/controllers/hr_dashboard_controller.dart';
 
 // Dashboard Accounting
@@ -194,6 +194,43 @@ import 'package:erp_mobile_cnplus/features/hr/leave_allocation/data/repositories
 import 'package:erp_mobile_cnplus/features/hr/leave_allocation/domain/usecases/leave_allocation_usecases.dart';
 import 'package:erp_mobile_cnplus/features/hr/leave_allocation/presentation/controllers/leave_allocation_controller.dart';
 
+// Attendance Report
+import 'package:erp_mobile_cnplus/features/hr/attendance_report/data/datasources/attendance_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/hr/attendance_report/data/repositories/attendance_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/hr/attendance_report/domain/usecases/attendance_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/hr/attendance_report/presentation/controllers/attendance_report_controller.dart';
+
+// Attendance Late Report
+import 'package:erp_mobile_cnplus/features/hr/attendance_late_report/data/datasources/attendance_late_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/hr/attendance_late_report/data/repositories/attendance_late_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/hr/attendance_late_report/domain/usecases/attendance_late_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/hr/attendance_late_report/presentation/controllers/attendance_late_report_controller.dart';
+
+// Attendance Overtime Report
+import 'package:erp_mobile_cnplus/features/hr/attendance_overtime_report/data/datasources/attendance_overtime_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/hr/attendance_overtime_report/data/repositories/attendance_overtime_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/hr/attendance_overtime_report/domain/usecases/attendance_overtime_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/hr/attendance_overtime_report/presentation/controllers/attendance_overtime_report_controller.dart';
+
+// Leave Report
+import 'package:erp_mobile_cnplus/features/hr/leave_report/data/datasources/leave_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/hr/leave_report/data/repositories/leave_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/hr/leave_report/domain/usecases/leave_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/hr/leave_report/presentation/controllers/leave_report_controller.dart';
+
+// Payroll Summary Report
+import 'package:erp_mobile_cnplus/features/hr/payroll_summary_report/data/datasources/payroll_summary_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/hr/payroll_summary_report/data/repositories/payroll_summary_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/hr/payroll_summary_report/domain/usecases/payroll_summary_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/hr/payroll_summary_report/presentation/controllers/payroll_summary_report_controller.dart';
+
+// My PaySlip
+import 'package:erp_mobile_cnplus/features/hr/my_payslip/data/datasources/my_payslip_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/hr/my_payslip/data/repositories/my_payslip_repository.dart';
+import 'package:erp_mobile_cnplus/features/hr/my_payslip/domain/usecases/my_payslip_usecases.dart';
+import 'package:erp_mobile_cnplus/features/hr/my_payslip/presentation/controllers/my_payslip_controller.dart';
+import 'package:erp_mobile_cnplus/features/hr/my_payslip/presentation/controllers/my_payslip_detail_controller.dart';
+
 // Accounting Coa
 import 'package:erp_mobile_cnplus/features/accounting/coa/data/datasources/coa_remote_datasource.dart';
 import 'package:erp_mobile_cnplus/features/accounting/coa/data/repositories/coa_repository.dart';
@@ -342,6 +379,60 @@ import 'package:erp_mobile_cnplus/features/sales/invoice_report/data/repositorie
 import 'package:erp_mobile_cnplus/features/sales/invoice_report/domain/usecases/invoice_report_usecases.dart';
 import 'package:erp_mobile_cnplus/features/sales/invoice_report/presentation/controllers/invoice_report_controller.dart';
 
+// Sales Service Quotation Report
+import 'package:erp_mobile_cnplus/features/sales/service_quotation_report/data/datasources/service_quotation_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_quotation_report/data/repositories/service_quotation_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_quotation_report/domain/usecases/service_quotation_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_quotation_report/presentation/controllers/service_quotation_report_controller.dart';
+
+// Sales Service Sales Order Report
+import 'package:erp_mobile_cnplus/features/sales/service_sales_order_report/data/datasources/service_sales_order_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_sales_order_report/data/repositories/service_sales_order_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_sales_order_report/domain/usecases/service_sales_order_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_sales_order_report/presentation/controllers/service_sales_order_report_controller.dart';
+
+// Sales Service Direct Sales Report
+import 'package:erp_mobile_cnplus/features/sales/service_direct_sales_report/data/datasources/service_direct_sales_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_direct_sales_report/data/repositories/service_direct_sales_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_direct_sales_report/domain/usecases/service_direct_sales_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_direct_sales_report/presentation/controllers/service_direct_sales_report_controller.dart';
+
+// Sales Service Invoice Report
+import 'package:erp_mobile_cnplus/features/sales/service_invoice_report/data/datasources/service_invoice_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_invoice_report/data/repositories/service_invoice_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_invoice_report/domain/usecases/service_invoice_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_invoice_report/presentation/controllers/service_invoice_report_controller.dart';
+
+// Sales Product Report
+import 'package:erp_mobile_cnplus/features/sales/sales_product_report/data/datasources/sales_product_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/sales/sales_product_report/data/repositories/sales_product_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/sales/sales_product_report/domain/usecases/sales_product_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/sales/sales_product_report/presentation/controllers/sales_product_report_controller.dart';
+
+// Salespersons Report
+import 'package:erp_mobile_cnplus/features/sales/salespersons_report/data/datasources/salespersons_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/sales/salespersons_report/data/repositories/salespersons_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/sales/salespersons_report/domain/usecases/salespersons_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/sales/salespersons_report/presentation/controllers/salespersons_report_controller.dart';
+
+// Top Customer Report
+import 'package:erp_mobile_cnplus/features/sales/top_customer_report/data/datasources/top_customer_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/sales/top_customer_report/data/repositories/top_customer_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/sales/top_customer_report/domain/usecases/top_customer_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/sales/top_customer_report/presentation/controllers/top_customer_report_controller.dart';
+
+// Sales PPN Report
+import 'package:erp_mobile_cnplus/features/sales/ppn_report/data/datasources/ppn_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/sales/ppn_report/data/repositories/ppn_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/sales/ppn_report/domain/usecases/ppn_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/sales/ppn_report/presentation/controllers/ppn_report_controller.dart';
+
+// Sales PPH Report
+import 'package:erp_mobile_cnplus/features/sales/pph_report/data/datasources/pph_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/sales/pph_report/data/repositories/pph_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/sales/pph_report/domain/usecases/pph_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/sales/pph_report/presentation/controllers/pph_report_controller.dart';
+
 // Purchase Purchase Request
 import 'package:erp_mobile_cnplus/features/purchase/purchase_request/data/datasources/purchase_request_remote_datasource.dart';
 import 'package:erp_mobile_cnplus/features/purchase/purchase_request/data/repositories/purchase_request_repository.dart';
@@ -371,6 +462,42 @@ import 'package:erp_mobile_cnplus/features/purchase/bill/data/datasources/bill_r
 import 'package:erp_mobile_cnplus/features/purchase/bill/data/repositories/bill_repository.dart';
 import 'package:erp_mobile_cnplus/features/purchase/bill/domain/usecases/bill_usecases.dart';
 import 'package:erp_mobile_cnplus/features/purchase/bill/presentation/controllers/bill_controller.dart';
+
+// Purchase Purchase Request Report
+import 'package:erp_mobile_cnplus/features/purchase/purchase_request_report/data/datasources/purchase_request_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/purchase/purchase_request_report/data/repositories/purchase_request_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/purchase/purchase_request_report/domain/usecases/purchase_request_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/purchase/purchase_request_report/presentation/controllers/purchase_request_report_controller.dart';
+
+// Purchase Request For Quotation Report
+import 'package:erp_mobile_cnplus/features/purchase/request_quotation_report/data/datasources/request_quotation_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/purchase/request_quotation_report/data/repositories/request_quotation_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/purchase/request_quotation_report/domain/usecases/request_quotation_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/purchase/request_quotation_report/presentation/controllers/request_quotation_report_controller.dart';
+
+// Purchase Order Report
+import 'package:erp_mobile_cnplus/features/purchase/purchase_order_report/data/datasources/purchase_order_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/purchase/purchase_order_report/data/repositories/purchase_order_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/purchase/purchase_order_report/domain/usecases/purchase_order_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/purchase/purchase_order_report/presentation/controllers/purchase_order_report_controller.dart';
+
+// Direct Purchase Report
+import 'package:erp_mobile_cnplus/features/purchase/direct_purchase_report/data/datasources/direct_purchase_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/purchase/direct_purchase_report/data/repositories/direct_purchase_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/purchase/direct_purchase_report/domain/usecases/direct_purchase_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/purchase/direct_purchase_report/presentation/controllers/direct_purchase_report_controller.dart';
+
+// Top Purchase Order Report
+import 'package:erp_mobile_cnplus/features/purchase/top_purchase_order_report/data/datasources/top_purchase_order_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/purchase/top_purchase_order_report/data/repositories/top_purchase_order_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/purchase/top_purchase_order_report/domain/usecases/top_purchase_order_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/purchase/top_purchase_order_report/presentation/controllers/top_purchase_order_report_controller.dart';
+
+// Top Purchasing Product Report
+import 'package:erp_mobile_cnplus/features/purchase/top_purchasing_product_report/data/datasources/top_purchasing_product_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/purchase/top_purchasing_product_report/data/repositories/top_purchasing_product_report_repository.dart';
+import 'package:erp_mobile_cnplus/features/purchase/top_purchasing_product_report/domain/usecases/top_purchasing_product_report_usecases.dart';
+import 'package:erp_mobile_cnplus/features/purchase/top_purchasing_product_report/presentation/controllers/top_purchasing_product_report_controller.dart';
 
 // Inventory Receipt Note
 import 'package:erp_mobile_cnplus/features/inventory/receipt_note/data/datasources/receipt_note_remote_datasource.dart';
@@ -581,16 +708,49 @@ class AppInjector {
     );
 
     // ==================== DASHBOARD HR ====================
-    getIt.registerLazySingleton(
-      () => HrRemoteDataSource(getIt<DioClient>().dio),
-    );
-    getIt.registerLazySingleton(
-      () => HrDashboardRepository(remoteDataSource: getIt()),
-    );
-    getIt.registerLazySingleton(() => GetHrDashboardData(getIt()));
-    getIt.registerLazySingleton(
-      () => HrDashboardController(getHrDashboardData: getIt()),
-    );
+    // getIt.registerLazySingleton(
+    //   () => HrRemoteDataSource(getIt<DioClient>().dio),
+    // );
+    // getIt.registerLazySingleton(
+    //   () => HrDashboardRepository(remoteDataSource: getIt()),
+    // );
+    // getIt.registerLazySingleton(() => GetHrDashboardData(getIt()));
+    // getIt.registerLazySingleton(
+    //   () => HrDashboardController(getHrDashboardData: getIt()),
+    // );
+
+getIt.registerLazySingleton<HrRemoteDataSource>(
+  () => HrRemoteDataSource(
+    getIt<DioClient>().dio,
+  ),
+);
+
+getIt.registerLazySingleton<HrDashboardRepository>(
+  () => HrDashboardRepository(
+    remoteDataSource: getIt<HrRemoteDataSource>(),
+  ),
+);
+
+getIt.registerLazySingleton<GetHrDashboardData>(
+  () => GetHrDashboardData(
+    getIt<HrDashboardRepository>(),
+  ),
+);
+
+getIt.registerLazySingleton<GetHrStaffDashboardData>(
+  () => GetHrStaffDashboardData(
+    getIt<HrDashboardRepository>(),
+  ),
+);
+
+getIt.registerFactory<HrDashboardController>(
+  () => HrDashboardController(
+    getHrDashboardData:
+        getIt<GetHrDashboardData>(),
+    getHrStaffDashboardData:
+        getIt<GetHrStaffDashboardData>(),
+  ),
+);
 
     // ==================== DASHBOARD ACCOUNTING ====================
     getIt.registerLazySingleton<AccountingRemoteDataSource>(
@@ -2028,6 +2188,185 @@ class AppInjector {
       ),
     );
 
+    // ==================== SALES SERVICE QUOTATION REPORT ====================
+    getIt.registerLazySingleton<ServiceQuotationReportRemoteDataSource>(
+      () => ServiceQuotationReportRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<ServiceQuotationReportRepository>(
+      () => ServiceQuotationReportRepository(
+        remoteDataSource: getIt<ServiceQuotationReportRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetServiceQuotationReportList(getIt<ServiceQuotationReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetServiceQuotationReportFormOptions(getIt<ServiceQuotationReportRepository>()),
+    );
+    getIt.registerFactory<ServiceQuotationReportController>(
+      () => ServiceQuotationReportController(
+        getServiceQuotationReportList: getIt<GetServiceQuotationReportList>(),
+        getServiceQuotationReportFormOptions: getIt<GetServiceQuotationReportFormOptions>(),
+      ),
+    );
+
+    // ==================== SALES SERVICE SALES ORDER REPORT ====================
+    getIt.registerLazySingleton<ServiceSalesOrderReportRemoteDataSource>(
+      () => ServiceSalesOrderReportRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<ServiceSalesOrderReportRepository>(
+      () => ServiceSalesOrderReportRepository(
+        remoteDataSource: getIt<ServiceSalesOrderReportRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetServiceSalesOrderReportList(getIt<ServiceSalesOrderReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetServiceSalesOrderReportFormOptions(getIt<ServiceSalesOrderReportRepository>()),
+    );
+    getIt.registerFactory<ServiceSalesOrderReportController>(
+      () => ServiceSalesOrderReportController(
+        getServiceSalesOrderReportList: getIt<GetServiceSalesOrderReportList>(),
+        getServiceSalesOrderReportFormOptions: getIt<GetServiceSalesOrderReportFormOptions>(),
+      ),
+    );
+
+    // ==================== SALES SERVICE DIRECT SALES REPORT ====================
+    getIt.registerLazySingleton<ServiceDirectSalesReportRemoteDataSource>(
+      () => ServiceDirectSalesReportRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<ServiceDirectSalesReportRepository>(
+      () => ServiceDirectSalesReportRepository(
+        remoteDataSource: getIt<ServiceDirectSalesReportRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetServiceDirectSalesReportList(getIt<ServiceDirectSalesReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetServiceDirectSalesReportFormOptions(getIt<ServiceDirectSalesReportRepository>()),
+    );
+    getIt.registerFactory<ServiceDirectSalesReportController>(
+      () => ServiceDirectSalesReportController(
+        getServiceDirectSalesReportList: getIt<GetServiceDirectSalesReportList>(),
+        getServiceDirectSalesReportFormOptions: getIt<GetServiceDirectSalesReportFormOptions>(),
+      ),
+    );
+
+    // ==================== SALES SERVICE INVOICE REPORT ====================
+    getIt.registerLazySingleton<ServiceInvoiceReportRemoteDataSource>(
+      () => ServiceInvoiceReportRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<ServiceInvoiceReportRepository>(
+      () => ServiceInvoiceReportRepository(
+        remoteDataSource: getIt<ServiceInvoiceReportRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetServiceInvoiceReportList(getIt<ServiceInvoiceReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetServiceInvoiceReportFormOptions(getIt<ServiceInvoiceReportRepository>()),
+    );
+    getIt.registerFactory<ServiceInvoiceReportController>(
+      () => ServiceInvoiceReportController(
+        getServiceInvoiceReportList: getIt<GetServiceInvoiceReportList>(),
+        getServiceInvoiceReportFormOptions: getIt<GetServiceInvoiceReportFormOptions>(),
+      ),
+    );
+
+    // ==================== SALES PRODUCT REPORT ====================
+    getIt.registerLazySingleton<SalesProductReportRemoteDataSource>(
+      () => SalesProductReportRemoteDataSource(getIt<DioClient>().dio,),
+    );
+    getIt.registerLazySingleton<SalesProductReportRepository>(
+      () => SalesProductReportRepository(remoteDataSource: getIt<SalesProductReportRemoteDataSource>(),),
+    );
+    getIt.registerLazySingleton<GetSalesProductReportList>(
+      () => GetSalesProductReportList( getIt<SalesProductReportRepository>(),),
+    );
+    getIt.registerLazySingleton<GetSalesProductReportFormOptions>(
+      () => GetSalesProductReportFormOptions(getIt<SalesProductReportRepository>(),),
+    );
+    getIt.registerFactory<SalesProductReportController>(
+      () => SalesProductReportController(getSalesProductReportList: getIt<GetSalesProductReportList>(), getSalesProductReportFormOptions: getIt<GetSalesProductReportFormOptions>(),),
+    );
+
+    // ==================== SALESPERSONS REPORT ====================
+    getIt.registerLazySingleton<SalespersonsReportRemoteDataSource>(
+      () => SalespersonsReportRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<SalespersonsReportRepository>(
+      () => SalespersonsReportRepository(
+        remoteDataSource: getIt<SalespersonsReportRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetSalespersonsReportList(getIt<SalespersonsReportRepository>()),
+    );
+    getIt.registerFactory<SalespersonsReportController>(
+      () => SalespersonsReportController(
+        getSalespersonsReportList: getIt<GetSalespersonsReportList>(),
+      ),
+    );
+ 
+    // ==================== TOP CUSTOMER REPORT ====================
+    getIt.registerLazySingleton<TopCustomerReportRemoteDataSource>(
+      () => TopCustomerReportRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<TopCustomerReportRepository>(
+      () => TopCustomerReportRepository(
+        remoteDataSource: getIt<TopCustomerReportRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetTopCustomerReportList(getIt<TopCustomerReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetTopCustomerReportFormOptions(getIt<TopCustomerReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetTopCustomerReportLocationsByWarehouse(getIt<TopCustomerReportRepository>()),
+    );
+    getIt.registerFactory<TopCustomerReportController>(
+      () => TopCustomerReportController(
+        getTopCustomerReportList: getIt<GetTopCustomerReportList>(),
+        getTopCustomerReportFormOptions: getIt<GetTopCustomerReportFormOptions>(),
+        getLocationsByWarehouse: getIt<GetTopCustomerReportLocationsByWarehouse>(),
+      ),
+    );
+
+    // ==================== PPN REPORT ====================
+    getIt.registerLazySingleton<PPNReportRemoteDataSource>(
+      () => PPNReportRemoteDataSource(getIt<DioClient>().dio),
+    );
+    getIt.registerLazySingleton<PPNReportRepository>(
+      () => PPNReportRepository(
+        remoteDataSource: getIt<PPNReportRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton(
+      () => GetPPNReportList(getIt<PPNReportRepository>()),
+    );
+    getIt.registerFactory<PPNReportController>(
+      () => PPNReportController(getPPNReportList: getIt<GetPPNReportList>()),
+    );
+
+    // ==================== PPH REPORT ====================
+    getIt.registerLazySingleton<PPHReportRemoteDataSource>(
+      () => PPHReportRemoteDataSource(getIt<DioClient>().dio,),
+    );
+    getIt.registerLazySingleton<PPHReportRepository>(
+      () => PPHReportRepository(remoteDataSource: getIt<PPHReportRemoteDataSource>(),),
+    );
+    getIt.registerLazySingleton<GetPPHReportList>(
+      () => GetPPHReportList(getIt<PPHReportRepository>(),),
+    );
+    getIt.registerFactory<PPHReportController>(
+      () => PPHReportController(getPPHReportList: getIt<GetPPHReportList>(),),
+    );
+
     // ==================== PURCHASE REQUEST ====================
     getIt.registerLazySingleton<PurchaseRequestRemoteDataSource>(
       () => PurchaseRequestRemoteDataSource(getIt<DioClient>().dio),
@@ -2200,6 +2539,243 @@ class AppInjector {
         rejectBill: getIt(),
         getSteps: getIt(),
       ),
+    );
+
+    // ==================== PURCHASE REQUEST REPORT ====================
+    getIt.registerLazySingleton<PurchaseRequestReportRemoteDataSource>(
+      () => PurchaseRequestReportRemoteDataSource(
+        getIt<DioClient>().dio,
+      ),
+    );
+    getIt.registerLazySingleton<PurchaseRequestReportRepository>(
+      () => PurchaseRequestReportRepository(
+        remoteDataSource:
+            getIt<PurchaseRequestReportRemoteDataSource>(),
+      ),
+    );
+    getIt.registerLazySingleton<GetPurchaseRequestReportList>(
+      () => GetPurchaseRequestReportList(
+        getIt<PurchaseRequestReportRepository>(),
+      ),
+    );
+    getIt.registerLazySingleton<GetPurchaseRequestReportFormOptions>(
+      () => GetPurchaseRequestReportFormOptions(
+        getIt<PurchaseRequestReportRepository>(),
+      ),
+    );
+    getIt.registerLazySingleton<GetPurchaseRequestReportLocationsByWarehouse>(
+      () => GetPurchaseRequestReportLocationsByWarehouse(
+        getIt<PurchaseRequestReportRepository>(),
+      ),
+    );
+    getIt.registerFactory<PurchaseRequestReportController>(
+      () => PurchaseRequestReportController(
+        getPurchaseRequestReportList:
+            getIt<GetPurchaseRequestReportList>(),
+        getPurchaseRequestReportFormOptions:
+            getIt<GetPurchaseRequestReportFormOptions>(),
+        getLocationsByWarehouse:
+            getIt<GetPurchaseRequestReportLocationsByWarehouse>(),
+      ),
+    );
+
+    // ==================== RFQ REPORT ====================
+    getIt.registerLazySingleton<RequestQuotationReportRemoteDataSource>(
+      () => RequestQuotationReportRemoteDataSource(getIt<DioClient>().dio,),
+    );
+    getIt.registerLazySingleton<RequestQuotationReportRepository>(
+      () => RequestQuotationReportRepository(remoteDataSource: getIt<RequestQuotationReportRemoteDataSource>(),),
+    );
+    getIt.registerLazySingleton<GetRequestQuotationReportList>(
+      () => GetRequestQuotationReportList(getIt<RequestQuotationReportRepository>(),),
+    );
+    getIt.registerLazySingleton<GetRequestQuotationReportFormOptions>(
+      () => GetRequestQuotationReportFormOptions(getIt<RequestQuotationReportRepository>(),),
+    );
+    getIt.registerLazySingleton<GetRequestQuotationReportLocationsByWarehouse>(
+      () => GetRequestQuotationReportLocationsByWarehouse(getIt<RequestQuotationReportRepository>(),),
+    );
+    getIt.registerFactory<RequestQuotationReportController>(
+      () => RequestQuotationReportController(getRequestQuotationReportList: getIt<GetRequestQuotationReportList>(), getRequestQuotationReportFormOptions: getIt<GetRequestQuotationReportFormOptions>(), getLocationsByWarehouse: getIt<GetRequestQuotationReportLocationsByWarehouse>(),),
+    );
+
+    // ==================== PURCHASE ORDER REPORT ====================
+    getIt.registerLazySingleton<PurchaseOrderReportRemoteDataSource>(
+      () => PurchaseOrderReportRemoteDataSource(getIt<DioClient>().dio,),
+    );
+    getIt.registerLazySingleton<PurchaseOrderReportRepository>(
+      () => PurchaseOrderReportRepository(remoteDataSource: getIt<PurchaseOrderReportRemoteDataSource>(),),
+    );
+    getIt.registerLazySingleton<GetPurchaseOrderReportList>(
+      () => GetPurchaseOrderReportList(getIt<PurchaseOrderReportRepository>(),),
+    );
+    getIt.registerLazySingleton<GetPurchaseOrderReportFormOptions>(
+      () => GetPurchaseOrderReportFormOptions(getIt<PurchaseOrderReportRepository>(),),
+    );
+    getIt.registerLazySingleton<GetPurchaseOrderReportLocationsByWarehouse>(
+      () => GetPurchaseOrderReportLocationsByWarehouse(getIt<PurchaseOrderReportRepository>(),),
+    );
+    getIt.registerFactory<PurchaseOrderReportController>(
+      () => PurchaseOrderReportController(getPurchaseOrderReportList: getIt<GetPurchaseOrderReportList>(), getPurchaseOrderReportFormOptions: getIt<GetPurchaseOrderReportFormOptions>(), getLocationsByWarehouse: getIt<GetPurchaseOrderReportLocationsByWarehouse>(),),
+    );
+
+    // ==================== DIRECT PURCHASE REPORT ====================
+    getIt.registerLazySingleton<DirectPurchaseReportRemoteDataSource>(
+      () => DirectPurchaseReportRemoteDataSource(getIt<DioClient>().dio,),
+    );
+    getIt.registerLazySingleton<DirectPurchaseReportRepository>(
+      () => DirectPurchaseReportRepository(remoteDataSource: getIt<DirectPurchaseReportRemoteDataSource>(),),
+    );
+    getIt.registerLazySingleton<GetDirectPurchaseReportList>(
+      () => GetDirectPurchaseReportList(getIt<DirectPurchaseReportRepository>(),),
+    );
+    getIt.registerLazySingleton<GetDirectPurchaseReportFormOptions>(
+      () => GetDirectPurchaseReportFormOptions(getIt<DirectPurchaseReportRepository>(),),
+    );
+    getIt.registerLazySingleton<GetDirectPurchaseReportLocationsByWarehouse>(
+      () => GetDirectPurchaseReportLocationsByWarehouse(getIt<DirectPurchaseReportRepository>(),),
+    );
+    getIt.registerFactory<DirectPurchaseReportController>(
+      () => DirectPurchaseReportController(getDirectPurchaseReportList: getIt<GetDirectPurchaseReportList>(), getDirectPurchaseReportFormOptions: getIt<GetDirectPurchaseReportFormOptions>(), getLocationsByWarehouse: getIt<GetDirectPurchaseReportLocationsByWarehouse>(),),
+    );
+
+    // ==================== TOP PURCHASE ORDER REPORT ====================
+    getIt.registerLazySingleton<TopPurchaseOrderReportRemoteDataSource>(
+      () => TopPurchaseOrderReportRemoteDataSource(getIt<DioClient>().dio,),
+    );
+    getIt.registerLazySingleton<TopPurchaseOrderReportRepository>(
+      () => TopPurchaseOrderReportRepository(remoteDataSource: getIt<TopPurchaseOrderReportRemoteDataSource>(),),
+    );
+    getIt.registerLazySingleton<GetTopPurchaseOrderReportList>(
+      () => GetTopPurchaseOrderReportList(getIt<TopPurchaseOrderReportRepository>(),),
+    );
+    getIt.registerLazySingleton<GetTopPurchaseOrderReportFormOptions>(
+      () => GetTopPurchaseOrderReportFormOptions(getIt<TopPurchaseOrderReportRepository>(),),
+    );
+    getIt.registerFactory<TopPurchaseOrderReportController>(
+      () => TopPurchaseOrderReportController(getTopPurchaseOrderReportList: getIt<GetTopPurchaseOrderReportList>(), getTopPurchaseOrderReportFormOptions: getIt<GetTopPurchaseOrderReportFormOptions>(),),
+    );
+
+    // ==================== TOP PURCHASING PRODUCT REPORT ====================
+    getIt.registerLazySingleton<TopPurchasingProductReportRemoteDataSource>(
+      () => TopPurchasingProductReportRemoteDataSource(getIt<DioClient>().dio,),
+    );
+    getIt.registerLazySingleton<TopPurchasingProductReportRepository>(
+      () => TopPurchasingProductReportRepository(remoteDataSource: getIt<TopPurchasingProductReportRemoteDataSource>(),),
+    );
+    getIt.registerLazySingleton<GetTopPurchasingProductReportList>(
+      () => GetTopPurchasingProductReportList(getIt<TopPurchasingProductReportRepository>(),),
+    );
+    getIt.registerLazySingleton<GetTopPurchasingProductReportFormOptions>(
+      () => GetTopPurchasingProductReportFormOptions(getIt<TopPurchasingProductReportRepository>(),),
+    );
+    getIt.registerFactory<TopPurchasingProductReportController>(
+      () => TopPurchasingProductReportController(getTopPurchasingProductReportList: getIt<GetTopPurchasingProductReportList>(), getTopPurchasingProductReportFormOptions: getIt<GetTopPurchasingProductReportFormOptions>(),),
+    );
+
+    // ==================== ATTENDANCE REPORT ====================
+    getIt.registerLazySingleton<AttendanceReportRemoteDataSource>(
+      () => AttendanceReportRemoteDataSource(getIt<DioClient>().dio,),
+    );
+    getIt.registerLazySingleton<AttendanceReportRepository>(
+      () => AttendanceReportRepository(remoteDataSource: getIt<AttendanceReportRemoteDataSource>(),),
+    );
+    getIt.registerLazySingleton<GetAttendanceReportList>(
+      () => GetAttendanceReportList(getIt<AttendanceReportRepository>(),),
+    );
+    getIt.registerLazySingleton<GetAttendanceReportFormOptions>(
+      () => GetAttendanceReportFormOptions(getIt<AttendanceReportRepository>(),),
+    );
+    getIt.registerFactory<AttendanceReportController>(
+      () => AttendanceReportController(getAttendanceReportList: getIt<GetAttendanceReportList>(), getAttendanceReportFormOptions: getIt<GetAttendanceReportFormOptions>(),),
+    );
+
+    // ==================== ATTENDANCE LATE REPORT ====================
+    getIt.registerLazySingleton<AttendanceLateReportRemoteDataSource>(
+      () => AttendanceLateReportRemoteDataSource(getIt<DioClient>().dio,),
+    );
+    getIt.registerLazySingleton<AttendanceLateReportRepository>(
+      () => AttendanceLateReportRepository(remoteDataSource:getIt<AttendanceLateReportRemoteDataSource>(),),
+    );
+    getIt.registerLazySingleton<GetAttendanceLateReportList>(
+      () => GetAttendanceLateReportList(getIt<AttendanceLateReportRepository>(),),
+    );
+    getIt.registerLazySingleton<GetAttendanceLateReportFormOptions>(
+      () => GetAttendanceLateReportFormOptions(getIt<AttendanceLateReportRepository>(),),
+    );
+    getIt.registerFactory<AttendanceLateReportController>(
+      () => AttendanceLateReportController(getAttendanceLateReportList: getIt<GetAttendanceLateReportList>(), getAttendanceLateReportFormOptions: getIt<GetAttendanceLateReportFormOptions>(),),
+    );
+
+    // ==================== ATTENDANCE OVERTIME REPORT ====================
+    getIt.registerLazySingleton<AttendanceOvertimeReportRemoteDataSource>(
+      () => AttendanceOvertimeReportRemoteDataSource(getIt<DioClient>().dio,),
+    );
+    getIt.registerLazySingleton<AttendanceOvertimeReportRepository>(
+      () => AttendanceOvertimeReportRepository(remoteDataSource: getIt<AttendanceOvertimeReportRemoteDataSource>(),),
+    );
+    getIt.registerLazySingleton<GetAttendanceOvertimeReportList>(
+      () => GetAttendanceOvertimeReportList(getIt<AttendanceOvertimeReportRepository>(),),
+    );
+    getIt.registerLazySingleton<GetAttendanceOvertimeReportFormOptions>(
+      () => GetAttendanceOvertimeReportFormOptions(getIt<AttendanceOvertimeReportRepository>(),),
+    );
+    getIt.registerFactory<AttendanceOvertimeReportController>(
+      () => AttendanceOvertimeReportController(getAttendanceOvertimeReportList: getIt<GetAttendanceOvertimeReportList>(), getAttendanceOvertimeReportFormOptions: getIt<GetAttendanceOvertimeReportFormOptions>(),),
+    );
+
+    // ==================== LEAVE REPORT ====================
+    getIt.registerLazySingleton<LeaveReportRemoteDataSource>(
+      () => LeaveReportRemoteDataSource(getIt<DioClient>().dio,),
+    );
+    getIt.registerLazySingleton<LeaveReportRepository>(
+      () => LeaveReportRepository(remoteDataSource: getIt<LeaveReportRemoteDataSource>(),),
+    );
+    getIt.registerLazySingleton<GetLeaveReportList>(
+      () => GetLeaveReportList(getIt<LeaveReportRepository>(),),
+    );
+    getIt.registerLazySingleton<GetLeaveReportFormOptions>(
+      () => GetLeaveReportFormOptions(getIt<LeaveReportRepository>(),),
+    );
+    getIt.registerFactory<LeaveReportController>(
+      () => LeaveReportController(getLeaveReportList: getIt<GetLeaveReportList>(), getLeaveReportFormOptions: getIt<GetLeaveReportFormOptions>(),),
+    );
+
+    // ==================== PAYROLL SUMMARY REPORT ====================
+    getIt.registerLazySingleton<PayrollSummaryReportRemoteDataSource>(
+      () => PayrollSummaryReportRemoteDataSource(getIt<DioClient>().dio,),
+    );
+    getIt.registerLazySingleton<PayrollSummaryReportRepository>(
+      () => PayrollSummaryReportRepository(remoteDataSource: getIt<PayrollSummaryReportRemoteDataSource>(),),
+    );
+    getIt.registerLazySingleton<GetPayrollSummaryReportList>(
+      () => GetPayrollSummaryReportList(getIt<PayrollSummaryReportRepository>(),),
+    );
+    getIt.registerLazySingleton<GetPayrollSummaryReportFormOptions>(
+      () => GetPayrollSummaryReportFormOptions(getIt<PayrollSummaryReportRepository>(),),
+    );
+    getIt.registerFactory<PayrollSummaryReportController>(
+      () => PayrollSummaryReportController( getPayrollSummaryReportList: getIt<GetPayrollSummaryReportList>(), getPayrollSummaryReportFormOptions: getIt<GetPayrollSummaryReportFormOptions>(),),
+    );
+
+    // ==================== My PaySlip ====================
+    getIt.registerLazySingleton<MyPaySlipRemoteDataSource>(
+      () => MyPaySlipRemoteDataSource(getIt<DioClient>().dio,),
+    );
+    getIt.registerLazySingleton<MyPaySlipRepository>(
+      () => MyPaySlipRepository(remoteDataSource: getIt<MyPaySlipRemoteDataSource>(),),
+    );
+    getIt.registerLazySingleton<GetMyPaySlipList>(
+      () => GetMyPaySlipList(getIt<MyPaySlipRepository>(),),
+    );
+    getIt.registerLazySingleton<GetMyPaySlipDetail>(
+      () => GetMyPaySlipDetail(getIt<MyPaySlipRepository>(),),
+    );
+    getIt.registerFactory<MyPaySlipController>(
+      () => MyPaySlipController(getMyPaySlipList: getIt<GetMyPaySlipList>(),),
+    );
+    getIt.registerFactory<MyPaySlipDetailController>(
+      () => MyPaySlipDetailController(getMyPaySlipDetail: getIt<GetMyPaySlipDetail>(),),
     );
 
     // ==================== RECEIPT NOTE ====================
