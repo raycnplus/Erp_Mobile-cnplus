@@ -11,12 +11,14 @@ import 'package:erp_mobile_cnplus/shared/widgets/universal_drawer.dart';
 import 'package:erp_mobile_cnplus/shared/widgets/drawer_menu_config.dart';
 import 'package:erp_mobile_cnplus/shared/widgets/personalized_header.dart';
 import 'package:erp_mobile_cnplus/shared/widgets/stat_card.dart';
+import 'package:erp_mobile_cnplus/core/routes/app_routes.dart';
 import 'package:erp_mobile_cnplus/features/profile/presentation/screens/profile_screen.dart';
+import 'package:erp_mobile_cnplus/features/hr/my_payslip/presentation/screens/my_payslip_detail_screen.dart';
 
 class DashboardHrScreen extends StatefulWidget {
-  final bool isAdmin;
-  const DashboardHrScreen({super.key, this.isAdmin = false});
-
+  const DashboardHrScreen({
+    super.key,
+  });
   @override
   State<DashboardHrScreen> createState() => _DashboardHrScreenState();
 }
@@ -75,39 +77,78 @@ class _DashboardHrScreenState extends State<DashboardHrScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider<HrDashboardController>.value(
-      value: _controller,
-      child: Scaffold(
-        backgroundColor: Colors.grey[100],
-        appBar: _buildAppBar(),
-        drawerScrimColor: Colors.black.withOpacity(0.25),
-        drawer: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
-          child: const UniversalDrawer(currentModule: AppModule.hr),
+@override
+Widget build(BuildContext context) {
+  return ChangeNotifierProvider<HrDashboardController>.value(
+    value: _controller,
+    child: Scaffold(
+      backgroundColor: Colors.grey[100],
+
+      appBar: _buildAppBar(),
+
+      drawerScrimColor:
+          Colors.black.withOpacity(0.25),
+
+      drawer: BackdropFilter(
+        filter: ImageFilter.blur(
+          sigmaX: 2.5,
+          sigmaY: 2.5,
         ),
-        body: Consumer<HrDashboardController>(
-          builder: (context, controller, _) {
-            if (controller.status == HrDashboardStatus.error) {
-              return _buildErrorState(controller);
-            }
-            if (controller.status == HrDashboardStatus.loading) {
-              return const Center(
-                  child: CircularProgressIndicator(color: _themeColor));
-            }
-            if (controller.status == HrDashboardStatus.loaded &&
-                controller.hasData) {
-              return widget.isAdmin
-                  ? _buildAdminDashboard(controller)
-                  : _buildUserDashboard(controller);
-            }
-            return const Center(child: Text('No data available'));
-          },
+        child: const UniversalDrawer(
+          currentModule: AppModule.hr,
         ),
       ),
-    );
-  }
+
+      body: Consumer<HrDashboardController>(
+        builder: (context, controller, _) {
+          if (controller.status ==
+              HrDashboardStatus.error) {
+            return _buildErrorState(
+              controller,
+            );
+          }
+
+          if (controller.status ==
+              HrDashboardStatus.loading) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: _themeColor,
+              ),
+            );
+          }
+
+          if (controller.status ==
+                  HrDashboardStatus.loaded &&
+              controller.hasData) {
+            if (controller.isAdminView) {
+              return _buildAdminDashboard(
+                controller,
+              );
+            }
+
+            if (controller.isStaffView) {
+              return _buildUserDashboard(
+                controller,
+              );
+            }
+
+            return const Center(
+              child: Text(
+                'Unknown dashboard mode',
+              ),
+            );
+          }
+
+          return const Center(
+            child: Text(
+              'No data available',
+            ),
+          );
+        },
+      ),
+    ),
+  );
+}
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
@@ -144,23 +185,109 @@ class _DashboardHrScreenState extends State<DashboardHrScreen> {
           );
         },
       ),
-      actions: [
-        AnimatedBuilder(
-          animation: _scrollController,
-          builder: (context, _) {
-            final p = _scrollController.hasClients
-                ? (_scrollController.offset / _scrollThreshold).clamp(0.0, 1.0)
-                : 0.0;
-            return IconButton(
-              icon: Icon(Icons.person_outline, color: Colors.black,
-                  size: lerpDouble(_initialIconSize, _scrolledIconSize, p)),
-              onPressed: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const ProfileScreen())),
-            );
-          },
+actions: [
+  Consumer<HrDashboardController>(
+    builder: (context, controller, _) {
+      if (!controller.userIsAdmin) {
+        return const SizedBox.shrink();
+      }
+
+      return PopupMenuButton<HrDashboardViewMode>(
+        tooltip: 'Switch Dashboard',
+        icon: const Icon(
+          Icons.swap_horiz_rounded,
+          color: Colors.black,
         ),
-        const SizedBox(width: 8),
-      ],
+        onSelected: (mode) async {
+          if (mode ==
+              HrDashboardViewMode.admin) {
+            await controller
+                .switchToAdminView();
+          } else {
+            await controller
+                .switchToStaffView();
+          }
+        },
+        itemBuilder: (context) {
+          return [
+            PopupMenuItem(
+              value:
+                  HrDashboardViewMode.admin,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.dashboard_outlined,
+                    color:
+                        controller.isAdminView
+                            ? _themeColor
+                            : Colors.grey,
+                  ),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'Admin Dashboard',
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value:
+                  HrDashboardViewMode.staff,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.person_outline,
+                    color:
+                        controller.isStaffView
+                            ? _themeColor
+                            : Colors.grey,
+                  ),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'Personal Dashboard',
+                  ),
+                ],
+              ),
+            ),
+          ];
+        },
+      );
+    },
+  ),
+
+  AnimatedBuilder(
+    animation: _scrollController,
+    builder: (context, _) {
+      final p = _scrollController.hasClients
+          ? (_scrollController.offset /
+                  _scrollThreshold)
+              .clamp(0.0, 1.0)
+          : 0.0;
+
+      return IconButton(
+        icon: Icon(
+          Icons.person_outline,
+          color: Colors.black,
+          size: lerpDouble(
+            _initialIconSize,
+            _scrolledIconSize,
+            p,
+          ),
+        ),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) =>
+                  const ProfileScreen(),
+            ),
+          );
+        },
+      );
+    },
+  ),
+
+  const SizedBox(width: 8),
+],
     );
   }
 
@@ -187,9 +314,12 @@ class _DashboardHrScreenState extends State<DashboardHrScreen> {
         ),
       );
 
+  // ================================================================
+  // ADMIN DASHBOARD
+  // ================================================================
   Widget _buildAdminDashboard(HrDashboardController controller) {
-    final data = controller.dashboardData!;
-    final s = data.todaySummary;
+    final admin = controller.dashboardData!.admin!;
+    final s = admin.todaySummary;
 
     return RefreshIndicator(
       onRefresh: controller.refresh,
@@ -246,44 +376,19 @@ class _DashboardHrScreenState extends State<DashboardHrScreen> {
             _buildEmployeeStatusCard(s),
             const SizedBox(height: 24),
 
-            _buildAttendanceChartCard(data.charts.attendance7Days),
+            _buildAttendanceChartCard(
+              admin.charts.attendance7Days,
+            ),
             const SizedBox(height: 24),
 
-            _buildTopLateCard(data.topLateEmployees),
-            const SizedBox(height: 24),
-            _buildTopPresentCard(data.topPresentEmployees),
-            const SizedBox(height: 32),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildUserDashboard(HrDashboardController controller) {
-    final data = controller.dashboardData!;
-    final s = data.todaySummary;
-
-    return RefreshIndicator(
-      onRefresh: controller.refresh,
-      color: _themeColor,
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const PersonalizedHeader(),
+            _buildTopLateCard(
+              admin.topLateEmployees,
+            ),
             const SizedBox(height: 24),
 
-            _buildUserTodayCard(s),
-            const SizedBox(height: 24),
-
-            _buildUserAttendanceRateCard(s),
-            const SizedBox(height: 24),
-
-            _buildAttendanceChartCard(data.charts.attendance7Days),
-            const SizedBox(height: 32),
+            _buildTopPresentCard(
+              admin.topPresentEmployees,
+            ),
           ],
         ),
       ),
@@ -596,8 +701,9 @@ class _DashboardHrScreenState extends State<DashboardHrScreen> {
                             reservedSize: 28,
                             getTitlesWidget: (val, meta) {
                               final i = val.toInt();
-                              if (i >= chart.labels.length)
+                              if (i >= chart.labels.length) {
                                 return const SizedBox.shrink();
+                              }
                               final parts = chart.labels[i].split(' ');
                               final short = parts.length >= 2
                                   ? '${parts[0]}\n${parts[1]}'
@@ -617,8 +723,9 @@ class _DashboardHrScreenState extends State<DashboardHrScreen> {
                             showTitles: true,
                             reservedSize: 30,
                             getTitlesWidget: (val, meta) {
-                              if (val == meta.min || val == meta.max)
+                              if (val == meta.min || val == meta.max) {
                                 return const SizedBox.shrink();
+                              }
                               return Text(val.toInt().toString(),
                                   style: GoogleFonts.poppins(
                                       fontSize: 10,
@@ -795,8 +902,7 @@ class _DashboardHrScreenState extends State<DashboardHrScreen> {
     final bgColor = isTop3
         ? badgeColors[rank - 1].withOpacity(0.12)
         : _themeColor.withOpacity(0.08);
-    final textColor =
-        isTop3 ? badgeColors[rank - 1] : _themeColor;
+    final textColor = isTop3 ? badgeColors[rank - 1] : _themeColor;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -835,144 +941,578 @@ class _DashboardHrScreenState extends State<DashboardHrScreen> {
     );
   }
 
-  Widget _buildUserTodayCard(HrTodaySummary s) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [_themeColor, _themeColor.withOpacity(0.7)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+  // ================================================================
+  // STAFF DASHBOARD (tanpa shortcut menu)
+  // ================================================================
+  Widget _buildUserDashboard(HrDashboardController controller) {
+    final staff = controller.dashboardData!.staff!;
+
+    return RefreshIndicator(
+      onRefresh: controller.refresh,
+      color: _themeColor,
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const PersonalizedHeader(),
+            const SizedBox(height: 20),
+
+            // TODAY STATUS
+            _buildTodayStatusCard(staff.todayAttendance),
+            const SizedBox(height: 16),
+
+            // KPI CARDS
+            _buildKpiRow(staff.monthlyStats, staff.leave, staff.overtime),
+            const SizedBox(height: 20),
+
+            // LATE CHART (14 DAYS)
+            _buildStaffAttendanceChart(staff.charts.attendanceLate14Days),
+            const SizedBox(height: 20),
+
+            // PAYSLIP + RIWAYAT ABSENSI
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth > 700;
+                final payslip = _buildPayslipPanel(staff.latestPayslip);
+                final history =
+                    _buildAttendanceHistoryTable(staff.recentAttendance);
+
+                if (isWide) {
+                  return IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(flex: 4, child: payslip),
+                        const SizedBox(width: 16),
+                        Expanded(flex: 6, child: history),
+                      ],
+                    ),
+                  );
+                }
+                return Column(
+                  children: [
+                    payslip,
+                    const SizedBox(height: 16),
+                    history,
+                  ],
+                );
+              },
+            ),
+
+            const SizedBox(height: 32),
+          ],
         ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-              color: _themeColor.withOpacity(0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4))
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Today',
-                  style: GoogleFonts.poppins(
-                      color: Colors.white70, fontSize: 14)),
-              Text(DateFormat('EEEE, dd MMM').format(DateTime.now()),
-                  style: GoogleFonts.poppins(
-                      color: Colors.white70, fontSize: 13)),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _userTodayInfoItem(
-                  'Checked In',
-                  s.checkedIn > 0 ? 'Present' : 'Not Yet',
-                  s.checkedIn > 0
-                      ? Icons.check_circle
-                      : Icons.radio_button_unchecked,
-                  s.checkedIn > 0 ? Colors.greenAccent : Colors.white60),
-              const SizedBox(width: 20),
-              _userTodayInfoItem(
-                  'Checked Out',
-                  s.checkedOut > 0 ? 'Done' : 'Not Yet',
-                  s.checkedOut > 0
-                      ? Icons.check_circle
-                      : Icons.radio_button_unchecked,
-                  s.checkedOut > 0 ? Colors.greenAccent : Colors.white60),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('On Leave: ${s.onLeave}',
-                    style: GoogleFonts.poppins(
-                        color: Colors.white, fontSize: 13)),
-                Text('Late: ${s.lateToday}',
-                    style: GoogleFonts.poppins(
-                        color: Colors.white, fontSize: 13)),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
 
-  Widget _userTodayInfoItem(
-      String label, String value, IconData icon, Color iconColor) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [
-            Icon(icon, color: iconColor, size: 18),
-            const SizedBox(width: 6),
-            Text(label,
-                style: GoogleFonts.poppins(
-                    color: Colors.white70, fontSize: 12)),
-          ]),
-          const SizedBox(height: 4),
-          Text(value,
-              style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16)),
-        ],
-      ),
-    );
-  }
+  // ---------------- TODAY STATUS ----------------
+  Widget _buildTodayStatusCard(HrStaffTodayAttendance attendance) {
+    final checkedIn = attendance.checkedIn;
+    final checkedOut = attendance.checkedOut;
 
-  Widget _buildUserAttendanceRateCard(HrTodaySummary s) {
+    String statusLabel;
+    Color statusColor;
+    if (!checkedIn) {
+      statusLabel = 'Not Checked In';
+      statusColor = Colors.grey;
+    } else if (attendance.lateMinutes > 0) {
+      statusLabel = 'Late';
+      statusColor = Colors.orange;
+    } else {
+      statusLabel = 'Present';
+      statusColor = Colors.green;
+    }
+
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2))
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Text('Today Status',
+              style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey.shade600)),
+          const SizedBox(height: 14),
+          if (!checkedIn)
+            Center(
+              child: Column(
+                children: [
+                  Text("You haven't checked in today.",
+                      style: GoogleFonts.poppins(
+                          fontSize: 13, color: Colors.grey.shade600)),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRoutes.attendance);
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: _themeColor,
+                        foregroundColor: Colors.white),
+                    child: const Text('Check In Now'),
+                  ),
+                ],
+              ),
+            )
+          else
+            Row(
               children: [
-                Text('Attendance Rate',
-                    style: GoogleFonts.poppins(
-                        fontSize: 16, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 4),
-                Text('Company-wide today',
-                    style: GoogleFonts.poppins(
-                        fontSize: 12, color: Colors.grey.shade600)),
+                Expanded(
+                  child:
+                      _todayStatusItem('Check In', attendance.checkInTime),
+                ),
+                Expanded(
+                  child: _todayStatusItem(
+                      'Check Out',
+                      checkedOut ? attendance.checkOutTime : '-'),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Status',
+                          style: GoogleFonts.poppins(
+                              fontSize: 11, color: Colors.grey.shade600)),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: statusColor.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(statusLabel,
+                            style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: statusColor)),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: _todayStatusItem(
+                      'Late',
+                      attendance.lateMinutes > 0
+                          ? '${attendance.lateMinutes} minute'
+                          : '-'),
+                ),
               ],
             ),
-          ),
-          Text('${s.attendanceRate.toStringAsFixed(1)}%',
-              style: GoogleFonts.poppins(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w700,
-                  color: _themeColor)),
         ],
       ),
     );
   }
+
+  Widget _todayStatusItem(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: GoogleFonts.poppins(
+                fontSize: 11, color: Colors.grey.shade600)),
+        const SizedBox(height: 4),
+        Text(value,
+            style:
+                GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w700)),
+      ],
+    );
+  }
+
+// ---------------- KPI CARDS ----------------
+Widget _buildKpiRow(
+  HrStaffMonthlyStats monthlyStats,
+  HrStaffLeave leave,
+  HrStaffOvertime overtime,
+) {
+  final items = [
+    _KpiItem('Attendance Record for This Month',
+        monthlyStats.presentDays.toString(), ''),
+    _KpiItem('Leave Quota Remaining',
+        leave.remaining.toStringAsFixed(1), 'days'),
+    _KpiItem('Overtime for This Month', overtime.thisMonthDisplay, ''),
+    _KpiItem('Total Late', monthlyStats.lateDays.toString(), 'days'),
+  ];
+
+  return Column(
+    children: [
+      IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(child: _kpiCard(items[0])),
+            const SizedBox(width: 10),
+            Expanded(child: _kpiCard(items[1])),
+          ],
+        ),
+      ),
+      const SizedBox(height: 10),
+      IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(child: _kpiCard(items[2])),
+            const SizedBox(width: 10),
+            Expanded(child: _kpiCard(items[3])),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+Widget _kpiCard(_KpiItem item) {
+  return Container(
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 8,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(item.label,
+            style: GoogleFonts.poppins(
+                fontSize: 11, color: Colors.grey.shade600)),
+        const SizedBox(height: 6),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(item.value,
+                style: GoogleFonts.poppins(
+                    fontSize: 20, fontWeight: FontWeight.w700)),
+            if (item.unit.isNotEmpty) ...[
+              const SizedBox(width: 4),
+              Text(item.unit,
+                  style: GoogleFonts.poppins(
+                      fontSize: 12, color: Colors.grey.shade600)),
+            ],
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+  // ---------------- LATE ATTENDANCE CHART (14 DAYS) ----------------
+  Widget _buildStaffAttendanceChart(AttendanceLate14DaysChart chart) {
+    return _buildWhiteCard(
+      title: 'Late Attendance - 14 Days',
+      icon: Icons.bar_chart_rounded,
+      child: SizedBox(
+        height: 200,
+        child: chart.labels.isEmpty
+            ? Center(
+                child: Text(
+                  'No data',
+                  style: GoogleFonts.poppins(
+                    color: Colors.grey,
+                  ),
+                ),
+              )
+            : BarChart(
+                BarChartData(
+                  borderData: FlBorderData(
+                    show: false,
+                  ),
+                  gridData: FlGridData(
+                    drawVerticalLine: false,
+                    getDrawingHorizontalLine: (value) {
+                      return FlLine(
+                        color: Colors.grey.shade200,
+                        strokeWidth: 1,
+                      );
+                    },
+                  ),
+                  titlesData: FlTitlesData(
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: false,
+                      ),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: false,
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 28,
+                        getTitlesWidget: (value, meta) {
+                          final index = value.toInt();
+
+                          if (index < 0 || index >= chart.labels.length) {
+                            return const SizedBox.shrink();
+                          }
+
+                          return SideTitleWidget(
+                            meta: meta,
+                            child: Text(
+                              chart.labels[index],
+                              style: GoogleFonts.poppins(
+                                fontSize: 8,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    leftTitles: const AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 30,
+                      ),
+                    ),
+                  ),
+                  barGroups: List.generate(
+                    chart.labels.length,
+                    (index) {
+                      final value = chart.lateMinutes.length > index
+                          ? chart.lateMinutes[index].toDouble()
+                          : 0.0;
+
+                      return BarChartGroupData(
+                        x: index,
+                        barRods: [
+                          BarChartRodData(
+                            toY: value,
+                            color: Colors.orange.shade300,
+                            width: 12,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(4),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+
+  // ---------------- PAYSLIP PANEL ----------------
+  Widget _buildPayslipPanel(HrStaffPayslip? payslip) {
+    return _buildWhiteCard(
+      title: 'Last PaySlip',
+      icon: Icons.payments_outlined,
+      child: payslip == null
+          ? Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Text('No payslip is available yet.',
+                  style: GoogleFonts.poppins(color: Colors.grey.shade600)),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(payslip.periodName,
+                    style: GoogleFonts.poppins(
+                        fontSize: 12, color: Colors.grey.shade600)),
+                const SizedBox(height: 6),
+                Text(
+                  NumberFormat.currency(
+                          locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
+                      .format(payslip.takeHomePay),
+                  style: GoogleFonts.poppins(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.green.shade700),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: payslip.encryption == null ||
+                            payslip.encryption!.isEmpty
+                        ? null
+                        : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => MyPaySlipDetailScreen(
+                                  encryption: payslip.encryption!,
+                                ),
+                              ),
+                            );
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _themeColor,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Show PaySlip Detail'),
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+
+  // ---------------- ATTENDANCE HISTORY TABLE ----------------
+  Widget _buildAttendanceHistoryTable(List<HrRecentAttendance> items) {
+    return _buildWhiteCard(
+      title: 'Attendance History for the Last 7 Days',
+      icon: Icons.table_rows_outlined,
+      child: items.isEmpty
+          ? Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text('There is no attendance data yet.',
+                    style: GoogleFonts.poppins(color: Colors.grey)),
+              ),
+            )
+          : SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                headingRowColor:
+                    MaterialStateProperty.all(_themeColor.withOpacity(0.08)),
+                columns: [
+                  DataColumn(
+                      label: Text('Date',
+                          style: GoogleFonts.poppins(
+                              fontSize: 12, fontWeight: FontWeight.w600))),
+                  DataColumn(
+                      label: Text('Check In',
+                          style: GoogleFonts.poppins(
+                              fontSize: 12, fontWeight: FontWeight.w600))),
+                  DataColumn(
+                      label: Text('Check Out',
+                          style: GoogleFonts.poppins(
+                              fontSize: 12, fontWeight: FontWeight.w600))),
+                  DataColumn(
+                      label: Text('Status',
+                          style: GoogleFonts.poppins(
+                              fontSize: 12, fontWeight: FontWeight.w600))),
+                ],
+                rows: items.map((row) {
+                  return DataRow(cells: [
+                    DataCell(Text(row.date,
+                        style: GoogleFonts.poppins(fontSize: 12))),
+                    DataCell(Text(row.checkIn,
+                        style: GoogleFonts.poppins(fontSize: 12))),
+                    DataCell(Text(row.checkOut,
+                        style: GoogleFonts.poppins(fontSize: 12))),
+                    DataCell(_statusBadge(row.status)),
+                  ]);
+                }).toList(),
+              ),
+            ),
+    );
+  }
+
+  Widget _statusBadge(String status) {
+    Color color;
+    switch (status.toLowerCase()) {
+      case 'present':
+        color = Colors.green;
+        break;
+      case 'late':
+        color = Colors.orange;
+        break;
+      case 'permission':
+        color = Colors.blue;
+        break;
+      default:
+        color = Colors.grey;
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        status.isEmpty ? '-' : status[0].toUpperCase() + status.substring(1),
+        style: GoogleFonts.poppins(
+            fontSize: 11, fontWeight: FontWeight.w600, color: color),
+      ),
+    );
+  }
+
+  // ---------------- SHARED WHITE CARD ----------------
+Widget _buildWhiteCard({
+  required String title,
+  required IconData icon,
+  required Widget child,
+}) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              color: _themeColor,
+              size: 22,
+            ),
+            const SizedBox(width: 8),
+            Expanded(                                  // ⬅️ TAMBAH INI
+              child: Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 2,                            // ⬅️ TAMBAH INI
+                overflow: TextOverflow.ellipsis,         // ⬅️ TAMBAH INI
+              ),
+            ),                                          // ⬅️ TUTUP Expanded
+          ],
+        ),
+        const SizedBox(height: 16),
+        child,
+      ],
+    ),
+  );
+}
+}
+
+class _KpiItem {
+  final String label;
+  final String value;
+  final String unit;
+  _KpiItem(this.label, this.value, this.unit);
 }
 
 class _DonutChartPainter extends CustomPainter {
@@ -1010,7 +1550,7 @@ class _DonutChartPainter extends CustomPainter {
       ..strokeCap = StrokeCap.butt;
 
     const gap = 0.02;
-    double startAngle = -1.5707963; 
+    double startAngle = -1.5707963;
 
     final segments = [
       MapEntry(checkedIn, Colors.green),

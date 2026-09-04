@@ -3,16 +3,28 @@ import 'package:erp_mobile_cnplus/features/hr/dashboard/data/models/hr_dashboard
 
 class HrDashboardRepository {
   final HrRemoteDataSource remoteDataSource;
-  HrDashboardRepository({required this.remoteDataSource});
+
+  HrDashboardRepository({
+    required this.remoteDataSource,
+  });
 
   Future<HrDashboardData> getDashboardData({
     String? startDate,
     String? endDate,
   }) async {
-    final raw = await remoteDataSource.getDashboardData(
+    final raw =
+        await remoteDataSource.getDashboardData(
       startDate: startDate,
       endDate: endDate,
     );
+
+    return HrDashboardData.fromJson(raw);
+  }
+
+  Future<HrDashboardData> getStaffDashboardData() async {
+    final raw =
+        await remoteDataSource.getStaffDashboardData();
+
     return HrDashboardData.fromJson(raw);
   }
 }
