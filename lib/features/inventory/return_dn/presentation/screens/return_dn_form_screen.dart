@@ -1,0 +1,87 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:erp_mobile_cnplus/features/inventory/return_dn/presentation/controllers/return_dn_controller.dart';
+import 'package:erp_mobile_cnplus/features/inventory/return_dn/data/models/return_dn_models.dart';
+import 'package:erp_mobile_cnplus/features/inventory/return_dn/presentation/widgets/return_dn_form_fields.dart';
+import 'package:erp_mobile_cnplus/core/utils/colors.dart';
+
+class ReturnDNFormScreen extends StatefulWidget {
+  final String? encryption;
+  const ReturnDNFormScreen({super.key, this.encryption});
+
+  @override
+  State<ReturnDNFormScreen> createState() => _State();
+}
+
+class _State extends State<ReturnDNFormScreen> {
+  late ReturnDNFormModel _form;
+  bool _isInitialized = false;
+
+  bool get isEditMode => widget.encryption != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _form = ReturnDNFormModel(encryption: widget.encryption);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _init());
+  }
+
+  Future<void> _init() async {
+    if (!mounted) return;
+    final ctrl = context.read<ReturnDNController>();
+    try {
+      await ctrl.fetchFormOptions();
+      if (isEditMode) {
+        await ctrl.fetchDetail(widget.encryption!);
+        if (!mounted) return;
+        final d = ctrl.detail;
+        if (d != null) {
+          if (!d.canEdit) {
+            if (mounted) Navigator.pop(context);
+            return;
+          }
+          _form = ReturnDNFormModel.fromDetail(d);
+        }
+      }
+    } catch (_) {}
+    if (!mounted) return;
+    setState(() => _isInitialized = true);
+  }
+
+  void _snack(String msg, {bool success = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(msg), backgroundColor: success ? colorSuccess : colorError,
+      behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    ));
+  }
+
+  Future<void> _handleSave() async {
+    final ctrl = context.read<ReturnDNController>();
+    final success = await ctrl.save(_form);
+    if (!mounted) return;
+    _snack(success ? ctrl.successMessage! : ctrl.formError ?? 'Failed', success: success);
+    if (success) Navigator.pop(context, true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(isEditMode ? 'Edit Return DN' : 'Create Return DN', style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: colorTextPrimary)),
+        elevation: 1, backgroundColor: colorWhite, foregroundColor: colorTextPrimary,
+      ),
+      body: Consumer<ReturnDNController>(
+        builder: (_, ctrl, __) {
+          if (!_isInitialized || ctrl.isLoadingOptions || (isEditMode && ctrl.isLoadingDetail)) {
+            return const Center(child: CircularProgressIndicator(color: colorPrimary));
+          }
+          return Stack(children: [
+            ReturnDNFormFields(formData: _form, formOptions: ctrl.formOptions, onSave: _handleSave, isSaving: ctrl.isSaving),
+            if (ctrl.isSaving) Container(color: Colors.black26, child: const Center(child: CircularProgressIndicator(color: colorPrimary))),
+          ]);
+        },
+      ),
+    );
+  }
+}
