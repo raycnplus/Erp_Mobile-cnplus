@@ -23,7 +23,7 @@ class InventoryRemoteDataSourceImpl
   }) async {
     try {
       final response = await _dioClient.dio.get(
-        '/inventory/',
+        '/inventory',
         queryParameters: {
           if (startDate != null) 'start_date': startDate,
           if (endDate != null) 'end_date': endDate,
