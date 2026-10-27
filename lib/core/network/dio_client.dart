@@ -5,43 +5,33 @@ import 'package:erp_mobile_cnplus/core/config/app_config.dart';
 class DioClient {
   static final DioClient _instance = DioClient._internal();
   factory DioClient() => _instance;
-  
+
   late final Dio _dio;
   late final Dio _dioWithoutInterceptor;
   final _storage = const FlutterSecureStorage();
-  
+
   bool _isRefreshing = false;
   final List<Function> _pendingRequests = [];
-  
+
   DioClient._internal() {
-    _dio = Dio(
-      BaseOptions(
-        baseUrl: AppConfig.baseUrl,
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 60),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-      ),
-    );
-    
-    _dioWithoutInterceptor = Dio(
-      BaseOptions(
-        baseUrl: AppConfig.baseUrl,
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 60),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-      ),
-    );
-    
+    _dio = Dio(_buildOptions());
+    _dioWithoutInterceptor = Dio(_buildOptions());
+
     _dio.interceptors.add(_authInterceptor());
     _dio.interceptors.add(_loggerInterceptor());
   }
-  
+
+  BaseOptions _buildOptions() => BaseOptions(
+        baseUrl: AppConfig.baseUrl,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 60),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          if (AppConfig.hostHeader != null) 'Host': AppConfig.hostHeader,
+        },
+      );
+
   Dio get dio => _dio;
   
   InterceptorsWrapper _authInterceptor() {
@@ -188,12 +178,6 @@ class DioClient {
           'token': oldToken,
           'database': database,
         },
-        options: Options(
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-        ),
       );
       
       if (response.statusCode == 200 && response.data['token'] != null) {
