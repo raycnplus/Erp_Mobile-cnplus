@@ -14,7 +14,7 @@ class AccountingRemoteDataSourceImpl implements AccountingRemoteDataSource {
   Future<Map<String, dynamic>> getDashboardData({String? startDate, String? endDate}) async {
     try {
       final response = await _dioClient.dio.get(
-        '/accounting/',
+        '/accounting',
         queryParameters: {
           if (startDate != null) 'start_date': startDate,
           if (endDate != null)   'end_date':   endDate,
