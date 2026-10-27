@@ -18,7 +18,7 @@ class ManufacturingRemoteDataSourceImpl implements ManufacturingRemoteDataSource
   }) async {
     try {
       final response = await _dioClient.dio.get(
-        '/manufacturing/',
+        '/manufacturing',
         queryParameters: {
           if (startDate != null) 'start_date': startDate,
           if (endDate != null) 'end_date': endDate,
