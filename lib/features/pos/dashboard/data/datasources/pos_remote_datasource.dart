@@ -7,7 +7,7 @@ class PosRemoteDataSource {
 
   Future<PosDashboardResponse> getDashboard({String? startDate, String? endDate}) async {
     try {
-      final response = await dio.get('/pos/', queryParameters: {
+      final response = await dio.get('/pos', queryParameters: {
         if (startDate != null) 'start_date': startDate,
         if (endDate != null) 'end_date': endDate,
       });
