@@ -19,6 +19,7 @@ class StorePaginationMeta {
 }
 
 class StoreModel {
+  final int idStore;
   final String encryption;
   final String storeName;
   final String address;
@@ -27,6 +28,7 @@ class StoreModel {
   final bool hasActiveSession;
 
   StoreModel({
+    required this.idStore,
     required this.encryption,
     required this.storeName,
     required this.address,
@@ -36,6 +38,7 @@ class StoreModel {
   });
 
   factory StoreModel.fromJson(Map<String, dynamic> json) => StoreModel(
+        idStore: _pi(json['id_store']),
         encryption: json['encryption']?.toString() ?? '',
         storeName: json['store_name']?.toString() ?? '',
         address: json['address']?.toString() ?? '',
