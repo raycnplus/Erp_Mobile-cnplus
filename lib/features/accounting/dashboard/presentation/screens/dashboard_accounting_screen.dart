@@ -9,6 +9,9 @@ import 'package:erp_mobile_cnplus/features/accounting/dashboard/presentation/con
 import 'package:erp_mobile_cnplus/features/accounting/dashboard/presentation/widgets/accounting_dashboard_shimmer.dart';
 import 'package:erp_mobile_cnplus/features/accounting/dashboard/presentation/widgets/accounting_bar_chart_widget.dart';
 import 'package:erp_mobile_cnplus/features/accounting/dashboard/presentation/widgets/accounting_aging_card.dart';
+import 'package:erp_mobile_cnplus/features/accounting/dashboard/presentation/widgets/accounting_kpi_card.dart';
+import 'package:erp_mobile_cnplus/features/accounting/dashboard/presentation/widgets/accounting_financial_chart.dart';
+import 'package:erp_mobile_cnplus/features/accounting/dashboard/presentation/widgets/accounting_top_customer_card.dart';
 import 'package:erp_mobile_cnplus/shared/helpers/formatters.dart';
 import 'package:erp_mobile_cnplus/shared/widgets/stat_card.dart';
 import 'package:erp_mobile_cnplus/shared/widgets/personalized_header.dart';
@@ -26,7 +29,8 @@ class DashboardAccountingScreen extends StatefulWidget {
 class _DashboardAccountingScreenState extends State<DashboardAccountingScreen> {
   late AccountingDashboardController _controller;
   late ScrollController _scrollController;
-  int _selectedChart = 0; // 0 = Top 5 Revenue, 1 = Top 5 Expense
+  bool _isChartView = false; 
+  int _selectedChart = 0;    
 
   final Alignment _initialTitleAlignment = const Alignment(-0.6, 0.0);
   final Alignment _scrolledTitleAlignment = const Alignment(-1.20, 0.0);
@@ -42,6 +46,8 @@ class _DashboardAccountingScreenState extends State<DashboardAccountingScreen> {
 
   static const Color _themeColor = Color(0xFF029379);
   final _dateFormat = DateFormat('dd MMM yyyy');
+
+  static const Map<String, int> _ratios = {'ROA': 56, 'ROI': 70, 'ROE': 64};
 
   @override
   void initState() {
@@ -223,20 +229,9 @@ class _DashboardAccountingScreenState extends State<DashboardAccountingScreen> {
     );
   }
 
-  Widget _buildChartToggleButtons() {
-    return Row(
-      children: [
-        Expanded(child: _buildToggleButton('Top 5 Revenue', 0)),
-        const SizedBox(width: 10),
-        Expanded(child: _buildToggleButton('Top 5 Expense', 1)),
-      ],
-    );
-  }
-
-  Widget _buildToggleButton(String label, int index) {
-    final isSelected = _selectedChart == index;
+  Widget _buildPill(String label, bool isSelected, VoidCallback onTap) {
     return GestureDetector(
-      onTap: () => setState(() => _selectedChart = index),
+      onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         height: 45,
@@ -271,20 +266,33 @@ class _DashboardAccountingScreenState extends State<DashboardAccountingScreen> {
     );
   }
 
+  Widget _buildViewToggle() {
+    return Row(
+      children: [
+        Expanded(child: _buildPill('Detailed', !_isChartView, () => setState(() => _isChartView = false))),
+        const SizedBox(width: 10),
+        Expanded(child: _buildPill('Chart', _isChartView, () => setState(() => _isChartView = true))),
+      ],
+    );
+  }
+
+  Widget _buildChartToggleButtons() {
+    return Row(
+      children: [
+        Expanded(child: _buildPill('Top 5 Revenue', _selectedChart == 0, () => setState(() => _selectedChart = 0))),
+        const SizedBox(width: 10),
+        Expanded(child: _buildPill('Top 5 Expense', _selectedChart == 1, () => setState(() => _selectedChart = 1))),
+      ],
+    );
+  }
+
   List<AccountingChartData> _transformToChartData(List<TopListData> items, Color? color) {
-    return items.map((item) => AccountingChartData(
-      label: item.title,
-      value: _parseAmount(item.value),
-      color: color,
-    )).toList();
+    return items
+        .map((item) => AccountingChartData(label: item.title, value: item.amount, color: color))
+        .toList();
   }
 
-  double _parseAmount(String value) {
-    final cleaned = value.replaceAll('Rp', '').replaceAll('.', '').trim();
-    return double.tryParse(cleaned) ?? 0;
-  }
-
-  Widget _buildTopRevenueTable(List<TopListData> items) {
+  Widget _buildTopTable(String title, List<TopListData> items, Color accent) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -295,7 +303,7 @@ class _DashboardAccountingScreenState extends State<DashboardAccountingScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Top 5 Revenue',
+              title,
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -307,10 +315,8 @@ class _DashboardAccountingScreenState extends State<DashboardAccountingScreen> {
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(32),
-                  child: Text(
-                    'No data available',
-                    style: GoogleFonts.poppins(color: Colors.grey.shade500),
-                  ),
+                  child: Text('No data available',
+                      style: GoogleFonts.poppins(color: Colors.grey.shade500)),
                 ),
               )
             else
@@ -319,7 +325,7 @@ class _DashboardAccountingScreenState extends State<DashboardAccountingScreen> {
                 child: DataTable(
                   columnSpacing: 16,
                   headingRowColor: WidgetStateProperty.resolveWith(
-                    (states) => _themeColor.withOpacity(0.05),
+                    (states) => accent.withOpacity(0.05),
                   ),
                   columns: const [
                     DataColumn(label: Text('No')),
@@ -343,11 +349,11 @@ class _DashboardAccountingScreenState extends State<DashboardAccountingScreen> {
                         ),
                         DataCell(
                           Text(
-                            item.value,
+                            formatCurrency(item.amount),
                             style: GoogleFonts.poppins(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: _themeColor,
+                              color: accent,
                             ),
                           ),
                         ),
@@ -362,7 +368,26 @@ class _DashboardAccountingScreenState extends State<DashboardAccountingScreen> {
     );
   }
 
-  Widget _buildTopExpenseTable(List<TopListData> items) {
+  Widget _buildBarChartWithHint(String key, List<AccountingChartData> data, String title) {
+    return Column(
+      key: ValueKey(key),
+      children: [
+        AccountingBarChart(data: data, title: title),
+        const SizedBox(height: 8),
+        Text(
+          "Tap a bar for more details",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade600,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRatioCard() {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -372,68 +397,49 @@ class _DashboardAccountingScreenState extends State<DashboardAccountingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Top 5 Expense',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.pie_chart_outline, color: Colors.orange, size: 24),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Ratio',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
-            if (items.isEmpty)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(32),
-                  child: Text(
-                    'No data available',
-                    style: GoogleFonts.poppins(color: Colors.grey.shade500),
-                  ),
-                ),
-              )
-            else
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: DataTable(
-                  columnSpacing: 16,
-                  headingRowColor: WidgetStateProperty.resolveWith(
-                    (states) => Colors.red.withOpacity(0.05),
-                  ),
-                  columns: const [
-                    DataColumn(label: Text('No')),
-                    DataColumn(label: Text('Reference')),
-                    DataColumn(label: Text('Total Amount')),
-                  ],
-                  rows: List.generate(items.length, (index) {
-                    final item = items[index];
-                    return DataRow(
-                      cells: [
-                        DataCell(Text('${index + 1}')),
-                        DataCell(
-                          SizedBox(
-                            width: 150,
-                            child: Text(
-                              item.title,
-                              style: GoogleFonts.poppins(fontSize: 13),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
+            Row(
+              children: _ratios.entries.map((e) {
+                return Expanded(
+                  child: Column(
+                    children: [
+                      Text(e.key,
+                          style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600)),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${e.value}%',
+                        style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: _themeColor,
                         ),
-                        DataCell(
-                          Text(
-                            item.value,
-                            style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.red,
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
-                ),
-              ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
           ],
         ),
       ),
@@ -442,27 +448,13 @@ class _DashboardAccountingScreenState extends State<DashboardAccountingScreen> {
 
   Widget _buildDashboardContent(AccountingDashboardController controller) {
     final data = controller.dashboardData!;
-    final summary = data.summary;
-
-    // Hitung ratio
-    final double roa = summary.totalInvoice > 0 
-        ? (summary.totalInvoice / 1000000000) * 100
-        : 56.0;
-    final double roi = summary.totalSalesOrder > 0 
-        ? (summary.totalSalesOrder / 1000000000) * 100
-        : 70.0;
-    final double roe = (summary.totalInvoice - summary.totalBill) > 0 
-        ? ((summary.totalInvoice - summary.totalBill) / 1000000000) * 100
-        : 64.0;
-
-    final topRevenueData = _transformToChartData(data.topRevenue, _themeColor);
-    final topExpenseData = _transformToChartData(data.topExpense, Colors.red);
 
     return RefreshIndicator(
       onRefresh: controller.refresh,
       color: _themeColor,
       child: SingleChildScrollView(
         controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -471,212 +463,177 @@ class _DashboardAccountingScreenState extends State<DashboardAccountingScreen> {
             const SizedBox(height: 16),
 
             _buildDateFilter(controller),
+            const SizedBox(height: 12),
+
+            _buildViewToggle(),
             const SizedBox(height: 16),
 
-            // 4 STAT CARDS: Current Income, Receivables, Current Expense, Payables
-            Row(
-              children: [
-                Expanded(
-                  child: StatCard(
-                    title: "Current Income",
-                    value: formatCurrency(summary.totalInvoice),
-                    icon: Icons.attach_money,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: StatCard(
-                    title: "Receivables",
-                    value: formatCurrency(summary.totalInvoice),
-                    icon: Icons.receipt_outlined,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: StatCard(
-                    title: "Current Expense",
-                    value: formatCurrency(summary.totalBill),
-                    icon: Icons.trending_down,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: StatCard(
-                    title: "Payables",
-                    value: formatCurrency(summary.totalBill),
-                    icon: Icons.payment_outlined,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // TOGGLE BUTTONS (Top 5 Revenue / Top 5 Expense)
-            _buildChartToggleButtons(),
-            const SizedBox(height: 16),
-
-            // BAR CHART (sesuai toggle)
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: _selectedChart == 0
-                  ? Column(
-                      key: const ValueKey('top5revenue'),
-                      children: [
-                        AccountingBarChart(
-                          data: topRevenueData,
-                          title: "Top 5 Revenue",
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Tap a bar for more details",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade600,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    )
-                  : Column(
-                      key: const ValueKey('top5expense'),
-                      children: [
-                        AccountingBarChart(
-                          data: topExpenseData,
-                          title: "Top 5 Expense",
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Tap a bar for more details",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade600,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-            ),
-            const SizedBox(height: 24),
-
-            // TABLES: Top 5 Revenue & Top 5 Expense
-            _buildTopRevenueTable(data.topRevenue),
-            const SizedBox(height: 24),
-            _buildTopExpenseTable(data.topExpense),
-            const SizedBox(height: 24),
-
-            // RATIO CARD
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(Icons.pie_chart_outline, color: Colors.orange, size: 24),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          'Ratio',
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            children: [
-                              Text('ROA', style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600)),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${roa.toStringAsFixed(0)}%',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: _themeColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            children: [
-                              Text('ROI', style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600)),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${roi.toStringAsFixed(0)}%',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: _themeColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            children: [
-                              Text('ROE', style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600)),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${roe.toStringAsFixed(0)}%',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: _themeColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // AGING PIUTANG & AGING UTANG
-            AccountingAgingCard(
-              title: 'Aging Piutang (Receivables)',
-              items: data.agingPiutang,
-              isReceivable: true,
-            ),
-            const SizedBox(height: 24),
-
-            AccountingAgingCard(
-              title: 'Aging Utang (Payables)',
-              items: data.agingUtang,
-              isReceivable: false,
-            ),
-            const SizedBox(height: 32),
+            if (_isChartView) ..._buildChartView(data) else ..._buildDetailedView(data),
           ],
         ),
       ),
     );
+  }
+
+  List<Widget> _buildDetailedView(AccountingDashboardResponse data) {
+    final summary = data.summary;
+    final topRevenueData = _transformToChartData(data.topRevenue, _themeColor);
+    final topExpenseData = _transformToChartData(data.topExpense, Colors.red);
+
+    return [
+      Row(
+        children: [
+          Expanded(
+            child: StatCard(
+              title: "Current Income",
+              value: formatCurrency(summary.totalInvoice),
+              icon: Icons.attach_money,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: StatCard(
+              title: "Receivables",
+              value: formatCurrency(summary.totalSalesOrder),
+              icon: Icons.receipt_outlined,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 10),
+      Row(
+        children: [
+          Expanded(
+            child: StatCard(
+              title: "Current Expense",
+              value: formatCurrency(summary.totalBill),
+              icon: Icons.trending_down,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: StatCard(
+              title: "Payables",
+              value: formatCurrency(summary.totalPurchaseOrder),
+              icon: Icons.payment_outlined,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 24),
+
+      _buildChartToggleButtons(),
+      const SizedBox(height: 16),
+
+      AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: _selectedChart == 0
+            ? _buildBarChartWithHint('top5revenue', topRevenueData, 'Top 5 Revenue')
+            : _buildBarChartWithHint('top5expense', topExpenseData, 'Top 5 Expense'),
+      ),
+      const SizedBox(height: 24),
+
+      _buildTopTable('Top 5 Revenue', data.topRevenue, _themeColor),
+      const SizedBox(height: 24),
+      _buildTopTable('Top 5 Expense', data.topExpense, Colors.red),
+      const SizedBox(height: 24),
+
+      _buildRatioCard(),
+      const SizedBox(height: 24),
+
+      AccountingAgingCard(
+        title: 'Aging Piutang (Receivables)',
+        items: data.agingPiutang,
+        isReceivable: true,
+      ),
+      const SizedBox(height: 24),
+
+      AccountingAgingCard(
+        title: 'Aging Utang (Payables)',
+        items: data.agingUtang,
+        isReceivable: false,
+      ),
+      const SizedBox(height: 32),
+    ];
+  }
+
+  List<KpiRow> _kpiRows(KpiData kpi, KpiPeriods p, {bool isPercent = false}) {
+    String fmt(KpiMetric m) => isPercent
+        ? '${m.realisasi.toStringAsFixed(0)}% / ${m.plan.toStringAsFixed(0)}%'
+        : '${formatCurrency(m.realisasi)} / ${formatCurrency(m.plan)}';
+
+    KpiRow row(String label, KpiMetric m) => KpiRow(
+          label: label,
+          value: fmt(m),
+          achievement: '${m.achievement.toStringAsFixed(0)}%',
+        );
+
+    return [
+      row(kpi.labelThisMonth, p.thisMonth),
+      row(kpi.labelYtd, p.ytd),
+      row(kpi.labelFullPeriod, p.fullPeriod),
+    ];
+  }
+
+  String _yearLabel(FilterInfo f) {
+    final sy = f.startDate.length >= 4 ? f.startDate.substring(0, 4) : '';
+    final ey = f.endDate.length >= 4 ? f.endDate.substring(0, 4) : '';
+    return sy == ey ? ey : '$sy - $ey';
+  }
+
+  List<Widget> _buildChartView(AccountingDashboardResponse data) {
+    final kpi = data.kpi;
+
+    final categoryData = data.customerCategory
+        .map((c) => AccountingChartData(label: c.name, value: c.totalSales, color: _themeColor))
+        .toList();
+
+    return [
+      AccountingKpiCard(
+        title: 'Laba (Rugi)',
+        subtitle: 'Realisasi vs Planned SO-PO',
+        color: const Color(0xFF0A2540),
+        rows: _kpiRows(kpi, kpi.profit),
+      ),
+      const SizedBox(height: 12),
+      AccountingKpiCard(
+        title: 'Pendapatan',
+        subtitle: 'Realisasi vs Sales Order',
+        color: const Color(0xFF0B8736),
+        rows: _kpiRows(kpi, kpi.revenue),
+      ),
+      const SizedBox(height: 12),
+      AccountingKpiCard(
+        title: 'Biaya/Pendapatan',
+        subtitle: 'Realisasi vs PO/SO',
+        color: const Color(0xFFE0A800),
+        rows: _kpiRows(kpi, kpi.biayaRatio, isPercent: true),
+      ),
+      const SizedBox(height: 12),
+      AccountingKpiCard(
+        title: 'Piutang (Receivable)',
+        color: const Color(0xFFB41C1C),
+        rows: [
+          KpiRow(label: 'Outstanding', value: formatCurrency(kpi.receivableOutstanding)),
+          KpiRow(
+            label: 'Collection Rate (${kpi.labelYtd})',
+            achievement: '${kpi.collectionRate.toStringAsFixed(0)}%',
+          ),
+        ],
+      ),
+      const SizedBox(height: 24),
+
+      AccountingFinancialChart(
+        title: 'Financial Performance ${_yearLabel(data.filter)}',
+        data: data.charts.financialPerformance,
+      ),
+      const SizedBox(height: 24),
+
+      AccountingBarChart(data: categoryData, title: 'Sales by Customer Category'),
+      const SizedBox(height: 24),
+
+      AccountingTopCustomerCard(title: 'Top 20 Customer by Sales', items: data.topCustomers),
+      const SizedBox(height: 32),
+    ];
   }
 }
