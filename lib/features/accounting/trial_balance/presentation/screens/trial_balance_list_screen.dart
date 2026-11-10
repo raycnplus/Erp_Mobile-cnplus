@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:erp_mobile_cnplus/core/utils/colors.dart';
+import 'package:erp_mobile_cnplus/shared/widgets/custom_dialog.dart';
 import 'package:erp_mobile_cnplus/features/accounting/trial_balance/presentation/controllers/trial_balance_controller.dart';
 import 'package:erp_mobile_cnplus/features/accounting/trial_balance/presentation/widgets/trial_balance_row.dart';
 import 'package:erp_mobile_cnplus/features/accounting/trial_balance/presentation/widgets/trial_balance_filter_sheet.dart';
@@ -14,25 +15,37 @@ class TrialBalanceListScreen extends StatefulWidget {
 }
 
 class _TrialBalanceListScreenState extends State<TrialBalanceListScreen> {
+  TrialBalanceController? _ctrl;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TrialBalanceController>().addListener(_onControllerChange);
+      if (!mounted) return;
+      final ctrl = context.read<TrialBalanceController>();
+      _ctrl = ctrl;
+      ctrl.addListener(_onControllerChange);
     });
   }
 
   @override
   void dispose() {
-    context.read<TrialBalanceController>().removeListener(_onControllerChange);
+    _ctrl?.removeListener(_onControllerChange);
     super.dispose();
   }
 
   void _onControllerChange() {
-    final ctrl = context.read<TrialBalanceController>();
+    final ctrl = _ctrl;
+    if (ctrl == null) return;
     final msg = ctrl.consumeStatusMessage();
     if (msg != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      final lower = msg.toLowerCase();
+      final isError = lower.contains('failed') || lower.contains('only');
+      CustomDialog.showInfo(
+        context,
+        message: msg,
+        type: isError ? CustomDialogType.error : CustomDialogType.success,
+      );
     }
   }
 
