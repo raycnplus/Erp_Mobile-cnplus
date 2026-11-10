@@ -1,7 +1,4 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:erp_mobile_cnplus/core/services/download_service.dart';
 import 'package:erp_mobile_cnplus/features/accounting/general_ledger/data/models/general_ledger_models.dart';
 import 'package:erp_mobile_cnplus/features/accounting/general_ledger/data/datasources/general_ledger_remote_datasource.dart' show ExportUrlInfo;
@@ -136,76 +133,38 @@ class GeneralLedgerController extends ChangeNotifier {
 
   Future<void> refresh() => applyFilter();
 
-  Future<bool> _ensureStoragePermission() async {
-    if (!Platform.isAndroid) return true;
-    final status = await Permission.storage.request();
-    return status.isGranted || status.isLimited;
-  }
-
   Future<void> startExport(String type) async {
     if (!canExport || _isExporting) return;
-
-    final hasPermission = await _ensureStoragePermission();
-    if (!hasPermission) {
-      _statusMessage = 'Storage permission is required to download the file.';
-      notifyListeners();
-      return;
-    }
 
     final ExportUrlInfo info = type == 'pdf'
         ? getExportPdfUrl(dateFrom: _fmt(_dateFrom), dateTo: _fmt(_dateTo), coaFrom: _coaFrom, coaTo: _coaTo)
         : getExportExcelUrl(dateFrom: _fmt(_dateFrom), dateTo: _fmt(_dateTo), coaFrom: _coaFrom, coaTo: _coaTo);
 
+    final ext = type == 'pdf' ? 'pdf' : 'xlsx';
+
     _isExporting = true;
     _downloadProgress = 0;
     notifyListeners();
 
-    try {
-      final ext = type == 'pdf' ? 'pdf' : 'xlsx';
-      final fileName = 'general_ledger_${DateTime.now().millisecondsSinceEpoch}.$ext';
-
-      final taskId = await FlutterDownloader.enqueue(
-        url: info.url,
-        headers: info.headers,
-        savedDir: '/storage/emulated/0/Download',
-        fileName: fileName,
-        saveInPublicStorage: true,
-        showNotification: true,
-        openFileFromNotification: true,
-      );
-
-      if (taskId == null) {
+    _currentTaskId = await DownloadService.instance.download(
+      url: info.url,
+      headers: info.headers,
+      fileName: 'general_ledger_${DateTime.now().millisecondsSinceEpoch}.$ext',
+      label: 'General Ledger ${type.toUpperCase()}',
+      onProgress: (p) {
+        _downloadProgress = p;
+        notifyListeners();
+      },
+      onMessage: (m) {
+        _statusMessage = m;
+        notifyListeners();
+      },
+      onFinished: () {
         _isExporting = false;
+        _currentTaskId = null;
         notifyListeners();
-        return;
-      }
-
-      _currentTaskId = taskId;
-      DownloadService.instance.listen(taskId, (status, progress) {
-        _downloadProgress = progress;
-
-        if (status == DownloadTaskStatus.complete) {
-          _isExporting = false;
-          _statusMessage = '${type.toUpperCase()} downloaded successfully to the Download folder: $fileName';
-          DownloadService.instance.unlisten(taskId);
-          _currentTaskId = null;
-        } else if (status == DownloadTaskStatus.failed) {
-          _isExporting = false;
-          _statusMessage = '${type.toUpperCase()} download failed.';
-          DownloadService.instance.unlisten(taskId);
-          _currentTaskId = null;
-        } else if (status == DownloadTaskStatus.canceled) {
-          _isExporting = false;
-          DownloadService.instance.unlisten(taskId);
-          _currentTaskId = null;
-        }
-        notifyListeners();
-      });
-    } catch (e) {
-      _isExporting = false;
-      _statusMessage = _msg(e);
-      notifyListeners();
-    }
+      },
+    );
   }
 
   @override
