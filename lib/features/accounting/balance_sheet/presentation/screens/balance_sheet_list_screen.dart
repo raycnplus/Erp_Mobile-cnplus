@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:erp_mobile_cnplus/core/utils/colors.dart';
 import 'package:erp_mobile_cnplus/shared/helpers/currency_formatter.dart';
+import 'package:erp_mobile_cnplus/shared/widgets/custom_dialog.dart';
 import 'package:erp_mobile_cnplus/features/accounting/balance_sheet/data/models/balance_sheet_models.dart';
 import 'package:erp_mobile_cnplus/features/accounting/balance_sheet/presentation/controllers/balance_sheet_controller.dart';
 import 'package:erp_mobile_cnplus/features/accounting/balance_sheet/presentation/widgets/balance_sheet_row.dart';
@@ -39,7 +40,13 @@ class _BalanceSheetListScreenState extends State<BalanceSheetListScreen> {
     if (ctrl == null || !mounted) return;
     final msg = ctrl.consumeStatusMessage();
     if (msg != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      final lower = msg.toLowerCase();
+      final isError = lower.contains('failed') || lower.contains('only');
+      CustomDialog.showInfo(
+        context,
+        message: msg,
+        type: isError ? CustomDialogType.error : CustomDialogType.success,
+      );
     }
   }
 
