@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:erp_mobile_cnplus/core/utils/colors.dart';
 import 'package:erp_mobile_cnplus/shared/helpers/currency_formatter.dart';
+import 'package:erp_mobile_cnplus/shared/widgets/custom_dialog.dart';
 import 'package:erp_mobile_cnplus/features/accounting/cash_flow/data/models/cash_flow_models.dart';
 import 'package:erp_mobile_cnplus/features/accounting/cash_flow/presentation/controllers/cash_flow_controller.dart';
 import 'package:erp_mobile_cnplus/features/accounting/cash_flow/presentation/widgets/cash_flow_row.dart';
@@ -16,25 +17,37 @@ class CashFlowListScreen extends StatefulWidget {
 }
 
 class _CashFlowListScreenState extends State<CashFlowListScreen> {
+  CashFlowController? _ctrl;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CashFlowController>().addListener(_onControllerChange);
+      if (!mounted) return;
+      final ctrl = context.read<CashFlowController>();
+      _ctrl = ctrl;
+      ctrl.addListener(_onControllerChange);
     });
   }
 
   @override
   void dispose() {
-    context.read<CashFlowController>().removeListener(_onControllerChange);
+    _ctrl?.removeListener(_onControllerChange);
     super.dispose();
   }
 
   void _onControllerChange() {
-    final ctrl = context.read<CashFlowController>();
+    final ctrl = _ctrl;
+    if (ctrl == null) return;
     final msg = ctrl.consumeStatusMessage();
     if (msg != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      final lower = msg.toLowerCase();
+      final isError = lower.contains('failed') || lower.contains('only');
+      CustomDialog.showInfo(
+        context,
+        message: msg,
+        type: isError ? CustomDialogType.error : CustomDialogType.success,
+      );
     }
   }
 
