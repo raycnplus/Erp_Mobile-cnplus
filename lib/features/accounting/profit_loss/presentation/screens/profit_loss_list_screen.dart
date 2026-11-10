@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:erp_mobile_cnplus/core/utils/colors.dart';
 import 'package:erp_mobile_cnplus/shared/helpers/currency_formatter.dart';
+import 'package:erp_mobile_cnplus/shared/widgets/custom_dialog.dart';
 import 'package:erp_mobile_cnplus/features/accounting/profit_loss/data/models/profit_loss_models.dart';
 import 'package:erp_mobile_cnplus/features/accounting/profit_loss/presentation/controllers/profit_loss_controller.dart';
 import 'package:erp_mobile_cnplus/features/accounting/profit_loss/presentation/widgets/profit_loss_row.dart';
@@ -34,7 +35,13 @@ class _ProfitLossListScreenState extends State<ProfitLossListScreen> {
     final ctrl = context.read<ProfitLossController>();
     final msg = ctrl.consumeStatusMessage();
     if (msg != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      final isError = msg.toLowerCase().contains('failed') ||
+          msg.toLowerCase().contains('only');
+      CustomDialog.showInfo(
+        context,
+        message: msg,
+        type: isError ? CustomDialogType.error : CustomDialogType.success,
+      );
     }
   }
 
