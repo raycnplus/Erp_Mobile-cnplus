@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:erp_mobile_cnplus/core/utils/colors.dart';
+import 'package:erp_mobile_cnplus/shared/widgets/custom_dialog.dart';
 import 'package:erp_mobile_cnplus/shared/helpers/currency_formatter.dart';
 import 'package:erp_mobile_cnplus/features/accounting/general_ledger/presentation/controllers/general_ledger_controller.dart';
 import 'package:erp_mobile_cnplus/features/accounting/general_ledger/presentation/widgets/general_ledger_list_item.dart';
@@ -32,10 +33,16 @@ class _GeneralLedgerListScreenState extends State<GeneralLedgerListScreen> {
   }
 
   void _onControllerChange() {
-    final ctrl = context.read<GeneralLedgerController>();
+    final ctrl = context.read<GeneralLedgerController>(); // sesuaikan per screen
     final msg = ctrl.consumeStatusMessage();
     if (msg != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      final isError = msg.toLowerCase().contains('failed') ||
+          msg.toLowerCase().contains('only');
+      CustomDialog.showInfo(
+        context,
+        message: msg,
+        type: isError ? CustomDialogType.error : CustomDialogType.success,
+      );
     }
   }
 
