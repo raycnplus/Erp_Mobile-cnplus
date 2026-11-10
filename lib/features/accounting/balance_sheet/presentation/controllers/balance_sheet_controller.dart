@@ -1,7 +1,4 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:erp_mobile_cnplus/core/services/download_service.dart';
 import 'package:erp_mobile_cnplus/features/accounting/balance_sheet/data/models/balance_sheet_models.dart';
 import 'package:erp_mobile_cnplus/features/accounting/balance_sheet/data/datasources/balance_sheet_remote_datasource.dart' show ExportUrlInfo;
@@ -165,76 +162,38 @@ class BalanceSheetController extends ChangeNotifier {
 
   Future<void> refresh() => applyFilter();
 
-  Future<bool> _ensureStoragePermission() async {
-    if (!Platform.isAndroid) return true;
-    final status = await Permission.storage.request();
-    return status.isGranted || status.isLimited;
-  }
-
-  Future<void> startExport(String exportType) async {
+  Future<void> startExport(String type) async {
     if (!canExport || _isExporting) return;
 
-    final hasPermission = await _ensureStoragePermission();
-    if (!hasPermission) {
-      _statusMessage = 'Storage permission is required to download the file.';
-      notifyListeners();
-      return;
-    }
-
-    final ExportUrlInfo info = exportType == 'pdf'
+    final ExportUrlInfo info = type == 'pdf'
         ? getExportPdfUrl(dates: _appliedDates!, filterType: _filterType)
         : getExportExcelUrl(dates: _appliedDates!, filterType: _filterType);
+
+    final ext = type == 'pdf' ? 'pdf' : 'xlsx';
 
     _isExporting = true;
     _downloadProgress = 0;
     notifyListeners();
 
-    try {
-      final ext = exportType == 'pdf' ? 'pdf' : 'xlsx';
-      final fileName = 'balance_sheet_report_${DateTime.now().millisecondsSinceEpoch}.$ext';
-
-      final taskId = await FlutterDownloader.enqueue(
-        url: info.url,
-        headers: info.headers,
-        savedDir: '/storage/emulated/0/Download',
-        fileName: fileName,
-        saveInPublicStorage: true,
-        showNotification: true,
-        openFileFromNotification: true,
-      );
-
-      if (taskId == null) {
+    _currentTaskId = await DownloadService.instance.download(
+      url: info.url,
+      headers: info.headers,
+      fileName: 'balance_sheet_report_${DateTime.now().millisecondsSinceEpoch}.$ext',
+      label: 'Balance Sheet ${type.toUpperCase()}',
+      onProgress: (p) {
+        _downloadProgress = p;
+        notifyListeners();
+      },
+      onMessage: (m) {
+        _statusMessage = m;
+        notifyListeners();
+      },
+      onFinished: () {
         _isExporting = false;
+        _currentTaskId = null;
         notifyListeners();
-        return;
-      }
-
-      _currentTaskId = taskId;
-      DownloadService.instance.listen(taskId, (status, progress) {
-        _downloadProgress = progress;
-
-        if (status == DownloadTaskStatus.complete) {
-          _isExporting = false;
-          _statusMessage = '${exportType.toUpperCase()} downloaded successfully to the Download folder: $fileName';
-          DownloadService.instance.unlisten(taskId);
-          _currentTaskId = null;
-        } else if (status == DownloadTaskStatus.failed) {
-          _isExporting = false;
-          _statusMessage = '${exportType.toUpperCase()} download failed.';
-          DownloadService.instance.unlisten(taskId);
-          _currentTaskId = null;
-        } else if (status == DownloadTaskStatus.canceled) {
-          _isExporting = false;
-          DownloadService.instance.unlisten(taskId);
-          _currentTaskId = null;
-        }
-        notifyListeners();
-      });
-    } catch (e) {
-      _isExporting = false;
-      _statusMessage = _msg(e);
-      notifyListeners();
-    }
+      },
+    );
   }
 
   @override
