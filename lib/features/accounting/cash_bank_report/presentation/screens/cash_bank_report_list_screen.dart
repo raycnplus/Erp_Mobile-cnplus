@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:erp_mobile_cnplus/core/utils/colors.dart';
 import 'package:erp_mobile_cnplus/shared/helpers/currency_formatter.dart';
+import 'package:erp_mobile_cnplus/shared/widgets/custom_dialog.dart';
 import 'package:erp_mobile_cnplus/features/accounting/cash_bank_report/presentation/controllers/cash_bank_report_controller.dart';
 import 'package:erp_mobile_cnplus/features/accounting/cash_bank_report/presentation/widgets/cash_bank_report_row.dart';
 import 'package:erp_mobile_cnplus/features/accounting/cash_bank_report/presentation/widgets/cash_bank_report_filter_sheet.dart';
@@ -15,11 +16,15 @@ class CashBankReportListScreen extends StatefulWidget {
 }
 
 class _CashBankReportListScreenState extends State<CashBankReportListScreen> {
+  CashBankReportController? _ctrl;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final ctrl = context.read<CashBankReportController>();
+      _ctrl = ctrl;
       ctrl.fetchFormOptions();
       ctrl.addListener(_onControllerChange);
     });
@@ -27,15 +32,22 @@ class _CashBankReportListScreenState extends State<CashBankReportListScreen> {
 
   @override
   void dispose() {
-    context.read<CashBankReportController>().removeListener(_onControllerChange);
+    _ctrl?.removeListener(_onControllerChange);
     super.dispose();
   }
 
   void _onControllerChange() {
-    final ctrl = context.read<CashBankReportController>();
+    final ctrl = _ctrl;
+    if (ctrl == null) return;
     final msg = ctrl.consumeStatusMessage();
     if (msg != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      final lower = msg.toLowerCase();
+      final isError = lower.contains('failed') || lower.contains('only');
+      CustomDialog.showInfo(
+        context,
+        message: msg,
+        type: isError ? CustomDialogType.error : CustomDialogType.success,
+      );
     }
   }
 
