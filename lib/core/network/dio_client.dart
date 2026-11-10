@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:erp_mobile_cnplus/core/config/app_config.dart';
 
@@ -214,5 +215,30 @@ class DioClient {
     _isRefreshing = false;
     _pendingRequests.clear();
     await _storage.deleteAll();
+  }
+
+  Future<String?> getValidToken() async {
+    final token = await _storage.read(key: 'token');
+    if (token == null) return null;
+
+    if (_isExpiredOrNear(token)) {
+      final refreshed = await _refreshToken();
+      return refreshed ?? token;
+    }
+    return token;
+  }
+
+  bool _isExpiredOrNear(String token, {int skewSeconds = 120}) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return false;
+      final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+      final exp = (jsonDecode(payload)['exp'] as num?)?.toInt();
+      if (exp == null) return false;
+      final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      return exp - now <= skewSeconds;
+    } catch (_) {
+      return false;
+    }
   }
 }
