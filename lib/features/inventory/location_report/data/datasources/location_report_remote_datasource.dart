@@ -34,11 +34,36 @@ class LocationReportRemoteDataSource {
   }
 
   Future<LocationReportDetailModel> getLocationReportDetail(
-    int idLocation,
+    String encryption,
   ) async {
     try {
-      final response = await dio.get('/inventory/location-report/$idLocation');
+      final response = await dio.get('/inventory/location-report/$encryption');
       return LocationReportDetailModel.fromJson(response.data);
+    } on DioException catch (e) {
+      throw Exception(_handleDioError(e));
+    }
+  }
+
+  Future<LocationDetailPage<T>> getLocationDetailTab<T>({
+    required String encryption,
+    required String type,
+    required T Function(Map<String, dynamic>) parser,
+    int page = 1,
+    int perPage = 10,
+  }) async {
+    try {
+      final response = await dio.get(
+        '/inventory/location-report/$encryption',
+        queryParameters: {'type': type, 'page': page, 'per_page': perPage},
+      );
+      final json = response.data as Map<String, dynamic>;
+      final List<dynamic> items = json['data'] ?? [];
+      return LocationDetailPage<T>(
+        items: items.map((e) => parser(e as Map<String, dynamic>)).toList(),
+        meta: LocationDetailPageMeta.fromJson(
+          (json['meta'] ?? <String, dynamic>{}) as Map<String, dynamic>,
+        ),
+      );
     } on DioException catch (e) {
       throw Exception(_handleDioError(e));
     }

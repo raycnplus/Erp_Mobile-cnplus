@@ -45,11 +45,11 @@ class _LocationReportListScreenState extends State<LocationReportListScreen> {
   Future<void> _handleRefresh() =>
       context.read<LocationReportController>().fetchReportList();
 
-  void _navigateToDetail(int idLocation) {
+  void _navigateToDetail(String encryption) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => LocationReportDetailScreen(idLocation: idLocation),
+        builder: (_) => LocationReportDetailScreen(encryption: encryption),
       ),
     );
   }
@@ -273,7 +273,7 @@ class _LocationReportListScreenState extends State<LocationReportListScreen> {
                             final report = ctrl.reportList[index];
                             return LocationReportListItem(
                               report: report,
-                              onTap: () => _navigateToDetail(report.idLocation),
+                              onTap: () => _navigateToDetail(report.encryption),
                             );
                           },
                         ),

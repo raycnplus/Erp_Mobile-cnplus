@@ -22,8 +22,27 @@ class GetLocationReportDetail {
   final LocationReportRepository repository;
   GetLocationReportDetail(this.repository);
 
-  Future<LocationReportDetailModel> call(int idLocation) =>
-      repository.getLocationReportDetail(idLocation);
+  Future<LocationReportDetailModel> call(String encryption) =>
+      repository.getLocationReportDetail(encryption);
+}
+
+class GetLocationDetailTab {
+  final LocationReportRepository repository;
+  GetLocationDetailTab(this.repository);
+
+  Future<LocationDetailPage<T>> call<T>({
+    required String encryption,
+    required String type,
+    required T Function(Map<String, dynamic>) parser,
+    int page = 1,
+    int perPage = 10,
+  }) => repository.getLocationDetailTab<T>(
+    encryption: encryption,
+    type: type,
+    parser: parser,
+    page: page,
+    perPage: perPage,
+  );
 }
 
 class GetLocationReportFormOptions {

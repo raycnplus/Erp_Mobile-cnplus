@@ -17,8 +17,23 @@ class LocationReportRepository {
     idWarehouse: idWarehouse,
   );
 
-  Future<LocationReportDetailModel> getLocationReportDetail(int idLocation) =>
-      remoteDataSource.getLocationReportDetail(idLocation);
+  Future<LocationReportDetailModel> getLocationReportDetail(
+    String encryption,
+  ) => remoteDataSource.getLocationReportDetail(encryption);
+
+  Future<LocationDetailPage<T>> getLocationDetailTab<T>({
+    required String encryption,
+    required String type,
+    required T Function(Map<String, dynamic>) parser,
+    int page = 1,
+    int perPage = 10,
+  }) => remoteDataSource.getLocationDetailTab<T>(
+    encryption: encryption,
+    type: type,
+    parser: parser,
+    page: page,
+    perPage: perPage,
+  );
 
   Future<List<WarehouseOptionModel>> getFormOptions() =>
       remoteDataSource.getFormOptions();

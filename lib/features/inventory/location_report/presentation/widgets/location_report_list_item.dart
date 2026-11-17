@@ -118,9 +118,29 @@ class LocationReportListItem extends StatelessWidget {
               Row(
                 children: [
                   _statItem('Product', '${report.totalProduct}'),
-                  _statItem('Incoming', '${report.incoming}'),
-                  _statItem('Outgoing', '${report.outgoing}'),
-                  _statItem('Parent', report.parentName),
+                  _statItem('Child', '${report.totalChild}'),
+                  _statItem('Receipt', '${report.totalReceiptNote}'),
+                  _statItem('Delivery', '${report.totalDeliveryNote}'),
+                  _statItem('Transfer', '${report.totalInternalTransfer}'),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.subdirectory_arrow_right,
+                    size: 14,
+                    color: colorTextSubtle,
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      report.parentName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.poppins(color: colorTextSubtle, fontSize: 12),
+                    ),
+                  ),
                 ],
               ),
             ],
