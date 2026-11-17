@@ -2794,10 +2794,14 @@ class AppInjector {
     getIt.registerLazySingleton(
       () => GetWarehouseReportDetail(getIt<WarehouseReportRepository>()),
     );
+    getIt.registerLazySingleton<GetWarehouseDetailTab>(
+      () => GetWarehouseDetailTab(getIt<WarehouseReportRepository>()),
+    );
     getIt.registerFactory<WarehouseReportController>(
       () => WarehouseReportController(
         getWarehouseReportList: getIt<GetWarehouseReportList>(),
         getWarehouseReportDetail: getIt<GetWarehouseReportDetail>(),
+        getWarehouseDetailTab: getIt<GetWarehouseDetailTab>(),
       ),
     );
 
@@ -2816,6 +2820,9 @@ class AppInjector {
     getIt.registerLazySingleton(
       () => GetLocationReportDetail(getIt<LocationReportRepository>()),
     );
+    getIt.registerLazySingleton<GetLocationDetailTab>(
+      () => GetLocationDetailTab(getIt<LocationReportRepository>()),
+    );
     getIt.registerLazySingleton(
       () => GetLocationReportFormOptions(getIt<LocationReportRepository>()),
     );
@@ -2823,6 +2830,7 @@ class AppInjector {
       () => LocationReportController(
         getLocationReportList: getIt<GetLocationReportList>(),
         getLocationReportDetail: getIt<GetLocationReportDetail>(),
+        getLocationDetailTab: getIt<GetLocationDetailTab>(),
         getLocationReportFormOptions: getIt<GetLocationReportFormOptions>(),
       ),
     );
