@@ -43,14 +43,14 @@ class _WarehouseReportListScreenState extends State<WarehouseReportListScreen> {
   Future<void> _handleRefresh() =>
       context.read<WarehouseReportController>().fetchReportList();
 
-  void _navigateToDetail(int idWarehouse) {
+  void _navigateToDetail(String encryption) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => WarehouseReportDetailScreen(idWarehouse: idWarehouse),
+        builder: (_) => WarehouseReportDetailScreen(encryption: encryption),
       ),
     );
-  }
+  } 
 
   @override
   Widget build(BuildContext context) {
@@ -202,8 +202,7 @@ class _WarehouseReportListScreenState extends State<WarehouseReportListScreen> {
                             final report = ctrl.reportList[index];
                             return WarehouseReportListItem(
                               report: report,
-                              onTap: () =>
-                                  _navigateToDetail(report.idWarehouse),
+                              onTap: () => _navigateToDetail(report.encryption),
                             );
                           },
                         ),

@@ -20,7 +20,6 @@ class WarehouseReportRemoteDataSource {
         },
       );
       final json = response.data as Map<String, dynamic>;
-      // Laravel paginate(): meta + items are both inside json['data']
       final paginator = json['data'] as Map<String, dynamic>;
       final List<dynamic> items = paginator['data'] ?? [];
       return {
@@ -33,13 +32,36 @@ class WarehouseReportRemoteDataSource {
   }
 
   Future<WarehouseReportDetailModel> getWarehouseReportDetail(
-    int idWarehouse,
+    String encryption,
   ) async {
     try {
-      final response = await dio.get(
-        '/inventory/warehouse-report/$idWarehouse',
-      );
+      final response = await dio.get('/inventory/warehouse-report/$encryption');
       return WarehouseReportDetailModel.fromJson(response.data);
+    } on DioException catch (e) {
+      throw Exception(_handleDioError(e));
+    }
+  }
+
+  Future<WarehouseDetailPage<T>> getWarehouseDetailTab<T>({
+    required String encryption,
+    required String type,
+    required T Function(Map<String, dynamic>) parser,
+    int page = 1,
+    int perPage = 10,
+  }) async {
+    try {
+      final response = await dio.get(
+        '/inventory/warehouse-report/$encryption',
+        queryParameters: {'type': type, 'page': page, 'per_page': perPage},
+      );
+      final json = response.data as Map<String, dynamic>;
+      final List<dynamic> items = json['data'] ?? [];
+      return WarehouseDetailPage<T>(
+        items: items.map((e) => parser(e as Map<String, dynamic>)).toList(),
+        meta: WarehouseDetailPageMeta.fromJson(
+          (json['meta'] ?? <String, dynamic>{}) as Map<String, dynamic>,
+        ),
+      );
     } on DioException catch (e) {
       throw Exception(_handleDioError(e));
     }

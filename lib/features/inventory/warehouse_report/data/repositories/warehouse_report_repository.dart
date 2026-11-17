@@ -16,6 +16,20 @@ class WarehouseReportRepository {
   );
 
   Future<WarehouseReportDetailModel> getWarehouseReportDetail(
-    int idWarehouse,
-  ) => remoteDataSource.getWarehouseReportDetail(idWarehouse);
+    String encryption,
+  ) => remoteDataSource.getWarehouseReportDetail(encryption);
+
+  Future<WarehouseDetailPage<T>> getWarehouseDetailTab<T>({
+    required String encryption,
+    required String type,
+    required T Function(Map<String, dynamic>) parser,
+    int page = 1,
+    int perPage = 10,
+  }) => remoteDataSource.getWarehouseDetailTab<T>(
+    encryption: encryption,
+    type: type,
+    parser: parser,
+    page: page,
+    perPage: perPage,
+  );
 }

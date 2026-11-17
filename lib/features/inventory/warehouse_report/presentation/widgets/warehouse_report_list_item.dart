@@ -97,11 +97,9 @@ class WarehouseReportListItem extends StatelessWidget {
                 children: [
                   _statItem('Location', '${report.totalLocation}'),
                   _statItem('Product', '${report.totalProduct}'),
-                  _statItem('On Hand', report.onHand.toStringAsFixed(0)),
-                  _statItem(
-                    'Incoming',
-                    report.forecastedIncoming.toStringAsFixed(0),
-                  ),
+                  _statItem('Receipt', '${report.totalReceiptNote}'),
+                  _statItem('Delivery', '${report.totalDeliveryNote}'),
+                  _statItem('Transfer', '${report.totalInternalTransfer}'),
                 ],
               ),
             ],
@@ -123,6 +121,8 @@ class WarehouseReportListItem extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: FontWeight.w600,
