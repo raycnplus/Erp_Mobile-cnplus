@@ -32,4 +32,38 @@ class SalesOrderReportRepository {
   Future<List<SalesOrderLocationOption>> getLocationsByWarehouse(
     int idWarehouse,
   ) => remoteDataSource.getLocationsByWarehouse(idWarehouse);
+
+  SalesOrderReportExportUrlInfo getExportPdfUrl({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) => remoteDataSource.getExportPdfUrl(
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
+
+  SalesOrderReportExportUrlInfo getExportExcelUrl({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) => remoteDataSource.getExportExcelUrl(
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
+
+  SalesOrderReportExportUrlInfo getExportDetailPdfUrl(String encryption) =>
+      remoteDataSource.getExportDetailPdfUrl(encryption);
+
+  SalesOrderReportExportUrlInfo getExportDetailExcelUrl(String encryption) =>
+      remoteDataSource.getExportDetailExcelUrl(encryption);
 }

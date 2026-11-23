@@ -3,6 +3,7 @@ import 'package:erp_mobile_cnplus/features/sales/sales_order_report/data/models/
 
 class SalesOrderReportRemoteDataSource {
   final Dio dio;
+  static const _base = '/sales/sales-order-report';
 
   SalesOrderReportRemoteDataSource(this.dio);
 
@@ -18,16 +19,18 @@ class SalesOrderReportRemoteDataSource {
   }) async {
     try {
       final response = await dio.get(
-        '/sales/sales-order-report',
+        _base,
         queryParameters: {
           'page': page,
           'per_page': perPage,
           if (search != null && search.isNotEmpty) 'search': search,
-          if (idWarehouse != null) 'id_warehouse': idWarehouse,
-          if (idLocation != null) 'id_location': idLocation,
-          if (dateFrom != null && dateFrom.isNotEmpty) 'date_from': dateFrom,
-          if (dateTo != null && dateTo.isNotEmpty) 'date_to': dateTo,
-          if (status != null && status.isNotEmpty) 'status': status,
+          ..._filterParams(
+            idWarehouse: idWarehouse,
+            idLocation: idLocation,
+            dateFrom: dateFrom,
+            dateTo: dateTo,
+            status: status,
+          ),
         },
       );
       final json = response.data as Map<String, dynamic>;
@@ -45,7 +48,7 @@ class SalesOrderReportRemoteDataSource {
 
   Future<Map<String, dynamic>> getFormOptions() async {
     try {
-      final response = await dio.get('/sales/sales-order-report/form-options');
+      final response = await dio.get('$_base/form-options');
       final json = response.data as Map<String, dynamic>;
       final data = json['data'] ?? {};
       return {
@@ -66,7 +69,7 @@ class SalesOrderReportRemoteDataSource {
   ) async {
     try {
       final response = await dio.get(
-        '/sales/sales-order-report/locations-by-warehouse',
+        '$_base/locations-by-warehouse',
         queryParameters: {'id_warehouse': idWarehouse},
       );
       final json = response.data as Map<String, dynamic>;
@@ -76,6 +79,79 @@ class SalesOrderReportRemoteDataSource {
       throw Exception(_handleDioError(e));
     }
   }
+
+  SalesOrderReportExportUrlInfo getExportPdfUrl({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) =>
+      _buildExportInfo(
+        '$_base/export-pdf',
+        _filterParams(
+          idWarehouse: idWarehouse,
+          idLocation: idLocation,
+          dateFrom: dateFrom,
+          dateTo: dateTo,
+          status: status,
+        ),
+      );
+
+  SalesOrderReportExportUrlInfo getExportExcelUrl({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) =>
+      _buildExportInfo(
+        '$_base/export-excel',
+        _filterParams(
+          idWarehouse: idWarehouse,
+          idLocation: idLocation,
+          dateFrom: dateFrom,
+          dateTo: dateTo,
+          status: status,
+        ),
+      );
+
+  SalesOrderReportExportUrlInfo getExportDetailPdfUrl(String encryption) =>
+      _buildExportInfo('$_base/detail/$encryption/export-pdf', const {});
+
+  SalesOrderReportExportUrlInfo getExportDetailExcelUrl(String encryption) =>
+      _buildExportInfo('$_base/detail/$encryption/export-excel', const {});
+
+  SalesOrderReportExportUrlInfo _buildExportInfo(
+    String path,
+    Map<String, dynamic> params,
+  ) {
+    final uri = Uri.parse('${dio.options.baseUrl}$path').replace(
+      queryParameters: params.map((k, v) => MapEntry(k, v.toString())),
+    );
+
+    final headers = <String, String>{};
+    dio.options.headers.forEach((k, v) {
+      if (v != null) headers[k] = v.toString();
+    });
+
+    return SalesOrderReportExportUrlInfo(url: uri.toString(), headers: headers);
+  }
+
+  Map<String, dynamic> _filterParams({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) =>
+      {
+        if (idWarehouse != null) 'id_warehouse': idWarehouse,
+        if (idLocation != null) 'id_location': idLocation,
+        if (dateFrom != null && dateFrom.isNotEmpty) 'date_from': dateFrom,
+        if (dateTo != null && dateTo.isNotEmpty) 'date_to': dateTo,
+        if (status != null && status.isNotEmpty) 'status': status,
+      };
 
   String _handleDioError(DioException e) {
     if (e.response != null) {

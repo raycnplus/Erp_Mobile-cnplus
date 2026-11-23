@@ -43,3 +43,61 @@ class GetSalesOrderReportLocationsByWarehouse {
   Future<List<SalesOrderLocationOption>> call(int idWarehouse) =>
       repository.getLocationsByWarehouse(idWarehouse);
 }
+
+class GetSalesOrderReportExportPdfUrl {
+  final SalesOrderReportRepository repository;
+
+  GetSalesOrderReportExportPdfUrl(this.repository);
+
+  SalesOrderReportExportUrlInfo call({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) => repository.getExportPdfUrl(
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
+}
+
+class GetSalesOrderReportExportExcelUrl {
+  final SalesOrderReportRepository repository;
+
+  GetSalesOrderReportExportExcelUrl(this.repository);
+
+  SalesOrderReportExportUrlInfo call({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) => repository.getExportExcelUrl(
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
+}
+
+class GetSalesOrderReportExportDetailPdfUrl {
+  final SalesOrderReportRepository repository;
+
+  GetSalesOrderReportExportDetailPdfUrl(this.repository);
+
+  SalesOrderReportExportUrlInfo call(String encryption) =>
+      repository.getExportDetailPdfUrl(encryption);
+}
+
+class GetSalesOrderReportExportDetailExcelUrl {
+  final SalesOrderReportRepository repository;
+
+  GetSalesOrderReportExportDetailExcelUrl(this.repository);
+
+  SalesOrderReportExportUrlInfo call(String encryption) =>
+      repository.getExportDetailExcelUrl(encryption);
+}
