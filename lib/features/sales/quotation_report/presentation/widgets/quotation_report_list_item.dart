@@ -24,15 +24,13 @@ class QuotationReportListItem extends StatelessWidget {
   }
 
 String _formatRupiah(String rawValue) {
-  // Samakan pemisah desimal dari backend (ubah koma jadi titik jika ada)
   final normalizedValue = rawValue.replaceAll(',', '.');
   final parts = normalizedValue.split('.');
   final wholePart = parts[0];
 
-  // PAKSA selalu ada 2 digit desimal
   String decimalPart = parts.length > 1 ? parts[1] : '00';
-  if (decimalPart.length == 1) decimalPart += '0'; // misal "5" jadi "50"
-  if (decimalPart.length > 2) decimalPart = decimalPart.substring(0, 2); // potong jika lebih dari 2
+  if (decimalPart.length == 1) decimalPart += '0'; 
+  if (decimalPart.length > 2) decimalPart = decimalPart.substring(0, 2); 
 
   final buffer = StringBuffer();
   for (int i = 0; i < wholePart.length; i++) {
@@ -40,7 +38,6 @@ String _formatRupiah(String rawValue) {
     buffer.write(wholePart[i]);
   }
 
-  // Karena kita sudah memaksa decimalPart ada, kita bisa langsung return dengan koma
   return 'Rp $buffer,$decimalPart'; 
 }
 

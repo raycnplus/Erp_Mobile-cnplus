@@ -53,7 +53,7 @@ class QuotationReportModel {
   final double demandQty;
   final double taxes;
   final double amount;
-  final String amountRaw; // tambahan
+  final String amountRaw;
   final String status;
   final String? createdDate;
 
@@ -114,4 +114,10 @@ class QuotationLocationOption {
       locationName: json['location_name'] ?? '',
     );
   }
+}
+
+class QuotationReportExportUrlInfo {
+  final String url;
+  final Map<String, String> headers;
+  QuotationReportExportUrlInfo({required this.url, required this.headers});
 }

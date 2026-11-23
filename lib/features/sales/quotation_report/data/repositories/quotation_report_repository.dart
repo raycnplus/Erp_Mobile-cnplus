@@ -29,4 +29,32 @@ class QuotationReportRepository {
 
   Future<List<QuotationLocationOption>> getLocationsByWarehouse(int idWarehouse) =>
       remoteDataSource.getLocationsByWarehouse(idWarehouse);
+
+  QuotationReportExportUrlInfo getExportPdfUrl({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) => remoteDataSource.getExportPdfUrl(
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
+
+  QuotationReportExportUrlInfo getExportExcelUrl({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) => remoteDataSource.getExportExcelUrl(
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
 }

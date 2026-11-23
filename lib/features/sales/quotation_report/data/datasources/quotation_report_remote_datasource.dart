@@ -3,6 +3,8 @@ import 'package:erp_mobile_cnplus/features/sales/quotation_report/data/models/qu
 
 class QuotationReportRemoteDataSource {
   final Dio dio;
+  static const _base = '/sales/quotation-report';
+
   QuotationReportRemoteDataSource(this.dio);
 
   Future<Map<String, dynamic>> getQuotationReportList({
@@ -17,16 +19,18 @@ class QuotationReportRemoteDataSource {
   }) async {
     try {
       final response = await dio.get(
-        '/sales/quotation-report',
+        _base,
         queryParameters: {
           'page': page,
           'per_page': perPage,
           if (search != null && search.isNotEmpty) 'search': search,
-          if (idWarehouse != null) 'id_warehouse': idWarehouse,
-          if (idLocation != null) 'id_location': idLocation,
-          if (dateFrom != null && dateFrom.isNotEmpty) 'date_from': dateFrom,
-          if (dateTo != null && dateTo.isNotEmpty) 'date_to': dateTo,
-          if (status != null && status.isNotEmpty) 'status': status,
+          ..._filterParams(
+            idWarehouse: idWarehouse,
+            idLocation: idLocation,
+            dateFrom: dateFrom,
+            dateTo: dateTo,
+            status: status,
+          ),
         },
       );
       final json = response.data as Map<String, dynamic>;
@@ -44,7 +48,7 @@ class QuotationReportRemoteDataSource {
 
   Future<Map<String, dynamic>> getFormOptions() async {
     try {
-      final response = await dio.get('/sales/quotation-report/form-options');
+      final response = await dio.get('$_base/form-options');
       final json = response.data as Map<String, dynamic>;
       final data = json['data'] ?? {};
       return {
@@ -61,7 +65,7 @@ class QuotationReportRemoteDataSource {
   Future<List<QuotationLocationOption>> getLocationsByWarehouse(int idWarehouse) async {
     try {
       final response = await dio.get(
-        '/sales/quotation-report/locations-by-warehouse',
+        '$_base/locations-by-warehouse',
         queryParameters: {'id_warehouse': idWarehouse},
       );
       final json = response.data as Map<String, dynamic>;
@@ -71,6 +75,81 @@ class QuotationReportRemoteDataSource {
       throw Exception(_handleDioError(e));
     }
   }
+
+  QuotationReportExportUrlInfo getExportPdfUrl({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) =>
+      _buildExportInfo(
+        'export-pdf',
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
+
+  QuotationReportExportUrlInfo getExportExcelUrl({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) =>
+      _buildExportInfo(
+        'export-excel',
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
+
+  QuotationReportExportUrlInfo _buildExportInfo(
+    String path, {
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) {
+    final params = _filterParams(
+      idWarehouse: idWarehouse,
+      idLocation: idLocation,
+      dateFrom: dateFrom,
+      dateTo: dateTo,
+      status: status,
+    ).map((k, v) => MapEntry(k, v.toString()));
+
+    final uri = Uri.parse('${dio.options.baseUrl}$_base/$path').replace(
+      queryParameters: params,
+    );
+
+    final headers = <String, String>{};
+    dio.options.headers.forEach((k, v) {
+      if (v != null) headers[k] = v.toString();
+    });
+
+    return QuotationReportExportUrlInfo(url: uri.toString(), headers: headers);
+  }
+
+  Map<String, dynamic> _filterParams({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) =>
+      {
+        if (idWarehouse != null) 'id_warehouse': idWarehouse,
+        if (idLocation != null) 'id_location': idLocation,
+        if (dateFrom != null && dateFrom.isNotEmpty) 'date_from': dateFrom,
+        if (dateTo != null && dateTo.isNotEmpty) 'date_to': dateTo,
+        if (status != null && status.isNotEmpty) 'status': status,
+      };
 
   String _handleDioError(DioException e) {
     if (e.response != null) {

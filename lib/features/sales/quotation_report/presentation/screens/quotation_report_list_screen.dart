@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:erp_mobile_cnplus/core/utils/colors.dart';
 import 'package:erp_mobile_cnplus/core/utils/number_format_helper.dart';
+import 'package:erp_mobile_cnplus/shared/widgets/custom_dialog.dart';
 import 'package:erp_mobile_cnplus/features/sales/quotation_report/presentation/controllers/quotation_report_controller.dart';
 import 'package:erp_mobile_cnplus/features/sales/quotation_report/presentation/widgets/quotation_report_list_item.dart';
 import 'package:erp_mobile_cnplus/features/sales/quotation_report/presentation/widgets/quotation_report_filter_sheet.dart';
@@ -18,22 +19,36 @@ class QuotationReportListScreen extends StatefulWidget {
 
 class _QuotationReportListScreenState extends State<QuotationReportListScreen> {
   final TextEditingController _searchController = TextEditingController();
+  late final QuotationReportController _ctrl;
 
   @override
   void initState() {
     super.initState();
+    _ctrl = context.read<QuotationReportController>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctrl = context.read<QuotationReportController>();
-      ctrl.fetchFormOptions();
-      // Sengaja TIDAK memanggil ctrl.fetchList() di sini — user wajib
-      // search atau apply filter dulu sebelum list data ditampilkan.
+      _ctrl.fetchFormOptions();
+      _ctrl.addListener(_onControllerChange);
     });
   }
 
   @override
   void dispose() {
+    _ctrl.removeListener(_onControllerChange);
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onControllerChange() {
+    final msg = _ctrl.consumeStatusMessage();
+    if (msg != null && mounted) {
+      final isError = msg.toLowerCase().contains('failed') ||
+          msg.toLowerCase().contains('only');
+      CustomDialog.showInfo(
+        context,
+        message: msg,
+        type: isError ? CustomDialogType.error : CustomDialogType.success,
+      );
+    }
   }
 
   void _onSearchChanged(String v) =>
@@ -62,6 +77,43 @@ class _QuotationReportListScreenState extends State<QuotationReportListScreen> {
     );
   }
 
+  void _handleExport(String type) {
+    context.read<QuotationReportController>().startExport(type);
+  }
+
+  void _showExportMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colorCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf_outlined, color: colorPrimary),
+              title: Text('Export to PDF', style: GoogleFonts.poppins()),
+              onTap: () {
+                Navigator.pop(context);
+                _handleExport('pdf');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.table_chart_outlined, color: colorPrimary),
+              title: Text('Export to Excel', style: GoogleFonts.poppins()),
+              onTap: () {
+                Navigator.pop(context);
+                _handleExport('excel');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,6 +135,33 @@ class _QuotationReportListScreenState extends State<QuotationReportListScreen> {
         backgroundColor: colorWhite,
         foregroundColor: colorTextPrimary,
         actions: [
+          Consumer<QuotationReportController>(
+            builder: (context, ctrl, child) {
+              if (!ctrl.canExport) return const SizedBox.shrink();
+              if (ctrl.isExporting) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: colorPrimary,
+                        value: ctrl.downloadProgress > 0
+                            ? ctrl.downloadProgress / 100
+                            : null,
+                      ),
+                    ),
+                  ),
+                );
+              }
+              return IconButton(
+                icon: const Icon(Icons.file_download_outlined),
+                onPressed: () => _showExportMenu(context),
+              );
+            },
+          ),
           Consumer<QuotationReportController>(
             builder: (context, ctrl, child) {
               return Stack(
@@ -112,7 +191,6 @@ class _QuotationReportListScreenState extends State<QuotationReportListScreen> {
       ),
       body: Column(
         children: [
-          // --- SEARCH BAR ---
           Container(
             color: colorCard,
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
@@ -160,7 +238,6 @@ class _QuotationReportListScreenState extends State<QuotationReportListScreen> {
             ),
           ),
 
-          // --- LIST & PAGINATION ---
           Expanded(
             child: Consumer<QuotationReportController>(
               builder: (context, ctrl, child) {

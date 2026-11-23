@@ -39,3 +39,41 @@ class GetQuotationReportLocationsByWarehouse {
 
   Future<List<QuotationLocationOption>> call(int idWarehouse) => repository.getLocationsByWarehouse(idWarehouse);
 }
+
+class GetQuotationReportExportPdfUrl {
+  final QuotationReportRepository repository;
+  GetQuotationReportExportPdfUrl(this.repository);
+
+  QuotationReportExportUrlInfo call({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) => repository.getExportPdfUrl(
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
+}
+
+class GetQuotationReportExportExcelUrl {
+  final QuotationReportRepository repository;
+  GetQuotationReportExportExcelUrl(this.repository);
+
+  QuotationReportExportUrlInfo call({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) => repository.getExportExcelUrl(
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
+}
