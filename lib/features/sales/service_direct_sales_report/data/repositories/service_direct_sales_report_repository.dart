@@ -1,4 +1,5 @@
 import 'package:erp_mobile_cnplus/features/sales/service_direct_sales_report/data/datasources/service_direct_sales_report_remote_datasource.dart';
+import 'package:erp_mobile_cnplus/features/sales/service_direct_sales_report/data/models/service_direct_sales_report_models.dart';
 
 class ServiceDirectSalesReportRepository {
   final ServiceDirectSalesReportRemoteDataSource remoteDataSource;
@@ -27,4 +28,32 @@ class ServiceDirectSalesReportRepository {
 
   Future<Map<String, dynamic>> getFormOptions() =>
       remoteDataSource.getFormOptions();
+
+  ServiceDirectSalesReportExportUrlInfo getExportPdfUrl({
+    int? customerId,
+    int? salesId,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) => remoteDataSource.getExportPdfUrl(
+        customerId: customerId,
+        salesId: salesId,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
+
+  ServiceDirectSalesReportExportUrlInfo getExportExcelUrl({
+    int? customerId,
+    int? salesId,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) => remoteDataSource.getExportExcelUrl(
+        customerId: customerId,
+        salesId: salesId,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
 }

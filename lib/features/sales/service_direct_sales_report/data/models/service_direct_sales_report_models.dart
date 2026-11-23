@@ -53,7 +53,7 @@ class ServiceDirectSalesReportModel {
   final double qty;
   final double taxes;
   final double amount;
-  final String amountRaw; // dipakai untuk format Rupiah presisi dari backend
+  final String amountRaw; 
   final String status;
   final String? createdDate;
 
@@ -120,4 +120,10 @@ class ServiceDirectSalesSalesPersonOption {
       namaLengkap: json['nama_lengkap'] ?? '',
     );
   }
+}
+
+class ServiceDirectSalesReportExportUrlInfo {
+  final String url;
+  final Map<String, String> headers;
+  ServiceDirectSalesReportExportUrlInfo({required this.url, required this.headers});
 }

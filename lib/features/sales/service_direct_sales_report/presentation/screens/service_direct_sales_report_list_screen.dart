@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:erp_mobile_cnplus/core/utils/colors.dart';
+import 'package:erp_mobile_cnplus/shared/widgets/custom_dialog.dart';
 import 'package:erp_mobile_cnplus/features/sales/service_direct_sales_report/presentation/controllers/service_direct_sales_report_controller.dart';
 import 'package:erp_mobile_cnplus/features/sales/service_direct_sales_report/presentation/widgets/service_direct_sales_report_list_item.dart';
 import 'package:erp_mobile_cnplus/features/sales/service_direct_sales_report/presentation/widgets/service_direct_sales_report_filter_sheet.dart';
@@ -18,23 +19,36 @@ class ServiceDirectSalesReportListScreen extends StatefulWidget {
 class _ServiceDirectSalesReportListScreenState
     extends State<ServiceDirectSalesReportListScreen> {
   final TextEditingController _searchController = TextEditingController();
+  late final ServiceDirectSalesReportController _ctrl;
 
   @override
   void initState() {
     super.initState();
+    _ctrl = context.read<ServiceDirectSalesReportController>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctrl = context.read<ServiceDirectSalesReportController>();
-      ctrl.fetchFormOptions();
-      // Sengaja TIDAK memanggil ctrl.fetchList() di sini — user wajib
-      // search atau apply filter dulu sebelum list data ditampilkan
-      // (konsisten dengan semua fitur report lainnya).
+      _ctrl.fetchFormOptions();
+      _ctrl.addListener(_onControllerChange);
     });
   }
 
   @override
   void dispose() {
+    _ctrl.removeListener(_onControllerChange);
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onControllerChange() {
+    final msg = _ctrl.consumeStatusMessage();
+    if (msg != null && mounted) {
+      final isError = msg.toLowerCase().contains('failed') ||
+          msg.toLowerCase().contains('only');
+      CustomDialog.showInfo(
+        context,
+        message: msg,
+        type: isError ? CustomDialogType.error : CustomDialogType.success,
+      );
+    }
   }
 
   void _onSearchChanged(String v) =>
@@ -63,6 +77,43 @@ class _ServiceDirectSalesReportListScreenState
     );
   }
 
+  void _handleExport(String type) {
+    context.read<ServiceDirectSalesReportController>().startExport(type);
+  }
+
+  void _showExportMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colorCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf_outlined, color: colorPrimary),
+              title: Text('Export to PDF', style: GoogleFonts.poppins()),
+              onTap: () {
+                Navigator.pop(context);
+                _handleExport('pdf');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.table_chart_outlined, color: colorPrimary),
+              title: Text('Export to Excel', style: GoogleFonts.poppins()),
+              onTap: () {
+                Navigator.pop(context);
+                _handleExport('excel');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,6 +135,33 @@ class _ServiceDirectSalesReportListScreenState
         backgroundColor: colorWhite,
         foregroundColor: colorTextPrimary,
         actions: [
+          Consumer<ServiceDirectSalesReportController>(
+            builder: (context, ctrl, child) {
+              if (!ctrl.canExport) return const SizedBox.shrink();
+              if (ctrl.isExporting) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: colorPrimary,
+                        value: ctrl.downloadProgress > 0
+                            ? ctrl.downloadProgress / 100
+                            : null,
+                      ),
+                    ),
+                  ),
+                );
+              }
+              return IconButton(
+                icon: const Icon(Icons.file_download_outlined),
+                onPressed: () => _showExportMenu(context),
+              );
+            },
+          ),
           Consumer<ServiceDirectSalesReportController>(
             builder: (context, ctrl, child) {
               return Stack(
@@ -113,7 +191,6 @@ class _ServiceDirectSalesReportListScreenState
       ),
       body: Column(
         children: [
-          // --- SEARCH BAR ---
           Container(
             color: colorCard,
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
@@ -161,7 +238,6 @@ class _ServiceDirectSalesReportListScreenState
             ),
           ),
 
-          // --- LANGSUNG LIST & PAGINATION (TANPA card Total Amount/Total Taxes) ---
           Expanded(
             child: Consumer<ServiceDirectSalesReportController>(
               builder: (context, ctrl, child) {

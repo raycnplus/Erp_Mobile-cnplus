@@ -22,14 +22,6 @@ class ServiceDirectSalesReportListItem extends StatelessWidget {
     }
   }
 
-  /// Memformat string mentah dari backend (mis. "110000.5", "110000,5",
-  /// "1.110.000,00", atau angka polos "110000") menjadi format Rupiah
-  /// dengan pemisah ribuan titik dan SELALU 2 digit desimal (mis. "Rp 110.000,50").
-  ///
-  /// Backend bisa mengirim titik ATAU koma sebagai pemisah desimal, jadi
-  /// kita deteksi separator desimal yang sebenarnya terlebih dahulu
-  /// (pemisah yang muncul PALING TERAKHIR dianggap sebagai pemisah desimal),
-  /// baru kemudian buang sisa pemisah ribuan sebelum diformat ulang.
   String _formatRupiah(String? rawValue) {
     if (rawValue == null || rawValue.trim().isEmpty) {
       return 'Rp 0,00';
@@ -43,12 +35,9 @@ class ServiceDirectSalesReportListItem extends StatelessWidget {
     String decimalPart;
 
     if (lastDot == -1 && lastComma == -1) {
-      // Tidak ada pemisah sama sekali, murni angka bulat.
       wholePart = value;
       decimalPart = '00';
     } else {
-      // Separator yang posisinya paling akhir dianggap sebagai pemisah desimal,
-      // separator lainnya (jika ada) dianggap pemisah ribuan dan dibuang.
       final decimalSeparatorIndex = lastDot > lastComma ? lastDot : lastComma;
 
       wholePart = value
@@ -58,13 +47,11 @@ class ServiceDirectSalesReportListItem extends StatelessWidget {
       decimalPart = value.substring(decimalSeparatorIndex + 1);
     }
 
-    // Bersihkan karakter non-digit yang mungkin nyelip (mis. "Rp", spasi).
     wholePart = wholePart.replaceAll(RegExp(r'[^0-9-]'), '');
     decimalPart = decimalPart.replaceAll(RegExp(r'[^0-9]'), '');
 
     if (wholePart.isEmpty || wholePart == '-') wholePart = '0';
 
-    // PAKSA selalu tepat 2 digit desimal.
     if (decimalPart.isEmpty) {
       decimalPart = '00';
     } else if (decimalPart.length == 1) {
