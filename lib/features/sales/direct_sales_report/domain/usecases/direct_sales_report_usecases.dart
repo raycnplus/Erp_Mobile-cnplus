@@ -43,3 +43,43 @@ class GetDirectSalesReportLocationsByWarehouse {
   Future<List<DirectSalesLocationOption>> call(int idWarehouse) =>
       repository.getLocationsByWarehouse(idWarehouse);
 }
+
+class GetDirectSalesReportExportPdfUrl {
+  final DirectSalesReportRepository repository;
+
+  GetDirectSalesReportExportPdfUrl(this.repository);
+
+  DirectSalesReportExportUrlInfo call({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) => repository.getExportPdfUrl(
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
+}
+
+class GetDirectSalesReportExportExcelUrl {
+  final DirectSalesReportRepository repository;
+
+  GetDirectSalesReportExportExcelUrl(this.repository);
+
+  DirectSalesReportExportUrlInfo call({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) => repository.getExportExcelUrl(
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
+}

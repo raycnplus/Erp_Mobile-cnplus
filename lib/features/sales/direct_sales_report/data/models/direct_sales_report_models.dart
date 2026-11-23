@@ -53,7 +53,7 @@ class DirectSalesReportModel {
   final double demandQty;
   final double taxes;
   final double amount;
-  final String amountRaw; // dipakai untuk format Rupiah presisi dari backend
+  final String amountRaw;
   final String status;
   final String? createdDate;
 
@@ -120,4 +120,10 @@ class DirectSalesLocationOption {
       locationName: json['location_name'] ?? '',
     );
   }
+}
+
+class DirectSalesReportExportUrlInfo {
+  final String url;
+  final Map<String, String> headers;
+  DirectSalesReportExportUrlInfo({required this.url, required this.headers});
 }

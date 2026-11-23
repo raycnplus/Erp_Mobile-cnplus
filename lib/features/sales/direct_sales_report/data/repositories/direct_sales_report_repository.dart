@@ -32,4 +32,32 @@ class DirectSalesReportRepository {
   Future<List<DirectSalesLocationOption>> getLocationsByWarehouse(
     int idWarehouse,
   ) => remoteDataSource.getLocationsByWarehouse(idWarehouse);
+
+  DirectSalesReportExportUrlInfo getExportPdfUrl({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) => remoteDataSource.getExportPdfUrl(
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
+
+  DirectSalesReportExportUrlInfo getExportExcelUrl({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) => remoteDataSource.getExportExcelUrl(
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
 }

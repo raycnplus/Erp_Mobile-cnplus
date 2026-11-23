@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:erp_mobile_cnplus/core/services/download_service.dart';
 import 'package:erp_mobile_cnplus/features/sales/direct_sales_report/data/models/direct_sales_report_models.dart';
 import 'package:erp_mobile_cnplus/features/sales/direct_sales_report/domain/usecases/direct_sales_report_usecases.dart';
 
@@ -6,11 +7,15 @@ class DirectSalesReportController extends ChangeNotifier {
   final GetDirectSalesReportList getDirectSalesReportList;
   final GetDirectSalesReportFormOptions getDirectSalesReportFormOptions;
   final GetDirectSalesReportLocationsByWarehouse getLocationsByWarehouse;
+  final GetDirectSalesReportExportPdfUrl getExportPdfUrl;
+  final GetDirectSalesReportExportExcelUrl getExportExcelUrl;
 
   DirectSalesReportController({
     required this.getDirectSalesReportList,
     required this.getDirectSalesReportFormOptions,
     required this.getLocationsByWarehouse,
+    required this.getExportPdfUrl,
+    required this.getExportExcelUrl,
   });
 
   List<DirectSalesReportModel> _list = [];
@@ -18,9 +23,6 @@ class DirectSalesReportController extends ChangeNotifier {
   String? _listError;
   DirectSalesReportSummary? _summary;
 
-  // True setelah user melakukan search/apply filter pertama kali (konsisten
-  // dengan Quotation & Sales Order Report: list TIDAK auto-load saat screen
-  // dibuka, minimal harus search atau apply filter dulu).
   bool _hasFetchedOnce = false;
 
   int _currentPage = 1;
@@ -41,6 +43,11 @@ class DirectSalesReportController extends ChangeNotifier {
   bool _isLoadingOptions = false;
   bool _isLoadingLocations = false;
   String? _optionsError;
+
+  bool _isExporting = false;
+  int _downloadProgress = 0;
+  String? _currentTaskId;
+  String? _statusMessage;
 
   List<DirectSalesReportModel> get list => _list;
   bool get isLoadingList => _isLoadingList;
@@ -73,6 +80,16 @@ class DirectSalesReportController extends ChangeNotifier {
       _dateFrom != null ||
       _dateTo != null ||
       _selectedStatus != null;
+
+  bool get canExport => _hasFetchedOnce && _list.isNotEmpty;
+  bool get isExporting => _isExporting;
+  int get downloadProgress => _downloadProgress;
+
+  String? consumeStatusMessage() {
+    final msg = _statusMessage;
+    _statusMessage = null;
+    return msg;
+  }
 
   String _formatDate(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
@@ -196,6 +213,63 @@ class DirectSalesReportController extends ChangeNotifier {
 
   void nextPage() => goToPage(_currentPage + 1);
   void prevPage() => goToPage(_currentPage - 1);
+
+  Future<void> startExport(String type) async {
+    if (!canExport || _isExporting) return;
+
+    final from = _dateFrom != null ? _formatDate(_dateFrom!) : null;
+    final to = _dateTo != null ? _formatDate(_dateTo!) : null;
+
+    final DirectSalesReportExportUrlInfo info = type == 'pdf'
+        ? getExportPdfUrl(
+            idWarehouse: _selectedWarehouseId,
+            idLocation: _selectedLocationId,
+            dateFrom: from,
+            dateTo: to,
+            status: _selectedStatus,
+          )
+        : getExportExcelUrl(
+            idWarehouse: _selectedWarehouseId,
+            idLocation: _selectedLocationId,
+            dateFrom: from,
+            dateTo: to,
+            status: _selectedStatus,
+          );
+
+    final ext = type == 'pdf' ? 'pdf' : 'xlsx';
+
+    _isExporting = true;
+    _downloadProgress = 0;
+    notifyListeners();
+
+    _currentTaskId = await DownloadService.instance.download(
+      url: info.url,
+      headers: info.headers,
+      fileName: 'direct_sales_report_${DateTime.now().millisecondsSinceEpoch}.$ext',
+      label: 'Direct Sales Report ${type.toUpperCase()}',
+      onProgress: (p) {
+        _downloadProgress = p;
+        notifyListeners();
+      },
+      onMessage: (m) {
+        _statusMessage = m;
+        notifyListeners();
+      },
+      onFinished: () {
+        _isExporting = false;
+        _currentTaskId = null;
+        notifyListeners();
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    if (_currentTaskId != null) {
+      DownloadService.instance.unlisten(_currentTaskId!);
+    }
+    super.dispose();
+  }
 
   String _extractMessage(dynamic error) =>
       error.toString().replaceFirst('Exception: ', '');

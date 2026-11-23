@@ -3,6 +3,8 @@ import 'package:erp_mobile_cnplus/features/sales/direct_sales_report/data/models
 
 class DirectSalesReportRemoteDataSource {
   final Dio dio;
+  static const _base = '/sales/direct-sales-report';
+
   DirectSalesReportRemoteDataSource(this.dio);
 
   Future<Map<String, dynamic>> getDirectSalesReportList({
@@ -17,16 +19,18 @@ class DirectSalesReportRemoteDataSource {
   }) async {
     try {
       final response = await dio.get(
-        '/sales/direct-sales-report',
+        _base,
         queryParameters: {
           'page': page,
           'per_page': perPage,
           if (search != null && search.isNotEmpty) 'search': search,
-          if (idWarehouse != null) 'id_warehouse': idWarehouse,
-          if (idLocation != null) 'id_location': idLocation,
-          if (dateFrom != null && dateFrom.isNotEmpty) 'date_from': dateFrom,
-          if (dateTo != null && dateTo.isNotEmpty) 'date_to': dateTo,
-          if (status != null && status.isNotEmpty) 'status': status,
+          ..._filterParams(
+            idWarehouse: idWarehouse,
+            idLocation: idLocation,
+            dateFrom: dateFrom,
+            dateTo: dateTo,
+            status: status,
+          ),
         },
       );
 
@@ -50,9 +54,7 @@ class DirectSalesReportRemoteDataSource {
 
   Future<Map<String, dynamic>> getFormOptions() async {
     try {
-      final response = await dio.get(
-        '/sales/direct-sales-report/form-options',
-      );
+      final response = await dio.get('$_base/form-options');
 
       final json = response.data as Map<String, dynamic>;
       final data = json['data'] ?? {};
@@ -75,7 +77,7 @@ class DirectSalesReportRemoteDataSource {
   ) async {
     try {
       final response = await dio.get(
-        '/sales/direct-sales-report/locations-by-warehouse',
+        '$_base/locations-by-warehouse',
         queryParameters: {
           'id_warehouse': idWarehouse,
         },
@@ -91,6 +93,81 @@ class DirectSalesReportRemoteDataSource {
       throw Exception(_handleDioError(e));
     }
   }
+
+  DirectSalesReportExportUrlInfo getExportPdfUrl({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) =>
+      _buildExportInfo(
+        'export-pdf',
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
+
+  DirectSalesReportExportUrlInfo getExportExcelUrl({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) =>
+      _buildExportInfo(
+        'export-excel',
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        status: status,
+      );
+
+  DirectSalesReportExportUrlInfo _buildExportInfo(
+    String path, {
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) {
+    final params = _filterParams(
+      idWarehouse: idWarehouse,
+      idLocation: idLocation,
+      dateFrom: dateFrom,
+      dateTo: dateTo,
+      status: status,
+    ).map((k, v) => MapEntry(k, v.toString()));
+
+    final uri = Uri.parse('${dio.options.baseUrl}$_base/$path').replace(
+      queryParameters: params,
+    );
+
+    final headers = <String, String>{};
+    dio.options.headers.forEach((k, v) {
+      if (v != null) headers[k] = v.toString();
+    });
+
+    return DirectSalesReportExportUrlInfo(url: uri.toString(), headers: headers);
+  }
+
+  Map<String, dynamic> _filterParams({
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+    String? status,
+  }) =>
+      {
+        if (idWarehouse != null) 'id_warehouse': idWarehouse,
+        if (idLocation != null) 'id_location': idLocation,
+        if (dateFrom != null && dateFrom.isNotEmpty) 'date_from': dateFrom,
+        if (dateTo != null && dateTo.isNotEmpty) 'date_to': dateTo,
+        if (status != null && status.isNotEmpty) 'status': status,
+      };
 
   String _handleDioError(DioException e) {
     if (e.response != null) {
