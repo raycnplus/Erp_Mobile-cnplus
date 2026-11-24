@@ -2212,12 +2212,20 @@ class AppInjector {
         getIt<QuotationReportRepository>(),
       ),
     );
+    getIt.registerLazySingleton(
+      () => GetQuotationReportExportPdfUrl(getIt<QuotationReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetQuotationReportExportExcelUrl(getIt<QuotationReportRepository>()),
+    );
     getIt.registerFactory<QuotationReportController>(
       () => QuotationReportController(
         getQuotationReportList: getIt<GetQuotationReportList>(),
         getQuotationReportFormOptions: getIt<GetQuotationReportFormOptions>(),
         getLocationsByWarehouse:
             getIt<GetQuotationReportLocationsByWarehouse>(),
+        getExportPdfUrl: getIt<GetQuotationReportExportPdfUrl>(),
+        getExportExcelUrl: getIt<GetQuotationReportExportExcelUrl>(),
       ),
     );
 
@@ -2241,12 +2249,28 @@ class AppInjector {
         getIt<SalesOrderReportRepository>(),
       ),
     );
+    getIt.registerLazySingleton(
+      () => GetSalesOrderReportExportPdfUrl(getIt<SalesOrderReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetSalesOrderReportExportExcelUrl(getIt<SalesOrderReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetSalesOrderReportExportDetailPdfUrl(getIt<SalesOrderReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetSalesOrderReportExportDetailExcelUrl(getIt<SalesOrderReportRepository>()),
+    );
     getIt.registerFactory<SalesOrderReportController>(
       () => SalesOrderReportController(
         getSalesOrderReportList: getIt<GetSalesOrderReportList>(),
         getSalesOrderReportFormOptions: getIt<GetSalesOrderReportFormOptions>(),
         getLocationsByWarehouse:
             getIt<GetSalesOrderReportLocationsByWarehouse>(),
+        getExportPdfUrl: getIt<GetSalesOrderReportExportPdfUrl>(),
+        getExportExcelUrl: getIt<GetSalesOrderReportExportExcelUrl>(),
+        getExportDetailPdfUrl: getIt<GetSalesOrderReportExportDetailPdfUrl>(),
+        getExportDetailExcelUrl: getIt<GetSalesOrderReportExportDetailExcelUrl>(),
       ),
     );
 
@@ -2270,12 +2294,20 @@ class AppInjector {
         getIt<DirectSalesReportRepository>(),
       ),
     );
+    getIt.registerLazySingleton(
+      () => GetDirectSalesReportExportPdfUrl(getIt<DirectSalesReportRepository>()),
+    );
+    getIt.registerLazySingleton(
+      () => GetDirectSalesReportExportExcelUrl(getIt<DirectSalesReportRepository>()),
+    );
     getIt.registerFactory<DirectSalesReportController>(
       () => DirectSalesReportController(
         getDirectSalesReportList: getIt<GetDirectSalesReportList>(),
         getDirectSalesReportFormOptions: getIt<GetDirectSalesReportFormOptions>(),
         getLocationsByWarehouse:
             getIt<GetDirectSalesReportLocationsByWarehouse>(),
+        getExportPdfUrl: getIt<GetDirectSalesReportExportPdfUrl>(),
+        getExportExcelUrl: getIt<GetDirectSalesReportExportExcelUrl>(),
       ),
     );
 
@@ -2306,9 +2338,13 @@ class AppInjector {
     getIt.registerLazySingleton<ServiceQuotationReportRepository>(() => ServiceQuotationReportRepository(remoteDataSource: getIt()));
     getIt.registerLazySingleton(() => GetServiceQuotationReportList(getIt()));
     getIt.registerLazySingleton(() => GetServiceQuotationReportFormOptions(getIt()));
+    getIt.registerLazySingleton(() => GetServiceQuotationReportExportPdfUrl(getIt()));
+    getIt.registerLazySingleton(() => GetServiceQuotationReportExportExcelUrl(getIt()));
     getIt.registerFactory<ServiceQuotationReportController>(() => ServiceQuotationReportController(
       getServiceQuotationReportList: getIt(),
       getServiceQuotationReportFormOptions: getIt(),
+      getExportPdfUrl: getIt(),
+      getExportExcelUrl: getIt(),
     ));
 
     // ==================== SALES SERVICE SALES ORDER REPORT ====================
@@ -2316,9 +2352,17 @@ class AppInjector {
     getIt.registerLazySingleton<ServiceSalesOrderReportRepository>(() => ServiceSalesOrderReportRepository(remoteDataSource: getIt()));
     getIt.registerLazySingleton(() => GetServiceSalesOrderReportList(getIt()));
     getIt.registerLazySingleton(() => GetServiceSalesOrderReportFormOptions(getIt()));
+    getIt.registerLazySingleton(() => GetServiceSalesOrderReportExportPdfUrl(getIt()));
+    getIt.registerLazySingleton(() => GetServiceSalesOrderReportExportExcelUrl(getIt()));
+    getIt.registerLazySingleton(() => GetServiceSalesOrderReportExportDetailPdfUrl(getIt()));
+    getIt.registerLazySingleton(() => GetServiceSalesOrderReportExportDetailExcelUrl(getIt()));
     getIt.registerFactory<ServiceSalesOrderReportController>(() => ServiceSalesOrderReportController(
       getServiceSalesOrderReportList: getIt(),
       getServiceSalesOrderReportFormOptions: getIt(),
+      getExportPdfUrl: getIt(),
+      getExportExcelUrl: getIt(),
+      getExportDetailPdfUrl: getIt(),
+      getExportDetailExcelUrl: getIt(),
     ));
 
     // ==================== SALES SERVICE DIRECT SALES REPORT ====================
@@ -2326,9 +2370,13 @@ class AppInjector {
     getIt.registerLazySingleton<ServiceDirectSalesReportRepository>(() => ServiceDirectSalesReportRepository(remoteDataSource: getIt()));
     getIt.registerLazySingleton(() => GetServiceDirectSalesReportList(getIt()));
     getIt.registerLazySingleton(() => GetServiceDirectSalesReportFormOptions(getIt()));
+    getIt.registerLazySingleton(() => GetServiceDirectSalesReportExportPdfUrl(getIt()));
+    getIt.registerLazySingleton(() => GetServiceDirectSalesReportExportExcelUrl(getIt()));
     getIt.registerFactory<ServiceDirectSalesReportController>(() => ServiceDirectSalesReportController(
       getServiceDirectSalesReportList: getIt(),
       getServiceDirectSalesReportFormOptions: getIt(),
+      getExportPdfUrl: getIt(),
+      getExportExcelUrl: getIt(),
     ));
 
     // ==================== SALES SERVICE INVOICE REPORT ====================
