@@ -1,24 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:erp_mobile_cnplus/core/services/download_service.dart';
 import 'package:erp_mobile_cnplus/features/sales/service_sales_order_report/data/models/service_sales_order_report_models.dart';
 import 'package:erp_mobile_cnplus/features/sales/service_sales_order_report/domain/usecases/service_sales_order_report_usecases.dart';
 
 class ServiceSalesOrderReportController extends ChangeNotifier {
   final GetServiceSalesOrderReportList getServiceSalesOrderReportList;
   final GetServiceSalesOrderReportFormOptions getServiceSalesOrderReportFormOptions;
+  final GetServiceSalesOrderReportExportPdfUrl getExportPdfUrl;
+  final GetServiceSalesOrderReportExportExcelUrl getExportExcelUrl;
+  final GetServiceSalesOrderReportExportDetailPdfUrl getExportDetailPdfUrl;
+  final GetServiceSalesOrderReportExportDetailExcelUrl getExportDetailExcelUrl;
 
   ServiceSalesOrderReportController({
     required this.getServiceSalesOrderReportList,
     required this.getServiceSalesOrderReportFormOptions,
+    required this.getExportPdfUrl,
+    required this.getExportExcelUrl,
+    required this.getExportDetailPdfUrl,
+    required this.getExportDetailExcelUrl,
   });
 
   List<ServiceSalesOrderReportModel> _list = [];
   bool _isLoadingList = false;
   String? _listError;
   ServiceSalesOrderReportSummary? _summary;
-
-  // True setelah user melakukan search/apply filter pertama kali (konsisten
-  // dengan semua fitur report lainnya: list TIDAK auto-load saat screen
-  // dibuka, minimal harus search atau apply filter dulu).
+  
   bool _hasFetchedOnce = false;
 
   int _currentPage = 1;
@@ -38,6 +44,11 @@ class ServiceSalesOrderReportController extends ChangeNotifier {
   List<String> _statuses = [];
   bool _isLoadingOptions = false;
   String? _optionsError;
+
+  bool _isExporting = false;
+  int _downloadProgress = 0;
+  String? _currentTaskId;
+  String? _statusMessage;
 
   List<ServiceSalesOrderReportModel> get list => _list;
   bool get isLoadingList => _isLoadingList;
@@ -69,6 +80,16 @@ class ServiceSalesOrderReportController extends ChangeNotifier {
       _dateFrom != null ||
       _dateTo != null ||
       _selectedStatus != null;
+
+  bool get canExport => _hasFetchedOnce && _list.isNotEmpty;
+  bool get isExporting => _isExporting;
+  int get downloadProgress => _downloadProgress;
+
+  String? consumeStatusMessage() {
+    final msg = _statusMessage;
+    _statusMessage = null;
+    return msg;
+  }
 
   String _formatDate(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
@@ -179,6 +200,98 @@ class ServiceSalesOrderReportController extends ChangeNotifier {
 
   void nextPage() => goToPage(_currentPage + 1);
   void prevPage() => goToPage(_currentPage - 1);
+
+  Future<void> startExport(String type) async {
+    if (!canExport || _isExporting) return;
+
+    final from = _dateFrom != null ? _formatDate(_dateFrom!) : null;
+    final to = _dateTo != null ? _formatDate(_dateTo!) : null;
+
+    final ServiceSalesOrderReportExportUrlInfo info = type == 'pdf'
+        ? getExportPdfUrl(
+            customerId: _selectedCustomerId,
+            salesId: _selectedSalesPersonId,
+            dateFrom: from,
+            dateTo: to,
+            status: _selectedStatus,
+          )
+        : getExportExcelUrl(
+            customerId: _selectedCustomerId,
+            salesId: _selectedSalesPersonId,
+            dateFrom: from,
+            dateTo: to,
+            status: _selectedStatus,
+          );
+
+    await _startDownload(
+      info: info,
+      type: type,
+      fileNamePrefix: 'service_sales_order_report',
+      label: 'Service Sales Order Report ${type.toUpperCase()}',
+    );
+  }
+
+  Future<void> startExportDetail({
+    required String encryption,
+    required String reference,
+    required String type,
+  }) async {
+    if (_isExporting || encryption.isEmpty) return;
+
+    final ServiceSalesOrderReportExportUrlInfo info = type == 'pdf'
+        ? getExportDetailPdfUrl(encryption)
+        : getExportDetailExcelUrl(encryption);
+
+    final safeRef = reference.replaceAll(RegExp(r'[^A-Za-z0-9_\-]'), '_');
+
+    await _startDownload(
+      info: info,
+      type: type,
+      fileNamePrefix: 'service_sales_order_$safeRef',
+      label: '$reference ${type.toUpperCase()}',
+    );
+  }
+
+  Future<void> _startDownload({
+    required ServiceSalesOrderReportExportUrlInfo info,
+    required String type,
+    required String fileNamePrefix,
+    required String label,
+  }) async {
+    final ext = type == 'pdf' ? 'pdf' : 'xlsx';
+
+    _isExporting = true;
+    _downloadProgress = 0;
+    notifyListeners();
+
+    _currentTaskId = await DownloadService.instance.download(
+      url: info.url,
+      headers: info.headers,
+      fileName: '${fileNamePrefix}_${DateTime.now().millisecondsSinceEpoch}.$ext',
+      label: label,
+      onProgress: (p) {
+        _downloadProgress = p;
+        notifyListeners();
+      },
+      onMessage: (m) {
+        _statusMessage = m;
+        notifyListeners();
+      },
+      onFinished: () {
+        _isExporting = false;
+        _currentTaskId = null;
+        notifyListeners();
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    if (_currentTaskId != null) {
+      DownloadService.instance.unlisten(_currentTaskId!);
+    }
+    super.dispose();
+  }
 
   String _extractMessage(dynamic error) =>
       error.toString().replaceFirst('Exception: ', '');

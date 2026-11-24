@@ -46,6 +46,7 @@ class ServiceSalesOrderReportSummary {
 
 class ServiceSalesOrderReportModel {
   final int idServiceSalesOrder;
+  final String encryption;
   final String reference;
   final String customer;
   final String salesPerson;
@@ -53,13 +54,14 @@ class ServiceSalesOrderReportModel {
   final double qty;
   final double taxes;
   final double amount;
-  final String amountRaw; // dipakai untuk format Rupiah presisi dari backend
+  final String amountRaw;
   final String paymentStatus;
   final String status;
   final String? createdDate;
 
   ServiceSalesOrderReportModel({
     required this.idServiceSalesOrder,
+    required this.encryption,
     required this.reference,
     required this.customer,
     required this.salesPerson,
@@ -76,6 +78,7 @@ class ServiceSalesOrderReportModel {
   factory ServiceSalesOrderReportModel.fromJson(Map<String, dynamic> json) {
     return ServiceSalesOrderReportModel(
       idServiceSalesOrder: json['id_service_sales_order'] ?? 0,
+      encryption: json['encryption'] ?? '',
       reference: json['reference'] ?? '-',
       customer: json['customer'] ?? '-',
       salesPerson: json['sales_person'] ?? '-',
@@ -123,4 +126,10 @@ class ServiceSalesOrderSalesPersonOption {
       namaLengkap: json['nama_lengkap'] ?? '',
     );
   }
+}
+
+class ServiceSalesOrderReportExportUrlInfo {
+  final String url;
+  final Map<String, String> headers;
+  ServiceSalesOrderReportExportUrlInfo({required this.url, required this.headers});
 }

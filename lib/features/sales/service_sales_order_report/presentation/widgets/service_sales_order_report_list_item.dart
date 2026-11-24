@@ -7,7 +7,13 @@ import 'package:erp_mobile_cnplus/features/sales/service_sales_order_report/data
 class ServiceSalesOrderReportListItem extends StatelessWidget {
   final ServiceSalesOrderReportModel item;
 
-  const ServiceSalesOrderReportListItem({super.key, required this.item});
+  final void Function(String type)? onExportDetail;
+
+  const ServiceSalesOrderReportListItem({
+    super.key,
+    required this.item,
+    this.onExportDetail,
+  });
 
   Color _statusColor(String status) {
     switch (status) {
@@ -35,14 +41,6 @@ class ServiceSalesOrderReportListItem extends StatelessWidget {
     }
   }
 
-  /// Memformat string mentah dari backend (mis. "110000.5", "110000,5",
-  /// "1.110.000,00", atau angka polos "110000") menjadi format Rupiah
-  /// dengan pemisah ribuan titik dan SELALU 2 digit desimal (mis. "Rp 110.000,50").
-  ///
-  /// Backend bisa mengirim titik ATAU koma sebagai pemisah desimal, jadi
-  /// kita deteksi separator desimal yang sebenarnya terlebih dahulu
-  /// (pemisah yang muncul PALING TERAKHIR dianggap sebagai pemisah desimal),
-  /// baru kemudian buang sisa pemisah ribuan sebelum diformat ulang.
   String _formatRupiah(String? rawValue) {
     if (rawValue == null || rawValue.trim().isEmpty) {
       return 'Rp 0,00';
@@ -56,12 +54,9 @@ class ServiceSalesOrderReportListItem extends StatelessWidget {
     String decimalPart;
 
     if (lastDot == -1 && lastComma == -1) {
-      // Tidak ada pemisah sama sekali, murni angka bulat.
       wholePart = value;
       decimalPart = '00';
     } else {
-      // Separator yang posisinya paling akhir dianggap sebagai pemisah desimal,
-      // separator lainnya (jika ada) dianggap pemisah ribuan dan dibuang.
       final decimalSeparatorIndex = lastDot > lastComma ? lastDot : lastComma;
 
       wholePart = value
@@ -71,13 +66,11 @@ class ServiceSalesOrderReportListItem extends StatelessWidget {
       decimalPart = value.substring(decimalSeparatorIndex + 1);
     }
 
-    // Bersihkan karakter non-digit yang mungkin nyelip (mis. "Rp", spasi).
     wholePart = wholePart.replaceAll(RegExp(r'[^0-9-]'), '');
     decimalPart = decimalPart.replaceAll(RegExp(r'[^0-9]'), '');
 
     if (wholePart.isEmpty || wholePart == '-') wholePart = '0';
 
-    // PAKSA selalu tepat 2 digit desimal.
     if (decimalPart.isEmpty) {
       decimalPart = '00';
     } else if (decimalPart.length == 1) {
@@ -134,7 +127,7 @@ class ServiceSalesOrderReportListItem extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+                        Row(
               children: [
                 Expanded(
                   child: Text(
@@ -155,6 +148,36 @@ class ServiceSalesOrderReportListItem extends StatelessWidget {
                     _badge(item.paymentStatus, paymentStatusColor),
                   ],
                 ),
+                if (item.encryption.isNotEmpty)
+                  PopupMenuButton<String>(
+                    enabled: onExportDetail != null,
+                    icon: const Icon(Icons.more_vert, size: 20, color: colorTextSubtle),
+                    padding: EdgeInsets.zero,
+                    tooltip: 'Export',
+                    onSelected: (type) => onExportDetail?.call(type),
+                    itemBuilder: (_) => [
+                      PopupMenuItem(
+                        value: 'pdf',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.picture_as_pdf_outlined, size: 18, color: colorPrimary),
+                            const SizedBox(width: 8),
+                            Text('Export PDF', style: GoogleFonts.poppins(fontSize: 13)),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'excel',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.table_chart_outlined, size: 18, color: colorPrimary),
+                            const SizedBox(width: 8),
+                            Text('Export Excel', style: GoogleFonts.poppins(fontSize: 13)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
             const SizedBox(height: 8),

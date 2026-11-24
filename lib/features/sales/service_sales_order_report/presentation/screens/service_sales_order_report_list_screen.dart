@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:erp_mobile_cnplus/core/utils/colors.dart';
+import 'package:erp_mobile_cnplus/shared/widgets/custom_dialog.dart';
 import 'package:erp_mobile_cnplus/features/sales/service_sales_order_report/presentation/controllers/service_sales_order_report_controller.dart';
 import 'package:erp_mobile_cnplus/features/sales/service_sales_order_report/presentation/widgets/service_sales_order_report_list_item.dart';
 import 'package:erp_mobile_cnplus/features/sales/service_sales_order_report/presentation/widgets/service_sales_order_report_filter_sheet.dart';
@@ -18,23 +19,36 @@ class ServiceSalesOrderReportListScreen extends StatefulWidget {
 class _ServiceSalesOrderReportListScreenState
     extends State<ServiceSalesOrderReportListScreen> {
   final TextEditingController _searchController = TextEditingController();
+  late final ServiceSalesOrderReportController _ctrl;
 
   @override
   void initState() {
     super.initState();
+    _ctrl = context.read<ServiceSalesOrderReportController>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final ctrl = context.read<ServiceSalesOrderReportController>();
-      ctrl.fetchFormOptions();
-      // Sengaja TIDAK memanggil ctrl.fetchList() di sini — user wajib
-      // search atau apply filter dulu sebelum list data ditampilkan
-      // (konsisten dengan semua fitur report lainnya).
+      _ctrl.fetchFormOptions();
+      _ctrl.addListener(_onControllerChange);
     });
   }
 
   @override
   void dispose() {
+    _ctrl.removeListener(_onControllerChange);
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onControllerChange() {
+    final msg = _ctrl.consumeStatusMessage();
+    if (msg != null && mounted) {
+      final isError = msg.toLowerCase().contains('failed') ||
+          msg.toLowerCase().contains('only');
+      CustomDialog.showInfo(
+        context,
+        message: msg,
+        type: isError ? CustomDialogType.error : CustomDialogType.success,
+      );
+    }
   }
 
   void _onSearchChanged(String v) =>
@@ -63,6 +77,43 @@ class _ServiceSalesOrderReportListScreenState
     );
   }
 
+  void _handleExport(String type) {
+    context.read<ServiceSalesOrderReportController>().startExport(type);
+  }
+
+  void _showExportMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colorCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf_outlined, color: colorPrimary),
+              title: Text('Export to PDF', style: GoogleFonts.poppins()),
+              onTap: () {
+                Navigator.pop(context);
+                _handleExport('pdf');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.table_chart_outlined, color: colorPrimary),
+              title: Text('Export to Excel', style: GoogleFonts.poppins()),
+              onTap: () {
+                Navigator.pop(context);
+                _handleExport('excel');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,6 +135,33 @@ class _ServiceSalesOrderReportListScreenState
         backgroundColor: colorWhite,
         foregroundColor: colorTextPrimary,
         actions: [
+          Consumer<ServiceSalesOrderReportController>(
+            builder: (context, ctrl, child) {
+              if (!ctrl.canExport) return const SizedBox.shrink();
+              if (ctrl.isExporting) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: colorPrimary,
+                        value: ctrl.downloadProgress > 0
+                            ? ctrl.downloadProgress / 100
+                            : null,
+                      ),
+                    ),
+                  ),
+                );
+              }
+              return IconButton(
+                icon: const Icon(Icons.file_download_outlined),
+                onPressed: () => _showExportMenu(context),
+              );
+            },
+          ),
           Consumer<ServiceSalesOrderReportController>(
             builder: (context, ctrl, child) {
               return Stack(
@@ -113,7 +191,6 @@ class _ServiceSalesOrderReportListScreenState
       ),
       body: Column(
         children: [
-          // --- SEARCH BAR ---
           Container(
             color: colorCard,
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
@@ -161,7 +238,6 @@ class _ServiceSalesOrderReportListScreenState
             ),
           ),
 
-          // --- LANGSUNG LIST & PAGINATION (TANPA card Total Amount/Total Taxes) ---
           Expanded(
             child: Consumer<ServiceSalesOrderReportController>(
               builder: (context, ctrl, child) {
@@ -228,8 +304,19 @@ class _ServiceSalesOrderReportListScreenState
                         child: ListView.builder(
                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                           itemCount: ctrl.list.length,
-                          itemBuilder: (context, index) =>
-                              ServiceSalesOrderReportListItem(item: ctrl.list[index]),
+                          itemBuilder: (context, index) {
+                            final item = ctrl.list[index];
+                            return ServiceSalesOrderReportListItem(
+                              item: item,
+                              onExportDetail: ctrl.isExporting
+                                  ? null
+                                  : (type) => ctrl.startExportDetail(
+                                        encryption: item.encryption,
+                                        reference: item.reference,
+                                        type: type,
+                                      ),
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -267,7 +354,7 @@ class _ServiceSalesOrderReportListScreenState
               onPressed: _openFilterSheet,
               icon: const Icon(Icons.filter_list, size: 18, color: colorPrimary),
               label: Text(
-                'Ooen Filter',
+                'Open Filter',
                 style: GoogleFonts.poppins(
                   fontWeight: FontWeight.w600,
                   color: colorPrimary,
