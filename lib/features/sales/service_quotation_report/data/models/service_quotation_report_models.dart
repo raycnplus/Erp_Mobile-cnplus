@@ -53,7 +53,7 @@ class ServiceQuotationReportModel {
   final double qty;
   final double taxes;
   final double amount;
-  final String amountRaw; // dipakai untuk format Rupiah presisi dari backend
+  final String amountRaw;
   final String status;
   final String? createdDate;
 
@@ -120,4 +120,10 @@ class ServiceQuotationSalesPersonOption {
       namaLengkap: json['nama_lengkap'] ?? '',
     );
   }
+}
+
+class ServiceQuotationReportExportUrlInfo {
+  final String url;
+  final Map<String, String> headers;
+  ServiceQuotationReportExportUrlInfo({required this.url, required this.headers});
 }
