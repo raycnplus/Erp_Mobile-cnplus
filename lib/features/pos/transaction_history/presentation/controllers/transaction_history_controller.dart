@@ -1,7 +1,4 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:erp_mobile_cnplus/core/services/download_service.dart';
 import 'package:erp_mobile_cnplus/features/pos/transaction_history/data/models/transaction_history_models.dart';
 import 'package:erp_mobile_cnplus/features/pos/transaction_history/domain/usecases/transaction_history_usecases.dart';
@@ -230,12 +227,6 @@ class TransactionHistoryController extends ChangeNotifier {
     }
   }
 
-  Future<bool> _ensureStoragePermission() async {
-    if (!Platform.isAndroid) return true;
-    final status = await Permission.storage.request();
-    return status.isGranted || status.isLimited;
-  }
-
   Future<void> exportList() {
     if (!canExportList) return Future.value();
     return _startDownload(
@@ -248,71 +239,39 @@ class TransactionHistoryController extends ChangeNotifier {
         search: _searchQuery.isEmpty ? null : _searchQuery,
       ),
       'pos_transaction_history',
+      'Transaction History Excel',
     );
   }
 
   Future<void> exportDetail(String enc) =>
-      _startDownload(getExportDetailUrl(enc), 'pos_transaction_detail');
+      _startDownload(getExportDetailUrl(enc), 'pos_transaction_detail', 'Transaction Detail Excel');
 
-  Future<void> _startDownload(HistoryExportUrlInfo info, String prefix) async {
+  Future<void> _startDownload(HistoryExportUrlInfo info, String prefix, String label) async {
     if (_isExporting) return;
-
-    final hasPermission = await _ensureStoragePermission();
-    if (!hasPermission) {
-      _statusMessage = 'Storage permission is required to download the file.';
-      notifyListeners();
-      return;
-    }
 
     _isExporting = true;
     _downloadProgress = 0;
     notifyListeners();
 
-    try {
-      final fileName = '${prefix}_${DateTime.now().millisecondsSinceEpoch}.xlsx';
-
-      final taskId = await FlutterDownloader.enqueue(
-        url: info.url,
-        headers: info.headers,
-        savedDir: '/storage/emulated/0/Download',
-        fileName: fileName,
-        saveInPublicStorage: true,
-        showNotification: true,
-        openFileFromNotification: true,
-      );
-
-      if (taskId == null) {
+    _currentTaskId = await DownloadService.instance.download(
+      url: info.url,
+      headers: info.headers,
+      fileName: '${prefix}_${DateTime.now().millisecondsSinceEpoch}.xlsx',
+      label: label,
+      onProgress: (p) {
+        _downloadProgress = p;
+        notifyListeners();
+      },
+      onMessage: (m) {
+        _statusMessage = m;
+        notifyListeners();
+      },
+      onFinished: () {
         _isExporting = false;
+        _currentTaskId = null;
         notifyListeners();
-        return;
-      }
-
-      _currentTaskId = taskId;
-      DownloadService.instance.listen(taskId, (status, progress) {
-        _downloadProgress = progress;
-
-        if (status == DownloadTaskStatus.complete) {
-          _isExporting = false;
-          _statusMessage = 'Excel downloaded successfully to the Download folder: $fileName';
-          DownloadService.instance.unlisten(taskId);
-          _currentTaskId = null;
-        } else if (status == DownloadTaskStatus.failed) {
-          _isExporting = false;
-          _statusMessage = 'Excel download failed.';
-          DownloadService.instance.unlisten(taskId);
-          _currentTaskId = null;
-        } else if (status == DownloadTaskStatus.canceled) {
-          _isExporting = false;
-          DownloadService.instance.unlisten(taskId);
-          _currentTaskId = null;
-        }
-        notifyListeners();
-      });
-    } catch (e) {
-      _isExporting = false;
-      _statusMessage = _msg(e);
-      notifyListeners();
-    }
+      },
+    );
   }
 
   @override
