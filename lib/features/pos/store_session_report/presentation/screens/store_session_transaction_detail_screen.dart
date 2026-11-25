@@ -5,6 +5,7 @@ import 'package:erp_mobile_cnplus/core/utils/colors.dart';
 import 'package:erp_mobile_cnplus/shared/helpers/formatters.dart';
 import 'package:erp_mobile_cnplus/features/pos/store_session_report/presentation/controllers/store_session_report_controller.dart';
 import 'package:erp_mobile_cnplus/features/pos/store_session_report/presentation/widgets/store_session_widgets.dart';
+import 'package:erp_mobile_cnplus/shared/widgets/custom_dialog.dart';
 
 class StoreSessionTransactionDetailScreen extends StatefulWidget {
   final String encryption;
@@ -35,7 +36,13 @@ class _StoreSessionTransactionDetailScreenState extends State<StoreSessionTransa
     if (!(ModalRoute.of(context)?.isCurrent ?? false)) return;
     final msg = _ctrl.consumeStatusMessage();
     if (msg != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      final isError = msg.toLowerCase().contains('failed') ||
+          msg.toLowerCase().contains('only');
+      CustomDialog.showInfo(
+        context,
+        message: msg,
+        type: isError ? CustomDialogType.error : CustomDialogType.success,
+      );
     }
   }
 
