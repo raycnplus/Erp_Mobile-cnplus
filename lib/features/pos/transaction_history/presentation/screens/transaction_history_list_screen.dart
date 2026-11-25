@@ -9,6 +9,7 @@ import 'package:erp_mobile_cnplus/features/pos/transaction_history/presentation/
 import 'package:erp_mobile_cnplus/features/pos/transaction_history/presentation/widgets/transaction_history_filter_sheet.dart';
 import 'package:erp_mobile_cnplus/features/pos/store_session_report/presentation/widgets/store_session_widgets.dart';
 import 'package:erp_mobile_cnplus/shared/widgets/pagination_bottom_bar.dart';
+import 'package:erp_mobile_cnplus/shared/widgets/custom_dialog.dart';
 
 class TransactionHistoryListScreen extends StatefulWidget {
   const TransactionHistoryListScreen({super.key});
@@ -37,7 +38,13 @@ class _TransactionHistoryListScreenState extends State<TransactionHistoryListScr
     if (!(ModalRoute.of(context)?.isCurrent ?? false)) return;
     final msg = _ctrl.consumeStatusMessage();
     if (msg != null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      final isError = msg.toLowerCase().contains('failed') ||
+          msg.toLowerCase().contains('only');
+      CustomDialog.showInfo(
+        context,
+        message: msg,
+        type: isError ? CustomDialogType.error : CustomDialogType.success,
+      );
     }
   }
 
