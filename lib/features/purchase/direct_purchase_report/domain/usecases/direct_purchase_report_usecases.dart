@@ -1,5 +1,4 @@
 import 'package:erp_mobile_cnplus/features/purchase/direct_purchase_report/data/models/direct_purchase_report_models.dart';
-
 import 'package:erp_mobile_cnplus/features/purchase/direct_purchase_report/data/repositories/direct_purchase_report_repository.dart';
 
 class GetDirectPurchaseReportList {
@@ -65,4 +64,46 @@ class GetDirectPurchaseReportLocationsByWarehouse {
       idWarehouse,
     );
   }
+}
+
+class GetDirectPurchaseReportExportPdfUrl {
+  final DirectPurchaseReportRepository repository;
+
+  GetDirectPurchaseReportExportPdfUrl(this.repository);
+
+  DirectPurchaseReportExportUrlInfo call({
+    int? idVendor,
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+  }) =>
+      repository.getExportPdfUrl(
+        idVendor: idVendor,
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+      );
+}
+
+class GetDirectPurchaseReportExportExcelUrl {
+  final DirectPurchaseReportRepository repository;
+
+  GetDirectPurchaseReportExportExcelUrl(this.repository);
+
+  DirectPurchaseReportExportUrlInfo call({
+    int? idVendor,
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+  }) =>
+      repository.getExportExcelUrl(
+        idVendor: idVendor,
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+      );
 }

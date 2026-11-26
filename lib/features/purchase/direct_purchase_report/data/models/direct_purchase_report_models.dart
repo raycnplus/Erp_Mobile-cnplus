@@ -205,3 +205,9 @@ class DirectPurchaseReportFormOptions {
     );
   }
 }
+
+class DirectPurchaseReportExportUrlInfo {
+  final String url;
+  final Map<String, String> headers;
+  DirectPurchaseReportExportUrlInfo({required this.url, required this.headers});
+}

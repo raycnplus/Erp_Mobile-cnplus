@@ -1,155 +1,133 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-
 import 'package:erp_mobile_cnplus/core/utils/colors.dart';
-
+import 'package:erp_mobile_cnplus/shared/widgets/custom_dialog.dart';
 import 'package:erp_mobile_cnplus/features/purchase/direct_purchase_report/presentation/controllers/direct_purchase_report_controller.dart';
-
 import 'package:erp_mobile_cnplus/features/purchase/direct_purchase_report/presentation/widgets/direct_purchase_report_list_item.dart';
-
 import 'package:erp_mobile_cnplus/features/purchase/direct_purchase_report/presentation/widgets/direct_purchase_report_filter_sheet.dart';
-
 import 'package:erp_mobile_cnplus/shared/widgets/pagination_bottom_bar.dart';
 
-class DirectPurchaseReportListScreen
-    extends StatefulWidget {
-  const DirectPurchaseReportListScreen({
-    super.key,
-  });
+class DirectPurchaseReportListScreen extends StatefulWidget {
+  const DirectPurchaseReportListScreen({super.key});
 
   @override
-  State<DirectPurchaseReportListScreen>
-      createState() =>
-          _DirectPurchaseReportListScreenState();
+  State<DirectPurchaseReportListScreen> createState() =>
+      _DirectPurchaseReportListScreenState();
 }
 
 class _DirectPurchaseReportListScreenState
-    extends State<
-        DirectPurchaseReportListScreen> {
-  final TextEditingController
-      _searchController =
-      TextEditingController();
+    extends State<DirectPurchaseReportListScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  late final DirectPurchaseReportController _ctrl;
 
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) {
-      final ctrl =
-          context.read<
-              DirectPurchaseReportController>();
-
-      ctrl.fetchFormOptions();
-
-      // Tidak fetch list otomatis.
-      // User wajib search atau Apply Filter.
+    _ctrl = context.read<DirectPurchaseReportController>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _ctrl.fetchFormOptions();
+      _ctrl.addListener(_onControllerChange);
     });
   }
 
   @override
   void dispose() {
+    _ctrl.removeListener(_onControllerChange);
     _searchController.dispose();
-
     super.dispose();
   }
 
-  // ============================================================
-  // SEARCH
-  // ============================================================
+  void _onControllerChange() {
+    final msg = _ctrl.consumeStatusMessage();
+    if (msg != null && mounted) {
+      final isError = msg.toLowerCase().contains('failed') ||
+          msg.toLowerCase().contains('only');
+      CustomDialog.showInfo(
+        context,
+        message: msg,
+        type: isError ? CustomDialogType.error : CustomDialogType.success,
+      );
+    }
+  }
 
-  void _onSearchChanged(
-    String value,
-  ) {
-    context
-        .read<
-            DirectPurchaseReportController>()
-        .searchList(value);
+  void _onSearchChanged(String value) {
+    context.read<DirectPurchaseReportController>().searchList(value);
   }
 
   void _clearSearch() {
     _searchController.clear();
-
-    context
-        .read<
-            DirectPurchaseReportController>()
-        .clearSearch();
+    context.read<DirectPurchaseReportController>().clearSearch();
   }
-
-  // ============================================================
-  // REFRESH
-  // ============================================================
 
   Future<void> _handleRefresh() {
-    return context
-        .read<
-            DirectPurchaseReportController>()
-        .fetchList();
+    return context.read<DirectPurchaseReportController>().fetchList();
   }
-
-  // ============================================================
-  // FILTER
-  // ============================================================
 
   void _openFilterSheet() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: colorCard,
-      shape:
-          const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(
-          top: Radius.circular(16),
-        ),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (_) =>
-          ChangeNotifierProvider.value(
-        value: context.read<
-            DirectPurchaseReportController>(),
-        child:
-            const DirectPurchaseReportFilterSheet(),
+      builder: (_) => ChangeNotifierProvider.value(
+        value: context.read<DirectPurchaseReportController>(),
+        child: const DirectPurchaseReportFilterSheet(),
       ),
     );
   }
 
-  // ============================================================
-  // FORMAT RUPIAH
-  // ============================================================
+  void _handleExport(String type) {
+    context.read<DirectPurchaseReportController>().startExport(type);
+  }
 
-  String _formatRupiah(
-    String rawValue,
-  ) {
-    final parts =
-        rawValue.split('.');
+  void _showExportMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colorCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf_outlined, color: colorPrimary),
+              title: Text('Export to PDF', style: GoogleFonts.poppins()),
+              onTap: () {
+                Navigator.pop(context);
+                _handleExport('pdf');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.table_chart_outlined, color: colorPrimary),
+              title: Text('Export to Excel', style: GoogleFonts.poppins()),
+              onTap: () {
+                Navigator.pop(context);
+                _handleExport('excel');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-    final wholePart =
-        parts[0];
+  String _formatRupiah(String rawValue) {
+    final parts = rawValue.split('.');
+    final wholePart = parts[0];
+    final decimalPart = parts.length > 1 ? parts[1] : '';
 
-    final decimalPart =
-        parts.length > 1
-            ? parts[1]
-            : '';
+    final buffer = StringBuffer();
 
-    final buffer =
-        StringBuffer();
-
-    for (
-      int i = 0;
-      i < wholePart.length;
-      i++
-    ) {
-      if (i > 0 &&
-          (wholePart.length - i) %
-                  3 ==
-              0) {
+    for (int i = 0; i < wholePart.length; i++) {
+      if (i > 0 && (wholePart.length - i) % 3 == 0) {
         buffer.write('.');
       }
-
-      buffer.write(
-        wholePart[i],
-      );
+      buffer.write(wholePart[i]);
     }
 
     if (decimalPart.isEmpty) {
@@ -159,84 +137,74 @@ class _DirectPurchaseReportListScreenState
     return 'Rp $buffer,$decimalPart';
   }
 
-  // ============================================================
-  // BUILD
-  // ============================================================
-
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          colorBackground,
-
-      // ========================================================
-      // APP BAR
-      // ========================================================
+      backgroundColor: colorBackground,
 
       appBar: AppBar(
-        leading:
-            IconButton(
-          icon:
-              const Icon(
-            Icons.arrow_back_ios_new,
-          ),
-          onPressed: () =>
-              Navigator.of(context)
-                  .pop(),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new),
+          onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Direct Purchase Report',
-          style:
-              GoogleFonts.poppins(
-            fontWeight:
-                FontWeight.w600,
-            color:
-                colorTextPrimary,
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            color: colorTextPrimary,
             fontSize: 20,
           ),
         ),
         elevation: 0.5,
-        backgroundColor:
-            colorWhite,
-        foregroundColor:
-            colorTextPrimary,
+        backgroundColor: colorWhite,
+        foregroundColor: colorTextPrimary,
         actions: [
-          Consumer<
-              DirectPurchaseReportController>(
-            builder: (
-              context,
-              ctrl,
-              child,
-            ) {
+          Consumer<DirectPurchaseReportController>(
+            builder: (context, ctrl, child) {
+              if (!ctrl.canExport) return const SizedBox.shrink();
+              if (ctrl.isExporting) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: colorPrimary,
+                        value: ctrl.downloadProgress > 0
+                            ? ctrl.downloadProgress / 100
+                            : null,
+                      ),
+                    ),
+                  ),
+                );
+              }
+              return IconButton(
+                icon: const Icon(Icons.file_download_outlined),
+                onPressed: () => _showExportMenu(context),
+              );
+            },
+          ),
+
+          Consumer<DirectPurchaseReportController>(
+            builder: (context, ctrl, child) {
               return Stack(
                 children: [
                   IconButton(
-                    icon:
-                        const Icon(
-                      Icons.filter_list,
-                    ),
-                    onPressed:
-                        _openFilterSheet,
+                    icon: const Icon(Icons.filter_list),
+                    onPressed: _openFilterSheet,
                   ),
-
-                  if (ctrl
-                      .hasActiveFilter)
+                  if (ctrl.hasActiveFilter)
                     Positioned(
                       right: 10,
                       top: 10,
-                      child:
-                          Container(
+                      child: Container(
                         width: 8,
                         height: 8,
-                        decoration:
-                            const BoxDecoration(
-                          color:
-                              colorPrimary,
-                          shape:
-                              BoxShape
-                                  .circle,
+                        decoration: const BoxDecoration(
+                          color: colorPrimary,
+                          shape: BoxShape.circle,
                         ),
                       ),
                     ),
@@ -247,122 +215,60 @@ class _DirectPurchaseReportListScreenState
         ],
       ),
 
-      // ========================================================
-      // BODY
-      // ========================================================
-
       body: Column(
         children: [
-          // ======================================================
-          // SEARCH BAR
-          // ======================================================
-
           Container(
-            color:
-                colorCard,
-            padding:
-                const EdgeInsets
-                    .fromLTRB(
-              16,
-              8,
-              16,
-              12,
-            ),
-            child:
-                TextField(
-              controller:
-                  _searchController,
-              onChanged:
-                  _onSearchChanged,
-              style:
-                  GoogleFonts.poppins(
-                fontSize:
-                    14,
-                color:
-                    colorTextPrimary,
+            color: colorCard,
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: TextField(
+              controller: _searchController,
+              onChanged: _onSearchChanged,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: colorTextPrimary,
               ),
-              decoration:
-                  InputDecoration(
-                hintText:
-                    'Search reference, PR, vendor...',
-                hintStyle:
-                    GoogleFonts.poppins(
-                  fontSize:
-                      13,
-                  color:
-                      colorGrey,
+              decoration: InputDecoration(
+                hintText: 'Search reference, PR, vendor...',
+                hintStyle: GoogleFonts.poppins(
+                  fontSize: 13,
+                  color: colorGrey,
                 ),
-                prefixIcon:
-                    const Icon(
+                prefixIcon: const Icon(
                   Icons.search,
-                  color:
-                      colorGrey,
+                  color: colorGrey,
                   size: 20,
                 ),
-                suffixIcon:
-                    _searchController
-                            .text
-                            .isNotEmpty
-                        ? IconButton(
-                            icon:
-                                const Icon(
-                              Icons.close,
-                              color:
-                                  colorGrey,
-                              size:
-                                  18,
-                            ),
-                            onPressed:
-                                _clearSearch,
-                          )
-                        : null,
-                filled:
-                    true,
-                fillColor:
-                    colorBackground,
-                contentPadding:
-                    const EdgeInsets
-                        .symmetric(
-                  horizontal:
-                      16,
-                  vertical:
-                      10,
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(
+                          Icons.close,
+                          color: colorGrey,
+                          size: 18,
+                        ),
+                        onPressed: _clearSearch,
+                      )
+                    : null,
+                filled: true,
+                fillColor: colorBackground,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
                 ),
-                border:
-                    OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius
-                          .circular(
-                    12,
-                  ),
-                  borderSide:
-                      BorderSide.none,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
                 ),
-                enabledBorder:
-                    OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius
-                          .circular(
-                    12,
-                  ),
-                  borderSide:
-                      const BorderSide(
-                    color:
-                        colorGreyLight,
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(
+                    color: colorGreyLight,
                     width: 1,
                   ),
                 ),
-                focusedBorder:
-                    OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius
-                          .circular(
-                    12,
-                  ),
-                  borderSide:
-                      const BorderSide(
-                    color:
-                        colorPrimary,
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(
+                    color: colorPrimary,
                     width: 1.5,
                   ),
                 ),
@@ -370,134 +276,62 @@ class _DirectPurchaseReportListScreenState
             ),
           ),
 
-          // ======================================================
-          // SUMMARY
-          // ======================================================
+          Consumer<DirectPurchaseReportController>(
+            builder: (context, ctrl, child) {
+              if (!ctrl.hasFetchedOnce) return const SizedBox.shrink();
 
-          Consumer<
-              DirectPurchaseReportController>(
-            builder: (
-              context,
-              ctrl,
-              child,
-            ) {
-              if (!ctrl
-                  .hasFetchedOnce) {
-                return const SizedBox
-                    .shrink();
-              }
-
-              final summary =
-                  ctrl.summary;
-
-              if (summary ==
-                  null) {
-                return const SizedBox
-                    .shrink();
-              }
+              final summary = ctrl.summary;
+              if (summary == null) return const SizedBox.shrink();
 
               return Container(
-                width:
-                    double.infinity,
-                margin:
-                    const EdgeInsets
-                        .fromLTRB(
-                  16,
-                  12,
-                  16,
-                  0,
-                ),
-                padding:
-                    const EdgeInsets
-                        .all(14),
-                decoration:
-                    BoxDecoration(
-                  color:
-                      colorPrimary
-                          .withOpacity(
-                    0.08,
-                  ),
-                  borderRadius:
-                      BorderRadius
-                          .circular(
-                    12,
-                  ),
+                width: double.infinity,
+                margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: colorPrimary.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment
-                          .spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment
-                              .start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Total Amount',
-                          style:
-                              GoogleFonts
-                                  .poppins(
-                            fontSize:
-                                12,
-                            color:
-                                colorTextSubtle,
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: colorTextSubtle,
                           ),
                         ),
-                        const SizedBox(
-                          height: 2,
-                        ),
+                        const SizedBox(height: 2),
                         Text(
-                          _formatRupiah(
-                            summary
-                                .totalAmountRaw,
-                          ),
-                          style:
-                              GoogleFonts
-                                  .poppins(
-                            fontSize:
-                                15,
-                            fontWeight:
-                                FontWeight
-                                    .w700,
-                            color:
-                                colorTextPrimary,
+                          _formatRupiah(summary.totalAmountRaw),
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: colorTextPrimary,
                           ),
                         ),
                       ],
                     ),
-
                     Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment
-                              .end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
                           'Total Records',
-                          style:
-                              GoogleFonts
-                                  .poppins(
-                            fontSize:
-                                12,
-                            color:
-                                colorTextSubtle,
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: colorTextSubtle,
                           ),
                         ),
-                        const SizedBox(
-                          height: 2,
-                        ),
+                        const SizedBox(height: 2),
                         Text(
                           '${summary.totalRecords}',
-                          style:
-                              GoogleFonts
-                                  .poppins(
-                            fontSize:
-                                16,
-                            fontWeight:
-                                FontWeight
-                                    .w700,
-                            color:
-                                colorPrimary,
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: colorPrimary,
                           ),
                         ),
                       ],
@@ -507,158 +341,83 @@ class _DirectPurchaseReportListScreenState
               );
             },
           ),
-
-          // ======================================================
-          // CONTENT
-          // ======================================================
-
           Expanded(
-            child: Consumer<
-                DirectPurchaseReportController>(
-              builder: (
-                context,
-                ctrl,
-                child,
-              ) {
-                final bar =
-                    PaginationBottomBar(
-                  currentPage:
-                      ctrl.currentPage,
-                  lastPage:
-                      ctrl.lastPage,
-                  hasPrev:
-                      ctrl.hasPrevPage,
-                  hasNext:
-                      ctrl.hasNextPage,
-                  onGoToPage:
-                      ctrl.goToPage,
-                  onPrev:
-                      ctrl.prevPage,
-                  onNext:
-                      ctrl.nextPage,
+            child: Consumer<DirectPurchaseReportController>(
+              builder: (context, ctrl, child) {
+                final bar = PaginationBottomBar(
+                  currentPage: ctrl.currentPage,
+                  lastPage: ctrl.lastPage,
+                  hasPrev: ctrl.hasPrevPage,
+                  hasNext: ctrl.hasNextPage,
+                  onGoToPage: ctrl.goToPage,
+                  onPrev: ctrl.prevPage,
+                  onNext: ctrl.nextPage,
                 );
 
-                // INITIAL
-                if (!ctrl
-                    .hasFetchedOnce) {
+                if (!ctrl.hasFetchedOnce) {
                   return _buildInitialPromptState();
                 }
 
-                // LOADING
-                if (ctrl
-                    .isLoadingList) {
+                if (ctrl.isLoadingList) {
                   return const Center(
-                    child:
-                        CircularProgressIndicator(
-                      color:
-                          colorPrimary,
-                    ),
+                    child: CircularProgressIndicator(color: colorPrimary),
                   );
                 }
 
-                // ERROR
-                if (ctrl
-                            .listError !=
-                        null &&
-                    ctrl.list.isEmpty) {
-                  return _buildErrorState(
-                    ctrl.listError!,
-                    _handleRefresh,
-                  );
+                if (ctrl.listError != null && ctrl.list.isEmpty) {
+                  return _buildErrorState(ctrl.listError!, _handleRefresh);
                 }
 
-                // EMPTY
                 if (ctrl.list.isEmpty) {
                   return Column(
                     children: [
-                      Expanded(
-                        child:
-                            _buildEmptyState(),
-                      ),
+                      Expanded(child: _buildEmptyState()),
                       bar,
                     ],
                   );
                 }
 
-                // DATA
                 return Column(
                   children: [
                     Padding(
-                      padding:
-                          const EdgeInsets
-                              .symmetric(
-                        horizontal:
-                            16,
-                        vertical:
-                            8,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
                       ),
-                      child:
-                          Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment
-                                .spaceBetween,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             '${ctrl.total} records',
-                            style:
-                                GoogleFonts
-                                    .poppins(
-                              fontSize:
-                                  12,
-                              color:
-                                  colorTextSubtle,
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: colorTextSubtle,
                             ),
                           ),
                           Text(
                             'Page ${ctrl.currentPage} of ${ctrl.lastPage}',
-                            style:
-                                GoogleFonts
-                                    .poppins(
-                              fontSize:
-                                  12,
-                              color:
-                                  colorTextSubtle,
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: colorTextSubtle,
                             ),
                           ),
                         ],
                       ),
                     ),
-
                     Expanded(
-                      child:
-                          RefreshIndicator(
-                        onRefresh:
-                            _handleRefresh,
-                        color:
-                            colorPrimary,
-                        child:
-                            ListView
-                                .builder(
-                          padding:
-                              const EdgeInsets
-                                  .fromLTRB(
-                            16,
-                            0,
-                            16,
-                            8,
-                          ),
-                          itemCount:
-                              ctrl
-                                  .list
-                                  .length,
-                          itemBuilder:
-                              (
-                            context,
-                            index,
-                          ) =>
-                                  DirectPurchaseReportListItem(
-                            item: ctrl
-                                .list[index],
+                      child: RefreshIndicator(
+                        onRefresh: _handleRefresh,
+                        color: colorPrimary,
+                        child: ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                          itemCount: ctrl.list.length,
+                          itemBuilder: (context, index) =>
+                              DirectPurchaseReportListItem(
+                            item: ctrl.list[index],
                           ),
                         ),
                       ),
                     ),
-
                     bar,
                   ],
                 );
@@ -670,89 +429,47 @@ class _DirectPurchaseReportListScreenState
     );
   }
 
-  // ============================================================
-  // INITIAL PROMPT
-  // ============================================================
-
   Widget _buildInitialPromptState() {
     return Center(
       child: Padding(
-        padding:
-            const EdgeInsets
-                .symmetric(
-          horizontal: 32,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
-          mainAxisAlignment:
-              MainAxisAlignment
-                  .center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.search,
-              size: 80,
-              color: colorGrey,
-            ),
-            const SizedBox(
-              height: 16,
-            ),
+            const Icon(Icons.search, size: 80, color: colorGrey),
+            const SizedBox(height: 16),
             Text(
               'Search or select a filter\nto display data',
-              textAlign:
-                  TextAlign.center,
-              style:
-                  GoogleFonts.poppins(
-                fontSize:
-                    15,
-                fontWeight:
-                    FontWeight.w500,
-                color:
-                    colorTextSubtle,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: colorTextSubtle,
               ),
             ),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             OutlinedButton.icon(
-              onPressed:
-                  _openFilterSheet,
+              onPressed: _openFilterSheet,
               icon: const Icon(
                 Icons.filter_list,
                 size: 18,
-                color:
-                    colorPrimary,
+                color: colorPrimary,
               ),
               label: Text(
                 'Open Filter',
-                style:
-                    GoogleFonts.poppins(
-                  fontWeight:
-                      FontWeight.w600,
-                  color:
-                      colorPrimary,
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  color: colorPrimary,
                 ),
               ),
-              style:
-                  OutlinedButton
-                      .styleFrom(
-                side:
-                    const BorderSide(
-                  color:
-                      colorPrimary,
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: colorPrimary),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
                 ),
-                padding:
-                    const EdgeInsets
-                        .symmetric(
-                  horizontal:
-                      20,
-                  vertical:
-                      12,
-                ),
-                shape:
-                    RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(
-                    10,
-                  ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
             ),
@@ -762,107 +479,56 @@ class _DirectPurchaseReportListScreenState
     );
   }
 
-  // ============================================================
-  // ERROR
-  // ============================================================
-
-  Widget _buildErrorState(
-    String error,
-    VoidCallback onRetry,
-  ) {
+  Widget _buildErrorState(String error, VoidCallback onRetry) {
     return Center(
       child: Padding(
-        padding:
-            const EdgeInsets
-                .symmetric(
-          horizontal: 32,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
-          mainAxisAlignment:
-              MainAxisAlignment
-                  .center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              size: 64,
-              color: colorError,
-            ),
-            const SizedBox(
-              height: 16,
-            ),
+            const Icon(Icons.error_outline, size: 64, color: colorError),
+            const SizedBox(height: 16),
             Text(
               error,
-              style:
-                  GoogleFonts.poppins(
-                color:
-                    colorError,
-              ),
-              textAlign:
-                  TextAlign.center,
+              style: GoogleFonts.poppins(color: colorError),
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(
-              height: 16,
-            ),
+            const SizedBox(height: 16),
             ElevatedButton(
-              onPressed:
-                  onRetry,
-              style:
-                  ElevatedButton
-                      .styleFrom(
-                backgroundColor:
-                    colorPrimary,
-                foregroundColor:
-                    colorWhite,
+              onPressed: onRetry,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorPrimary,
+                foregroundColor: colorWhite,
               ),
-              child:
-                  const Text(
-                'Try Again',
-              ),
+              child: const Text('Try Again'),
             ),
           ],
         ),
       ),
     );
   }
-
-  // ============================================================
-  // EMPTY
-  // ============================================================
 
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
-        padding:
-            const EdgeInsets
-                .symmetric(
-          horizontal: 32,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 32),
         child: Column(
-          mainAxisAlignment:
-              MainAxisAlignment
-                  .center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(
               Icons.shopping_bag_outlined,
               size: 80,
               color: colorGrey,
             ),
-            const SizedBox(
-              height: 16,
-            ),
+            const SizedBox(height: 16),
             Text(
               'No Direct Purchase data found',
-              style:
-                  GoogleFonts.poppins(
-                fontSize:
-                    18,
-                fontWeight:
-                    FontWeight.w500,
-                color:
-                    colorTextSubtle,
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: colorTextSubtle,
               ),
-              textAlign:
-                  TextAlign.center,
+              textAlign: TextAlign.center,
             ),
           ],
         ),
