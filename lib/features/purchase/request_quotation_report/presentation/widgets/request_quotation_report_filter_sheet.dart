@@ -3,94 +3,80 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:erp_mobile_cnplus/core/utils/colors.dart';
-
 import 'package:erp_mobile_cnplus/features/purchase/request_quotation_report/data/models/request_quotation_report_models.dart';
-
 import 'package:erp_mobile_cnplus/features/purchase/request_quotation_report/presentation/controllers/request_quotation_report_controller.dart';
-
 import 'package:erp_mobile_cnplus/shared/widgets/custom_searchable_dropdown.dart';
 
-class RequestQuotationReportFilterSheet
-    extends StatefulWidget {
-  const RequestQuotationReportFilterSheet({
-    super.key,
-  });
+class RequestQuotationReportFilterSheet extends StatefulWidget {
+  const RequestQuotationReportFilterSheet({super.key});
 
   @override
-  State<RequestQuotationReportFilterSheet>
-      createState() =>
-          _RequestQuotationReportFilterSheetState();
+  State<RequestQuotationReportFilterSheet> createState() =>
+      _RequestQuotationReportFilterSheetState();
 }
 
 class _RequestQuotationReportFilterSheetState
-    extends State<
-        RequestQuotationReportFilterSheet> {
+    extends State<RequestQuotationReportFilterSheet> {
   late int? _vendorId;
-
   late int? _warehouseId;
-
   late int? _locationId;
-
+  late String? _status;
   late DateTime? _dateFrom;
-
   late DateTime? _dateTo;
 
   @override
   void initState() {
     super.initState();
 
-    final ctrl =
-        context.read<
-            RequestQuotationReportController>();
+    final ctrl = context.read<RequestQuotationReportController>();
 
-    _vendorId =
-        ctrl.selectedVendorId;
-
-    _warehouseId =
-        ctrl.selectedWarehouseId;
-
-    _locationId =
-        ctrl.selectedLocationId;
-
-    _dateFrom =
-        ctrl.dateFrom;
-
-    _dateTo =
-        ctrl.dateTo;
+    _vendorId = ctrl.selectedVendorId;
+    _warehouseId = ctrl.selectedWarehouseId;
+    _locationId = ctrl.selectedLocationId;
+    _status = ctrl.selectedStatus;
+    _dateFrom = ctrl.dateFrom;
+    _dateTo = ctrl.dateTo;
   }
 
-  // ============================================================
-  // DATE PICKER
-  // ============================================================
+  RequestQuotationVendorOption? _findVendor(
+      List<RequestQuotationVendorOption> items) {
+    for (final v in items) {
+      if (v.idVendor == _vendorId) return v;
+    }
+    return null;
+  }
 
-  Future<void> _pickDate({
-    required bool isFrom,
-  }) async {
-    final picked =
-        await showDatePicker(
+  RequestQuotationWarehouseOption? _findWarehouse(
+      List<RequestQuotationWarehouseOption> items) {
+    for (final w in items) {
+      if (w.idWarehouse == _warehouseId) return w;
+    }
+    return null;
+  }
+
+  RequestQuotationLocationOption? _findLocation(
+      List<RequestQuotationLocationOption> items) {
+    for (final l in items) {
+      if (l.idLocation == _locationId) return l;
+    }
+    return null;
+  }
+
+  void _warn(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), backgroundColor: colorError),
+    );
+  }
+
+  Future<void> _pickDate({required bool isFrom}) async {
+    final picked = await showDatePicker(
       context: context,
-      initialDate:
-          (isFrom
-                  ? _dateFrom
-                  : _dateTo) ??
-              DateTime.now(),
-      firstDate:
-          DateTime(2020),
-      lastDate:
-          DateTime(2100),
-      builder: (
-        ctx,
-        child,
-      ) =>
-          Theme(
-        data:
-            Theme.of(ctx)
-                .copyWith(
-          colorScheme:
-              const ColorScheme.light(
-            primary:
-                colorPrimary,
-          ),
+      initialDate: (isFrom ? _dateFrom : _dateTo) ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+      builder: (ctx, child) => Theme(
+        data: Theme.of(ctx).copyWith(
+          colorScheme: const ColorScheme.light(primary: colorPrimary),
         ),
         child: child!,
       ),
@@ -107,47 +93,23 @@ class _RequestQuotationReportFilterSheetState
     }
   }
 
-  String _fmt(
-    DateTime? d,
-  ) {
-    if (d == null) {
-      return 'Select date';
-    }
+  String _fmt(DateTime? d) => d == null
+      ? 'Select date'
+      : '${d.year}-'
+          '${d.month.toString().padLeft(2, '0')}-'
+          '${d.day.toString().padLeft(2, '0')}';
 
-    return '${d.year}-'
-        '${d.month.toString().padLeft(2, '0')}-'
-        '${d.day.toString().padLeft(2, '0')}';
-  }
-
-  // ============================================================
-  // SECTION LABEL
-  // ============================================================
-
-  Widget _sectionLabel(
-    String label,
-  ) {
-    return Padding(
-      padding:
-          const EdgeInsets.only(
-        bottom: 8,
-      ),
-      child: Text(
-        label,
-        style:
-            const TextStyle(
-          fontSize: 14,
-          fontWeight:
-              FontWeight.w500,
-          color:
-              Colors.black87,
+  Widget _sectionLabel(String label) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
         ),
-      ),
-    );
-  }
-
-  // ============================================================
-  // DATE BOX
-  // ============================================================
+      );
 
   Widget _datePickerBox({
     required DateTime? value,
@@ -156,50 +118,29 @@ class _RequestQuotationReportFilterSheetState
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding:
-            const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 14,
-        ),
-        decoration:
-            BoxDecoration(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        decoration: BoxDecoration(
           color: colorCard,
-          borderRadius:
-              BorderRadius.circular(
-            10,
-          ),
-          border:
-              Border.all(
-            color: value != null
-                ? colorPrimary
-                : colorGreyLight,
-            width: value != null
-                ? 1.5
-                : 1,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: value != null ? colorPrimary : colorGreyLight,
+            width: value != null ? 1.5 : 1,
           ),
         ),
         child: Row(
           children: [
             Icon(
-              Icons
-                  .calendar_today_outlined,
+              Icons.calendar_today_outlined,
               size: 16,
-              color: value != null
-                  ? colorPrimary
-                  : colorGrey,
+              color: value != null ? colorPrimary : colorGrey,
             ),
-            const SizedBox(
-              width: 8,
-            ),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
                 _fmt(value),
-                style:
-                    GoogleFonts.poppins(
+                style: GoogleFonts.poppins(
                   fontSize: 13,
-                  color: value != null
-                      ? colorTextPrimary
-                      : colorGrey,
+                  color: value != null ? colorTextPrimary : colorGrey,
                 ),
               ),
             ),
@@ -209,276 +150,140 @@ class _RequestQuotationReportFilterSheetState
     );
   }
 
-  // ============================================================
-  // BUILD
-  // ============================================================
+  void _onApply(RequestQuotationReportController ctrl) {
+    if (_dateFrom != null && _dateTo != null && _dateFrom!.isAfter(_dateTo!)) {
+      _warn('From Date cannot be later than To Date!');
+      return;
+    }
+
+    ctrl.selectVendor(_vendorId);
+    ctrl.selectStatus(_status);
+    ctrl.selectWarehouse(_warehouseId);
+    ctrl.selectLocation(_locationId);
+    ctrl.setDateRange(_dateFrom, _dateTo);
+    ctrl.applyFilter();
+
+    Navigator.pop(context);
+  }
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
-    return Consumer<
-        RequestQuotationReportController>(
-      builder: (
-        context,
-        ctrl,
-        child,
-      ) {
+  Widget build(BuildContext context) {
+    return Consumer<RequestQuotationReportController>(
+      builder: (context, ctrl, child) {
         return Padding(
-          padding:
-              EdgeInsets.only(
+          padding: EdgeInsets.only(
             left: 16,
             right: 16,
             top: 16,
-            bottom:
-                MediaQuery.of(
-                          context,
-                        )
-                        .viewInsets
-                        .bottom +
-                    16,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
           ),
-          child:
-              SingleChildScrollView(
+          child: SingleChildScrollView(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start,
-              mainAxisSize:
-                  MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'Filter RFQ Report',
-                  style:
-                      GoogleFonts.poppins(
+                  style: GoogleFonts.poppins(
                     fontSize: 16,
-                    fontWeight:
-                        FontWeight.w700,
-                    color:
-                        colorTextPrimary,
+                    fontWeight: FontWeight.w700,
+                    color: colorTextPrimary,
                   ),
                 ),
+                const SizedBox(height: 16),
 
-                const SizedBox(
-                  height: 16,
-                ),
-
-                // ==================================================
-                // VENDOR
-                // ==================================================
-
-                CustomSearchableDropdown<
-                    RequestQuotationVendorOption>(
-                  value: ctrl
-                          .vendorOptions
-                          .where(
-                            (v) =>
-                                v.idVendor ==
-                                _vendorId,
-                          )
-                          .isEmpty
-                      ? null
-                      : ctrl
-                          .vendorOptions
-                          .firstWhere(
-                            (v) =>
-                                v.idVendor ==
-                                _vendorId,
-                          ),
-                  items:
-                      ctrl.vendorOptions,
-                  itemLabel: (
-                    vendor,
-                  ) =>
-                      vendor.vendorName,
-                  onChanged: (
-                    value,
-                  ) {
-                    setState(() {
-                      _vendorId =
-                          value?.idVendor;
-                    });
-                  },
+                CustomSearchableDropdown<RequestQuotationVendorOption>(
+                  value: _findVendor(ctrl.vendorOptions),
+                  items: ctrl.vendorOptions,
+                  itemLabel: (v) => v.vendorName,
+                  onChanged: (val) => setState(() => _vendorId = val?.idVendor),
                   label: 'Vendor',
                   hintText: 'All Vendors',
                   clearable: true,
                 ),
 
-                const SizedBox(
-                  height: 14,
-                ),
+                const SizedBox(height: 14),
 
-                // ==================================================
-                // WAREHOUSE
-                // ==================================================
-
-                CustomSearchableDropdown<
-                    RequestQuotationWarehouseOption>(
-                  value: ctrl
-                          .warehouseOptions
-                          .where(
-                            (w) =>
-                                w.idWarehouse ==
-                                _warehouseId,
-                          )
-                          .isEmpty
-                      ? null
-                      : ctrl
-                          .warehouseOptions
-                          .firstWhere(
-                            (w) =>
-                                w.idWarehouse ==
-                                _warehouseId,
-                          ),
-                  items:
-                      ctrl.warehouseOptions,
-                  itemLabel: (
-                    warehouse,
-                  ) =>
-                      warehouse
-                          .warehouseName,
-                  onChanged: (
-                    value,
-                  ) async {
-                    setState(() {
-                      _warehouseId =
-                          value?.idWarehouse;
-
-                      _locationId = null;
-                    });
-
-                    await ctrl
-                        .fetchLocationsByWarehouse(
-                      value?.idWarehouse,
-                    );
-
-                    if (mounted) {
-                      setState(() {
-                        _locationId =
-                            null;
-                      });
-                    }
-                  },
-                  label: 'Warehouse',
-                  hintText:
-                      'All Warehouses',
+                CustomSearchableDropdown<String>(
+                  value: (_status != null && ctrl.statusOptions.contains(_status))
+                      ? _status
+                      : null,
+                  items: ctrl.statusOptions,
+                  itemLabel: (s) => s,
+                  onChanged: (val) => setState(() => _status = val),
+                  label: 'Status',
+                  hintText: 'All Status',
                   clearable: true,
                 ),
 
-                const SizedBox(
-                  height: 14,
+                const SizedBox(height: 14),
+
+                CustomSearchableDropdown<RequestQuotationWarehouseOption>(
+                  value: _findWarehouse(ctrl.warehouseOptions),
+                  items: ctrl.warehouseOptions,
+                  itemLabel: (w) => w.warehouseName,
+                  onChanged: (val) async {
+                    setState(() {
+                      _warehouseId = val?.idWarehouse;
+                      _locationId = null;
+                    });
+
+                    await ctrl.fetchLocationsByWarehouse(val?.idWarehouse);
+
+                    if (mounted) {
+                      setState(() => _locationId = null);
+                    }
+                  },
+                  label: 'Warehouse',
+                  hintText: 'All Warehouses',
+                  clearable: true,
                 ),
 
-                // ==================================================
-                // LOCATION
-                // ==================================================
+                const SizedBox(height: 14),
 
                 ctrl.isLoadingLocations
                     ? const Padding(
-                        padding:
-                            EdgeInsets.symmetric(
-                          vertical: 12,
-                        ),
-                        child:
-                            Center(
-                          child:
-                              CircularProgressIndicator(
-                            strokeWidth: 2,
-                          ),
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                       )
-                    : CustomSearchableDropdown<
-                        RequestQuotationLocationOption>(
-                        value: ctrl
-                                .locationOptions
-                                .where(
-                                  (l) =>
-                                      l.idLocation ==
-                                      _locationId,
-                                )
-                                .isEmpty
-                            ? null
-                            : ctrl
-                                .locationOptions
-                                .firstWhere(
-                                  (l) =>
-                                      l.idLocation ==
-                                      _locationId,
-                                ),
-                        items:
-                            ctrl.locationOptions,
-                        itemLabel: (
-                          location,
-                        ) =>
-                            location
-                                .locationName,
-                        onChanged: (
-                          value,
-                        ) {
-                          setState(() {
-                            _locationId =
-                                value?.idLocation;
-                          });
-                        },
+                    : CustomSearchableDropdown<RequestQuotationLocationOption>(
+                        value: _findLocation(ctrl.locationOptions),
+                        items: ctrl.locationOptions,
+                        itemLabel: (l) => l.locationName,
+                        onChanged: (val) =>
+                            setState(() => _locationId = val?.idLocation),
                         label: 'Location',
-                        hintText:
-                            'All Locations',
+                        hintText: 'All Locations',
                         clearable: true,
                       ),
 
-                const SizedBox(
-                  height: 16,
-                ),
-
-                // ==================================================
-                // DATE RANGE
-                // ==================================================
+                const SizedBox(height: 16),
 
                 Row(
                   children: [
                     Expanded(
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment
-                                .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _sectionLabel(
-                            'From Date',
-                          ),
+                          _sectionLabel('From Date'),
                           _datePickerBox(
-                            value:
-                                _dateFrom,
-                            onTap: () =>
-                                _pickDate(
-                              isFrom:
-                                  true,
-                            ),
+                            value: _dateFrom,
+                            onTap: () => _pickDate(isFrom: true),
                           ),
                         ],
                       ),
                     ),
-
-                    const SizedBox(
-                      width: 10,
-                    ),
-
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment
-                                .start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _sectionLabel(
-                            'To Date',
-                          ),
+                          _sectionLabel('To Date'),
                           _datePickerBox(
-                            value:
-                                _dateTo,
-                            onTap: () =>
-                                _pickDate(
-                              isFrom:
-                                  false,
-                            ),
+                            value: _dateTo,
+                            onTap: () => _pickDate(isFrom: false),
                           ),
                         ],
                       ),
@@ -486,120 +291,44 @@ class _RequestQuotationReportFilterSheetState
                   ],
                 ),
 
-                const SizedBox(
-                  height: 20,
-                ),
-
-                // ==================================================
-                // BUTTON
-                // ==================================================
+                const SizedBox(height: 20),
 
                 Row(
                   children: [
                     Expanded(
-                      child:
-                          OutlinedButton(
+                      child: OutlinedButton(
                         onPressed: () {
                           ctrl.resetFilter();
-
-                          Navigator.pop(
-                            context,
-                          );
+                          Navigator.pop(context);
                         },
-                        style:
-                            OutlinedButton
-                                .styleFrom(
-                          padding:
-                              const EdgeInsets
-                                  .symmetric(
-                            vertical: 12,
-                          ),
-                          side:
-                              const BorderSide(
-                            color:
-                                colorGreyLight,
-                          ),
-                          shape:
-                              RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius
-                                    .circular(
-                              10,
-                            ),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          side: const BorderSide(color: colorGreyLight),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
                         child: Text(
                           'Reset',
-                          style:
-                              GoogleFonts
-                                  .poppins(
-                            color:
-                                colorTextPrimary,
-                          ),
+                          style: GoogleFonts.poppins(color: colorTextPrimary),
                         ),
                       ),
                     ),
-
-                    const SizedBox(
-                      width: 12,
-                    ),
-
+                    const SizedBox(width: 12),
                     Expanded(
-                      child:
-                          ElevatedButton(
-                        onPressed: () {
-                          ctrl.selectVendor(
-                            _vendorId,
-                          );
-
-                          ctrl.selectWarehouse(
-                            _warehouseId,
-                          );
-
-                          ctrl.selectLocation(
-                            _locationId,
-                          );
-
-                          ctrl.setDateRange(
-                            _dateFrom,
-                            _dateTo,
-                          );
-
-                          ctrl.applyFilter();
-
-                          Navigator.pop(
-                            context,
-                          );
-                        },
-                        style:
-                            ElevatedButton
-                                .styleFrom(
-                          backgroundColor:
-                              colorPrimary,
-                          foregroundColor:
-                              colorWhite,
-                          padding:
-                              const EdgeInsets
-                                  .symmetric(
-                            vertical: 12,
-                          ),
-                          shape:
-                              RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius
-                                    .circular(
-                              10,
-                            ),
+                      child: ElevatedButton(
+                        onPressed: () => _onApply(ctrl),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colorPrimary,
+                          foregroundColor: colorWhite,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
                         child: Text(
                           'Apply Filter',
-                          style:
-                              GoogleFonts
-                                  .poppins(
-                            fontWeight:
-                                FontWeight.w600,
-                          ),
+                          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),

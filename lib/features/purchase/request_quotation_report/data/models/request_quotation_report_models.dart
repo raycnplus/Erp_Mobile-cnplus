@@ -171,47 +171,38 @@ class RequestQuotationLocationOption {
   }
 }
 
-class RequestQuotationReportFormOptions {
-  final List<RequestQuotationWarehouseOption>
-      warehouses;
+class ExportUrlInfo {
+  final String url;
+  final Map<String, String> headers;
+  ExportUrlInfo({required this.url, required this.headers});
+}
 
-  final List<RequestQuotationVendorOption>
-      vendors;
+class RequestQuotationReportFormOptions {
+  final List<RequestQuotationWarehouseOption> warehouses;
+  final List<RequestQuotationVendorOption> vendors;
+  final List<String> statuses;
 
   RequestQuotationReportFormOptions({
     required this.warehouses,
     required this.vendors,
+    required this.statuses,
   });
 
   factory RequestQuotationReportFormOptions.fromJson(
     Map<String, dynamic> json,
   ) {
-    final warehouseData =
-        json['warehouses'] as List<dynamic>? ?? [];
-
-    final vendorData =
-        json['vendors'] as List<dynamic>? ?? [];
+    final warehouseData = json['warehouses'] as List<dynamic>? ?? [];
+    final vendorData = json['vendors'] as List<dynamic>? ?? [];
+    final statusData = json['statuses'] as List<dynamic>? ?? [];
 
     return RequestQuotationReportFormOptions(
       warehouses: warehouseData
-          .map(
-            (e) =>
-                RequestQuotationWarehouseOption
-                    .fromJson(
-              e as Map<String, dynamic>,
-            ),
-          )
+          .map((e) => RequestQuotationWarehouseOption.fromJson(e as Map<String, dynamic>))
           .toList(),
-
       vendors: vendorData
-          .map(
-            (e) =>
-                RequestQuotationVendorOption
-                    .fromJson(
-              e as Map<String, dynamic>,
-            ),
-          )
+          .map((e) => RequestQuotationVendorOption.fromJson(e as Map<String, dynamic>))
           .toList(),
+      statuses: statusData.map((e) => '$e').toList(),
     );
   }
 }
