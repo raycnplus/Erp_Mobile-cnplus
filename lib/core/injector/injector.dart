@@ -2435,10 +2435,14 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetPurchaseRequestReportList(getIt()));
     getIt.registerLazySingleton(() => GetPurchaseRequestReportFormOptions(getIt()));
     getIt.registerLazySingleton(() => GetPurchaseRequestReportLocationsByWarehouse(getIt()));
+    getIt.registerLazySingleton(() => GetPurchaseRequestReportExportPdfUrl(getIt()));
+    getIt.registerLazySingleton(() => GetPurchaseRequestReportExportExcelUrl(getIt()));
     getIt.registerFactory<PurchaseRequestReportController>(() => PurchaseRequestReportController(
       getPurchaseRequestReportList: getIt(),
       getPurchaseRequestReportFormOptions: getIt(),
       getLocationsByWarehouse: getIt(),
+      getExportPdfUrl: getIt(),
+      getExportExcelUrl: getIt(),
     ));
 
     // ==================== RFQ REPORT ====================
@@ -2459,10 +2463,14 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetPurchaseOrderReportList(getIt()));
     getIt.registerLazySingleton(() => GetPurchaseOrderReportFormOptions(getIt()));
     getIt.registerLazySingleton(() => GetPurchaseOrderReportLocationsByWarehouse(getIt()));
+    getIt.registerLazySingleton(() => GetPurchaseOrderReportExportPdfUrl(getIt()));
+    getIt.registerLazySingleton(() => GetPurchaseOrderReportExportExcelUrl(getIt()));
     getIt.registerFactory<PurchaseOrderReportController>(() => PurchaseOrderReportController(
       getPurchaseOrderReportList: getIt(),
       getPurchaseOrderReportFormOptions: getIt(),
       getLocationsByWarehouse: getIt(),
+      getExportPdfUrl: getIt(),
+      getExportExcelUrl: getIt(),
     ));
 
     // ==================== DIRECT PURCHASE REPORT ====================
@@ -2471,10 +2479,14 @@ class AppInjector {
     getIt.registerLazySingleton(() => GetDirectPurchaseReportList(getIt()));
     getIt.registerLazySingleton(() => GetDirectPurchaseReportFormOptions(getIt()));
     getIt.registerLazySingleton(() => GetDirectPurchaseReportLocationsByWarehouse(getIt()));
+    getIt.registerLazySingleton(() => GetDirectPurchaseReportExportPdfUrl(getIt()));
+    getIt.registerLazySingleton(() => GetDirectPurchaseReportExportExcelUrl(getIt()));
     getIt.registerFactory<DirectPurchaseReportController>(() => DirectPurchaseReportController(
       getDirectPurchaseReportList: getIt(),
       getDirectPurchaseReportFormOptions: getIt(),
       getLocationsByWarehouse: getIt(),
+      getExportPdfUrl: getIt(),
+      getExportExcelUrl: getIt(),
     ));
 
     // ==================== TOP PURCHASE ORDER REPORT ====================
