@@ -1,21 +1,12 @@
 import 'package:erp_mobile_cnplus/features/purchase/purchase_order_report/data/datasources/purchase_order_report_remote_datasource.dart';
-
 import 'package:erp_mobile_cnplus/features/purchase/purchase_order_report/data/models/purchase_order_report_models.dart';
 
 class PurchaseOrderReportRepository {
-  final PurchaseOrderReportRemoteDataSource
-      remoteDataSource;
+  final PurchaseOrderReportRemoteDataSource remoteDataSource;
 
-  PurchaseOrderReportRepository({
-    required this.remoteDataSource,
-  });
+  PurchaseOrderReportRepository({required this.remoteDataSource});
 
-  // ============================================================
-  // LIST
-  // ============================================================
-
-  Future<Map<String, dynamic>>
-      getPurchaseOrderReportList({
+  Future<Map<String, dynamic>> getPurchaseOrderReportList({
     int page = 1,
     int perPage = 15,
     String? search,
@@ -25,8 +16,7 @@ class PurchaseOrderReportRepository {
     String? dateFrom,
     String? dateTo,
   }) {
-    return remoteDataSource
-        .getPurchaseOrderReportList(
+    return remoteDataSource.getPurchaseOrderReportList(
       page: page,
       perPage: perPage,
       search: search,
@@ -38,26 +28,43 @@ class PurchaseOrderReportRepository {
     );
   }
 
-  // ============================================================
-  // FORM OPTIONS
-  // ============================================================
-
-  Future<PurchaseOrderReportFormOptions>
-      getFormOptions() {
+  Future<PurchaseOrderReportFormOptions> getFormOptions() {
     return remoteDataSource.getFormOptions();
   }
 
-  // ============================================================
-  // LOCATIONS
-  // ============================================================
-
-  Future<List<PurchaseOrderLocationOption>>
-      getLocationsByWarehouse(
+  Future<List<PurchaseOrderLocationOption>> getLocationsByWarehouse(
     int idWarehouse,
   ) {
-    return remoteDataSource
-        .getLocationsByWarehouse(
-      idWarehouse,
-    );
+    return remoteDataSource.getLocationsByWarehouse(idWarehouse);
   }
+
+  PurchaseOrderReportExportUrlInfo getExportPdfUrl({
+    int? idVendor,
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+  }) =>
+      remoteDataSource.getExportPdfUrl(
+        idVendor: idVendor,
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+      );
+
+  PurchaseOrderReportExportUrlInfo getExportExcelUrl({
+    int? idVendor,
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+  }) =>
+      remoteDataSource.getExportExcelUrl(
+        idVendor: idVendor,
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+      );
 }

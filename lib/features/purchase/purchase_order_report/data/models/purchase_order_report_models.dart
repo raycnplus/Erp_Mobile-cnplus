@@ -201,3 +201,9 @@ class PurchaseOrderReportFormOptions {
     );
   }
 }
+
+class PurchaseOrderReportExportUrlInfo {
+  final String url;
+  final Map<String, String> headers;
+  PurchaseOrderReportExportUrlInfo({required this.url, required this.headers});
+}

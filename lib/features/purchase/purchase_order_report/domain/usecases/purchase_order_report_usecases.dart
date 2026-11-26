@@ -1,5 +1,4 @@
 import 'package:erp_mobile_cnplus/features/purchase/purchase_order_report/data/models/purchase_order_report_models.dart';
-
 import 'package:erp_mobile_cnplus/features/purchase/purchase_order_report/data/repositories/purchase_order_report_repository.dart';
 
 class GetPurchaseOrderReportList {
@@ -65,4 +64,46 @@ class GetPurchaseOrderReportLocationsByWarehouse {
       idWarehouse,
     );
   }
+}
+
+class GetPurchaseOrderReportExportPdfUrl {
+  final PurchaseOrderReportRepository repository;
+
+  GetPurchaseOrderReportExportPdfUrl(this.repository);
+
+  PurchaseOrderReportExportUrlInfo call({
+    int? idVendor,
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+  }) =>
+      repository.getExportPdfUrl(
+        idVendor: idVendor,
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+      );
+}
+
+class GetPurchaseOrderReportExportExcelUrl {
+  final PurchaseOrderReportRepository repository;
+
+  GetPurchaseOrderReportExportExcelUrl(this.repository);
+
+  PurchaseOrderReportExportUrlInfo call({
+    int? idVendor,
+    int? idWarehouse,
+    int? idLocation,
+    String? dateFrom,
+    String? dateTo,
+  }) =>
+      repository.getExportExcelUrl(
+        idVendor: idVendor,
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+      );
 }
