@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:erp_mobile_cnplus/core/utils/colors.dart';
+import 'package:erp_mobile_cnplus/shared/widgets/custom_dialog.dart';
 import 'package:erp_mobile_cnplus/features/purchase/purchase_request_report/presentation/controllers/purchase_request_report_controller.dart';
 import 'package:erp_mobile_cnplus/features/purchase/purchase_request_report/presentation/widgets/purchase_request_report_list_item.dart';
 import 'package:erp_mobile_cnplus/features/purchase/purchase_request_report/presentation/widgets/purchase_request_report_filter_sheet.dart';
@@ -16,12 +17,16 @@ class PurchaseRequestReportListScreen extends StatefulWidget {
 
 class _PurchaseRequestReportListScreenState extends State<PurchaseRequestReportListScreen> {
   final TextEditingController _searchController = TextEditingController();
+  PurchaseRequestReportController? _ctrl;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final ctrl = context.read<PurchaseRequestReportController>();
+      _ctrl = ctrl;
+      ctrl.addListener(_onControllerChange);
       ctrl.fetchFormOptions();
       ctrl.fetchList();
     });
@@ -29,8 +34,22 @@ class _PurchaseRequestReportListScreenState extends State<PurchaseRequestReportL
 
   @override
   void dispose() {
+    _ctrl?.removeListener(_onControllerChange);
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onControllerChange() {
+    final msg = _ctrl?.consumeStatusMessage();
+    if (msg != null && mounted) {
+      final isError = msg.toLowerCase().contains('failed') ||
+          msg.toLowerCase().contains('only');
+      CustomDialog.showInfo(
+        context,
+        message: msg,
+        type: isError ? CustomDialogType.error : CustomDialogType.success,
+      );
+    }
   }
 
   void _onSearchChanged(String v) => context.read<PurchaseRequestReportController>().searchList(v);
@@ -57,17 +76,41 @@ class _PurchaseRequestReportListScreenState extends State<PurchaseRequestReportL
     );
   }
 
-  String _formatRupiah(String rawValue) {
-    final parts = rawValue.split('.');
-    final wholePart = parts[0];
-    final decimalPart = parts.length > 1 ? parts[1] : '';
-    final buffer = StringBuffer();
-    for (int i = 0; i < wholePart.length; i++) {
-      if (i > 0 && (wholePart.length - i) % 3 == 0) buffer.write('.');
-      buffer.write(wholePart[i]);
-    }
-    if (decimalPart.isEmpty) return 'Rp $buffer';
-    return 'Rp $buffer,$decimalPart';
+  void _handleExport(String type) {
+    context.read<PurchaseRequestReportController>().startExport(type);
+  }
+
+  void _showExportMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colorCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf_outlined, color: colorPrimary),
+              title: Text('Export to PDF', style: GoogleFonts.poppins()),
+              onTap: () {
+                Navigator.pop(context);
+                _handleExport('pdf');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.table_chart_outlined, color: colorPrimary),
+              title: Text('Export to Excel', style: GoogleFonts.poppins()),
+              onTap: () {
+                Navigator.pop(context);
+                _handleExport('excel');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -87,6 +130,31 @@ class _PurchaseRequestReportListScreenState extends State<PurchaseRequestReportL
         backgroundColor: colorWhite,
         foregroundColor: colorTextPrimary,
         actions: [
+          Consumer<PurchaseRequestReportController>(
+            builder: (context, ctrl, child) {
+              if (!ctrl.canExport) return const SizedBox.shrink();
+              if (ctrl.isExporting) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: colorPrimary,
+                        value: ctrl.downloadProgress > 0 ? ctrl.downloadProgress / 100 : null,
+                      ),
+                    ),
+                  ),
+                );
+              }
+              return IconButton(
+                icon: const Icon(Icons.file_download_outlined),
+                onPressed: () => _showExportMenu(context),
+              );
+            },
+          ),
           Consumer<PurchaseRequestReportController>(
             builder: (context, ctrl, child) {
               return Stack(
@@ -236,10 +304,7 @@ class _PurchaseRequestReportListScreenState extends State<PurchaseRequestReportL
               ),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: colorPrimary),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),

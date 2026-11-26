@@ -3,6 +3,8 @@ import 'package:erp_mobile_cnplus/features/purchase/purchase_request_report/data
 
 class PurchaseRequestReportRemoteDataSource {
   final Dio dio;
+  static const _base = '/purchase/purchase-request-report';
+
   PurchaseRequestReportRemoteDataSource(this.dio);
 
   Future<Map<String, dynamic>> getPurchaseRequestReportList({
@@ -18,7 +20,7 @@ class PurchaseRequestReportRemoteDataSource {
   }) async {
     try {
       final response = await dio.get(
-        '/purchase/purchase-request-report',
+        _base,
         queryParameters: {
           'page': page,
           'per_page': perPage,
@@ -46,7 +48,7 @@ class PurchaseRequestReportRemoteDataSource {
 
   Future<Map<String, dynamic>> getFormOptions() async {
     try {
-      final response = await dio.get('/purchase/purchase-request-report/form-options');
+      final response = await dio.get('$_base/form-options');
       final json = response.data as Map<String, dynamic>;
       final data = json['data'] ?? {};
       return {
@@ -66,7 +68,7 @@ class PurchaseRequestReportRemoteDataSource {
   Future<List<PurchaseRequestLocationOption>> getLocationsByWarehouse(int idWarehouse) async {
     try {
       final response = await dio.get(
-        '/purchase/purchase-request-report/locations-by-warehouse',
+        '$_base/locations-by-warehouse',
         queryParameters: {'id_warehouse': idWarehouse},
       );
       final json = response.data as Map<String, dynamic>;
@@ -77,9 +79,75 @@ class PurchaseRequestReportRemoteDataSource {
     }
   }
 
+  ExportUrlInfo getExportPdfUrl({
+    String? dateFrom,
+    String? dateTo,
+    int? idWarehouse,
+    int? idLocation,
+    int? requestedBy,
+    String? status,
+  }) =>
+      _buildExportInfo(
+        'export-pdf',
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        requestedBy: requestedBy,
+        status: status,
+      );
+
+  ExportUrlInfo getExportExcelUrl({
+    String? dateFrom,
+    String? dateTo,
+    int? idWarehouse,
+    int? idLocation,
+    int? requestedBy,
+    String? status,
+  }) =>
+      _buildExportInfo(
+        'export-excel',
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        requestedBy: requestedBy,
+        status: status,
+      );
+
+  ExportUrlInfo _buildExportInfo(
+    String path, {
+    String? dateFrom,
+    String? dateTo,
+    int? idWarehouse,
+    int? idLocation,
+    int? requestedBy,
+    String? status,
+  }) {
+    final uri = Uri.parse('${dio.options.baseUrl}$_base/$path').replace(
+      queryParameters: {
+        if (dateFrom != null && dateFrom.isNotEmpty) 'date_from': dateFrom,
+        if (dateTo != null && dateTo.isNotEmpty) 'date_to': dateTo,
+        if (idWarehouse != null) 'id_warehouse': '$idWarehouse',
+        if (idLocation != null) 'id_location': '$idLocation',
+        if (requestedBy != null) 'requested_by': '$requestedBy',
+        if (status != null && status.isNotEmpty) 'status': status,
+      },
+    );
+
+    final headers = <String, String>{};
+    dio.options.headers.forEach((k, v) {
+      if (v != null) headers[k] = v.toString();
+    });
+
+    return ExportUrlInfo(url: uri.toString(), headers: headers);
+  }
+
   String _handleDioError(DioException e) {
+    final data = e.response?.data;
     if (e.response != null) {
-      return e.response?.data['message'] ?? 'Server error: ${e.response?.statusCode}';
+      if (data is Map && data['message'] != null) return data['message'].toString();
+      return 'Server error: ${e.response?.statusCode}';
     }
     return 'Network error: ${e.message}';
   }

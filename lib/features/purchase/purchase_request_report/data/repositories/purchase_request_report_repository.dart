@@ -15,7 +15,8 @@ class PurchaseRequestReportRepository {
     String? status,
     String? dateFrom,
     String? dateTo,
-  }) => remoteDataSource.getPurchaseRequestReportList(
+  }) =>
+      remoteDataSource.getPurchaseRequestReportList(
         page: page,
         perPage: perPage,
         search: search,
@@ -31,4 +32,38 @@ class PurchaseRequestReportRepository {
 
   Future<List<PurchaseRequestLocationOption>> getLocationsByWarehouse(int idWarehouse) =>
       remoteDataSource.getLocationsByWarehouse(idWarehouse);
+
+  ExportUrlInfo getExportPdfUrl({
+    String? dateFrom,
+    String? dateTo,
+    int? idWarehouse,
+    int? idLocation,
+    int? requestedBy,
+    String? status,
+  }) =>
+      remoteDataSource.getExportPdfUrl(
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        requestedBy: requestedBy,
+        status: status,
+      );
+
+  ExportUrlInfo getExportExcelUrl({
+    String? dateFrom,
+    String? dateTo,
+    int? idWarehouse,
+    int? idLocation,
+    int? requestedBy,
+    String? status,
+  }) =>
+      remoteDataSource.getExportExcelUrl(
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        requestedBy: requestedBy,
+        status: status,
+      );
 }

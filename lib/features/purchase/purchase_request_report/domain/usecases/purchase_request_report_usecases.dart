@@ -15,7 +15,8 @@ class GetPurchaseRequestReportList {
     String? status,
     String? dateFrom,
     String? dateTo,
-  }) => repository.getPurchaseRequestReportList(
+  }) =>
+      repository.getPurchaseRequestReportList(
         page: page,
         perPage: perPage,
         search: search,
@@ -41,4 +42,48 @@ class GetPurchaseRequestReportLocationsByWarehouse {
 
   Future<List<PurchaseRequestLocationOption>> call(int idWarehouse) =>
       repository.getLocationsByWarehouse(idWarehouse);
+}
+
+class GetPurchaseRequestReportExportPdfUrl {
+  final PurchaseRequestReportRepository repository;
+  GetPurchaseRequestReportExportPdfUrl(this.repository);
+
+  ExportUrlInfo call({
+    String? dateFrom,
+    String? dateTo,
+    int? idWarehouse,
+    int? idLocation,
+    int? requestedBy,
+    String? status,
+  }) =>
+      repository.getExportPdfUrl(
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        requestedBy: requestedBy,
+        status: status,
+      );
+}
+
+class GetPurchaseRequestReportExportExcelUrl {
+  final PurchaseRequestReportRepository repository;
+  GetPurchaseRequestReportExportExcelUrl(this.repository);
+
+  ExportUrlInfo call({
+    String? dateFrom,
+    String? dateTo,
+    int? idWarehouse,
+    int? idLocation,
+    int? requestedBy,
+    String? status,
+  }) =>
+      repository.getExportExcelUrl(
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        idWarehouse: idWarehouse,
+        idLocation: idLocation,
+        requestedBy: requestedBy,
+        status: status,
+      );
 }
